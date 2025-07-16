@@ -14,10 +14,10 @@ Route::controller(UsuarioController::class)->group(function () {
     Route::put('/usuarios/{id}', 'update');      // atualizar
     Route::delete('/usuarios/{id}', 'delete');   // remover
     Route::post('/login', [UsuarioController::class, 'login']);
-
+    Route::post('/usuarios/google', [UsuarioController::class, 'cadastrarViaGoogle']);
 });
 
 Route::controller(DBController::class)->group(function () {
-    Route::get('/usuariosAsc', 'indexAsc');   // ordem ascendente
-    Route::get('/usuariosDesc', 'indexDesc'); // ordem descendente
+    Route::get('/usuariosAsc', 'indexAsc');  
+    Route::get('/usuariosDesc', 'indexDesc'); 
 });

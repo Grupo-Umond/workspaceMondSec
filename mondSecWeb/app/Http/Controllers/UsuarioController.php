@@ -120,7 +120,28 @@ class UsuarioController extends Controller
         }
 
     }
+    public function cadastrarViaGoogle(Request $request)
+{
+    $request->validate([
+        'nomeUsuario' => 'required|string',
+        'emailUsuario' => 'required|email',
+        'avatar' => 'nullable|string',
+    ]);
 
+    
+    $usuario = Usuario::firstOrCreate(
+        ['emailUsuario' => $request->emailUsuario],
+        [
+            'nomeUsuario' => $request->nomeUsuario,
+            'generoUsuario' => 'Não informado',
+            'senhaUsuario' => bcrypt(str()->random(16)), 
+            'avatar' => $request->avatar,
+            'authGoogle' => true,
+        ]
+    );
+
+    return response()->json($usuario, 201);
+}
 
 }
 

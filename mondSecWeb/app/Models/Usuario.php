@@ -25,10 +25,13 @@ class Usuario extends Model
      * Campos que poderão ser preenchidos via mass‑assignment.
      */
     protected $fillable = [
+        
         'nomeUsuario',
-        'generoUsuario',
         'emailUsuario',
         'senhaUsuario',
+        'generoUsuario',
+        'avatar',
+        'authGoogle',
         'dataCadastroUsuario',
     ];
 

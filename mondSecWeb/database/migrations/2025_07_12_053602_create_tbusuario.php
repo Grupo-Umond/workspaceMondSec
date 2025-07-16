@@ -8,12 +8,14 @@ return new class extends Migration {
     public function up(): void
     {
         Schema::create('tbUsuario', function (Blueprint $table) {
-            $table->increments('idUsuario'); // ID autoincremental
-            $table->string('nomeUsuario'); // nome do usuário
-            $table->string('generoUsuario'); // gênero
-            $table->string('emailUsuario')->unique(); // e-mail único
-            $table->string('senhaUsuario'); // senha (armazenada como string simples - recomenda-se hash)
-            $table->timestamp('dataCadastroUsuario')->useCurrent(); // created_at e updated_at
+            $table->increments('idUsuario'); 
+            $table->string('nomeUsuario');
+            $table->string('generoUsuario'); 
+            $table->string('emailUsuario')->unique(); 
+            $table->string('senhaUsuario');
+            $table->timestamp('dataCadastroUsuario')->useCurrent();
+            $table->string('avatar')->nullable();
+            $table->boolean('authGoogle')->default(false);
         });
     }
 

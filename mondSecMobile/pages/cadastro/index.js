@@ -1,20 +1,62 @@
-import React, { useState } from 'react';
-import {View,Text,TextInput,Button,Pressable,Alert,StyleSheet,} from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, TextInput, Button, Pressable, Alert, StyleSheet } from 'react-native';
 import CheckBox from 'expo-checkbox';
 import axios from 'axios';
 
+import * as WebBrowser from 'expo-web-browser';
+import * as Google from 'expo-auth-session/providers/google';
+import * as AuthSession from 'expo-auth-session';
+
+WebBrowser.maybeCompleteAuthSession();
+
 const CadastroScreen = ({ navigation }) => {
-  // states
   const [nome, setNome] = useState('');
   const [genero, setGenero] = useState(null);          
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
   const [concordoTermos, setConcordoTermos] = useState(false);
-
   const [carregando, setCarregando] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
   const opcoesGenero = ['Masculino', 'Feminino', 'Prefiro não informar'];
+
+
+  const [request, response, promptAsync] = Google.useAuthRequest({
+    expoClientId: '911613672517-mesln0gqpi7js4toja704o8to5k43iao.apps.googleusercontent.com', 
+    webClientId: '911613672517-mesln0gqpi7js4toja704o8to5k43iao.apps.googleusercontent.com', 
+    scopes: ['profile', 'email'],
+    redirectUri: AuthSession.makeRedirectUri({ useProxy: true }),
+  });
+
+  useEffect(() => {
+    if (response?.type === 'success') {
+      const { authentication } = response;
+      pegarDadosDoUsuario(authentication.accessToken);
+    }
+  }, [response]);
+
+  const pegarDadosDoUsuario = async (accessToken) => {
+  try {
+    const res = await fetch('https://www.googleapis.com/userinfo/v2/me', {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    });
+    const userInfo = await res.json();
+
+    
+    await axios.post('http://10.0.2.2:8000/api/usuarios/google', {
+      nomeUsuario: userInfo.name,
+      emailUsuario: userInfo.email,
+      avatar: userInfo.picture,
+    });
+
+    Alert.alert('Google', `Bem‑vindo, ${userInfo.name}!`);
+    navigation.navigate('Home', { usuario: userInfo });
+  } catch (e) {
+    console.log('Erro ao buscar dados do Google ou salvar no backend:', e);
+    Alert.alert('Erro', 'Falha ao entrar com o Google.');
+  }
+};
+
 
   const validarDados = () => {
     if (!nome || !genero || !email || !senha) {
@@ -25,6 +67,10 @@ const CadastroScreen = ({ navigation }) => {
       Alert.alert('Erro', 'A senha precisa ter pelo menos 6 caracteres.');
       return false;
     }
+    if (!concordoTermos) {
+      Alert.alert('Erro', 'Concorde com nossos termos de uso');
+      return false;
+    }
     return true;
   };
 
@@ -33,7 +79,12 @@ const CadastroScreen = ({ navigation }) => {
 
     setCarregando(true);
     try {
-      const payload = { nomeUsuario: nome, generoUsuario: genero, emailUsuario: email, senhaUsuario: senha };
+      const payload = {
+        nomeUsuario: nome,
+        generoUsuario: genero,
+        emailUsuario: email,
+        senhaUsuario: senha,
+      };
       const res = await axios.post('http://127.0.0.1:8000/api/usuarios', payload);
 
       if (res.data && res.data.email) {
@@ -52,11 +103,10 @@ const CadastroScreen = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      
-      <Text>Usuario</Text>
+      <Text>Usuário</Text>
       <TextInput
         style={styles.input}
-        placeholder="Digite seu usuario..."
+        placeholder="Digite seu usuário..."
         value={nome}
         onChangeText={setNome}
       />
@@ -82,11 +132,7 @@ const CadastroScreen = ({ navigation }) => {
 
       <Text style={styles.label}>Gênero</Text>
       {opcoesGenero.map((op) => (
-        <Pressable
-          key={op}
-          style={styles.opcao}
-          onPress={() => setGenero(op)}
-        >
+        <Pressable key={op} style={styles.opcao} onPress={() => setGenero(op)}>
           <View style={styles.radioContainer}>
             <View style={styles.radio}>
               {genero === op && <View style={styles.radioSelecionado} />}
@@ -99,7 +145,7 @@ const CadastroScreen = ({ navigation }) => {
       <CheckBox
         value={concordoTermos}
         onValueChange={setConcordoTermos}
-        tintColors={{ true: '#00ff08ff', false: '#aaa' }} 
+        tintColors={{ true: '#00ff08ff', false: '#aaa' }}
       />
       <Text>Concordo com os termos de uso</Text>
 
@@ -113,8 +159,12 @@ const CadastroScreen = ({ navigation }) => {
         color="black"
         disabled={carregando}
       />
+
+      <View style={{ marginTop: 16 }} />
       <Button
-        title={carregando ? 'Entrando...' : 'G Entrar como Google'}
+        title="Entrar com Google"
+        onPress={() => promptAsync({ useProxy: true })}
+        disabled={!request || carregando}
         color="black"
       />
 
