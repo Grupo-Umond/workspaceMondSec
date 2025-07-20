@@ -181,6 +181,9 @@ export default function LoginScreen({ navigation }) {
       <Pressable onPress={() => navigation.navigate('Cadastro')}>
         <Text style={styles.link}>Ainda não tem conta? Cadastre‑se agora!</Text>
       </Pressable>
+      <Pressable onPress={() => navigation.navigate('Menu')}>
+        <Text style={styles.link}>Ainda não tem conta? Cadastre‑se agora!</Text>
+      </Pressable>
     </View>
   );
 }
