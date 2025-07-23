@@ -2,30 +2,20 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
+use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Usuario extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
 
-    /**
-     * Tabela e chave primária.
-     * Ajuste "idUsuario" se o nome na migration for diferente.
-     */
     protected $table = 'tbUsuario';
     protected $primaryKey = 'idUsuario';
-
-    /**
-     * Desativamos timestamps padrão, pois usamos "dataCadastroUsuario".
-     */
     public $timestamps = false;
 
-    /**
-     * Campos que poderão ser preenchidos via mass‑assignment.
-     */
     protected $fillable = [
-        
         'nomeUsuario',
         'emailUsuario',
         'senhaUsuario',
@@ -35,9 +25,6 @@ class Usuario extends Authenticatable
         'dataCadastroUsuario',
     ];
 
-    /**
-     * Ocultamos a senha nas respostas JSON.
-     */
     protected $hidden = [
         'senhaUsuario',
     ];

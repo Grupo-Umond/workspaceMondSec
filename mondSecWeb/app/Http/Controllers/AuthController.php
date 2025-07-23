@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
+use App\Http\Controllers\UsuarioController;
 use Illuminate\Http\Request;
 use App\Models\Usuario;
+use Illuminate\Support\Facades\Hash;
+
+
 
 class AuthController extends Controller
 {
@@ -13,12 +16,12 @@ class AuthController extends Controller
     {
         $request->validate([
             'email' => 'required|email',
-            'senha' => 'required',
+            'senha' => 'required|string',
         ]);
 
-        $user = User::where('email', $request->email)->first();
+        $user = Usuario::where('emailUsuario', $request->email)->first();
 
-        if (!$user || !Hash::check($request->senha, $user->senha)) {
+        if (!$user || !Hash::check($request->senha, $user->senhaUsuario)) {
             return response()->json(['message' => 'Credenciais inválidas'], 401);
         }
 
@@ -27,6 +30,13 @@ class AuthController extends Controller
         return response()->json([
             'user' => $user,
             'token' => $token,
+        ]);
+    }
+
+    public function informationProfile(Request $request)
+    {
+        return response()->json([
+            'usuario' => $request->user()
         ]);
     }
 }

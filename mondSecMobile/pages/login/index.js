@@ -33,7 +33,7 @@ const LoginScreen = ({navigation}) => {
   }
 
   const validarLogin = async () => {
-    if(!validarDados) return;
+    if(!validarDados()) return;
 
     setCarregando(true);
 
@@ -47,16 +47,17 @@ const LoginScreen = ({navigation}) => {
         Alert.alert("Erro no login", "Token não foi recebido.");
         return;
       }
+      console.log("Login bem-sucedido. Redirecionando para o Menu...");
 
       await SecureStore.setItemAsync('userToken', data.token);
-      navigation.navigate('Home');
+      navigation.navigate('Menu');
 
     } catch (err) {
 
         if(err.response?.status === 401) {
           setErroMessage("Email ou senha incorretos.");
         } else {
-          setErroMessage("Falha na conexão com servidor.");
+          setErroMessage("Falha no servidor.");
         }
       }finally{
         setCarregando(false);
@@ -93,6 +94,7 @@ const LoginScreen = ({navigation}) => {
       </Pressable>
 
       {erroMessage ? <Text style={styles.error}>{erroMessage}</Text> : null}
+
       <View style={styles.checkboxContainer}>
         <CheckBox value={lembreDeMim} onValueChange={setLembreDeMim} />
         <Text style={styles.checkboxLabel}>Lembrar de mim</Text>
@@ -104,8 +106,13 @@ const LoginScreen = ({navigation}) => {
         disabled={carregando}
       />
 
-      <Text>Já tem uma conta?<Pressable style={styles.link} onPress={() => navigation.navigate('Cadastro')}>cadastre agora</Pressable></Text>
-    </View>
+      <Pressable style={styles.link} onPress={() => navigation.navigate('Menu')}>
+      <Text style={styles.link}>Ja tem uma conta? Cadastre agora</Text>
+      </Pressable>
+      <Pressable style={styles.link} onPress={() => navigation.navigate('Cadastro')}>
+      <Text style={styles.link}>Ja tem uma conta? Cadastre agora</Text>
+      </Pressable>
+      </View>
   </View>
   );
 };

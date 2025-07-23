@@ -106,20 +106,6 @@ class UsuarioController extends Controller
     }
 
     
-    public function login(Request $request)
-    {
-        $request->validate([
-            'email' => 'required|email',
-            'senha' => 'required|string',
-        ]);
-
-        $usuario = Usuario::where('emailUsuario', $request->email)->first();
-
-        if (!$usuario || !Hash::check($request->senha, $usuario->senhaUsuario)) {
-            return response()->json(['erro' => 'Credenciais inválidas'], 401);
-        }
-
-    }
     public function cadastrarViaGoogle(Request $request)
 {
     $request->validate([
