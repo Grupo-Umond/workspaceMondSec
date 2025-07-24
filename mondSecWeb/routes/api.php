@@ -24,7 +24,6 @@ Route::middleware('auth:api')->controller(AuthController::class)->group(function
 });
 Route::post('/login', [AuthController::class, 'login']);
 
-
 Route::controller(DBController::class)->group(function () {
     Route::get('/usuariosAsc', 'indexAsc');  
     Route::get('/usuariosDesc', 'indexDesc'); 

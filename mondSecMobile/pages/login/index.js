@@ -51,7 +51,9 @@ const LoginScreen = ({navigation}) => {
       }
 
       await AsyncStorage.setItem('userToken', token);
+
       navigation.navigate('Home');
+
 
     } catch (err) {
 

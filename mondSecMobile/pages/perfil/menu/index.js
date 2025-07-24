@@ -6,7 +6,7 @@ import axios from 'axios';
 
 
 
-const MenuScreen = ({navigation}) => {
+const MenuScreen = () => {
     const [nome, setNome] = useState('');
     const [email, setEmail] = useState('');
     const [erroMessage, setErroMessage] = useState('');
