@@ -3,12 +3,6 @@ import { View, Text, TextInput, Button, Pressable, Alert, StyleSheet } from 'rea
 import CheckBox from 'expo-checkbox';
 import axios from 'axios';
 
-import * as WebBrowser from 'expo-web-browser';
-import * as Google from 'expo-auth-session/providers/google';
-import * as AuthSession from 'expo-auth-session';
-
-WebBrowser.maybeCompleteAuthSession();
-
 const CadastroScreen = ({ navigation }) => {
   const [nome, setNome] = useState('');
   const [genero, setGenero] = useState(null);          
@@ -19,43 +13,6 @@ const CadastroScreen = ({ navigation }) => {
   const [errorMessage, setErrorMessage] = useState('');
 
   const opcoesGenero = ['Masculino', 'Feminino', 'Prefiro não informar'];
-
-
-  const [request, response, promptAsync] = Google.useAuthRequest({
-    expoClientId: '911613672517-mesln0gqpi7js4toja704o8to5k43iao.apps.googleusercontent.com', 
-    webClientId: '911613672517-mesln0gqpi7js4toja704o8to5k43iao.apps.googleusercontent.com', 
-    scopes: ['profile', 'email'],
-    redirectUri: AuthSession.makeRedirectUri({ useProxy: true }),
-  });
-
-  useEffect(() => {
-    if (response?.type === 'success') {
-      const { authentication } = response;
-      pegarDadosDoUsuario(authentication.accessToken);
-    }
-  }, [response]);
-
-  const pegarDadosDoUsuario = async (accessToken) => {
-  try {
-    const res = await fetch('https://www.googleapis.com/userinfo/v2/me', {
-      headers: { Authorization: `Bearer ${accessToken}` },
-    });
-    const userInfo = await res.json();
-
-    
-    await axios.post('http://10.0.2.2:8000/api/usuarios/google', {
-      nomeUsuario: userInfo.name,
-      emailUsuario: userInfo.email,
-      avatar: userInfo.picture,
-    });
-
-    Alert.alert('Google', `Bem‑vindo, ${userInfo.name}!`);
-    navigation.navigate('Home', { usuario: userInfo });
-  } catch (e) {
-    console.log('Erro ao buscar dados do Google ou salvar no backend:', e);
-    Alert.alert('Erro', 'Falha ao entrar com o Google.');
-  }
-};
 
 
   const validarDados = () => {

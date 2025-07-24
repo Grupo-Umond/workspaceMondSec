@@ -1,5 +1,3 @@
-
-// routes/api.php
 <?php
 
 use Illuminate\Support\Facades\Route;
@@ -15,12 +13,14 @@ Route::controller(UsuarioController::class)->group(function () {
     Route::delete('/usuarios/{id}', 'delete');   // remover
 });
 
-Route::controller(AuthController::class)->group(function () {
-    Route::post('/login', 'login');
-    Route::post('/buscar', 'informationProfile');
+Route::post('/login', [AuthController::class, 'login']);
 
+Route::middleware('auth:api')->controller(AuthController::class)->group(function () {
+    Route::get('/buscar', 'informationProfile');
 });
+
 Route::controller(DBController::class)->group(function () {
     Route::get('/usuariosAsc', 'indexAsc');  
     Route::get('/usuariosDesc', 'indexDesc'); 
 });
+

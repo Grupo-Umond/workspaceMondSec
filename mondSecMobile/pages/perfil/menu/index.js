@@ -1,12 +1,12 @@
 import React, {useEffect, useState} from 'react';
 import {View, Text, Pressable, Image, Alert} from 'react-native';
-import * as SecureStore from 'expo-secure-store';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import axios from 'axios';
 
 
 
-const MenuScreen = ({navigation}) => {
+const MenuScreen = () => {
     const [nome, setNome] = useState('');
     const [email, setEmail] = useState('');
     const [erroMessage, setErroMessage] = useState('');
@@ -15,24 +15,32 @@ const MenuScreen = ({navigation}) => {
     useEffect(() => {
         async function puxarInfos() {
             try {
-                const token = await SecureStore.getItemAsync('userToken');
-                const {data} = await axios.post('http://127.0.0.1:8000/api/buscar', {}, {
+                const token = await AsyncStorage.getItem('userToken');
+
+                if(!token) {
+                    console.log("Token não recebido");
+                }
+
+                const response = await axios.get('http://127.0.0.1:8000/api/buscar', {
                     headers: { 
                         Authorization: `Bearer ${token}`,
                     },
-                }
-                );
-                
-                setNome(data.nomeUsuario);
-                setEmail(data.emailUsuario);
+                });
+
+                console.log(response);
+
+                setNome(response.data.usuario.nomeUsuario);
+                setEmail(response.data.usuario.emailUsuario);
         
             }catch(err) {
                 if(err.response?.status === 401) {
-                setErroMessage("Email ou senha incorretos.");
-                Alert.alert(erroMessage);
+
+                setErroMessage("Acesso negado", "Credenciais incorretas");
+
+                console.log(err);
                 } else {
                 setErroMessage("Falha na conexão com servidor.");
-                Alert.alert(erroMessage);
+                console.log("parara:", err);
                 }
             }
         };

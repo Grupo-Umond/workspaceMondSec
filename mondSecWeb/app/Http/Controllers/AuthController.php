@@ -6,32 +6,35 @@ use App\Http\Controllers\UsuarioController;
 use Illuminate\Http\Request;
 use App\Models\Usuario;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Auth;
 
 
 
 class AuthController extends Controller
 {
     
-    public function login(Request $request)
-    {
-        $request->validate([
-            'email' => 'required|email',
-            'senha' => 'required|string',
-        ]);
+    public function login(Request $request) {
+    $request->validate([
+        'email' => 'required|email',
+        'senha' => 'required|string'
+    ]);
 
-        $user = Usuario::where('emailUsuario', $request->email)->first();
+    $usuario = Usuario::where('emailUsuario', $request->email)->first();
 
-        if (!$user || !Hash::check($request->senha, $user->senhaUsuario)) {
-            return response()->json(['message' => 'Credenciais inválidas'], 401);
-        }
-
-        $token = $user->createToken('app-token')->plainTextToken;
-
-        return response()->json([
-            'user' => $user,
-            'token' => $token,
-        ]);
+    if (!$usuario || !Hash::check($request->senha, $usuario->senhaUsuario)) {
+        return response()->json(['error' => 'Credenciais inválidas'], 401);
     }
+
+    $token = $usuario->createToken('userToken')->accessToken;
+
+    return response()->json([
+        'access_token' => $token,
+        'token_type' => 'Bearer',
+        'expires_in' => 3600,
+    ]);
+    }
+
+
 
     public function informationProfile(Request $request)
     {
@@ -39,6 +42,5 @@ class AuthController extends Controller
             'usuario' => $request->user()
         ]);
     }
+
 }
-
-

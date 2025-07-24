@@ -1,6 +1,6 @@
 import React, {useState, useEffect} from "react";
-import { View, Text, TextInput, Button, Pressable, Alert, StyleSheet, Platform} from 'react-native';
-import * as SecureStore from 'expo-secure-store';
+import { View, Text, TextInput, Button, Pressable, StyleSheet} from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import  CheckBox  from 'expo-checkbox';
 import  axios  from 'axios';
 
@@ -38,18 +38,19 @@ const LoginScreen = ({navigation}) => {
     setCarregando(true);
 
     try {
-      const {data} = await axios.post('http://127.0.0.1:8000/api/login', {
+      const response = await axios.post('http://127.0.0.1:8000/api/login', {
         email,
         senha,
       });
 
-      if(!data.token) {
-        Alert.alert("Erro no login", "Token não foi recebido.");
+      const token = response.data.access_token;
+    
+      if(!token) {
+        setErroMessage("Erro ao autenticar. Token não recebido.");
         return;
       }
-      console.log("Login bem-sucedido. Redirecionando para o Menu...");
 
-      await SecureStore.setItemAsync('userToken', data.token);
+      await AsyncStorage.setItem('userToken', token);
       navigation.navigate('Menu');
 
     } catch (err) {
@@ -57,6 +58,7 @@ const LoginScreen = ({navigation}) => {
         if(err.response?.status === 401) {
           setErroMessage("Email ou senha incorretos.");
         } else {
+          console.log(err);
           setErroMessage("Falha no servidor.");
         }
       }finally{
