@@ -1,10 +1,11 @@
 import { StyleSheet } from 'react-native';
+import color from '../../Elementos/Paleta';
 
 export default StyleSheet.create({
  container: {
     flex: 1,
     position: 'relative',
-    backgroundColor: '#FFFFFF',
+    backgroundColor: color.Azul,
   },
   containerFundo: {
     position: 'absolute',
@@ -16,11 +17,19 @@ export default StyleSheet.create({
     height: '50%',
   },
   metadeSuperior: {
-    backgroundColor: '#12577B',
+    backgroundColor: color.Azul,
   },
   metadeInferior: {
-    backgroundColor: '#a9cfe5',
+    backgroundColor: color.AzulClaro,
+    borderRadius: 25,
   },
+
+  footer: {
+    backgroundColor: color.AzulClaro,
+    width: "100%",
+    height: 20,
+  },
+
   containerConteudo: {
     flex: 1,
     paddingHorizontal: 20,
@@ -28,7 +37,7 @@ export default StyleSheet.create({
     marginTop: 80,
     marginBottom: 80,
     zIndex: 1,
-    backgroundColor: 'whitesmoke',
+    backgroundColor: color.Branco,
     borderRadius: 10,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
@@ -53,7 +62,7 @@ export default StyleSheet.create({
   textoBoasVindas: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#021b33',
+    color: color.AzulEscuro,
     textAlign: 'center',
     marginBottom: 20,
     marginTop: 10,
@@ -61,7 +70,7 @@ export default StyleSheet.create({
   textoEntrar: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#021b33',
+    color: color.AzulEscuro,
     textAlign: 'center',
     marginBottom: 20,
   },
@@ -71,7 +80,7 @@ export default StyleSheet.create({
   rotulo: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#333',
+    color: color.AzulEscuro,
     marginBottom: -12,
   },
   input: {
@@ -97,26 +106,26 @@ export default StyleSheet.create({
     width: 20,
     height: 20,
     borderWidth: 1,
-    borderColor: '#757575',
+    borderColor: color.Cinza,
     borderRadius: 4,
     marginRight: 8,
     justifyContent: 'center',
     alignItems: 'center',
   },
   caixaSelecionada: {
-    backgroundColor: '#12577B',
-    borderColor: '#12577B',
+    backgroundColor: color.Azul,
+    borderColor: color.Azul,
   },
   marcacao: {
-    color: '#FFFFFF',
+    color: color.Branco,
     fontSize: 12,
   },
   textoLembrar: {
-    color: '#333',
+    color: color.Cinza,
     fontSize: 14,
   },
   textoSenhaEsquecida: {
-    color: '#12577B',
+    color: color.Azul,
     fontSize: 14,
     fontWeight: '600',
   },
@@ -127,7 +136,7 @@ export default StyleSheet.create({
   botaoLogin: {
     width: '70%',
     height: 45,
-    backgroundColor: '#12577B',
+    backgroundColor: color.Azul,
     borderRadius: 20,
     justifyContent: 'center',
     alignItems: 'center',
@@ -135,7 +144,7 @@ export default StyleSheet.create({
     alignSelf: 'center',
   },
   textoBotaoLogin: {
-    color: '#FFFFFF',
+    color: color.Branco,
     fontSize: 16,
     fontWeight: '600',
   },
@@ -146,10 +155,12 @@ export default StyleSheet.create({
   linhaDivisor: {
     flex: 1,
     height: 1,
-    backgroundColor: '#E0E0E0',
+    backgroundColor: color.Cinza,
+    /*backgroundColor: '#E0E0E0',*/
   },
   textoDivisor: {
-    color: '#757575',
+    /*color: '#757575',*/
+    color: color.Cinza,
     fontSize: 14,
     fontWeight: '600',
     paddingHorizontal: 10,
@@ -157,10 +168,10 @@ export default StyleSheet.create({
   botaoGoogle: {
     width: '100%',
     height: 50,
-    backgroundColor: '#12577B',
+    backgroundColor: color.Azul,
     borderRadius: 8,
     borderWidth: 1,
-    borderColor: '#E0E0E0',
+    borderColor: color.Branco,
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
@@ -172,7 +183,7 @@ export default StyleSheet.create({
     marginRight: 10,
   },
   textoBotaoGoogle: {
-    color: 'white',
+    color: color.Branco,
     fontSize: 18,
     fontWeight: '600',
   },
@@ -180,12 +191,12 @@ export default StyleSheet.create({
     marginTop: 10,
   },
   textoLinkCadastro: {
-    color: '#757575',
+    color: color.Cinza,
     fontSize: 14,
     textAlign: 'center',
   },
   destaqueLinkCadastro: {
-    color: '#12577B',
+    color: color.Azul,
     fontWeight: '600',
   },
 });

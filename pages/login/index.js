@@ -221,6 +221,7 @@ export default function LoginScreen({ navigation }) {
       <Text style={styles.textoLinkCadastro}>Ainda não tem uma conta? <Text style={styles.destaqueLinkCadastro}>Cadastre-se</Text></Text>
     </Pressable>
   </View>
+  <View style={styles.footer}></View>
 </View>
   );
 };
