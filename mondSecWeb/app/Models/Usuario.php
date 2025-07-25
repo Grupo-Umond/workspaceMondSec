@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Iluminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Passport\HasApiTokens;
@@ -27,4 +28,10 @@ class Usuario extends Authenticatable
     protected $hidden = [
         'senhaUsuario',
     ];
+
+    public function usuario()
+    {
+        return $this->belongsTo(Usuario::class, 'idUsuario');
+    }
+
 }

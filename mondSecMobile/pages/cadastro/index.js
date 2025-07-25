@@ -4,6 +4,7 @@ import CheckBox from 'expo-checkbox';
 import axios from 'axios';
 
 const CadastroScreen = ({ navigation }) => {
+  
   const [nome, setNome] = useState('');
   const [genero, setGenero] = useState(null);          
   const [email, setEmail] = useState('');
@@ -35,24 +36,28 @@ const CadastroScreen = ({ navigation }) => {
     if (!validarDados()) return;
 
     setCarregando(true);
+
     try {
-      const payload = {
+      const usuario = {
         nomeUsuario: nome,
         generoUsuario: genero,
         emailUsuario: email,
         senhaUsuario: senha,
       };
-      const res = await axios.post('http://127.0.0.1:8000/api/usuarios', payload);
+      const response = await axios.post('http://127.0.0.1:8000/api/usuarios', usuario);
 
-      if (res.data && res.data.email) {
+      if (response.data && response.data.emailUsuario) {
         Alert.alert('Sucesso', 'Cadastro realizado! Faça login para continuar.');
         navigation.navigate('Login');
+
       } else {
-        Alert.alert('Erro', 'Erro no cadastro. Tente novamente!');
+        console.log('Erro no cadastro. Tente novamente!');
+
       }
     } catch (err) {
       console.error(err);
       Alert.alert('Erro', 'Erro ao cadastrar. Tente novamente!');
+      
     } finally {
       setCarregando(false);
     }
@@ -115,14 +120,6 @@ const CadastroScreen = ({ navigation }) => {
         onPress={cadastrar}
         color="black"
         disabled={carregando}
-      />
-
-      <View style={{ marginTop: 16 }} />
-      <Button
-        title="Entrar com Google"
-        onPress={() => promptAsync({ useProxy: true })}
-        disabled={!request || carregando}
-        color="black"
       />
 
       <Pressable onPress={() => navigation.navigate('Login')}>

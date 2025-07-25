@@ -6,7 +6,7 @@ import axios from 'axios';
 
 
 
-const MenuScreen = () => {
+const MenuScreen = ({navigation}) => {
     const [nome, setNome] = useState('');
     const [email, setEmail] = useState('');
     const [erroMessage, setErroMessage] = useState('');
@@ -52,7 +52,7 @@ const MenuScreen = () => {
     return(
         <View>
             <View>
-                <Pressable>
+                <Pressable onPress={() => navigation.navigate('Home')}>
                     <FontAwesome name="home" size={30} color="blue" />
                 </Pressable>
                 <Text>
@@ -70,7 +70,7 @@ const MenuScreen = () => {
                 <Text>
                     {email}
                 </Text>
-                <Pressable>
+                <Pressable onPress={() => navigation.navigate('Ocorrencia')}>
                     <Text>
                         Minhas Ocorrências
                     </Text>

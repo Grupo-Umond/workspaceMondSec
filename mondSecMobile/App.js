@@ -5,6 +5,7 @@ import HomeScreen from './pages/home';
 import LoginScreen from './pages/login';
 import CadastroScreen from './pages/cadastro';
 import MenuScreen from './pages/perfil/menu';
+import OcorrenciaScreen from './pages/perfil/ocorrencia';
 
 
 const Stack = createStackNavigator();
@@ -21,6 +22,7 @@ export default function App() {
         <Stack.Screen name="Home" component={HomeScreen} />
         <Stack.Screen name="Cadastro" component={CadastroScreen} />
         <Stack.Screen name="Menu" component={MenuScreen} />
+        <Stack.Screen name="Ocorrencia" component={OcorrenciaScreen}/>
       </Stack.Navigator>
     </NavigationContainer>
   );
