@@ -51,7 +51,7 @@ const LoginScreen = ({navigation}) => {
       }
 
       await AsyncStorage.setItem('userToken', token);
-      navigation.navigate('Ocorrencia');
+      navigation.navigate('Home');
 
     } catch (err) {
 
@@ -108,9 +108,6 @@ const LoginScreen = ({navigation}) => {
         disabled={carregando}
       />
 
-      <Pressable style={styles.link} onPress={() => navigation.navigate('Ocorrencia')}>
-      <Text style={styles.link}>Ja tem uma conta? Cadastre agora</Text>
-      </Pressable>
       <Pressable style={styles.link} onPress={() => navigation.navigate('Cadastro')}>
       <Text style={styles.link}>Ja tem uma conta? Cadastre agora</Text>
       </Pressable>

@@ -1,10 +1,19 @@
-import React, {useState, useEffect} from 'react';
-import {View, Text} from 'react-native';
+import React, {useState} from 'react';
+import {View, Text, Pressable, TextInput} from 'react-native';
+import FontAwesome from '@expo/vector-icons/FontAwesome';
 
 const HomeScreen = ({ navigation }) => {
-    const [errorMessage, setErrorMessage] = useState('');
     return(
-        <View> <Text>Ta funcionando</Text></View>
+        <View>
+            <View>
+                <TextInput />
+            </View>
+            <View>
+                <Pressable onPress={() => navigation.navigate('Home')}><Text>Home</Text></Pressable>
+                <Pressable onPress={() => navigation.navigate('Sobre')}><Text>Sobre</Text></Pressable>
+                <Pressable onPress={() => navigation.navigate('Menu')}><Text>Perfil</Text></Pressable>
+            </View>
+        </View>
     );
 
 };
