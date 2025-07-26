@@ -6,6 +6,7 @@ import axios from "axios";
 
 const OcorrenciaScreen = ({navigation}) => {
     const [ocorrencias, setOcorrencias] = useState([]);
+    const [lengthNumber, setLenghtNumber] = useState('');
 
     useEffect(() => {
 
@@ -35,6 +36,7 @@ const OcorrenciaScreen = ({navigation}) => {
             console.log(data);
 
             setOcorrencias(data);
+            setLenghtNumber(data.length);
         } catch(err) {
             console.log(err);
         }
@@ -44,21 +46,27 @@ const OcorrenciaScreen = ({navigation}) => {
         <View>
             <View>
                 <Pressable onPress={() => navigation.navigate('Menu')}>
+                    <Text>Back</Text>
                 </Pressable>
                 <Text>Seu Historico</Text>
                 <Pressable>
+                    <Text>Config</Text>
                 </Pressable>
             </View>
             <TextInput />
             <View>
-                    {ocorrencias.map((ocorrencia, index) => (
-                        <View key={index}>
-                            <Text>{ocorrencia.tituloOcorrencia}</Text>
-                            <Text>{ocorrencia.longitudeOcorrencia}</Text>
-                            <Text>{ocorrencia.latitudeOcorrencia}</Text>
-                            <Text>{ocorrencia.dataRegistradaOcorrencia}</Text>
-                            <Button/>
-                        </View>
+                <Text>Total de Ocorrencia: {lengthNumber}</Text>
+                <Pressable onPress={() => navigation.navigate('Registrar')}>
+                    <Text>+</Text>
+                </Pressable>
+                {ocorrencias.map((ocorrencia, index) => (
+                    <View key={index}>
+                        <Text>{ocorrencia.tituloOcorrencia}</Text>
+                        <Text>{ocorrencia.longitudeOcorrencia}</Text>
+                        <Text>{ocorrencia.latitudeOcorrencia}</Text>
+                        <Text>{ocorrencia.dataRegistradaOcorrencia}</Text>
+                        <Button/>
+                    </View>
                     ))}
             </View>
         </View>

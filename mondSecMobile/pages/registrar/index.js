@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { View, Text, Pressable, TextInput, Button, Modal, StyleSheet } from 'react-native';
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import  CheckBox  from 'expo-checkbox';
 import axios from "axios";
 
 const RegistrarScreen = ({ navigation }) => {
@@ -9,8 +10,10 @@ const RegistrarScreen = ({ navigation }) => {
   const [latitude, setLatitude] = useState('');
   const [longitude, setLongitude] = useState('');
   const [descricao, setDescricao] = useState('');
-  const [visivel, setVisivel] = useState(false);
+  const [visivelFinal, setVisivelFinal] = useState(false);
+  const [visivelInicio, setVisivelInicio] = useState(true);
   const [carregando, setCarregando] = useState(false);
+  const [mostrar, setMostrar] = useState('');
   const [menssagemErro, setMessagemErro] = useState('');
 
   const validarDados = () => {
@@ -51,7 +54,7 @@ const RegistrarScreen = ({ navigation }) => {
         }
       });
 
-      setVisivel(true);
+      setVisivelFinal(true);
     } catch (err) {
       console.log(err);
       setMessagemErro('Erro ao enviar ocorrência');
@@ -100,15 +103,15 @@ const RegistrarScreen = ({ navigation }) => {
       <Modal
         animationType='slide'
         transparent={true}
-        visible={visivel}
-        onRequestClose={() => setVisivel(false)}
+        visible={visivelFinal}
+        onRequestClose={() => setVisivelFinal(false)}
       >
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
             <Text style={styles.modalTitle}>Ocorrência Enviada</Text>
             <Text style={styles.modalText}>Sua ocorrência foi registrada com sucesso.</Text>
             <Pressable onPress={() => {
-              setVisivel(false);
+              setVisivelFinal(false);
               setTitulo('');
               setTipo('');
               setDescricao('');
@@ -120,6 +123,42 @@ const RegistrarScreen = ({ navigation }) => {
             <Pressable onPress={() => navigation.navigate('Ocorrencia')}>
               <Text style={styles.modalButton}>Ver Minhas Ocorrências</Text>
             </Pressable>
+          </View>
+        </View>
+      </Modal>
+
+      <Modal
+        animationType='slide'
+        transparent={true}
+        visible={visivelInicio}
+        onRequestClose={() => setVisivelInicio(false)}
+      >
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalText}>1.Escolha o tipo de ocorrência</Text>
+            <Text style={styles.modalText}>Ex: Assalto, Alagamento</Text>
+
+            <Text style={styles.modalText}>2.Informe o local</Text>
+            <Text style={styles.modalText}> Pode inserir o CEP ou nme da rua</Text>
+
+            <Text style={styles.modalText}>3.Descreva o que aconteceu</Text>
+            <Text style={styles.modalText}> Forneça os detalhes claros e objetivos</Text>
+
+            <Text style={styles.modalText}>4.Adicione o periodo do ocorridoo é opcional</Text>
+            <Text style={styles.modalText}> Pode ser algo recorrente de tal horario</Text>
+
+            <Text style={styles.modalText}>5.Envie sua ocorrência</Text>
+            <Text style={styles.modalText}> Acompanhe o status no menu "Minhas"</Text>
+
+            <Pressable onPress={() => {
+              setVisivelInicio(false);
+            }}>
+              <Text style={styles.modalButton}>Fazer Agora</Text>
+            </Pressable>
+            <View style={styles.checkboxContainer}>
+                <CheckBox value={mostrar} onValueChange={setMostrar} />
+                <Text style={styles.checkboxLabel}>Não mostrar novamente</Text>
+            </View>
           </View>
         </View>
       </Modal>
@@ -194,5 +233,13 @@ const styles = StyleSheet.create({
     color: '#007BFF',
     marginTop: 10,
     fontWeight: 'bold'
-  }
+  },
+  checkboxContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 16 
+  },
+  checkboxLabel: {
+    marginLeft: 8 
+  },
 });
