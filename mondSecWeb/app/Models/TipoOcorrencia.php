@@ -13,7 +13,12 @@ class TipoOcorrencia extends Model
     use HasApiTokens, HasFactory, Notifiable;
     protected $table = 'tbTipoOcorrencia';
 
-    protected $primaryKey = 'idTipoOcorrencia';
+    protected $primaryKey = 'idTipo';
 
     public $timestamps = false;
+
+    protected $fillable = [
+        'nomeTipo',
+        'descricaoTipo',
+    ];
 }

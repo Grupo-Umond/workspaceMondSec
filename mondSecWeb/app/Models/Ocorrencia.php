@@ -2,14 +2,14 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Models;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Passport\HasApiTokens;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Models\tbTipoOcorrencia;
 
-class Ocorrencia extends Authenticatable
+class Ocorrencia extends Model
 
 {
     use HasApiTokens, HasFactory, Notifiable;
@@ -27,9 +27,10 @@ class Ocorrencia extends Authenticatable
         'idTipo',
     ];
 
-    public function tbTipoOcorrencia()
+    public function tipoOcorrencia()
     {
         return $this->belongsTo(TipoOcorrencia::class, 'idTipo', 'idTipo');
     }
+
 
 }

@@ -6,25 +6,16 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     *
-     * @return void
-     */
     public function up()
     {
         Schema::create('tbTipoOcorrencia', function (Blueprint $table) {
-            $table->bigIncrements('idTipo');
-            $table->String('nomeTipo');
-            $table->String('descricaoTipo');
+            $table->bigIncrements('idTipo'); // ok, auto-incrementa
+            $table->string('nomeTipo');
+            $table->string('descricaoTipo')->nullable(); // opcional = evitar erro de insert vazio
+            $table->timestamps(); // ✅ importante para compatibilidade com Eloquent
         });
     }
 
-    /**
-     * Reverse the migrations.
-     *
-     * @return void
-     */
     public function down()
     {
         Schema::dropIfExists('tbTipoOcorrencia');

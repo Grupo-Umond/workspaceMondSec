@@ -7,6 +7,7 @@ import CadastroScreen from './pages/cadastro';
 import MenuScreen from './pages/perfil/menu';
 import OcorrenciaScreen from './pages/perfil/ocorrencia';
 import SobreScreen from './pages/sobre';
+import RegistrarScreen from './pages/registrar';
 
 
 const Stack = createStackNavigator();
@@ -25,6 +26,7 @@ export default function App() {
         <Stack.Screen name="Menu" component={MenuScreen} />
         <Stack.Screen name="Ocorrencia" component={OcorrenciaScreen} />
         <Stack.Screen name="Sobre" component={SobreScreen} />
+        <Stack.Screen name="Registrar" component={RegistrarScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );

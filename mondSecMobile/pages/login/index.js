@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from "react";
+import React, {useState} from "react";
 import { View, Text, TextInput, Button, Pressable, StyleSheet} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import  CheckBox  from 'expo-checkbox';
@@ -53,6 +53,7 @@ const LoginScreen = ({navigation}) => {
       await AsyncStorage.setItem('userToken', token);
 
       navigation.navigate('Home');
+
 
 
     } catch (err) {

@@ -16,6 +16,7 @@ Route::controller(UsuarioController::class)->group(function () {
 
 Route::middleware('auth:api')->controller(OcorrenciaController::class)->group(function () {
     Route::get('/procurar', 'index');
+    Route::post('/registrar', 'store');
 });
 
 
