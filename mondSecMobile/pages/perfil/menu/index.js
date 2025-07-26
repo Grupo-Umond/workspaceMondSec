@@ -4,6 +4,23 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import axios from 'axios';
 
+<<<<<<< HEAD
+=======
+const MenuScreen = ({navigation}) => {
+
+    
+    return (
+        <View style={styles.container}>
+            <View style={styles.header}>
+                <TouchableOpacity onPress={() => navigation.navigate('Home')}>
+                    <FontAwesome name="user" size={24} color="#000" />
+                </TouchableOpacity>
+                <Text style={styles.headerText}>Seu Perfil</Text>
+                <TouchableOpacity>
+                    <FontAwesome name="user" size={24} color="#000" />
+                </TouchableOpacity>
+            </View>
+>>>>>>> c01043568131a18646d5d421cccb15b2bd7d3a14
 
 
 const MenuScreen = () => {
