@@ -1,12 +1,6 @@
-<<<<<<< HEAD
 import React, {useState} from "react";
 import { View, Text, TextInput, Button, Pressable, StyleSheet} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-=======
-import React, {useState, useEffect} from "react";
-import { View, Text, TextInput, Button, Pressable, Alert, StyleSheet, Platform} from 'react-native';
-import * as SecureStore from 'expo-secure-store';
->>>>>>> c01043568131a18646d5d421cccb15b2bd7d3a14
 import  CheckBox  from 'expo-checkbox';
 import  axios  from 'axios';
 
@@ -39,25 +33,17 @@ const LoginScreen = ({navigation}) => {
   }
 
   const validarLogin = async () => {
-<<<<<<< HEAD
     if(!validarDados()) return;
-=======
-    if(!validarDados) return;
->>>>>>> c01043568131a18646d5d421cccb15b2bd7d3a14
 
     setCarregando(true);
 
     try {
-<<<<<<< HEAD
+
       const response = await axios.post('http://127.0.0.1:8000/api/login', {
-=======
-      const {data} = await axios.post('http://127.0.0.1:8000/api/login', {
->>>>>>> c01043568131a18646d5d421cccb15b2bd7d3a14
         email,
         senha,
       });
 
-<<<<<<< HEAD
       const token = response.data.access_token;
     
       if(!token) {
@@ -71,27 +57,16 @@ const LoginScreen = ({navigation}) => {
 
 
 
-=======
-      if(!data.token) {
-        Alert.alert("Erro no login", "Token não foi recebido.");
-        return;
-      }
 
-      await SecureStore.setItemAsync('userToken', data.token);
-      navigation.navigate('Home');
-
->>>>>>> c01043568131a18646d5d421cccb15b2bd7d3a14
     } catch (err) {
 
         if(err.response?.status === 401) {
           setErroMessage("Email ou senha incorretos.");
         } else {
-<<<<<<< HEAD
+
           console.log(err);
           setErroMessage("Falha no servidor.");
-=======
-          setErroMessage("Falha na conexão com servidor.");
->>>>>>> c01043568131a18646d5d421cccb15b2bd7d3a14
+
         }
       }finally{
         setCarregando(false);
@@ -128,10 +103,7 @@ const LoginScreen = ({navigation}) => {
       </Pressable>
 
       {erroMessage ? <Text style={styles.error}>{erroMessage}</Text> : null}
-<<<<<<< HEAD
 
-=======
->>>>>>> c01043568131a18646d5d421cccb15b2bd7d3a14
       <View style={styles.checkboxContainer}>
         <CheckBox value={lembreDeMim} onValueChange={setLembreDeMim} />
         <Text style={styles.checkboxLabel}>Lembrar de mim</Text>
@@ -143,15 +115,13 @@ const LoginScreen = ({navigation}) => {
         disabled={carregando}
       />
 
-<<<<<<< HEAD
+
       <Pressable style={styles.link} onPress={() => navigation.navigate('Cadastro')}>
       <Text style={styles.link}>Ja tem uma conta? Cadastre agora</Text>
       </Pressable>
       </View>
-=======
-      <Text>Já tem uma conta?<Pressable style={styles.link} onPress={() => navigation.navigate('Cadastro')}>cadastre agora</Pressable></Text>
-    </View>
->>>>>>> c01043568131a18646d5d421cccb15b2bd7d3a14
+
+
   </View>
   );
 };

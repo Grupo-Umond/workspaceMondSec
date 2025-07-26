@@ -9,10 +9,10 @@ return new class extends Migration
     public function up()
     {
         Schema::create('tbTipoOcorrencia', function (Blueprint $table) {
-            $table->bigIncrements('idTipo'); // ok, auto-incrementa
+            $table->bigIncrements('idTipo'); 
             $table->string('nomeTipo');
-            $table->string('descricaoTipo')->nullable(); // opcional = evitar erro de insert vazio
-            $table->timestamps(); // ✅ importante para compatibilidade com Eloquent
+            $table->string('descricaoTipo')->nullable(); 
+            $table->timestamps(); 
         });
     }
 

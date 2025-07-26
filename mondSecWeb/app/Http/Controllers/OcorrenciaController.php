@@ -41,13 +41,11 @@ class OcorrenciaController extends Controller
             'tbTipoOcorrencia.descricaoOcorrencia' => 'nullable|string',
         ]);
 
-        // Primeiro cria o tipoOcorrencia (se necessário
         $tipo = \App\Models\TipoOcorrencia::firstOrCreate(
             ['nomeTipo' => $dados['tbTipoOcorrencia']['tipoOcorrencia']],
             ['descricaoTipo' => $dados['tbTipoOcorrencia']['descricaoOcorrencia'] ?? null]
         );
 
-        // Agora cria a ocorrência vinculando o tipoOcorrencia
         $ocorrencia = Ocorrencia::create([
             'tituloOcorrencia' => $dados['tituloOcorrencia'],
             'latitudeOcorrencia' => $dados['latitudeOcorrencia'],
