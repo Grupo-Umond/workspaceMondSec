@@ -70,7 +70,7 @@ const RegistrarScreen = ({ navigation }) => {
           <Text style={styles.link}>Voltar</Text>
         </Pressable>
         <Text style={styles.title}>Preencha sua ocorrência</Text>
-        <Pressable>
+        <Pressable onPress={() => navigation.navigate('Configuracao')}>
           <Text style={styles.link}>Configurações</Text>
         </Pressable>
       </View>

@@ -49,7 +49,7 @@ const OcorrenciaScreen = ({navigation}) => {
                     <Text>Back</Text>
                 </Pressable>
                 <Text>Seu Historico</Text>
-                <Pressable>
+                <Pressable onPress={() => navigation.navigate('Configuracao')}>
                     <Text>Config</Text>
                 </Pressable>
             </View>

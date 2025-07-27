@@ -56,7 +56,7 @@ const MenuScreen = ({navigation}) => {
                 <Text>
                     Seu Perfil
                 </Text>
-                <Pressable>
+                <Pressable onPress={() => navigation.navigate('Configuracao')}>
                      <FontAwesome name="home" size={30} color="blue" />
                 </Pressable>
             </View>
