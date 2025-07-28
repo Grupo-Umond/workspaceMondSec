@@ -5,6 +5,8 @@ use App\Http\Controllers\UsuarioController;
 use App\Http\Controllers\DBController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\OcorrenciaController;
+use App\Http\Controllers\NotificationController;
+
 
 
 Route::controller(UsuarioController::class)->group(function () {
@@ -31,4 +33,11 @@ Route::controller(DBController::class)->group(function () {
     Route::get('/usuariosAsc', 'indexAsc');  
     Route::get('/usuariosDesc', 'indexDesc'); 
 });
+
+Route::middleware('auth:api')->controller(NotificationController::class)->group(function () {
+    Route::post('/envNot', 'enviarNotificacao');
+    Route::post('/tokenPush', 'salvar');
+
+});
+
 

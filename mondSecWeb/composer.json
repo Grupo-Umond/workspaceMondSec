@@ -8,12 +8,9 @@
         "php": "^8.0.2",
         "guzzlehttp/guzzle": "^7.2",
         "laravel/framework": "^9.19",
-<<<<<<< HEAD
-        "laravel/passport": "11.8",
-=======
->>>>>>> c01043568131a18646d5d421cccb15b2bd7d3a14
-        "laravel/sanctum": "^3.3",
-        "laravel/tinker": "^2.7"
+
+        "laravel/passport": "11.8"
+
     },
     "require-dev": {
         "fakerphp/faker": "^1.9.1",

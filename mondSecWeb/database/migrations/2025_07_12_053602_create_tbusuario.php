@@ -9,6 +9,7 @@ return new class extends Migration {
     {
         Schema::create('tbUsuario', function (Blueprint $table) {
             $table->bigIncrements('idUsuario'); 
+            $table->string('expo_token')->nullable();
             $table->string('nomeUsuario');
             $table->string('generoUsuario'); 
             $table->string('emailUsuario')->unique(); 

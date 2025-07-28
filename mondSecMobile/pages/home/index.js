@@ -1,65 +1,58 @@
-import React, {useState} from 'react';
-import {View, Text, Pressable, TextInput, Modal, StyleSheet} from 'react-native';
-import FontAwesome from '@expo/vector-icons/FontAwesome';
+import React, { useState } from 'react';
+import { View, Text, Pressable, TextInput, Modal, StyleSheet } from 'react-native';
+import  {notificacaoService}  from '../../services/notificacaoService';
 
 const HomeScreen = ({ navigation }) => {
-    const [visivelSolicitar, setVisivelSolicitar] = useState(true);
-    const [visivelWelcome, setVisivelWelcome] = useState(false);
+  const [visivelSolicitar, setVisivelSolicitar] = useState(true);
+  const [visivelWelcome, setVisivelWelcome] = useState(false);
 
-    return(
-        <View>
-            <View>
-                <TextInput />
-            </View>
-            <View>
-                <Pressable onPress={() => navigation.navigate('Home')}><Text>Home</Text></Pressable>
-                <Pressable onPress={() => navigation.navigate('Sobre')}><Text>Sobre</Text></Pressable>
-                <Pressable onPress={() => navigation.navigate('Menu')}><Text>Perfil</Text></Pressable>
-            </View>
-            <Modal
-                animationType='slide'
-                transparent={true}
-                visible={visivelSolicitar}
-                onRequestClose={() => setVisivelSolicitar(false)}
-            >
-                <View style={styles.modalContainer}>
-                <View style={styles.modalContent}>
-                    <Text style={styles.modalTitle}>Aviso!</Text>
-                    <Text style={styles.modalText}>Este app utiliza a localização do seu despositivo. É necessario que o acesso a sua localização esteja ativa</Text>
-                    <Text style={styles.modalText}>Deseja permitir o acesso a sua localização?</Text>
-                    <Pressable onPress={() => {setVisivelSolicitar(false); setVisivelWelcome(true)}}>
-                    <Text style={styles.modalButton}>Sim</Text>
-                    </Pressable>
-                    <Pressable onPress={() => {setVisivelSolicitar(false); setVisivelWelcome(true);}}>
-                    <Text style={styles.modalButton}>Não</Text>
-                    </Pressable>
-                </View>
-                </View>
-            </Modal>
+  const modalPermissao = async () => {
+    await notificacaoService();
+    setVisivelSolicitar(false);
+    setVisivelWelcome(true);
+  };
 
-            <Modal
-                animationType='slide'
-                transparent={true}
-                visible={visivelWelcome}
-                onRequestClose={() => setVisivelWelcome(false)}
-            >
-                <View style={styles.modalContainer}>
-                <View style={styles.modalContent}>
-                    <Text style={styles.modalTitle}>Bem Vindo ao MondSec!</Text>
-                    <Text style={styles.modalText}>Seu app de rotas segura!</Text>
-                    <Pressable onPress={() => {setVisivelWelcome(false);}}>
-                    <Text style={styles.modalButton}>Sim</Text>
-                    </Pressable>
-                </View>
-                </View>
-            </Modal>
+  return (
+    <View>
+      <View>
+        <TextInput />
+      </View>
+      <View>
+        <Pressable onPress={() => navigation.navigate('Home')}><Text>Home</Text></Pressable>
+        <Pressable onPress={() => navigation.navigate('Sobre')}><Text>Sobre</Text></Pressable>
+        <Pressable onPress={() => navigation.navigate('Menu')}><Text>Perfil</Text></Pressable>
+      </View>
+
+      <Modal animationType="slide" transparent visible={visivelSolicitar}>
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Aviso!</Text>
+            <Text style={styles.modalText}>Este app utiliza a localização do seu dispositivo. É necessário que o acesso esteja ativo.</Text>
+            <Text style={styles.modalText}>Deseja permitir o acesso?</Text>
+            <Pressable onPress={modalPermissao}>
+              <Text style={styles.modalButton}>Ok</Text>
+            </Pressable>
+          </View>
         </View>
-    );
+      </Modal>
 
+      <Modal animationType="slide" transparent visible={visivelWelcome}>
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Bem-vindo ao MondSec!</Text>
+            <Text style={styles.modalText}>Seu app de rotas seguras!</Text>
+            <Pressable onPress={() => setVisivelWelcome(false)}>
+              <Text style={styles.modalButton}>Sim</Text>
+            </Pressable>
+          </View>
+        </View>
+      </Modal>
+    </View>
+  );
 };
 
 const styles = StyleSheet.create({
-    modalContainer: {
+  modalContainer: {
     flex: 1,
     backgroundColor: 'rgba(0,0,0,0.3)',
     justifyContent: 'center',
@@ -87,4 +80,5 @@ const styles = StyleSheet.create({
     fontWeight: 'bold'
   }
 });
+
 export default HomeScreen;
