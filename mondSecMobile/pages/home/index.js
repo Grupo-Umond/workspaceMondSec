@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, Pressable, TextInput, Modal, StyleSheet } from 'react-native';
-import  {notificacaoService}  from '../../services/notificacaoService';
+import  {notificacaoService}  from '../../services/NotificacaoService';
 
 const HomeScreen = ({ navigation }) => {
   const [visivelSolicitar, setVisivelSolicitar] = useState(true);

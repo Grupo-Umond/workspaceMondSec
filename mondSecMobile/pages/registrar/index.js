@@ -120,7 +120,14 @@ const RegistrarScreen = ({ navigation }) => {
             }}>
               <Text style={styles.modalButton}>Nova Ocorrência</Text>
             </Pressable>
-            <Pressable onPress={() => navigation.navigate('Ocorrencia')}>
+            <Pressable onPress={() => {
+              setVisivelFinal(false);
+              setTitulo('');
+              setTipo('');
+              setDescricao('');
+              setLatitude('');
+              setLongitude('');
+            }}>
               <Text style={styles.modalButton}>Ver Minhas Ocorrências</Text>
             </Pressable>
           </View>
