@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, { useState, useEffect} from "react";
 import { View, Text, TextInput, Button, Pressable, StyleSheet} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import  CheckBox  from 'expo-checkbox';
@@ -9,9 +9,20 @@ const LoginScreen = ({navigation}) => {
   const[carregando, setCarregando] = useState(false);
   const[email, setEmail] = useState('');
   const[senha, setSenha] = useState('');
-  const [lembreDeMim, setLembreDeMim] = useState(false);
+  const[lembreDeMim, setLembreDeMim] = useState(false);
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+  useEffect(() => {
+    const verificarLembra = async () => {
+      const response = await AsyncStorage.getItem('lembraMim');
+      const token = await AsyncStorage.getItem('userToken');
+      if(response && token) {
+        navigation.navigate('Home');
+      }
+    }
+
+    verificarLembra();
+  },[]);
   const validarDados = () => {
     if(!email || !senha) {
       setErroMessage('Por favor, preenche todos os campos.');
@@ -52,6 +63,10 @@ const LoginScreen = ({navigation}) => {
       }
 
       await AsyncStorage.setItem('userToken', token);
+
+      if(lembreDeMim === true) {
+        await AsyncStorage.setItem('lembraMim', true)
+      }
 
       navigation.navigate('Home');
 

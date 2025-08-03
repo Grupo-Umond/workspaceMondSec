@@ -1,6 +1,7 @@
 import * as Notifications from 'expo-notifications';
 import { Platform } from 'react-native';
 import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export async function notificacaoService() {
   if (Platform.OS === 'web') {
@@ -9,6 +10,7 @@ export async function notificacaoService() {
   }
 
   const { status } = await Notifications.requestPermissionsAsync();
+  await AsyncStorage.setItem('permissaoNot', status);
   if (status !== 'granted') {
     alert('Permissão para notificações negada');
     return;

@@ -1,11 +1,23 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, Pressable, TextInput, Modal, StyleSheet } from 'react-native';
 import  {notificacaoService}  from '../../services/NotificacaoService';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const HomeScreen = ({ navigation }) => {
   const [visivelSolicitar, setVisivelSolicitar] = useState(true);
   const [visivelWelcome, setVisivelWelcome] = useState(false);
 
+  
+  useEffect(() => {
+    const verificarModal = async () => {
+      const response = await AsyncStorage.getItem('permissaoNot');
+      if(response == 'granted') {
+        setVisivelSolicitar(false);
+      }
+    };
+
+    verificarModal();
+  },[]);
   const modalPermissao = async () => {
     await notificacaoService();
     setVisivelSolicitar(false);
