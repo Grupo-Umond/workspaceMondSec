@@ -9,6 +9,8 @@ import OcorrenciaScreen from './pages/perfil/ocorrencia';
 import SobreScreen from './pages/sobre';
 import RegistrarScreen from './pages/registrar';
 import ConfiguracaoScreen from './pages/configuracao';
+import TrocarSenhaScreen from './pages/perfil/alterarDados/trocarSenha';
+import TrocarEmailScreen from './pages/perfil/alterarDados/trocarEmail';
 
 
 const Stack = createStackNavigator();
@@ -29,6 +31,8 @@ export default function App() {
         <Stack.Screen name="Sobre" component={SobreScreen} />
         <Stack.Screen name="Registrar" component={RegistrarScreen} />
         <Stack.Screen name="Configuracao" component={ConfiguracaoScreen} />
+        <Stack.Screen name="TrocarSenha" component={TrocarSenhaScreen} />
+        <Stack.Screen name="TrocarEmail" component={TrocarEmailScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );
