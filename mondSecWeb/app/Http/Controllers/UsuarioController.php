@@ -5,12 +5,11 @@ namespace App\Http\Controllers;
 use App\Models\Usuario;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Cache;
 
 class UsuarioController extends Controller
 {
-    /**
-     * Criar usuário.
-     */
+    
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -31,13 +30,11 @@ class UsuarioController extends Controller
         return response()->json($usuario, 201);
     }
 
-    //Aqui é pra listar usuario
     public function index()
     {
         return response()->json(Usuario::all());
     }
 
-    //Aqui é pra buscar os usuario por id papai
     public function show($id)
     {
         $usuario = Usuario::find($id);
@@ -49,49 +46,31 @@ class UsuarioController extends Controller
         return response()->json($usuario);
     }
 
-    //Aqui é buscar usuario por email
-    public function buscarPorEmail($email)
+    public function updateSenha(Request $request)
     {
-        if (!$email) {
-            return response()->json(['error' => 'Parâmetro email é obrigatório'], 400);
-        }
+    $request->validate([
+        'tokenTemp' => 'required',
+        'novaSenhaConfirma' => 'nullable|min:6',
+    ]);
 
-        $usuario = Usuario::where('emailUsuario', $email)->first();
-
-        if (!$usuario) {
-            return response()->json(['error' => 'Usuário não encontrado (emailUsuario)'], 404);
-        }
-
-        return response()->json($usuario);
+    $email = Cache::get("token_{$request->tokenTemp}");
+    if (!$email) {
+       return response()->json(['message' => 'Token inválido ou expirado'], 400);
     }
 
-    //Aqui é pra atualizar usuario
-    public function update(Request $request, $id)
-    {
-        $usuario = Usuario::find($id);
+    $user = Usuario::where('emailUsuario', $email)->firstOrFail();
 
-        if (!$usuario) {
-            return response()->json(['mensagem' => 'Usuário não encontrado para atualização'], 404);
-        }
-
-        $validated = $request->validate([
-            'nomeUsuario'   => 'sometimes|string|max:255',
-            'generoUsuario' => 'sometimes|string|max:50',
-            'emailUsuario'  => 'sometimes|email|unique:tbUsuario,emailUsuario,' . $usuario->idUsuario . ',idUsuario',
-            'senhaUsuario'  => 'sometimes|string|min:6',
-        ]);
-
-        
-        if (isset($validated['senhaUsuario'])) {
-            $validated['senhaUsuario'] = Hash::make($validated['senhaUsuario']);
-        }
-
-        $usuario->fill($validated)->save();
-
-        return response()->json($usuario);
+    if ($request->novaSenhaConfirma) {
+        $user->senhaUsuario = bcrypt($request->novaSenhaConfirma);
     }
 
-    //Aqui é pra deletar os usuario safado
+    $user->save();
+    Cache::forget("token_{$request->tokenTemp}");
+
+    return response()->json(['message' => 'Dados atualizados com sucesso']);
+    }
+
+
     public function delete($id)
     {
         $usuario = Usuario::find($id);

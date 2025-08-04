@@ -77,7 +77,7 @@ const MenuScreen = ({navigation}) => {
                         Minhas Ocorrências
                     </Text>
                 </Pressable>
-                <Pressable>
+                <Pressable onPress={() => navigation.navigate('DigiteDados')}>
                     <Text>
                         Alterar Senha
                     </Text>
