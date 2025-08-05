@@ -1,0 +1,150 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap');
+
+.cabecalho {
+    /* display: none; */
+    position: fixed;
+    width: 100%;
+    z-index: 11;
+}
+
+.cabecalho .cabecalho__menu {
+    display: flex;
+    justify-content: space-between;
+    padding: 1% 5%;
+    align-items: center;
+    transition: top 0.3s, background-color 0.5s ease;
+    /* background-color: #040439; */
+    /* background-color: transparent; */
+}
+
+.cabecalho .cabecalho__menu .cabecalho__menu__logo {
+    width: 200px;
+    height: 50px;
+}
+
+.cabecalho .cabecalho__menu .cabecalho__menu__logo img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.cabecalho__menu__itens a {
+    font-family: 'Inter', sans-serif;
+    font-size: 18px;
+    font-weight: 500;
+    color: white;
+    text-decoration: none;
+    padding: 8px 4px;
+    position: relative;
+    overflow: hidden;
+}
+
+.cabecalho__menu__itens a::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: rgb(223, 214, 214);
+    transition: width 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+
+}
+
+.cabecalho__menu__itens a:hover{
+    color: rgb(223, 214, 214);
+}
+
+.cabecalho__menu__itens a:hover::after {
+    width: 100%;
+}
+
+.icons__menu {
+    display: none;
+}
+
+.cabecalho__menu__itens__mobile {
+    background-color: white;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    height: 0;
+    visibility: hidden;
+    transition: 0.3s;
+    overflow: hidden;
+    /* padding: 8% 5%; */
+}
+
+.cabecalho__menu__itens__mobile a {
+    font-family: Arial, sans-serif;
+    text-decoration: none;
+    font-size: 1rem;
+    color: black;
+    display: block;
+    padding: 2% 5%;
+}
+
+@media (max-width: 1050px) {
+    .cabecalho__menu__itens {
+        display: none;
+    }
+    
+    .icons__menu {
+        display: block;
+        background: none;
+        border: none;
+        color: white;
+        font-family: 'Inter', sans-serif;
+        cursor: pointer;
+        transition: opacity 0.3s ease;
+    }
+
+    .botao:hover {
+        opacity: 0.8;
+    }
+
+    .cabecalho__menu__itens__mobile {
+        display: flex;
+        flex-direction: column;
+        position: absolute;
+        top: 100%;
+        left: 0;
+        width: 100%;
+        background-color: rgb(1, 1, 83);
+    }
+
+    .cabecalho__menu__itens__mobile a {
+        color: white;
+        text-decoration: none;
+        padding: 3% 5%;
+    }
+
+    .cabecalho__menu__itens {
+        display: none;
+    }
+    
+    .botao, .botaoVoltarFooter {
+        display: block;
+    }
+    
+    .cabecalho__menu__itens__mobile.abrir {
+        visibility: visible;
+        height: 100vh;
+    }
+    
+    .botaoVoltar a {
+        display: none;
+    }
+}
+
+.fa-xmark {
+    display: none;
+}
+
+.icons__menu i {
+    color: white;
+}
+
+@media (max-width: 1000px) {
+}

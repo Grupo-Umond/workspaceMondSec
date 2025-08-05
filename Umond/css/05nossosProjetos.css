@@ -1,0 +1,102 @@
+.nossos_projetos {
+    padding: 10% 5% 0% 5%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+
+.container {
+    position: relative;
+    width: 1100px;
+    height: 600px;
+    /* background-image: radial-gradient(#320643, #140534); */
+    overflow: hidden;
+}
+
+.directional {
+    position: absolute;
+    bottom: 5%;
+    width: 100%;
+    display: flex;
+    /* align-items: center; */
+    justify-content: center;
+    gap: 10px;
+    /* text-align: center; */
+    z-index: 3;
+}
+
+.directional button {
+    width: 40px;
+    height: 40px;
+    color: black;
+    background-color: white;
+    box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.23);
+    border-radius: 50%;
+    border: none;
+    transition: 0.3s;
+    /* opacity: 0.2; */
+}
+
+.directional button:nth-child(1):hover {
+    transform: translateX(-5px);
+}
+
+.directional button:nth-child(2):hover {
+    transform: translateX(5px);
+}
+
+#slide {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+#slide .item {
+    position: absolute;
+    width: 100%;
+    height: 90%;
+    top: 0;
+    left: 0;
+    z-index: 1;
+}
+
+#slide .item .image {
+    position: absolute;
+    top: 10%; 
+    left: 0;
+    width: 100%;
+    height: 80%;
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: end;
+    opacity: 0;
+    transform: scale(1.2);
+    transition: 1.5s;
+    border-radius: 20px;
+}
+
+#slide .item .image img {
+    width: 80%;
+    transition: 0.5s;
+    border-radius: 10px;
+}
+
+#slide .item .image img:hover {
+    transform: scale(1.01);
+}
+
+#slide .item:nth-child(1) .image {
+    opacity: 0;
+    transform: scale(0) translate(-100px);
+}
+
+#slide .item:nth-child(2) .image {
+    opacity: 1;
+    transform: scale(1);
+}
+
+#slide .item:nth-child(2) {
+    z-index: 3;
+}
