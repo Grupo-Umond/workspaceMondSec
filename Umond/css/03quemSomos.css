@@ -1,0 +1,87 @@
+.quemSomos {
+    padding: 10% 18% 0% 18%;
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+
+.quemSomos .titulo {
+    text-align: center;
+}
+
+.quemSomos_identificacao {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 30px;
+    background-color: transparent;
+    padding: 1%;
+    border-radius: 5px;
+}
+
+.quemSomos_identificacao img {
+    width: 60%;
+    animation: ab 2s infinite ease;
+}
+
+@keyframes ab {
+    0% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(10px);
+    }
+
+    100% {
+        transform: translateY(0);
+    }
+}
+
+.descricao {
+    width: 50%;
+    font-family: sans-serif;
+    font-size: 1.5rem;
+    text-align: center;
+}
+
+.cards_quemSomos {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 10px;
+}
+
+.cards_quemSomos .card {
+    font-family: sans-serif;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    /* align-items: center; */
+    background-color: white;
+    height: 150px;
+    border-radius: 10px;
+    padding: 0% 5%;
+    gap: 10px;
+    transition: 0.1s;
+}
+
+.cards_quemSomos .card:hover {
+            transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(37, 99, 235, 0.1);
+    border-color: #2563eb;
+}
+
+.cards_quemSomos .card i {
+    font-size: 2rem;
+    color: #040439;
+}
+
+.cards_quemSomos .card h3 {
+    font-weight: bold;
+    color: #040439;
+}
+
+.cards_quemSomos .card p {
+    font-size: 1.3rem;
+    color: rgb(99, 99, 99);
+}

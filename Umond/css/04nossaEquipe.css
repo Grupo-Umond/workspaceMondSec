@@ -1,0 +1,197 @@
+.body .titulo {
+    margin-bottom: 30px;
+}
+
+.body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    padding: 0 35px;
+    min-height: 100vh;
+}
+
+.wrapper {
+    position: relative;
+    max-width: 1100px;
+    width: 100%;    
+}
+
+.wrapper i {
+    position: absolute;
+    width: 50px;
+    height: 50px;
+    background-color: white;
+    text-align: center;
+    line-height: 50px;
+    border-radius: 50%;
+    cursor: pointer;
+    top: 50%;
+    font-size: 1.25rem;
+    transform: translateY(-50%);
+    box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.23);
+}
+
+.wrapper i:first-child {
+    left: -60px;
+}
+
+.wrapper i:last-child {
+    right: -55px;
+}
+
+.wrapper .carousel {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: calc((100% / 3) - 12px);
+    gap: 16px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scroll-behavior: smooth;
+    scrollbar-width: 0;
+}
+
+.carousel::-webkit-scrollbar {
+    display: none;
+}
+
+.carousel :where(.card, .image) {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.carousel.no-transition {
+    scroll-behavior: auto;
+}
+
+.carousel.dragging {
+    scroll-snap-type: none;
+    scroll-behavior: auto;
+}
+
+.carousel.dragging .card {
+    cursor: grab;
+    user-select: none;
+}
+
+.carousel .card {
+    position: relative;
+    font-family: sans-serif;
+    scroll-snap-align: start;
+    list-style: none;
+    background-color: white;
+    border-radius: 8px;
+    height: 400px;
+    padding-bottom: 15px;
+    display: flex;
+    justify-content: center;    
+    align-items: center;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.carousel .card .funcao {
+    position: absolute;
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 148px;
+    height: 50px;
+    background-color: #040439;
+    border-radius: 0 0 50% 50%;
+    top: 0;
+}
+
+.funcao h3 {
+    font-weight: 500;
+}
+
+.card .image {
+    position: absolute;
+    top: 15%;
+    background: whitesmoke;
+    width: 250px;
+    height: 200px;
+    z-index: 1;
+}
+
+.card .image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    /* border: 4px solid blue; */
+}
+
+.card h2 {
+    color: white;
+    font-weight: 500;
+    font-size: 1.56rem;
+    /* margin: 30px 0 5px; */
+}
+
+.card span {
+    color: black;
+    font-size: 1.31rem;
+}
+
+.redes {
+    display: flex;
+    width: 100%;
+    justify-content: center;
+    gap: 10px;
+}
+
+.card .descricao {
+    z-index: 5;
+    width: 100%;
+    height: 15%;
+    border-radius: 50% 50% 0 0;
+    background-color: #040439;
+    position: absolute;
+    overflow: hidden;
+    bottom: 0;
+    transition: 0.3s;
+}
+
+
+.card .descricao h2 {
+    margin: 5% 0 5% 0;
+}
+
+.card .descricao:hover {
+    height: 30%;
+}
+
+.redes img {
+    width: 13%;
+}
+
+@media screen and (max-width: 900px) {
+    .wrapper .carousel {
+        grid-auto-columns: calc((100% / 2) - 9px);
+    }
+}
+
+@media screen and (max-width: 600px) {
+    .wrapper .carousel {
+        grid-auto-columns: 100%;
+    }
+}
+
+.fundo-topo {
+    position: absolute;
+    top: 0;
+    width: 100%;
+    height: 50%;
+    background-color: #040439;
+}
+
+.fundo-baixo {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    height: 15%;
+    background-color: #040439;
+}

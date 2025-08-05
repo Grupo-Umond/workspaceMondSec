@@ -1,0 +1,110 @@
+.faleConosco {
+    padding: 6% 5% 0% 5%;
+    margin-bottom: 4%;
+}
+
+.faleConosco .titulo {
+    text-align: center;
+    margin-bottom: 1%;
+}
+
+.conteudo_faleConosco {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 30px;
+}
+
+.cards_faleConosco {
+    width: 40%;
+    height: 400px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+
+.cards_faleConosco .card {
+    padding: 3%;
+    font-family: sans-serif;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    gap: 10px;
+    background-color: white;
+    border-radius: 10px;
+    transition: 0.1s;
+}
+
+.cards_faleConosco .card:hover {
+        transform: translateY(-1px);
+    box-shadow: 0 10px 25px rgba(37, 99, 235, 0.1);
+    border-color: #2563eb;
+}
+
+.cards_faleConosco .card i {
+    color: #040439;
+    font-size: 2rem;
+}
+
+.form_faleConosco {
+    width: 30%;
+}
+
+.form_faleConosco form {
+    height: 100%;
+    font-family: sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: #040439;
+    padding: 0% 1%;
+    border-radius: 10px;
+    color: white;
+}
+
+form h3 {
+    font-size: 2rem;
+    margin-top: 3%;
+    /* margin-bottom: 5%; */
+}
+
+form label {
+    width: 75%;
+    font-size: 1.25rem;
+}
+
+form input {
+    width: 75%;
+    padding: 3% 1%;
+    font-size: 1rem;
+    margin-bottom: 5%;
+    border-radius: 5px;
+    border: none;
+}
+
+form textarea {
+    font-family: sans-serif;
+    width: 75%;
+    padding: 2% 1% 20% 1%;
+    font-size: 1rem;
+    resize: vertical;
+    margin-bottom: 3%;
+    border: none;
+    border-radius: 5px;
+    margin-bottom: 8%;
+}
+
+#enviar {
+    width: 50%;
+    border: none;
+    border-radius: 10px;
+    background-color: white;
+    transition: 0.3s;
+    cursor: pointer;
+}
+
+#enviar:hover {
+    background-color: whitesmoke;
+}
