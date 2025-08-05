@@ -13,11 +13,10 @@ Route::post('/login', [AuthController::class, 'login']);
 
 
 Route::middleware('auth:api')->controller(UsuarioController::class)->group(function() {
-    Route::post('/usuarios', 'store');            // criar usuário
-    Route::get('/usuarios', 'index');            // listar todos
-    Route::get('/usuarios/{id}', 'show');        // buscar por ID
+    Route::get('/usuarios', 'index');            
+    Route::get('/usuarios/{id}', 'show');        
     Route::post('/updateSenha','updateSenha');
-    Route::delete('/usuarios/{id}', 'delete');   // remover
+    Route::delete('/usuarios/{id}', 'delete');
 
 });
 

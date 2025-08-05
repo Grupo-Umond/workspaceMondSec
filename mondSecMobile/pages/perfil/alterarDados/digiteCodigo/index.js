@@ -8,6 +8,7 @@ const DigiteCodigoScreen = ({navigation, route}) => {
     const[erroMessage, setErroMessage] = useState('')
     const[carregando, setCarregando] = useState(false);
     const email = route.params?.email;
+    const caminho = route.params?.caminho;
 
     const validarCodigo = () => {
       setErroMessage('');
@@ -49,8 +50,16 @@ const DigiteCodigoScreen = ({navigation, route}) => {
             setErroMessage('Permissão não recebida');
             return;
           }
+          
           await AsyncStorage.setItem('tokenTemp', tokenTemp);
-          navigation.navigate('TrocarSenha');
+          
+          if(caminho === 'email'){
+            navigation.navigate('TrocarEmail');
+          }
+          if(caminho === 'senha'){
+            navigation.navigate('TrocarSenha');
+          }
+
         }catch(err){
          console.log(err);
         }finally{

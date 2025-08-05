@@ -3,7 +3,8 @@ import axios from "axios";
 import React, {useState} from "react";
 import {TextInput, View, Text, Pressable, StyleSheet, Button} from 'react-native';
 
-const DigiteDadosScreen = ({navigation}) => {
+const DigiteDadosScreen = ({navigation,route}) => {
+    const caminho = route.params?.porOnde;
     const[email, setEmail] = useState('');
     const[erroMessage, setErroMessage] = useState('');
     const[carregando, setCarregando] = useState(false);
@@ -41,7 +42,7 @@ const DigiteDadosScreen = ({navigation}) => {
             Authorization: `Bearer ${token}`
           },
         });
-        navigation.navigate('DigiteCodigo', {email: email});
+        navigation.navigate('DigiteCodigo', {email,caminho});
 
         }catch(err){
           console.log(err.response.data);
