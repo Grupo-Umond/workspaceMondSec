@@ -113,7 +113,7 @@ const LoginScreen = ({navigation}) => {
         style={styles.input}
       />
 
-      <Pressable style={styles.link} onPress={() => navigation.navigate('alterarSenha')}>
+      <Pressable style={styles.link} onPress={() => navigation.navigate('TrocarSenha')}>
           <Text>Esqueceu a senha?</Text>
       </Pressable>
 

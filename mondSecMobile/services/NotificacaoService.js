@@ -4,10 +4,7 @@ import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export async function notificacaoService() {
-  if (Platform.OS === 'web') {
-    alert('Notificações push não estão disponíveis no navegador.');
-    return;
-  }
+  
 
   const { status } = await Notifications.requestPermissionsAsync();
   await AsyncStorage.setItem('permissaoNot', status);
