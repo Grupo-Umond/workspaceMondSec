@@ -8,7 +8,6 @@ const MenuScreen = ({navigation}) => {
     const [nome, setNome] = useState('');
     const [email, setEmail] = useState('');
     const [erroMessage, setErroMessage] = useState('');
-    const [porOnde, setPorOnde] = useState('');
 
     useEffect(() => {
         async function puxarInfos() {
@@ -46,6 +45,7 @@ const MenuScreen = ({navigation}) => {
 
     }, []);
 
+
     const sairConta = async () => {
         await AsyncStorage.removeItem('userToken');
         await AsyncStorage.removeItem('lembraMim');
@@ -77,12 +77,12 @@ const MenuScreen = ({navigation}) => {
                         Minhas Ocorrências
                     </Text>
                 </Pressable>
-                <Pressable onPress={() => {setPorOnde('email'); navigation.navigate('DigiteDados', porOnde);}}>
+                <Pressable onPress={() => navigation.navigate('DigiteDados',{porOnde: true})}>
                     <Text>
                         Alterar Email
                     </Text>
                 </Pressable>
-                <Pressable onPress={() => {setPorOnde('senha'); navigation.navigate('DigiteDados', porOnde);}}>
+                <Pressable onPress={() => navigation.navigate('DigiteDados',{porOnde: false})}>
                     <Text>
                         Alterar Senha
                     </Text>

@@ -16,6 +16,7 @@ Route::middleware('auth:api')->controller(UsuarioController::class)->group(funct
     Route::get('/usuarios', 'index');            
     Route::get('/usuarios/{id}', 'show');        
     Route::post('/updateSenha','updateSenha');
+    Route::post('/updateEmail','updateEmail');
     Route::delete('/usuarios/{id}', 'delete');
 
 });

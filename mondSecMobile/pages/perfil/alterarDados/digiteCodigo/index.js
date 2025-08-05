@@ -32,6 +32,7 @@ const DigiteCodigoScreen = ({navigation, route}) => {
       setCarregando(true);
 
       console.log('seu email',email);
+      console.log('seu caminho', caminho);
 
         const tokenUser = await AsyncStorage.getItem('userToken');
         try{
@@ -53,13 +54,11 @@ const DigiteCodigoScreen = ({navigation, route}) => {
           
           await AsyncStorage.setItem('tokenTemp', tokenTemp);
           
-          if(caminho === 'email'){
+          if(caminho){
             navigation.navigate('TrocarEmail');
-          }
-          if(caminho === 'senha'){
+          }else{
             navigation.navigate('TrocarSenha');
           }
-
         }catch(err){
          console.log(err);
         }finally{

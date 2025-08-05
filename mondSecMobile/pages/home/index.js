@@ -6,6 +6,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 const HomeScreen = ({ navigation }) => {
   const [visivelSolicitar, setVisivelSolicitar] = useState(true);
   const [visivelWelcome, setVisivelWelcome] = useState(false);
+  let vidaUtilModal = true;
 
   
   useEffect(() => {
@@ -14,14 +15,26 @@ const HomeScreen = ({ navigation }) => {
       if(response == 'granted') {
         setVisivelSolicitar(false);
       }
+
+
+      vidaUtilModal = await AsyncStorage.getItem('vidaUtilModal');
+      if(vidaUtilModal === "false") {
+        setVisivelWelcome(false);
+      }else{
+        setVisivelWelcome(true);
+      }
     };
 
     verificarModal();
   },[]);
+
   const modalPermissao = async () => {
     await notificacaoService();
     setVisivelSolicitar(false);
-    setVisivelWelcome(true);
+    if(!visivelWelcome){
+      await AsyncStorage.setItem('vidaUtilModal', false);
+    }
+
   };
 
   return (
@@ -41,8 +54,8 @@ const HomeScreen = ({ navigation }) => {
             <Text style={styles.modalTitle}>Aviso!</Text>
             <Text style={styles.modalText}>Este app utiliza a localização do seu dispositivo. É necessário que o acesso esteja ativo.</Text>
             <Text style={styles.modalText}>Deseja permitir o acesso?</Text>
-            <Pressable onPress={modalPermissao}>
-              <Text style={styles.modalButton}>Ok</Text>
+            <Pressable onPress={() => modalPermissao()}>
+              <Text style={styles.modalButton}>Sim</Text>
             </Pressable>
           </View>
         </View>
@@ -54,7 +67,7 @@ const HomeScreen = ({ navigation }) => {
             <Text style={styles.modalTitle}>Bem-vindo ao MondSec!</Text>
             <Text style={styles.modalText}>Seu app de rotas seguras!</Text>
             <Pressable onPress={() => setVisivelWelcome(false)}>
-              <Text style={styles.modalButton}>Sim</Text>
+              <Text style={styles.modalButton}>Ok</Text>
             </Pressable>
           </View>
         </View>
