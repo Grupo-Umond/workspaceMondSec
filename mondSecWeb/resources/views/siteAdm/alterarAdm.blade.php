@@ -70,7 +70,7 @@
 </head>
 <body>
     <div class="container">
-        <h2>Cadastro de Administrador</h2>
+        <h2>Alterar Dados do Administrador</h2>
 
         @if(session('success'))
             <div class="success">{{ session('success') }}</div>

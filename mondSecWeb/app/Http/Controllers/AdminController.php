@@ -108,5 +108,17 @@ class AdminController extends Controller
         return redirect()->route('adm.vizuAdms')->with('success','Adm alterado com sucesso');
     }
 
+    public function deleteAdm($id) {
+        $admin = Admin::find($id);
+
+        if(!$admin) {
+            return redirect()->back()->with('Error','O adm não encontrado');
+        }
+
+        $admin->delete();
+
+        return redirect()->route('adm.vizuAdms')->with('success','Adm deletado com sucesso');
+    }
+
 }
 

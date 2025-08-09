@@ -8,7 +8,7 @@
 <body class="bg-light">
     <div class="container py-5">
         <h1 class="mb-4">Admins Cadastrados</h1>
-        
+        @method(`DELETE`)
         @if($admins->isEmpty())
             <div class="alert alert-warning">Nenhum admin cadastrado.</div>
         @else
@@ -31,6 +31,14 @@
                             <td>{{ $admin->nivelAdmin }}</td>
                             <td>{{ $admin->created_at->format('d/m/Y H:i') }}</td>
                             <td><a href="{{ route('adm.alterarAdm', $admin->id)}}">Editar</a></td>
+                            <td>
+                            <form action="{{ route('adm.deletarAdm', $admin->id) }}" method="POST" onsubmit="return confirm('Tem certeza que quer excluir?');">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" class="btn btn-danger btn-sm">Excluir</button>
+                            </form>
+                        </td>
+
                         </tr>
                     @endforeach
                 </tbody>
