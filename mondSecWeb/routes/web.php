@@ -22,6 +22,7 @@ Route::prefix('siteAdm')->group(function () {
     Route::post('/vizualisar', [AdminController::class, 'vizualisarUsersScreen'])->name('adm.vizuUsers');
     Route::get('/alterar/{id}', [AdminController::class, 'alterarAdmScreen'])->name('adm.alterarAdm');
     Route::put('/alterar/{id}', [AdminController::class, 'updateAdm'])->name('adm.alterarAdm.submit');
+    Route::delete('/excluir/{id}', [AdminController::class, 'deleteAdm'])->name('adm.deletarAdm');
     Route::get('/logout', [AdminController::class, 'logout'])->name('adm.logout');
 
 
