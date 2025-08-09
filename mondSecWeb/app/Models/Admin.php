@@ -31,4 +31,9 @@ class Admin extends Authenticatable
         'email' => 'string',
         'nivelAdmin' => 'string',
     ];
+
+     public function getAuthPassword()
+    {
+        return $this->senha;
+    }
 }

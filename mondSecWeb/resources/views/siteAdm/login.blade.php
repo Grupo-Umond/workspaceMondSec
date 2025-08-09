@@ -75,7 +75,7 @@
     <div class="container">
         <h2>Login</h2>
 
-        <form action="{{ route('adm.login.submit') }}" method="POST">
+        <form id="formLogin" action="{{ route('adm.login.submit') }}" method="POST">
             @csrf
 
             <label for="email">Email:</label>
@@ -85,7 +85,7 @@
             @enderror
 
             <label for="senha">Senha:</label>
-            <input type="senha" id="senha" name="password" required>
+            <input type="password" id="senha" name="senha" required>
             @error('senha')
                 <div class="error">{{ $message }}</div>
             @enderror
@@ -97,6 +97,30 @@
             Ainda não tem uma conta? <a href="{{ route('adm.cadastro') }}">Cadastre-se aqui</a>
         </div>
     </div>
+    <script>
+        const form = document.getElementById('formLogin');
 
+        form.addEventListener('submit', function (event) {
+            const email = document.getElementById('email');
+            const senha = document.getElementById('senha');
+
+            if(!email || !senha) {
+                event.preventDefault();
+                alert('Preencha os campos obrigatorios');
+            }
+
+            if(!regex.test(email)) {
+                event.preventDefault();
+                alert('Email invalido');
+            }
+
+            if(senha.length < 8) {
+                event.preventDefault();
+                alert('Digite uma senha com no minimo 8 digitos');
+            }
+
+
+        });
+    </script>
 </body>
 </html>

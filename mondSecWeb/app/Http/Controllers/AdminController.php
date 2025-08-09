@@ -29,9 +29,12 @@ class AdminController extends Controller
             'senha' => ['required'],
         ]);
 
-        if (Auth::guard('admin')->attempt($credentials)) {
+        $admin = Admin::where('email', $credentials['email'])->first();
+
+        if($admin && Hash::check($credentials['senha'], $admin['senha'])) {
+            Auth::guard('admin')->login($admin);
             $request->session()->regenerate();
-            return redirect()->route('siteAdm.home');
+            return redirect()->route('siteAdm.index');
         }
 
         return back()->withErrors([
