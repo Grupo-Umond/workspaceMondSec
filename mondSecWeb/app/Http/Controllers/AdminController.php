@@ -17,9 +17,26 @@ class AdminController extends Controller
         return view('siteAdm.login');
     }
 
+    public function homeScreen() {
+        return view('siteAdm.home');
+    }
+
     public function cadastroScreen()
     {
-        return view("siteAdm.cadastro");
+        return view('siteAdm.cadastro');
+    }
+
+    public function vizualisarAdmsScreen()
+    {
+       
+        $admins = Admin::all();
+        return view('siteAdm.vizuAdms', compact('admins'));
+
+    }
+
+    public function vizualisarUsersScreen()
+    {
+        return view('siteAdm.vizuUsers');
     }
 
     public function login(Request $request)
@@ -34,7 +51,7 @@ class AdminController extends Controller
         if($admin && Hash::check($credentials['senha'], $admin['senha'])) {
             Auth::guard('admin')->login($admin);
             $request->session()->regenerate();
-            return redirect()->route('siteAdm.index');
+            return redirect()->route('adm.home');
         }
 
         return back()->withErrors([
@@ -72,7 +89,24 @@ class AdminController extends Controller
         return redirect()->route('adm.cadastro')->with('success', 'Adm cadastrado com sucesso!');
     }
     
+    public function alterarAdmScreen($id) {
+        $admin = Admin::findOrFail($id);
+        return view('siteAdm.alterarAdm', compact('admin'));
+    }
 
+    public function updateAdm(Request $request, $id) {
+        $dados = $request->validate([
+            'nome' => 'required|max:225|string',
+            'email' => 'required|max:225|string|unique:tbAdmin,email,' . $id . ',id',
+            'nivelAdmin' => 'required|string',
+        ]);
+
+        $admin = Admin::findOrFail($id);
+
+        $admin->update($dados);
+
+        return redirect()->route('adm.vizuAdms')->with('success','Adm alterado com sucesso');
+    }
 
 }
 
