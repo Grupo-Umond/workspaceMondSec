@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, {useState, useEffect} from "react";
 import {View, Text, TextInput, Pressable, StyleSheet, Button} from 'react-native';
 import axios from 'axios';
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -7,8 +7,26 @@ const DigiteCodigoScreen = ({navigation, route}) => {
     const[code, setCode] = useState('');
     const[erroMessage, setErroMessage] = useState('')
     const[carregando, setCarregando] = useState(false);
-    const email = route.params?.email;
     const caminho = route.params?.caminho;
+    
+    useEffect(() => {
+      criarCodigo();
+    }, [])
+
+    const criarCodigo = async () => {
+      const tokenUser = await AsyncStorage.getItem('userToken');
+
+      try{
+        const response = await axios.post('http://127.0.0.1:8000/api/sendCode', {}, {
+          headers: {
+            Authorization: `Bearer ${tokenUser}`
+          }
+        });
+      }catch(erro){
+        console.log(erro);
+        return;
+      }
+    }
 
     const validarCodigo = () => {
       setErroMessage('');
@@ -31,14 +49,11 @@ const DigiteCodigoScreen = ({navigation, route}) => {
 
       setCarregando(true);
 
-      console.log('seu email',email);
-      console.log('seu caminho', caminho);
-
+      
         const tokenUser = await AsyncStorage.getItem('userToken');
         try{
           const response = await axios.post('http://127.0.0.1:8000/api/verifyCode', 
             {
-              email,
               code,
             },{
               headers:{
@@ -53,14 +68,14 @@ const DigiteCodigoScreen = ({navigation, route}) => {
           }
           
           await AsyncStorage.setItem('tokenTemp', tokenTemp);
-          
           if(caminho){
-            navigation.navigate('TrocarEmail');
-          }else{
-            navigation.navigate('TrocarSenha');
+            navigation.navigate('DigiteDados');
+          }else if (!caminho) {
+            navigation.navigate('AlterarSenha');
           }
+
         }catch(err){
-         console.log(err);
+          console.log(err);
         }finally{
           setCarregando(false);
         }
@@ -86,9 +101,7 @@ const DigiteCodigoScreen = ({navigation, route}) => {
         onChangeText={setCode}
     />
 
-    <Pressable style={styles.linkButton} onPress={() => reenviarCodigo()}>
         <Text style={styles.linkText}>Não recebeu o código? Reenvie aqui</Text>
-    </Pressable>
 
     <Button 
       title={carregando ? 'Enviando...' : 'Enviar'}

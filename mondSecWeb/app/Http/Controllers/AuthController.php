@@ -48,13 +48,13 @@ class AuthController extends Controller
 
     public function sendCode(Request $request)
     {
-        $request->validate(['email' => 'required|email']);
-
+        $user = $request->user();
+        $email = $user->emailUsuario;
         $code = rand(100000, 999999); 
-        Cache::put("verify_{$request->email}", $code, now()->addMinutes(5));
+        Cache::put("verify_{$email}", $code, now()->addMinutes(5));
 
-        Mail::raw("Seu código de verificação: {$code}", function($message) use ($request) {
-            $message->to($request->email)
+        Mail::raw("Seu código de verificação: {$code}", function($message) use ($email) {
+            $message->to($email)
                     ->subject('Código de Verificação');
         });
 
@@ -64,11 +64,13 @@ class AuthController extends Controller
     public function verifyCode(Request $request)
     {
         $request->validate([
-            'email' => 'required|email',
             'code'  => 'required|digits:6'
         ]);
 
-        $cachedCode = Cache::get("verify_{$request->email}");
+        $user = $request->user();
+        $email = $user->emailUsuario;
+
+        $cachedCode = Cache::get("verify_{$email}");
 
         if (!$cachedCode || $cachedCode != $request->code) {
             return response()->json(['message' => 'Código inválido ou expirado'], 400);
@@ -76,7 +78,7 @@ class AuthController extends Controller
 
         
         $tempToken = bin2hex(random_bytes(16));
-        Cache::put("token_{$tempToken}", $request->email, now()->addMinutes(10));
+        Cache::put("token_{$tempToken}", $email, now()->addMinutes(10));
 
         return response()->json(['token' => $tempToken]);
     }
