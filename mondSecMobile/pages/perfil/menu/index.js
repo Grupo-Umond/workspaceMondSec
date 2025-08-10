@@ -77,12 +77,12 @@ const MenuScreen = ({navigation}) => {
                         Minhas Ocorrências
                     </Text>
                 </Pressable>
-                <Pressable onPress={() => navigation.navigate('DigiteDados',{porOnde: true})}>
+                <Pressable onPress={() => navigation.navigate('DigiteCodigo', {'caminho': true})}>
                     <Text>
-                        Alterar Email
+                        Alterar Dados
                     </Text>
                 </Pressable>
-                <Pressable onPress={() => navigation.navigate('DigiteDados',{porOnde: false})}>
+                <Pressable onPress={() => navigation.navigate('DigiteCodigo', {'caminho': false})}>
                     <Text>
                         Alterar Senha
                     </Text>

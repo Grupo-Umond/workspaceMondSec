@@ -3,7 +3,7 @@ import {Pressable, View, TextInput, Text, Button, StyleSheet} from 'react-native
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const TrocarSenhaScreen = ({navigation}) => {
+const AlterarSenhaScreen = ({navigation}) => {
     const[novaSenha, setNovaSenha] = useState('');
     const[novaSenhaConfirma, setNovaSenhaConfirma] = useState('');
     const[carregando, setCarregando] = useState(false);
@@ -39,7 +39,7 @@ const TrocarSenhaScreen = ({navigation}) => {
         
         const tokenUser = await AsyncStorage.getItem('userToken');
         try{
-            const response = await axios.post('http://127.0.0.1:8000/api/updateSenha', 
+            const response = await axios.put('http://127.0.0.1:8000/api/alterar', 
             {
                 tokenTemp,
                 novaSenhaConfirma,
@@ -149,4 +149,4 @@ const styles = StyleSheet.create({
     },
 });
 
-export default TrocarSenhaScreen;
+export default AlterarSenhaScreen;

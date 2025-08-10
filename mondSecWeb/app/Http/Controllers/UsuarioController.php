@@ -12,18 +12,18 @@ class UsuarioController extends Controller
     
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'nomeUsuario'   => 'required|string|max:255',
-            'generoUsuario' => 'required|string|max:50',
-            'emailUsuario'  => 'required|email|unique:tbUsuario,emailUsuario',
-            'senhaUsuario'  => 'required|string|min:6',
+        $dados = $request->validate([
+            'nome'   => 'required|string|max:255',
+            'genero' => 'required|string',
+            'email'  => 'required|email|unique:tbUsuario,emailUsuario',
+            'senha'  => 'required|string|min:6',
         ]);
 
         $usuario = Usuario::create([
-            'nomeUsuario'         => $validated['nomeUsuario'],
-            'generoUsuario'       => $validated['generoUsuario'],
-            'emailUsuario'        => $validated['emailUsuario'],
-            'senhaUsuario'        => Hash::make($validated['senhaUsuario']),
+            'nomeUsuario'         => $dados['nome'],
+            'generoUsuario'       => $dados['genero'],
+            'emailUsuario'        => $dados['email'],
+            'senhaUsuario'        => Hash::make($dados['senha']),
             'dataCadastroUsuario' => now(),
         ]);
 
@@ -48,23 +48,29 @@ class UsuarioController extends Controller
 
 
 
-
-    public function updateEmail(Request $request)
-    {
+    public function updateUsuario(Request $request) {
         $request->validate([
+            'nome' => 'required',
+            'email' => 'required',
+            'genero' => 'required',
             'tokenTemp' => 'required',
-            'novoEmailConfirma' => 'nullable',
         ]);
 
         $email = Cache::get("token_{$request->tokenTemp}");
-        if (!$email) {
-        return response()->json(['message' => 'Token inválido ou expirado'], 400);
+        if(!$email) {
+            return response()->json(['message' => 'Token inválido ou expirado'], 400);
         }
 
         $user = Usuario::where('emailUsuario', $email)->firstOrFail();
 
-        if ($request->novoEmailConfirma) {
-            $user->emailUsuario = $request->novoEmailConfirma;
+        if($request->nome) {
+            $user->nomeUsuario = $request->nome;
+        }
+        if($request->email) {
+            $user->emailUsuario = $request->email;
+        }
+        if($request->genero) {
+            $user->generoUsuario = $request->genero;
         }
 
         $user->save();
@@ -78,26 +84,26 @@ class UsuarioController extends Controller
 
     public function updateSenha(Request $request)
     {
-    $request->validate([
-        'tokenTemp' => 'required',
-        'novaSenhaConfirma' => 'nullable|min:6',
-    ]);
+        $request->validate([
+            'tokenTemp' => 'required',
+            'novaSenhaConfirma' => 'nullable|min:6',
+        ]);
 
-    $email = Cache::get("token_{$request->tokenTemp}");
-    if (!$email) {
-       return response()->json(['message' => 'Token inválido ou expirado'], 400);
-    }
+        $email = Cache::get("token_{$request->tokenTemp}");
+        if (!$email) {
+            return response()->json(['message' => 'Token inválido ou expirado'], 400);
+        }
 
-    $user = Usuario::where('emailUsuario', $email)->firstOrFail();
+        $user = Usuario::where('emailUsuario', $email)->firstOrFail();
 
-    if ($request->novaSenhaConfirma) {
-        $user->senhaUsuario = bcrypt($request->novaSenhaConfirma);
-    }
+        if ($request->novaSenhaConfirma) {
+            $user->senhaUsuario = bcrypt($request->novaSenhaConfirma);
+        }
 
-    $user->save();
-    Cache::forget("token_{$request->tokenTemp}");
+        $user->save();
+        Cache::forget("token_{$request->tokenTemp}");
 
-    return response()->json(['message' => 'Dados atualizados com sucesso']);
+        return response()->json(['message' => 'Dados atualizados com sucesso']);
     }
 
     

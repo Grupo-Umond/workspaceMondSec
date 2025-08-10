@@ -8,15 +8,15 @@ use App\Http\Controllers\OcorrenciaController;
 use App\Http\Controllers\NotificationController;
 
 
-Route::post('/usuarios', [UsuarioController::class,'store']); 
+Route::post('/cadastrar', [UsuarioController::class,'store']); 
 Route::post('/login', [AuthController::class, 'login']);
 
 
 Route::middleware('auth:api')->controller(UsuarioController::class)->group(function() {
     Route::get('/usuarios', 'index');            
     Route::get('/usuarios/{id}', 'show');        
-    Route::post('/updateSenha','updateSenha');
-    Route::post('/updateEmail','updateEmail');
+    Route::put('/update','updateUsuario');
+    Route::put('/alterar','updateSenha');
     Route::delete('/usuarios/{id}', 'delete');
 
 });
@@ -29,7 +29,7 @@ Route::middleware('auth:api')->controller(OcorrenciaController::class)->group(fu
 
 Route::middleware('auth:api')->controller(AuthController::class)->group(function () {
     Route::get('/buscar', 'informationProfile');
-    Route::post('/requestVerification','sendCode');
+    Route::post('/sendCode','sendCode');
     Route::post('/verifyCode','verifyCode');
 
 

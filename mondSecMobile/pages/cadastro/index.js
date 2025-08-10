@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, Button, Pressable, Alert, StyleSheet } from 'react-native';
+import React, {useState} from 'react';
+import { View, Text, TextInput, Button, Pressable, StyleSheet } from 'react-native';
 import CheckBox from 'expo-checkbox';
 import axios from 'axios';
 
@@ -11,52 +11,53 @@ const CadastroScreen = ({ navigation }) => {
   const [senha, setSenha] = useState('');
   const [concordoTermos, setConcordoTermos] = useState(false);
   const [carregando, setCarregando] = useState(false);
-  const [errorMessage, setErrorMessage] = useState('');
-
+  const [erroMessage, setErroMessage] = useState('');
   const opcoesGenero = ['Masculino', 'Feminino', 'Prefiro não informar'];
 
 
   const validarDados = () => {
     if (!nome || !genero || !email || !senha) {
-      Alert.alert('Erro', 'Por favor, preencha todos os campos obrigatórios.');
+      setErroMessage('Erro', 'Por favor, preencha todos os campos obrigatórios.');
       return false;
     }
     if (senha.length < 6) {
-      Alert.alert('Erro', 'A senha precisa ter pelo menos 6 caracteres.');
+      setErroMessage('Erro', 'A senha precisa ter pelo menos 6 caracteres.');
       return false;
     }
     if (!concordoTermos) {
-      Alert.alert('Erro', 'Concorde com nossos termos de uso');
+      setErroMessage('Erro', 'Concorde com nossos termos de uso');
       return false;
     }
     return true;
   };
 
-  const cadastrar = async () => {
+  const enviarDados = async () => {
     if (!validarDados()) return;
 
     setCarregando(true);
 
-    try {
-      const usuario = {
-        nomeUsuario: nome,
-        generoUsuario: genero,
-        emailUsuario: email,
-        senhaUsuario: senha,
-      };
-      const response = await axios.post('http://127.0.0.1:8000/api/usuarios', usuario);
+    try{
+      const response = await axios.post('http://127.0.0.1:8000/api/cadastrar', {
+        nome,
+        email,
+        genero,
+        senha,
+      });
 
-      if (response.data && response.data.emailUsuario) {
-        Alert.alert('Sucesso', 'Cadastro realizado! Faça login para continuar.');
-        navigation.navigate('Login');
+    } catch (erro) {
+      console.log(erro);
+      if(erro.status === 401) {
+        setErroMessage('Cadastro não autorizado');
+        return;
 
-      } else {
-        console.log('Erro no cadastro. Tente novamente!');
+      }else if(erro.status === 500) {
+        setErroMessage('Erro no servidor, tente mais tarde');
+        return;
 
+      }else{
+        setErroMessage('Erro inesperado, tente mais tarde');
+        return;
       }
-    } catch (err) {
-      console.error(err);
-      Alert.alert('Erro', 'Erro ao cadastrar. Tente novamente!');
       
     } finally {
       setCarregando(false);
@@ -111,13 +112,13 @@ const CadastroScreen = ({ navigation }) => {
       />
       <Text>Concordo com os termos de uso</Text>
 
-      {errorMessage ? (
-        <Text style={{ color: 'red', marginBottom: 10 }}>{errorMessage}</Text>
+      {erroMessage ? (
+        <Text style={{ color: 'red', marginBottom: 10 }}>{erroMessage}</Text>
       ) : null}
 
       <Button
         title={carregando ? 'Cadastrando...' : 'Cadastrar'}
-        onPress={cadastrar}
+        onPress={() => enviarDados()}
         color="black"
         disabled={carregando}
       />
