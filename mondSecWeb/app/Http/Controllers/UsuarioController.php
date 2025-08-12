@@ -107,12 +107,23 @@ class UsuarioController extends Controller
     }
 
     
-    public function delete($id)
+    public function delete(Request $request)
     {
-        $usuario = Usuario::find($id);
+        $senha = $request->header('senha');
+        if(!$senha) {
+            return response()->json(['message' => 'Senha não recebida']);
+        }
 
-        if (!$usuario) {
+        
+
+        $usuario = $request->user();
+
+        if (!$usuario ) {
             return response()->json(['mensagem' => 'Usuário não encontrado.'], 404);
+        }
+
+        if(!Hash::check($senha, $usuario->senhaUsuario)) {
+            return response()->json(['mensagem' => 'Senha Incorreta'], 401);
         }
 
         $usuario->delete();
