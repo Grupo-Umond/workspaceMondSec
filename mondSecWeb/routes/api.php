@@ -17,7 +17,7 @@ Route::middleware('auth:api')->controller(UsuarioController::class)->group(funct
     Route::get('/usuarios/{id}', 'show');        
     Route::put('/update','updateUsuario');
     Route::put('/alterar','updateSenha');
-    Route::delete('/usuarios/{id}', 'delete');
+    Route::delete('/deletar', 'delete');
 
 });
 
