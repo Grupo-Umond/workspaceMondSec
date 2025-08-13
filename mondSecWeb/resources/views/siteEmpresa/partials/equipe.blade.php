@@ -7,10 +7,10 @@
         <ul class="carousel">
             {{-- André --}}
             <li class="card">
-                <div class="funcao"><h3>Back-End</h3></div>
                 <div class="image">
                     <img src="{{ asset('Imagens/Integrantes/AndreFoto2.png') }}" alt="" draggable="false">
                 </div>
+                <div class="funcao"><h3>Back-End</h3></div>
                 <div class="descricao">
                     <h2>André</h2>
                     <div class="redes">
@@ -23,10 +23,10 @@
 
             {{-- Pablo --}}
             <li class="card">
-                <div class="funcao"><h3>Front-End</h3></div>
                 <div class="image">
                     <img src="{{ asset('Imagens/Integrantes/PabloFoto2.png') }}" alt="" draggable="false">
                 </div>
+                <div class="funcao"><h3>Front-End</h3></div>
                 <div class="descricao">
                     <h2>Pablo</h2>
                     <div class="redes">
@@ -39,10 +39,10 @@
 
             {{-- Pedro --}}
             <li class="card">
-                <div class="funcao"><h3>Front-End</h3></div>
                 <div class="image">
                     <img src="{{ asset('Imagens/Integrantes/PedroFoto2.png') }}" alt="" draggable="false">
                 </div>
+                <div class="funcao"><h3>Front-End</h3></div>
                 <div class="descricao">
                     <h2>Pedro</h2>
                     <div class="redes">
@@ -55,10 +55,10 @@
 
             {{-- Tiago --}}
             <li class="card">
-                <div class="funcao"><h3>DBA</h3></div>
                 <div class="image">
                     <img src="{{ asset('Imagens/Integrantes/TiagoFoto2.png') }}" alt="" draggable="false">
                 </div>
+                <div class="funcao"><h3>DBA</h3></div>
                 <div class="descricao">
                     <h2>Tiago</h2>
                     <div class="redes">
