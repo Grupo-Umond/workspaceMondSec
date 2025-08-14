@@ -2,6 +2,7 @@ import React, {useState} from 'react';
 import { View, Text, TextInput, Button, Pressable, StyleSheet } from 'react-native';
 import CheckBox from 'expo-checkbox';
 import axios from 'axios';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const CadastroScreen = ({ navigation }) => {
   
@@ -44,6 +45,10 @@ const CadastroScreen = ({ navigation }) => {
         senha,
       });
 
+      const tokenUser = response.data.tokenUser;
+      await AsyncStorage.setItem('userToken', tokenUser);
+
+      navigation.navigate('Home');
     } catch (erro) {
       console.log(erro);
       if(erro.status === 401) {
