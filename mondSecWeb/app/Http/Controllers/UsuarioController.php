@@ -30,24 +30,6 @@ class UsuarioController extends Controller
         return response()->json($usuario, 201);
     }
 
-    public function index()
-    {
-        return response()->json(Usuario::all());
-    }
-
-    public function show($id)
-    {
-        $usuario = Usuario::find($id);
-
-        if (!$usuario) {
-            return response()->json(['mensagem' => 'Usuário não encontrado (idUsuario)'], 404);
-        }
-
-        return response()->json($usuario);
-    }
-
-
-
     public function updateUsuario(Request $request) {
         $request->validate([
             'nome' => 'required',

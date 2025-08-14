@@ -27,13 +27,13 @@ class NotificationController extends Controller
     }
     
 
-    public function salvar(Request $request)
+    public function salvarNotificacao(Request $request)
     {
         $request->validate([
             'token' => 'required|string',
         ]);
         
-        /** @var \App\Models\Usuario $user */
+        /** @var \App\Models\Usuario */
         $user = Auth::user();
         $user->expo_token = $request->token;
         $user->save();
