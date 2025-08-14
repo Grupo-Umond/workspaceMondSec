@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, Pressable, TextInput, Modal, StyleSheet } from 'react-native';
 import  {notificacaoService}  from '../../services/NotificacaoService';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import Mapa from "../../services/MapaService";
+
 
 const HomeScreen = ({ navigation }) => {
   const [visivelSolicitar, setVisivelSolicitar] = useState(true);
@@ -41,6 +43,9 @@ const HomeScreen = ({ navigation }) => {
     <View>
       <View>
         <TextInput />
+      </View>
+      <View>
+        <Mapa />
       </View>
       <View>
         <Pressable onPress={() => navigation.navigate('Home')}><Text>Home</Text></Pressable>
