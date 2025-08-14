@@ -16,6 +16,32 @@ use Carbon\Carbon;
 
 class AuthController extends Controller
 {
+        public function store(Request $request)
+    {
+        $dados = $request->validate([
+            'nome'   => 'required|string|max:255',
+            'genero' => 'required|string',
+            'email'  => 'required|email|unique:tbUsuario,emailUsuario',
+            'senha'  => 'required|string|min:6',
+        ]);
+
+        $usuario = Usuario::create([
+            'nomeUsuario'         => $dados['nome'],
+            'generoUsuario'       => $dados['genero'],
+            'emailUsuario'        => $dados['email'],
+            'senhaUsuario'        => Hash::make($dados['senha']),
+            'dataCadastroUsuario' => now(),
+        ]);
+
+        $token = $usuario->createToken('userToken')->accessToken;
+
+        return response()->json([
+            'tokenUser' => $token,
+            'tokenTipo' => 'Bearer',
+            'expiraEm' => 3600,
+        ]);
+    }
+
     public function login(Request $request) {
     $request->validate([
         'email' => 'required|email',

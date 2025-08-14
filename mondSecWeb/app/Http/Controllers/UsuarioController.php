@@ -10,25 +10,6 @@ use Illuminate\Support\Facades\Cache;
 class UsuarioController extends Controller
 {
     
-    public function store(Request $request)
-    {
-        $dados = $request->validate([
-            'nome'   => 'required|string|max:255',
-            'genero' => 'required|string',
-            'email'  => 'required|email|unique:tbUsuario,emailUsuario',
-            'senha'  => 'required|string|min:6',
-        ]);
-
-        $usuario = Usuario::create([
-            'nomeUsuario'         => $dados['nome'],
-            'generoUsuario'       => $dados['genero'],
-            'emailUsuario'        => $dados['email'],
-            'senhaUsuario'        => Hash::make($dados['senha']),
-            'dataCadastroUsuario' => now(),
-        ]);
-
-        return response()->json($usuario, 201);
-    }
 
     public function updateUsuario(Request $request) {
         $request->validate([
