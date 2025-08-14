@@ -56,6 +56,7 @@ const CadastroScreen = ({ navigation }) => {
 
       }else{
         setErroMessage('Erro inesperado, tente mais tarde');
+        console.log(erro);
         return;
       }
       
