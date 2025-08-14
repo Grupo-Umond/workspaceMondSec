@@ -13,8 +13,6 @@ Route::post('/login', [AuthController::class, 'login']);
 
 
 Route::middleware('auth:api')->controller(UsuarioController::class)->group(function() {
-    Route::get('/usuarios', 'index');            
-    Route::get('/usuarios/{id}', 'show');        
     Route::put('/update','updateUsuario');
     Route::put('/alterar','updateSenha');
     Route::delete('/deletar', 'delete');
