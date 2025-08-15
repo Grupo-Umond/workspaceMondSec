@@ -9,12 +9,10 @@ const LoginScreen = ({navigation}) => {
   const[carregando, setCarregando] = useState(false);
   const[email, setEmail] = useState('');
   const[senha, setSenha] = useState('');
-  const[lembreDeMim, setLembreDeMim] = useState(false);
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
   useEffect(() => {
     const verificarLembra = async () => {
-      const response = await AsyncStorage.getItem('lembraMim');
       const token = await AsyncStorage.getItem('userToken');
       if(response && token) {
         navigation.navigate('Home');
@@ -63,11 +61,6 @@ const LoginScreen = ({navigation}) => {
       }
 
       await AsyncStorage.setItem('userToken', token);
-
-      if(lembreDeMim === true) {
-        await AsyncStorage.setItem('lembraMim', true)
-      }
-
       navigation.navigate('Home');
 
 
@@ -113,16 +106,11 @@ const LoginScreen = ({navigation}) => {
         style={styles.input}
       />
 
-      <Pressable style={styles.link} onPress={() => navigation.navigate('TrocarSenha')}>
+      <Pressable style={styles.link} onPress={() => navigation.navigate('DigiteCodigo')}>
           <Text>Esqueceu a senha?</Text>
       </Pressable>
 
       {erroMessage ? <Text style={styles.error}>{erroMessage}</Text> : null}
-
-      <View style={styles.checkboxContainer}>
-        <CheckBox value={lembreDeMim} onValueChange={setLembreDeMim} />
-        <Text style={styles.checkboxLabel}>Lembrar de mim</Text>
-      </View>
 
       <Button
         title={carregando ? 'Entrando...' : 'Entrar'}
