@@ -8,7 +8,7 @@ use App\Http\Controllers\OcorrenciaController;
 use App\Http\Controllers\NotificationController;
 
 
-Route::post('/cadastrar', [UsuarioController::class,'store']); 
+Route::post('/cadastrar', [AuthController::class,'store']); 
 Route::post('/login', [AuthController::class, 'login']);
 
 
