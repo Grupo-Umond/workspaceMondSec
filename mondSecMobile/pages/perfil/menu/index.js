@@ -77,12 +77,12 @@ const MenuScreen = ({navigation, setUserToken}) => {
                         Minhas Ocorrências
                     </Text>
                 </Pressable>
-                <Pressable onPress={() => navigation.navigate('DigiteCodigo', {'caminho': true})}>
+                <Pressable onPress={() => navigation.navigate('DigiteDados')}>
                     <Text>
                         Alterar Dados
                     </Text>
                 </Pressable>
-                <Pressable onPress={() => navigation.navigate('DigiteCodigo', {'caminho': false})}>
+                <Pressable onPress={() => navigation.navigate('DigiteCodigo')}>
                     <Text>
                         Alterar Senha
                     </Text>

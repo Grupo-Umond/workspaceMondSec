@@ -9,10 +9,11 @@ return new class extends Migration {
     {
         Schema::create('tbUsuario', function (Blueprint $table) {
             $table->bigIncrements('idUsuario'); 
-            $table->string('expo_token')->nullable();
+            $table->string('expoToken')->nullable();
             $table->string('nomeUsuario');
             $table->string('generoUsuario'); 
             $table->string('emailUsuario')->unique(); 
+            $table->string('telefoneUsuario')->unique();
             $table->string('senhaUsuario');
             $table->timestamp('dataCadastroUsuario')->useCurrent();
         });

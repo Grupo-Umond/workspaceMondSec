@@ -35,7 +35,7 @@ class NotificationController extends Controller
         
         /** @var \App\Models\Usuario */
         $user = Auth::user();
-        $user->expo_token = $request->token;
+        $user->expoToken = $request->token;
         $user->save();
 
         return response()->json(['message' => 'Token salvo com sucesso']);

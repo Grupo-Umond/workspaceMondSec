@@ -11,24 +11,46 @@ const CadastroScreen = ({navigation, setUserToken}) => {
   const [nome, setNome] = useState('');
   const [genero, setGenero] = useState(null);          
   const [email, setEmail] = useState('');
+  const [telefone, setTelefone] = useState('');
   const [senha, setSenha] = useState('');
+  
+  const regexTelefone = /^(?:\s?)?(?:\(?\d{2}\)?\s?)?(?:9?\d{4}-?\d{4})$/;
+  const regexEmail = /^[\w\.\-]+@[a-zA-Z\d\-]+\.[a-zA-Z]{2,}$/;
+
   const [concordoTermos, setConcordoTermos] = useState(false);
   const [carregando, setCarregando] = useState(false);
   const [erroMessage, setErroMessage] = useState('');
+
   const opcoesGenero = ['Masculino', 'Feminino', 'Prefiro não informar'];
 
 
   const validarDados = () => {
-    if (!nome || !genero || !email || !senha) {
-      setErroMessage('Erro', 'Por favor, preencha todos os campos obrigatórios.');
+    if (!nome || !genero || !email || !senha || !telefone) {
+      setErroMessage('Por favor, preencha todos os campos obrigatórios.');
       return false;
     }
     if (senha.length < 6) {
-      setErroMessage('Erro', 'A senha precisa ter pelo menos 6 caracteres.');
+      setErroMessage('A senha precisa ter pelo menos 6 caracteres.');
       return false;
     }
+
+    if (telefone.length < 12 || telefone.length > 12) {
+      setErroMessage('Telefone em tamanho errado');
+      return false;
+    }
+
+    if(regexTelefone.test(telefone)){
+      setErroMessage('Telefone invalido');
+      return false;
+    }
+
+    if(regexEmail.test(email)){
+      setErroMessage('Email invalido');
+      return false;
+    }
+
     if (!concordoTermos) {
-      setErroMessage('Erro', 'Concorde com nossos termos de uso');
+      setErroMessage('Concorde com nossos termos de uso');
       return false;
     }
     return true;
@@ -88,6 +110,16 @@ const CadastroScreen = ({navigation, setUserToken}) => {
         value={email}
         onChangeText={setEmail}
         keyboardType="email-address"
+        autoCapitalize="none"
+      />
+
+      <Text>Telefone</Text>
+      <TextInput
+        style={styles.input}
+        placeholder="Digite seu numero de telefone..."
+        value={telefone}
+        onChangeText={setTelefone}
+        keyboardType="number"
         autoCapitalize="none"
       />
 

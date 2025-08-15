@@ -10,6 +10,12 @@ use Illuminate\Support\Facades\Cache;
 class UsuarioController extends Controller
 {
     
+    public function informationProfile(Request $request)
+    {
+        return response()->json([
+            'usuario' => $request->user()
+        ]);
+    }
 
     public function updateUsuario(Request $request) {
         $request->validate([
