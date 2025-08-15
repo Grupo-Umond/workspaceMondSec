@@ -1,7 +1,7 @@
 import { Platform, View, StyleSheet } from "react-native";
 import { useEffect, useRef } from "react";
 
-export default function MapService() {
+export default function MapaService() {
   const mapRef = useRef(null);
 
   useEffect(() => {

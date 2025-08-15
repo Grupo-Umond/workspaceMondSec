@@ -49,7 +49,7 @@ const MenuScreen = ({navigation}) => {
     const sairConta = async () => {
         await AsyncStorage.removeItem('userToken');
         await AsyncStorage.removeItem('lembraMim');
-        navigation.navigate('Login');
+        
     }
     return(
         <View>

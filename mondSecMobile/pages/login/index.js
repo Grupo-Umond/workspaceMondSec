@@ -55,7 +55,7 @@ const LoginScreen = ({navigation}) => {
         senha,
       });
 
-      const token = response.data.access_token;
+      const token = response.data.tokenUser;
     
       if(!token) {
         setErroMessage("Erro ao autenticar. Token não recebido.");
