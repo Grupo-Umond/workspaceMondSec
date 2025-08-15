@@ -13,6 +13,7 @@ Route::post('/login', [AuthController::class, 'login']);
 
 
 Route::middleware('auth:api')->controller(UsuarioController::class)->group(function() {
+    Route::get('/buscar', 'informationProfile');
     Route::put('/update','updateUsuario');
     Route::put('/alterar','updateSenha');
     Route::delete('/deletar', 'delete');
@@ -26,8 +27,7 @@ Route::middleware('auth:api')->controller(OcorrenciaController::class)->group(fu
 
 
 Route::middleware('auth:api')->controller(AuthController::class)->group(function () {
-    Route::get('/buscar', 'informationProfile');
-    Route::post('/sendCode','sendCode');
+    Route::post('/sendCodeEmail','sendCodeEmail');
     Route::post('/verifyCode','verifyCode');
 
 

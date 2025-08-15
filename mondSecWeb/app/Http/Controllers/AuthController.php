@@ -22,14 +22,16 @@ class AuthController extends Controller
             'nome'   => 'required|string|max:255',
             'genero' => 'required|string',
             'email'  => 'required|email|unique:tbUsuario,emailUsuario',
+            'telefone' => 'required|unique:tbUsuario,telefoneUsuario',
             'senha'  => 'required|string|min:6',
         ]);
 
         $usuario = Usuario::create([
-            'nomeUsuario'         => $dados['nome'],
-            'generoUsuario'       => $dados['genero'],
-            'emailUsuario'        => $dados['email'],
-            'senhaUsuario'        => Hash::make($dados['senha']),
+            'nomeUsuario' => $dados['nome'],
+            'generoUsuario' => $dados['genero'],
+            'emailUsuario' => $dados['email'],
+            'telefoneUsuario' => $dados['telefone'],
+            'senhaUsuario' => Hash::make($dados['senha']),
             'dataCadastroUsuario' => now(),
         ]);
 
@@ -44,11 +46,17 @@ class AuthController extends Controller
 
     public function login(Request $request) {
     $request->validate([
-        'email' => 'required|email',
-        'senha' => 'required|string'
+        'login' => 'required',
+        'senha' => 'required'
     ]);
 
-    $usuario = Usuario::where('emailUsuario', $request->email)->first();
+    if(filter_var($request->login, FILTER_VALIDATE_EMAIL))
+        $campo = 'emailUsuario';
+    else{
+        $campo = 'telefoneUsuario';
+    }
+
+    $usuario = Usuario::where($campo, $request->login)->first();
 
     if (!$usuario || !Hash::check($request->senha, $usuario->senhaUsuario)) {
         return response()->json(['error' => 'Credenciais inválidas'], 401);
@@ -63,19 +71,10 @@ class AuthController extends Controller
     ]);
     }
 
-
-
-    public function informationProfile(Request $request)
+    public function sendCodeEmail(Request $request)
     {
-        return response()->json([
-            'usuario' => $request->user()
-        ]);
-    }
-
-    public function sendCode(Request $request)
-    {
-        $user = $request->user();
-        $email = $user->emailUsuario;
+        $usuario = $request->user();
+        $email = $usuario->emailUsuario;
         $code = rand(100000, 999999); 
         Cache::put("verify_{$email}", $code, now()->addMinutes(5));
 
@@ -86,6 +85,26 @@ class AuthController extends Controller
 
         return response()->json(['message' => 'Código enviado para seu email.']);
     }
+    
+    public function sendCodeSms(Request $request)
+    {
+        $usuario = $request->user();
+        $telefone = $usuario->telefoneUsuario;
+        $code = rand(100000, 999999); 
+        Cache::put("verify_{$telefone}", $code, now()->addMinutes(5));
+
+        $sid    = env('TWILIO_SID');
+        $token  = env('TWILIO_TOKEN');
+        $twilio = new Client($sid, $token);
+
+        $twilio->messages->create($phone, [
+            'from' => env('TWILIO_FROM'),
+            'body' => "Seu código de verificação é: {$code}"
+    ]);
+
+    return response()->json(['message' => 'Código enviado por SMS.']);
+    }
+
 
     public function verifyCode(Request $request)
     {

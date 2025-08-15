@@ -3,11 +3,11 @@ import {View, Text, TextInput, Pressable, StyleSheet, Button} from 'react-native
 import axios from 'axios';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-const DigiteCodigoScreen = ({navigation, route}) => {
+const DigiteCodigoScreen = ({navigation}) => {
     const[code, setCode] = useState('');
+    const[direcao, setDirecao] = useState(true);
     const[erroMessage, setErroMessage] = useState('')
     const[carregando, setCarregando] = useState(false);
-    const caminho = route.params?.caminho;
     
     useEffect(() => {
       criarCodigo();
@@ -17,11 +17,19 @@ const DigiteCodigoScreen = ({navigation, route}) => {
       const tokenUser = await AsyncStorage.getItem('userToken');
 
       try{
-        const response = await axios.post('http://127.0.0.1:8000/api/sendCode', {}, {
+        if(direcao){
+          const response = await axios.post('http://127.0.0.1:8000/api/sendCodeEmail', {}, {
+            headers: {
+              Authorization: `Bearer ${tokenUser}`
+            }
+          });
+        }else{
+          const response = await axios.post('http://127.0.0.1:8000/api/sendCodeSms', {}, {
           headers: {
             Authorization: `Bearer ${tokenUser}`
           }
         });
+        }
       }catch(erro){
         console.log(erro);
         return;
@@ -68,11 +76,7 @@ const DigiteCodigoScreen = ({navigation, route}) => {
           }
           
           await AsyncStorage.setItem('tokenTemp', tokenTemp);
-          if(caminho){
-            navigation.navigate('DigiteDados');
-          }else if (!caminho) {
             navigation.navigate('AlterarSenha');
-          }
 
         }catch(err){
           console.log(err);
@@ -89,8 +93,20 @@ const DigiteCodigoScreen = ({navigation, route}) => {
         </Pressable>
     </View>
 
-    <Text style={styles.title}>Digite o código que enviamos para seu email</Text>
-
+    <Text style={styles.title}>{direcao
+     ? 'Digite o código que enviamos para o email {email}' 
+     : 'Digite o codigo que enviamos para o numero {telefone}' }
+     </Text>
+     {metodo && (
+        <Pressable onPress={() => {setDirecao(false); criarCodigo();}}>
+          <Text>Não Tenho acesso a esse email. Enviar por sms</Text>
+        </Pressable>
+      )}
+      {!metodo && (
+        <Pressable onPress={() => {setDirecao(true); criarCodigo();}}>
+          <Text>Não Tenho acesso a esse telefone. Enviar por email</Text>
+        </Pressable>
+      )}
     {erroMessage ? <Text style={styles.errorMessage}>{erroMessage}</Text> : null}
 
     <TextInput
