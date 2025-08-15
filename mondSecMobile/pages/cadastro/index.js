@@ -5,7 +5,9 @@ import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const CadastroScreen = ({ navigation }) => {
-  
+  useState(() => {
+    
+  },[])
   const [nome, setNome] = useState('');
   const [genero, setGenero] = useState(null);          
   const [email, setEmail] = useState('');
