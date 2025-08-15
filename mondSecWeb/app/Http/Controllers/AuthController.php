@@ -57,9 +57,9 @@ class AuthController extends Controller
     $token = $usuario->createToken('userToken')->accessToken;
 
     return response()->json([
-        'access_token' => $token,
-        'token_type' => 'Bearer',
-        'expires_in' => 3600,
+        'tokenUser' => $token,
+        'tokenTipo' => 'Bearer',
+        'expiraEm' => 3600,
     ]);
     }
 

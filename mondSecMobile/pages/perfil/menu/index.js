@@ -4,7 +4,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import axios from 'axios';
 
-const MenuScreen = ({navigation}) => {
+const MenuScreen = ({navigation, setUserToken}) => {
     const [nome, setNome] = useState('');
     const [email, setEmail] = useState('');
     const [erroMessage, setErroMessage] = useState('');
@@ -48,6 +48,7 @@ const MenuScreen = ({navigation}) => {
 
     const sairConta = async () => {
         await AsyncStorage.removeItem('userToken');
+        setUserToken(null);
         
     }
     return(

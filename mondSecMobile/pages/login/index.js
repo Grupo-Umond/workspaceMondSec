@@ -1,26 +1,15 @@
 import React, { useState, useEffect} from "react";
 import { View, Text, TextInput, Button, Pressable, StyleSheet} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import  CheckBox  from 'expo-checkbox';
 import  axios  from 'axios';
 
-const LoginScreen = ({navigation}) => {
+const LoginScreen = ({navigation, setUserToken}) => {
   const[erroMessage, setErroMessage] = useState('');
   const[carregando, setCarregando] = useState(false);
   const[email, setEmail] = useState('');
   const[senha, setSenha] = useState('');
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-  useEffect(() => {
-    const verificarLembra = async () => {
-      const token = await AsyncStorage.getItem('userToken');
-      if(response && token) {
-        navigation.navigate('Home');
-      }
-    }
-
-    verificarLembra();
-  },[]);
   const validarDados = () => {
     if(!email || !senha) {
       setErroMessage('Por favor, preenche todos os campos.');
@@ -60,12 +49,8 @@ const LoginScreen = ({navigation}) => {
         return;
       }
 
-      await AsyncStorage.setItem('userToken', token);
-      navigation.navigate('Home');
-
-
-
-
+      await AsyncStorage.setItem('userToken', token);      
+      setUserToken(token);
     } catch (err) {
 
         if(err.response?.status === 401) {

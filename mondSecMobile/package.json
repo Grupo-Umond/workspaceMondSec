@@ -18,6 +18,7 @@
     "expo": "~53.0.20",
     "expo-checkbox": "~4.1.4",
     "expo-location": "~18.1.6",
+    "expo-notifications": "~0.31.4",
     "expo-secure-store": "~14.2.3",
     "expo-status-bar": "~2.2.3",
     "leaflet": "^1.9.4",
@@ -28,11 +29,11 @@
     "react-native-maps": "1.20.1",
     "react-native-safe-area-context": "5.4.0",
     "react-native-screens": "~4.11.1",
-    "react-native-web": "^0.20.0",
-    "expo-notifications": "~0.31.4"
+    "react-native-web": "^0.20.0"
   },
   "devDependencies": {
-    "@babel/core": "^7.20.0"
+    "@babel/core": "^7.20.0",
+    "@react-native-community/cli": "^20.0.0"
   },
   "private": true
 }
