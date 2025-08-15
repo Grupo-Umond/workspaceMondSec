@@ -45,7 +45,9 @@ export default function App() {
         {userToken ? (
           <>
             <Stack.Screen name="Home" component={HomeScreen} />
-            <Stack.Screen name="Menu" component={MenuScreen} />
+            <Stack.Screen name="Menu">
+              {props => <MenuScreen {...props} setUserToken={setUserToken} />}
+            </Stack.Screen>
             <Stack.Screen name="Ocorrencia" component={OcorrenciaScreen} />
             <Stack.Screen name="Registrar" component={RegistrarScreen} />
             <Stack.Screen name="Sobre" component={SobreScreen} />
@@ -56,8 +58,12 @@ export default function App() {
           </>
         ) : (
           <>
-            <Stack.Screen name="Login" component={LoginScreen} />
-            <Stack.Screen name="Cadastro" component={CadastroScreen} />
+            <Stack.Screen name="Login">
+              {props => <LoginScreen {...props} setUserToken={setUserToken} />}
+            </Stack.Screen>
+            <Stack.Screen name="Cadastro">
+              {props => <CadastroScreen {...props} setUserToken={setUserToken} />}
+            </Stack.Screen>
           </>
         )}
       </Stack.Navigator>
