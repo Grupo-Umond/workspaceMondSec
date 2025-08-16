@@ -26,11 +26,18 @@ class AuthController extends Controller
             'senha'  => 'required|string|min:6',
         ]);
 
+        $telefone = preg_replace('/\D/', '', $dados['telefone']);
+
+        if (!str_starts_with($telefone, '55')) {
+            $telefone = '55' . $telefone;
+        }
+        $telefone = '+' . $telefone;
+
         $usuario = Usuario::create([
             'nomeUsuario' => $dados['nome'],
             'generoUsuario' => $dados['genero'],
             'emailUsuario' => $dados['email'],
-            'telefoneUsuario' => $dados['telefone'],
+            'telefoneUsuario' => $telefone,
             'senhaUsuario' => Hash::make($dados['senha']),
             'dataCadastroUsuario' => now(),
         ]);
@@ -45,30 +52,30 @@ class AuthController extends Controller
     }
 
     public function login(Request $request) {
-    $request->validate([
-        'login' => 'required',
-        'senha' => 'required'
-    ]);
+        $request->validate([
+            'login' => 'required',
+            'senha' => 'required'
+        ]);
 
-    if(filter_var($request->login, FILTER_VALIDATE_EMAIL))
-        $campo = 'emailUsuario';
-    else{
-        $campo = 'telefoneUsuario';
-    }
+        if(filter_var($request->login, FILTER_VALIDATE_EMAIL))
+            $campo = 'emailUsuario';
+        else{
+            $campo = 'telefoneUsuario';
+        }
 
-    $usuario = Usuario::where($campo, $request->login)->first();
+        $usuario = Usuario::where($campo, $request->login)->first();
 
-    if (!$usuario || !Hash::check($request->senha, $usuario->senhaUsuario)) {
-        return response()->json(['error' => 'Credenciais inválidas'], 401);
-    }
+        if (!$usuario || !Hash::check($request->senha, $usuario->senhaUsuario)) {
+            return response()->json(['error' => 'Credenciais inválidas'], 401);
+        }
 
-    $token = $usuario->createToken('userToken')->accessToken;
+        $token = $usuario->createToken('userToken')->accessToken;
 
-    return response()->json([
-        'tokenUser' => $token,
-        'tokenTipo' => 'Bearer',
-        'expiraEm' => 3600,
-    ]);
+        return response()->json([
+            'tokenUser' => $token,
+            'tokenTipo' => 'Bearer',
+            'expiraEm' => 3600,
+        ]);
     }
 
     public function sendCodeEmail(Request $request)

@@ -6,18 +6,20 @@ import  axios  from 'axios';
 const LoginScreen = ({navigation, setUserToken}) => {
   const[erroMessage, setErroMessage] = useState('');
   const[carregando, setCarregando] = useState(false);
-  const[email, setEmail] = useState('');
+  const[login, setLogin] = useState('');
   const[senha, setSenha] = useState('');
+
+  const regexTelefone = /^(?:\s?)?(?:\(?\d{2}\)?\s?)?(?:9?\d{4}-?\d{4})$/;
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
   const validarDados = () => {
-    if(!email || !senha) {
+    if(!login || !senha) {
       setErroMessage('Por favor, preenche todos os campos.');
       return false;
     }
 
-    if(!emailRegex.test(email)) {
-      setErroMessage('Por favor, digite um email valido.');
+    if(!emailRegex.test(login) && !regexTelefone.test(login)) {
+      setErroMessage('Por favor, digite um email ou numero valido.');
       return false;
     }
 
@@ -38,7 +40,7 @@ const LoginScreen = ({navigation, setUserToken}) => {
     try {
 
       const response = await axios.post('http://127.0.0.1:8000/api/login', {
-        email,
+        login,
         senha,
       });
 
@@ -74,8 +76,8 @@ const LoginScreen = ({navigation, setUserToken}) => {
       <Text>Email</Text>
       <TextInput
         placeholder="Digite seu email..."
-        keyboardType="email-address"
-        onChangeText={setEmail}
+        keyboardType="default"
+        onChangeText={setLogin}
         autoCapitalize="none"
         autoCorrect={false}
         style={styles.input}
