@@ -6,11 +6,18 @@ import axios from 'axios';
 const DigiteDadosScreen = ({navigation}) => {
     const [nome, setNome] = useState('');
     const [email, setEmail] = useState('');
+    const [telefone, setTelefone] = useState('');
     const [genero, setGenero] = useState('');
+
     const opcoesGenero = ['Masculino', 'Feminino', 'Prefiro não informar'];
+
     const [carregando, setCarregando] = useState(false);
     const [erroMessage, setErroMessage] = useState('');
-    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    const regexEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const regexTelefone = /^(\+55\s?)?(\(?[1-9]{2}\)?\s?)?(9\d{4}|\d{4})-?\d{4}$/;
+;
+
 
 
     useEffect(() => {
@@ -18,13 +25,14 @@ const DigiteDadosScreen = ({navigation}) => {
     },[])
 
     const validarDados = () => {
-        if(!nome || !email || !genero) {
-            setErroMessage('Preencha todos os campos obrigatorios');
+
+        if(!regexEmail.test(email)) {
+            setErroMessage('Digite um email valido');
             return false;
         }
 
-        if(!regex.test(email)) {
-            setErroMessage('Digite um email valido');
+        if(!regexTelefone.test(telefone)) {
+            setErroMessage('Digite um telefone valido');
             return false;
         }
 
@@ -47,6 +55,7 @@ const DigiteDadosScreen = ({navigation}) => {
         console.log(usuario);
         setNome(usuario.nomeUsuario ?? '');
         setEmail(usuario.emailUsuario ?? '');
+        setTelefone(usuario.telefoneUsuario ?? '');
         setGenero(usuario.generoUsuario ?? '');
 
         }catch(erro){
@@ -58,20 +67,18 @@ const DigiteDadosScreen = ({navigation}) => {
         if(!validarDados()) return;
 
         const tokenUser = await AsyncStorage.getItem('userToken');
-        const tokenTemp = await AsyncStorage.getItem('tokenTemp')
 
         const response = await axios.put('http://127.0.0.1:8000/api/update', {
             nome,
             email,
+            telefone,
             genero,
-            tokenTemp,
         },{
             headers:{
                 authorization: `Bearer ${tokenUser}`
             }
         });
 
-        await AsyncStorage.removeItem('tokenTemp');
         navigation.navigate('Menu');
     }
 
@@ -98,6 +105,15 @@ const DigiteDadosScreen = ({navigation}) => {
                     value={email}
                     onChangeText={setEmail}
                     keyboardType="email-address"
+                    autoCapitalize="none"
+                />
+                <Text>Telefone</Text>
+                <TextInput
+                    style={styles.input}
+                    placeholder="Digite seu telefone..."
+                    value={telefone}
+                    onChangeText={setTelefone}
+                    keyboardType="numeric"
                     autoCapitalize="none"
                 />
                 <Text>Gênero</Text>

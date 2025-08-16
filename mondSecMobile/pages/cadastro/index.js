@@ -5,17 +5,14 @@ import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const CadastroScreen = ({navigation, setUserToken}) => {
-  useState(() => {
-    
-  },[])
   const [nome, setNome] = useState('');
   const [genero, setGenero] = useState(null);          
   const [email, setEmail] = useState('');
   const [telefone, setTelefone] = useState('');
   const [senha, setSenha] = useState('');
   
-  const regexTelefone = /^(?:\s?)?(?:\(?\d{2}\)?\s?)?(?:9?\d{4}-?\d{4})$/;
-  const regexEmail = /^[\w\.\-]+@[a-zA-Z\d\-]+\.[a-zA-Z]{2,}$/;
+  const regexTelefone = /^(\+55\s?)?(\(?[1-9]{2}\)?\s?)?(9\d{4}|\d{4})-?\d{4}$/;
+  const regexEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
   const [concordoTermos, setConcordoTermos] = useState(false);
   const [carregando, setCarregando] = useState(false);
@@ -34,17 +31,12 @@ const CadastroScreen = ({navigation, setUserToken}) => {
       return false;
     }
 
-    if (telefone.length < 12 || telefone.length > 12) {
-      setErroMessage('Telefone em tamanho errado');
-      return false;
-    }
-
-    if(regexTelefone.test(telefone)){
+    if(!regexTelefone.test(telefone)){
       setErroMessage('Telefone invalido');
       return false;
     }
 
-    if(regexEmail.test(email)){
+    if(!regexEmail.test(email)){
       setErroMessage('Email invalido');
       return false;
     }
@@ -65,6 +57,7 @@ const CadastroScreen = ({navigation, setUserToken}) => {
       const response = await axios.post('http://127.0.0.1:8000/api/cadastrar', {
         nome,
         email,
+        telefone,
         genero,
         senha,
       });
@@ -119,7 +112,7 @@ const CadastroScreen = ({navigation, setUserToken}) => {
         placeholder="Digite seu numero de telefone..."
         value={telefone}
         onChangeText={setTelefone}
-        keyboardType="number"
+        keyboardType="numeric"
         autoCapitalize="none"
       />
 

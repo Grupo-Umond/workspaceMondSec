@@ -19,31 +19,36 @@ class UsuarioController extends Controller
 
     public function updateUsuario(Request $request) {
         $request->validate([
-            'nome' => 'required',
-            'email' => 'required',
-            'genero' => 'required',
-            'tokenTemp' => 'required',
+            'nome' => 'max:100',
+            'email'  => 'email|unique:tbUsuario,emailUsuario',
+            'telefone' => 'unique:tbUsuario,telefoneUsuario',
         ]);
-
-        $email = Cache::get("token_{$request->tokenTemp}");
-        if(!$email) {
-            return response()->json(['message' => 'Token inválido ou expirado'], 400);
-        }
-
-        $user = Usuario::where('emailUsuario', $email)->firstOrFail();
+        
+        $usuario = $request->user();
 
         if($request->nome) {
-            $user->nomeUsuario = $request->nome;
+            $usuario->nomeUsuario = $request->nome;
         }
         if($request->email) {
-            $user->emailUsuario = $request->email;
+            $usuario->emailUsuario = $request->email;
         }
-        if($request->genero) {
-            $user->generoUsuario = $request->genero;
+        if($request->telefone) {
+            $telefone = preg_replace('/\D/', '', $request->telefone);
+
+            if (!str_starts_with($telefone, '55')) {
+                $telefone = '55' . $telefone;
+            }
+
+            $telefone = '+' . $telefone;
+
+            $usuario->telefoneUsuario = $telefone;
         }
 
-        $user->save();
-        Cache::forget("token_{$request->tokenTemp}");
+        if($request->genero) {
+            $usuario->generoUsuario = $request->genero;
+        }
+
+        $usuario->save();
 
         return response()->json(['message' => 'Dados atualizados com sucesso']);
     }
