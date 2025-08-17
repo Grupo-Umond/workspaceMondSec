@@ -1,5 +1,6 @@
-import React, {useState, useEffect} from 'react';
+import React, { useState } from 'react';
 import {} from 'react-native';
+import styles from './styles';
 
 const HomeScreen = ({ navigation }) => {
     const [errorMessage, setErrorMessage] = useState('');

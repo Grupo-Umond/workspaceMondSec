@@ -1,12 +1,15 @@
-// LoginScreen.js
-import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, Button, Pressable, Alert, StyleSheet, Platform } from 'react-native';
+
+import { View, Text, TextInput, Pressable, Image, TouchableOpacity } from 'react-native';
 import CheckBox from 'expo-checkbox';
+import { Platform } from 'react-native';
+import react, { useState, useEffect } from 'react';
+
 import * as SecureStore from 'expo-secure-store';
 import * as WebBrowser from 'expo-web-browser';
 import * as Google from 'expo-auth-session/providers/google';
 import * as AuthSession from 'expo-auth-session';
 import axios from 'axios';
+import styles from './styles';
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -26,7 +29,7 @@ const API_BASE =
 export default function LoginScreen({ navigation }) {
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
-  const [lembreDeMim, setLembreDeMim] = useState(false);
+  const [lembrar, setLembrar] = useState(false);
   const [carregando, setCarregando] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
@@ -49,7 +52,7 @@ export default function LoginScreen({ navigation }) {
         if (emailSalvo && senhaSalva) {
           setEmail(emailSalvo);
           setSenha(senhaSalva);
-          setLembreDeMim(true);
+          setLembrar(true);
         }
       } catch (e) {
         console.log('Falha ao ler SecureStore', e);
@@ -128,86 +131,98 @@ export default function LoginScreen({ navigation }) {
       console.log('Erro ao buscar dados do Google:', e);
     }
   };
-
-
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Entrar</Text>
+  <View style={styles.container}>
+  {/* Fundo dividido em duas cores */}
+  <View style={styles.containerFundo}>
+    <View style={[styles.metadeFundo, styles.metadeSuperior]} />
+    <View style={[styles.metadeFundo, styles.metadeInferior]} />
+  </View>
 
-      <Text>E‑mail</Text>
+  {/* Conteúdo principal */}
+  <View style={styles.containerConteudo}>
+    
+    <View style={styles.logoContainer}>
+      <Image
+        source={require('../../assets/mondlogo.png')}
+        style={styles.logo}
+      />
+    </View>
+    <Text style={styles.textoBoasVindas}>Bem-vindo à MondSec!</Text>
+        <Text style={styles.textoEntrar}>Entrar</Text>
+
+
+    {/* Campos do formulário */}
+    <View style={styles.containerInput}>
+      <Text style={styles.rotulo}>Email</Text>
       <TextInput
         style={styles.input}
-        placeholder="Digite seu e‑mail..."
+        placeholder="Digite seu email..."
+        placeholderTextColor="#999"
         value={email}
         onChangeText={setEmail}
         keyboardType="email-address"
         autoCapitalize="none"
       />
+    </View>
 
-      <Text>Senha</Text>
+    <View style={styles.containerInput}>
+      <Text style={styles.rotulo}>Senha</Text>
       <TextInput
         style={styles.input}
         placeholder="Digite sua senha..."
+        placeholderTextColor="#999"
         value={senha}
         onChangeText={setSenha}
         secureTextEntry
       />
+    </View>
 
-      <View style={styles.checkboxContainer}>
-        <CheckBox value={lembreDeMim} onValueChange={setLembreDeMim} />
-        <Text style={styles.checkboxLabel}>Lembrar de mim</Text>
-      </View>
-
-      {errorMessage ? <Text style={styles.error}>{errorMessage}</Text> : null}
-
-      <Button
-        title={carregando ? 'Entrando...' : 'Entrar'}
-        onPress={verificarLogin}
-        disabled={carregando}
-      />
+    {/* Linha com checkbox e link */}
+    <View style={styles.linhaOpcoes}>
+      <Pressable 
+        style={styles.containerLembrar} 
+        onPress={() => setLembrar(!lembrar)}
+      >
+        <View style={[styles.caixaSelecao, lembrar && styles.caixaSelecionada]}>
+          {lembrar && <Text style={styles.marcacao}>✓</Text>}
+        </View>
+        <Text style={styles.textoLembrar}>Lembrar de mim</Text>
+      </Pressable>
 
       <Pressable onPress={() => navigation.navigate('RecuperarSenha')}>
-        <Text style={styles.link}>Esqueceu a senha?</Text>
-      </Pressable>
-
-      <View style={{ marginVertical: 16 }} />
-
-      <Button
-        title="Entrar com Google"
-        onPress={() => promptAsync({ useProxy: true })}
-        disabled={!request || carregando}
-      />
-
-      <Pressable onPress={() => navigation.navigate('Cadastro')}>
-        <Text style={styles.link}>Ainda não tem conta? Cadastre‑se agora!</Text>
-      </Pressable>
-      <Pressable onPress={() => navigation.navigate('Menu')}>
-        <Text style={styles.link}>Ainda não tem conta? Cadastre‑se agora!</Text>
+        <Text style={styles.textoSenhaEsquecida}>Esqueceu a senha?</Text>
       </Pressable>
     </View>
+
+    {/* Botões e links */}
+    <TouchableOpacity style={styles.botaoLogin}>
+      <Text style={styles.textoBotaoLogin}>Entrar</Text>
+    </TouchableOpacity>
+
+    <View style={styles.divisor}>
+      <View style={styles.linhaDivisor} />
+      <Text style={styles.textoDivisor}>ou</Text>
+      <View style={styles.linhaDivisor} />
+    </View>
+
+    <TouchableOpacity style={styles.botaoGoogle}>
+      <Image
+        source={require('../../assets/google-icon.png')}
+        style={styles.iconeGoogle}
+      />
+      <Text style={styles.textoBotaoGoogle}>Entrar com Google</Text>
+    </TouchableOpacity>
+
+    <Pressable 
+      style={styles.linkCadastro} 
+      onPress={() => navigation.navigate('Cadastro')}
+    >
+      <Text style={styles.textoLinkCadastro}>Ainda não tem uma conta? <Text style={styles.destaqueLinkCadastro}>Cadastre-se</Text></Text>
+    </Pressable>
+  </View>
+</View>
   );
-}
+};
 
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    paddingHorizontal: 24,
-    justifyContent: 'center',
-  },
-  title: { fontSize: 28, fontWeight: 'bold', marginBottom: 24, textAlign: 'center' },
-  input: {
-    borderWidth: 1,
-    borderColor: '#ccc',
-    backgroundColor: '#f9f9f9',
-    padding: 12,
-    borderRadius: 8,
-    marginBottom: 16,
-    fontSize: 16,
-  },
-  checkboxContainer: { flexDirection: 'row', alignItems: 'center', marginBottom: 16 },
-  checkboxLabel: { marginLeft: 8 },
-  link: { marginTop: 24, color: '#1e90ff', textAlign: 'center', fontSize: 16 },
-  error: { color: 'red', marginBottom: 10, textAlign: 'center' },
-});
