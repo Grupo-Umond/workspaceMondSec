@@ -8,14 +8,14 @@ return new class extends Migration {
     public function up(): void
     {
         Schema::create('tbUsuario', function (Blueprint $table) {
-            $table->bigIncrements('idUsuario'); 
+            $table->id(); 
             $table->string('expoToken')->nullable();
-            $table->string('nomeUsuario');
-            $table->string('generoUsuario'); 
-            $table->string('emailUsuario')->unique(); 
-            $table->string('telefoneUsuario')->unique();
-            $table->string('senhaUsuario');
-            $table->timestamp('dataCadastroUsuario')->useCurrent();
+            $table->string('nome');
+            $table->string('genero'); 
+            $table->string('email')->unique(); 
+            $table->string('telefone')->unique();
+            $table->string('senha');
+            $table->timestamp('data')->useCurrent();
         });
     }
 

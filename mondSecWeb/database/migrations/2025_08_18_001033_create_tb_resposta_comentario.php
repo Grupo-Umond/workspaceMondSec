@@ -13,13 +13,13 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('tbAdmin', function (Blueprint $table) {
+        Schema::create('tbRespostaComentario', function (Blueprint $table) {
             $table->id();
-            $table->string('nome');
-            $table->string('email')->unique();
-            $table->string('senha');
-            $table->string('nivelAdmin');
-            $table->timestamps();
+            $table->text('mensagem');
+            $table->unsignedBigInteger('idUsuario');
+            $table->timestamp('data')->useCurrent();
+
+            $table->foreign('idUsuario')->references('id')->on('tbUsuario')->onDelete('cascade');
         });
     }
 
@@ -30,6 +30,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('tbAdmin');
+        Schema::dropIfExists('tbRespostaComentario');
     }
 };
