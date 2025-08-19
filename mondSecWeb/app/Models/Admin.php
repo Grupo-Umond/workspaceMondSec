@@ -12,7 +12,6 @@ class Admin extends Authenticatable
     use HasFactory;
 
     public $timestamps = true;
-    protected $primaryKey = 'id';
     protected $table = 'tbAdmin';
 
     protected $fillable = [
@@ -24,12 +23,6 @@ class Admin extends Authenticatable
 
     protected $hidden = [
         'senha',
-    ];
-
-    protected $casts = [
-        'nome' => 'string',
-        'email' => 'string',
-        'nivelAdmin' => 'string',
     ];
 
      public function getAuthPassword()
