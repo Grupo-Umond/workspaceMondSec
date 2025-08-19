@@ -8,8 +8,8 @@ use App\Http\Controllers\OcorrenciaController;
 use App\Http\Controllers\NotificationController;
 
 
-Route::post('/cadastrar', [AuthController::class,'store']); 
-Route::post('/login', [AuthController::class, 'login']);
+Route::post('/cadastrar', [UsuarioController::class,'store']); 
+Route::post('/login', [UsuarioController::class, 'login']);
 
 
 Route::middleware('auth:api')->controller(UsuarioController::class)->group(function() {
@@ -26,11 +26,9 @@ Route::middleware('auth:api')->controller(OcorrenciaController::class)->group(fu
 });
 
 
-Route::middleware('auth:api')->controller(AuthController::class)->group(function () {
+Route::middleware('auth:api')->controller(CodigoController::class)->group(function () {
     Route::post('/sendCodeEmail','sendCodeEmail');
     Route::post('/verifyCode','verifyCode');
-
-
 });
 
 Route::middleware('auth:api')->controller(NotificationController::class)->group(function () {
