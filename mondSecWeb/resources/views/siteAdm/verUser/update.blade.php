@@ -70,34 +70,40 @@
 </head>
 <body>
     <div class="container">
-        <h2>Alterar Dados do Administrador</h2>
+        <h2>Alterar Dados do Usuario</h2>
 
         @if(session('success'))
             <div class="success">{{ session('success') }}</div>
         @endif
 
-        <form id="formUpdate" action="{{ route('adm.alterarAdm.submit', $admin->id) }}" method="POST">
+        <form id="formUpdate" action="{{ route('adm.updateUser.submit', $usuario->id) }}" method="POST">
             @csrf
             @method('PUT')
 
             <label for="nome">Nome:</label>
-            <input type="text" id="nome" name="nome" value="{{ old('nome', $admin->nome) }}">
+            <input type="text" id="nome" name="nome" value="{{ old('nome', $usuario->nome) }}">
             @error('nome')
                 <div class="error">{{ $message }}</div>
             @enderror
 
             <label for="email">Email:</label>
-            <input type="email" id="email" name="email" value="{{ old('email', $admin->email) }}">
+            <input type="email" id="email" name="email" value="{{ old('email', $usuaurio->email) }}">
             @error('email')
                 <div class="error">{{ $message }}</div>
             @enderror
 
-            <label for="nivelAdmin">Nível de Acesso:</label>
-            <select id="nivelAdmin" name="nivelAdmin">
+            <label for="telefone">Telefone:</label>
+            <input type="telefone" id="telefone" name="telefone" value="{{ old('telefone', $suaurio->telefone) }}">
+            @error('email')
+                <div class="error">{{ $message }}</div>
+            @enderror
+
+            <label for="genero">Genero:</label>
+            <select id="genero" name="genero">
                 <option value="">-- Selecione --</option>
-                <option value="ouro" {{ old('nivelAdmin', $admin->nivelAdmin) == 'ouro' ? 'selected' : '' }}>Ouro</option>
-                <option value="prata" {{ old('nivelAdmin', $admin->nivelAdmin) == 'prata' ? 'selected' : '' }}>Prata</option>
-                <option value="bronze" {{ old('nivelAdmin', $admin->nivelAdmin) == 'bronze' ? 'selected' : '' }}>Bronze</option>
+                <option value="Homem" {{ old('genero', $usuario->genero) == 'Homem' ? 'selected' : '' }}>Homem</option>
+                <option value="Mulher" {{ old('genero', $usuario->genero) == 'Mulher' ? 'selected' : '' }}>Mulher</option>
+                <option value="Prefiro Nao Informar" {{ old('genero', $usuario->genero) == 'Prefiro Nao Informar' ? 'selected' : '' }}>Prefiro Nao Informar</option>
 
             </select>
             @error('nivelAdmin')
@@ -113,10 +119,10 @@
         form.addEventListener('submit', function(event) {
             const nome = document.getElementById('nome').value;
             const email = document.getElementById('email').value;
-            const nivelAdmin = document.getElementById('nivelAdmin').value;
+            const nivelAdmin = document.getElementById('genero').value;
             const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-            if(!nome || !email || !nivelAdmin) {
+            if(!nome || !email || !genero) {
                 event.preventDefault();
                 alert('Preencha todos os campos')
             }

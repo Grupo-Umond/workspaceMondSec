@@ -18,19 +18,22 @@ Route::prefix('siteAdm')
 
         Route::get('/login', 'loginScreen')->name('login');
         Route::post('/login', 'login')->name('login.submit');
-        Route::get('/cadastro', 'cadastroScreen')->name('cadastro');
-        Route::post('/cadastro', 'store')->name('cadastro.submit');
+        Route::get('/cadastro', 'storeScreen')->name('store');
+        Route::post('/cadastro', 'store')->name('store.submit');
 
         Route::middleware('admin.auth')->group(function () {
             Route::get('/home', 'homeScreen')->name('home');
 
-            Route::get('/vizualisar', 'vizualisarAdmsScreen')->name('vizuAdms');
-            Route::post('/vizualisar', 'vizualisarUsersScreen')->name('vizuUsers');
+            Route::get('/admlist', 'showAdmScreen')->name('showadm');
+            Route::get('/userlist', 'showUserScreen')->name('showuser');
 
-            Route::get('/alterar/{id}', 'alterarAdmScreen')->name('alterarAdm');
-            Route::put('/alterar/{id}', 'updateAdm')->name('alterarAdm.submit');
+            Route::get('/adm/{id}', 'updateAdmScreen')->name('updateAdm');
+            Route::put('/adm/{id}', 'updateAdm')->name('updateAdm.submit');
 
-            Route::delete('/excluir/{id}', 'deleteAdm')->name('deletarAdm');
+            Route::get('/user/{id}', 'updateUserScreen')->name('updateUser');
+            Route::put('/user/{id}', 'updateUser')->name('updateUser.submit');
+
+            Route::delete('/excluir/{id}', 'deleteAdm')->name('deleteAdm');
 
             Route::get('/logout', 'logout')->name('logout');
         });

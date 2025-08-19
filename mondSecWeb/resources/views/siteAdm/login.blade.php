@@ -94,7 +94,7 @@
         </form>
 
         <div class="link-cadastro">
-            Ainda não tem uma conta? <a href="{{ route('adm.cadastro') }}">Cadastre-se aqui</a>
+            Ainda não tem uma conta? <a href="{{ route('adm.store') }}">Cadastre-se aqui</a>
         </div>
     </div>
     <script>
