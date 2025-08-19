@@ -74,6 +74,7 @@ class AdminController extends Controller
         $dados = $request->validate([
             'nome' => 'required|max:225|string',
             'email' => 'required|max:225|string',
+            'telefone' => 'required|max:225|string',
             'senha' => 'required|max:225|min:8|string',
             'nivelAdmin' => 'required|string',
         ]);
@@ -82,6 +83,7 @@ class AdminController extends Controller
         $usuario = Admin::create([
             'nome' => $dados['nome'],
             'email' => $dados['email'],
+            'telefone' => $dados['telefone'],
             'senha' => Hash::make($dados['senha']),
             'nivelAdmin' => $dados['nivelAdmin'],
         ]);

@@ -3,6 +3,14 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AdminController;
 
+Route::get('/', function () {
+        return view('siteEmpresa.index');
+    })->name('siteEmpresa.index');
+
+Route::get('/adm', function () {
+        return view('siteAdm.login');
+    })->name('siteAdm.login');
+
 Route::prefix('siteAdm')
     ->name('adm.')
     ->controller(AdminController::class)
@@ -10,12 +18,11 @@ Route::prefix('siteAdm')
 
         Route::get('/login', 'loginScreen')->name('login');
         Route::post('/login', 'login')->name('login.submit');
+        Route::get('/cadastro', 'cadastroScreen')->name('cadastro');
+        Route::post('/cadastro', 'store')->name('cadastro.submit');
 
-        Route::middleware('auth')->group(function () {
+        Route::middleware('admin.auth')->group(function () {
             Route::get('/home', 'homeScreen')->name('home');
-
-            Route::get('/cadastro', 'cadastroScreen')->name('cadastro');
-            Route::post('/cadastro', 'store')->name('cadastro.submit');
 
             Route::get('/vizualisar', 'vizualisarAdmsScreen')->name('vizuAdms');
             Route::post('/vizualisar', 'vizualisarUsersScreen')->name('vizuUsers');

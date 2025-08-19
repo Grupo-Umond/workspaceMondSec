@@ -15,14 +15,14 @@ return new class extends Migration
     {
         Schema::create('tbRespostaFeedback', function (Blueprint $table) {
             $table->id();
-            $table->increments('idFeedbackPai');
             $table->string('mensagem');
             $table->timestamp('data')->useCurrent();
-            $table->unsigedBigInteger('idAdmin');
-            $table->unsigedBigInteger('idFeedback');
+            $table->unsignedBigInteger('idAdmin');
+            $table->unsignedBigInteger('idFeedback');
 
-            $table->foreign('idAdmin')->reference('id')->on('tbAdmin')->onDelete('cascade');
-            $table->foreign('idFeedBack')->reference('id')->on('tbFeedback')->onDelete('cascade');
+            $table->foreign('idAdmin')->references('id')->on('tbAdmin')->onDelete('cascade');
+            $table->foreign('idFeedBack')->references('id')->on('tbFeedback')->onDelete('cascade');
+            
         });
     }
 

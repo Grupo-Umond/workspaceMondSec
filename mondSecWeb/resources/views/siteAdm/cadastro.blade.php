@@ -91,6 +91,12 @@
                 <div class="error">{{ $message }}</div>
             @enderror
 
+            <label for="email">Telefone:</label>
+            <input type="text" id="telefone" name="telefone" value="{{ old('email') }}">
+            @error('email')
+                <div class="error">{{ $message }}</div>
+            @enderror
+
             <label for="senha">Senha:</label>
             <input type="password" id="senha" name="senha">
             @error('senha')
