@@ -7,15 +7,15 @@
     <title>Umond</title>
 
     {{-- CSS --}}
-    <link rel="stylesheet" href="{{ asset('css/00style.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/01navBar.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/02inicio.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/03quemSomos.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/04nossaEquipe.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/05nossosProjetos.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/06nossosParceiros.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/07faleConosco.css') }}">
-    <link rel="stylesheet" href="{{ asset('css/08footer.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/cssEmpresa/00style.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/cssEmpresa/01navBar.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/cssEmpresa/02inicio.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/cssEmpresa/03quemSomos.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/cssEmpresa/04nossaEquipe.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/cssEmpresa/05nossosProjetos.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/cssEmpresa/06nossosParceiros.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/cssEmpresa/07faleConosco.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/cssEmpresa/08footer.css') }}">
 
     {{-- Font Awesome --}}
     <link rel="stylesheet" 
@@ -114,15 +114,15 @@
     </div>
 </section>
 
-@include('partials.equipe')
+@include('siteEmpresa.partials.equipe')
 
-@include('partials.projetos')
+@include('siteEmpresa.partials.projetos')
 
-@include('partials.parceiros')
+@include('siteEmpresa.partials.parceiros')
 
-@include('partials.faleConosco')
+@include('siteEmpresa.partials.faleConosco')
 
-@include('partials.footer')
+@include('siteEmpresa.partials.footer')
 
 <script src="{{ asset('js/script.js') }}"></script>
 <script>

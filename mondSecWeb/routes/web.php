@@ -4,12 +4,14 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AdminController;
 
 Route::get('/', function () {
+    return view('siteEmpresa.index');
+})->name('siteEmpresa.index');
+
+Route::get('/adm', function () {
         return view('siteAdm.index');
     })->name('siteAdm.index');
 
-Route::prefix('siteEmpresa')->group( function () {
-    return view('siteEmpresa.index');
-});
+
 
 
 Route::prefix('siteAdm')->group(function () {
