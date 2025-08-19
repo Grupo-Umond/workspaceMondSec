@@ -17,6 +17,62 @@ class UsuarioController extends Controller
         ]);
     }
 
+    public function store(Request $request)
+    {
+        $dados = $request->validate([
+            'nome'   => 'required|string|max:255',
+            'genero' => 'required|string',
+            'email'  => 'required|email|unique:tbUsuario,email',
+            'telefone' => 'required|unique:tbUsuario,telefone',
+            'senha'  => 'required|string|min:6',
+        ]);
+
+        $telefone = preg_replace('/\D/', '', $dados['telefone']);
+
+        if (!str_starts_with($telefone, '55')) {
+            $telefone = '55' . $telefone;
+        }
+        $telefone = '+' . $telefone;
+
+        $usuario = Usuario::create([
+            'nome' => $dados['nome'],
+            'genero' => $dados['genero'],
+            'email' => $dados['email'],
+            'telefone' => $telefone,
+            'senha' => Hash::make($dados['senha']),
+            'dataCadastro' => now(),
+        ]);
+
+        $token = $usuario->createToken('userToken')->accessToken;
+
+        
+        return response()->json([
+            'tokenUser' => $token,
+            'tokenTipo' => 'Bearer',
+            'expiraEm' => 3600,
+        ]);
+    }
+
+    public function login(Request $request) 
+    {
+        $request->validate([
+            'login' => 'required',
+            'senha' => 'required'
+        ]);
+
+        if(filter_var($request->login, FILTER_VALIDATE_EMAIL))
+            $campo = 'email';
+        else{
+            $campo = 'telefone';
+        }
+
+        $usuario = Usuario::where($campo, $request->login)->first();
+
+        if (!$usuario || !Hash::check($request->senha, $usuario->senha)) {
+            return response()->json(['error' => 'Credenciais inválidas'], 401);
+        }
+    }
+
     public function updateUsuario(Request $request) {
         $request->validate([
             'nome' => 'max:100',
@@ -27,10 +83,10 @@ class UsuarioController extends Controller
         $usuario = $request->user();
 
         if($request->nome) {
-            $usuario->nomeUsuario = $request->nome;
+            $usuario->nome = $request->nome;
         }
         if($request->email) {
-            $usuario->emailUsuario = $request->email;
+            $usuario->email = $request->email;
         }
         if($request->telefone) {
             $telefone = preg_replace('/\D/', '', $request->telefone);
@@ -41,20 +97,17 @@ class UsuarioController extends Controller
 
             $telefone = '+' . $telefone;
 
-            $usuario->telefoneUsuario = $telefone;
+            $usuario->telefone = $telefone;
         }
 
         if($request->genero) {
-            $usuario->generoUsuario = $request->genero;
+            $usuario->genero = $request->genero;
         }
 
         $usuario->save();
 
         return response()->json(['message' => 'Dados atualizados com sucesso']);
     }
-
-
-
 
     public function updateSenha(Request $request)
     {
@@ -68,10 +121,10 @@ class UsuarioController extends Controller
             return response()->json(['message' => 'Token inválido ou expirado'], 400);
         }
 
-        $user = Usuario::where('emailUsuario', $email)->firstOrFail();
+        $usuario = Usuario::where('email', $email)->firstOrFail();
 
         if ($request->novaSenhaConfirma) {
-            $user->senhaUsuario = bcrypt($request->novaSenhaConfirma);
+            $usuario->senha = bcrypt($request->novaSenhaConfirma);
         }
 
         $user->save();
@@ -96,13 +149,13 @@ class UsuarioController extends Controller
             return response()->json(['mensagem' => 'Usuário não encontrado.'], 404);
         }
 
-        if(!Hash::check($senha, $usuario->senhaUsuario)) {
+        if(!Hash::check($senha, $usuario->senha)) {
             return response()->json(['mensagem' => 'Senha Incorreta'], 401);
         }
 
         $usuario->delete();
 
-        return response()->json(['mensagem' => "Usuário ({$usuario->nomeUsuario}) deletado com sucesso."], 200);
+        return response()->json(['mensagem' => "Usuário ({$usuario->nome}) deletado com sucesso."], 200);
     }
 
 
