@@ -3,28 +3,28 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AdminController;
 
-Route::get('/', function () {
-        return view('siteAdm.index');
-    })->name('siteAdm.index');
+Route::prefix('siteAdm')
+    ->name('adm.')
+    ->controller(AdminController::class)
+    ->group(function () {
 
-Route::prefix('siteEmpresa')->group( function () {
-    return view('siteEmpresa.index');
-});
+        Route::get('/login', 'loginScreen')->name('login');
+        Route::post('/login', 'login')->name('login.submit');
 
+        Route::middleware('auth')->group(function () {
+            Route::get('/home', 'homeScreen')->name('home');
 
-Route::prefix('siteAdm')->group(function () {
-    Route::get('/login', [AdminController::class, 'loginScreen'])->name('adm.login');
-    Route::post('/login', [AdminController::class, 'login'])->name('adm.login.submit');
-    Route::get('/home', [AdminController::class, 'homeScreen'])->name('adm.home');
-    Route::get('/cadastro', [AdminController::class, 'cadastroScreen'])->name('adm.cadastro');
-    Route::post('/cadastro', [AdminController::class, 'store'])->name('adm.cadastro.submit');
-    Route::get('/vizualisar', [AdminController::class, 'vizualisarAdmsScreen'])->name('adm.vizuAdms');
-    Route::post('/vizualisar', [AdminController::class, 'vizualisarUsersScreen'])->name('adm.vizuUsers');
-    Route::get('/alterar/{id}', [AdminController::class, 'alterarAdmScreen'])->name('adm.alterarAdm');
-    Route::put('/alterar/{id}', [AdminController::class, 'updateAdm'])->name('adm.alterarAdm.submit');
-    Route::delete('/excluir/{id}', [AdminController::class, 'deleteAdm'])->name('adm.deletarAdm');
-    Route::get('/logout', [AdminController::class, 'logout'])->name('adm.logout');
+            Route::get('/cadastro', 'cadastroScreen')->name('cadastro');
+            Route::post('/cadastro', 'store')->name('cadastro.submit');
 
+            Route::get('/vizualisar', 'vizualisarAdmsScreen')->name('vizuAdms');
+            Route::post('/vizualisar', 'vizualisarUsersScreen')->name('vizuUsers');
 
+            Route::get('/alterar/{id}', 'alterarAdmScreen')->name('alterarAdm');
+            Route::put('/alterar/{id}', 'updateAdm')->name('alterarAdm.submit');
 
-});
+            Route::delete('/excluir/{id}', 'deleteAdm')->name('deletarAdm');
+
+            Route::get('/logout', 'logout')->name('logout');
+        });
+    });
