@@ -114,15 +114,15 @@
     </div>
 </section>
 
-@include('partials.equipe')
+@include('siteEmpresa.partials.equipe')
 
-@include('partials.projetos')
+@include('siteEmpresa.partials.projetos')
 
-@include('partials.parceiros')
+@include('siteEmpresa.partials.parceiros')
 
-@include('partials.faleConosco')
+@include('siteEmpresa.partials.faleConosco')
 
-@include('partials.footer')
+@include('siteEmpresa.partials.footer')
 
 <script src="{{ asset('js/script.js') }}"></script>
 <script>

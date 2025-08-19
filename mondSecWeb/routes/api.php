@@ -6,35 +6,46 @@ use App\Http\Controllers\DBController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\OcorrenciaController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\CodigoController;
 
+Route::prefix('usuario')
+    ->name('usuario.')
+    ->controller(UsuarioController::class)
+    ->group(function () {
+        Route::post('/cadastrar', 'store')->withoutMiddleware('auth:api')->name('cadastrar');
+        Route::post('/login', 'login')->withoutMiddleware('auth:api')->name('login');
 
-Route::post('/cadastrar', [UsuarioController::class,'store']); 
-Route::post('/login', [UsuarioController::class, 'login']);
+        Route::middleware('auth:api')->group(function () {
+            Route::get('/buscar', 'informationProfile')->name('buscar');
+            Route::put('/update', 'updateUsuario')->name('update');
+            Route::put('/alterar', 'updateSenha')->name('alterarSenha');
+            Route::delete('/deletar', 'delete')->name('deletar');
+        });
+    });
 
+Route::prefix('ocorrencia')
+    ->name('ocorrencia.')
+    ->controller(OcorrenciaController::class)
+    ->middleware('auth:api')
+    ->group(function () {
+        Route::get('/procurar', 'index')->name('listar');
+        Route::post('/registrar', 'store')->name('registrar');
+    });
 
-Route::middleware('auth:api')->controller(UsuarioController::class)->group(function() {
-    Route::get('/buscar', 'informationProfile');
-    Route::put('/update','updateUsuario');
-    Route::put('/alterar','updateSenha');
-    Route::delete('/deletar', 'delete');
+Route::prefix('codigo')
+    ->name('codigo.')
+    ->controller(CodigoController::class)
+    ->middleware('auth:api')
+    ->group(function () {
+        Route::post('/sendEmail', 'sendCodeEmail')->name('enviar');
+        Route::post('/verify', 'verifyCode')->name('verificar');
+    });
 
-});
-
-Route::middleware('auth:api')->controller(OcorrenciaController::class)->group(function () {
-    Route::get('/procurar', 'index');
-    Route::post('/registrar', 'store');
-});
-
-
-Route::middleware('auth:api')->controller(CodigoController::class)->group(function () {
-    Route::post('/sendCodeEmail','sendCodeEmail');
-    Route::post('/verifyCode','verifyCode');
-});
-
-Route::middleware('auth:api')->controller(NotificationController::class)->group(function () {
-    Route::post('/envNot', 'enviarNotificacao');
-    Route::post('/tokenPush', 'salvar');
-
-});
-
-
+Route::prefix('notificacao')
+    ->name('notificacao.')
+    ->controller(NotificationController::class)
+    ->middleware('auth:api')
+    ->group(function () {
+        Route::post('/enviar', 'enviarNotificacao')->name('enviar');
+        Route::post('/token', 'salvar')->name('token');
+    });
