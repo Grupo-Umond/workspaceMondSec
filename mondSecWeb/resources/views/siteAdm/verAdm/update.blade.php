@@ -70,87 +70,61 @@
 </head>
 <body>
     <div class="container">
-        <h2>Cadastro de Administrador</h2>
+        <h2>Alterar Dados do Administrador</h2>
 
         @if(session('success'))
             <div class="success">{{ session('success') }}</div>
         @endif
 
-        <form id="formCadastro" action="{{ route('adm.store.submit') }}" method="POST">
+        <form id="formUpdate" action="{{ route('adm.updateAdm.submit', $admin->id) }}" method="POST">
             @csrf
+            @method('PUT')
 
             <label for="nome">Nome:</label>
-            <input type="text" id="nome" name="nome" value="{{ old('nome') }}">
+            <input type="text" id="nome" name="nome" value="{{ old('nome', $admin->nome) }}">
             @error('nome')
                 <div class="error">{{ $message }}</div>
             @enderror
 
             <label for="email">Email:</label>
-            <input type="email" id="email" name="email" value="{{ old('email') }}">
+            <input type="email" id="email" name="email" value="{{ old('email', $admin->email) }}">
             @error('email')
                 <div class="error">{{ $message }}</div>
             @enderror
-
-            <label for="email">Telefone:</label>
-            <input type="text" id="telefone" name="telefone" value="{{ old('email') }}">
-            @error('email')
-                <div class="error">{{ $message }}</div>
-            @enderror
-
-            <label for="senha">Senha:</label>
-            <input type="password" id="senha" name="senha">
-            @error('senha')
-                <div class="error">{{ $message }}</div>
-            @enderror
-
-            <label for="senhaConfirma">Confirme a Senha:</label>
-            <input type="password" id="senhaConfirma" name="senhaConfirma">
 
             <label for="nivelAdmin">Nível de Acesso:</label>
             <select id="nivelAdmin" name="nivelAdmin">
                 <option value="">-- Selecione --</option>
-                <option value="ouro" {{ old('nivel_acesso') == 'ouro' ? 'selected' : '' }}>Ouro</option>
-                <option value="prata" {{ old('nivel_acesso') == 'prata' ? 'selected' : '' }}>Prata</option>
-                <option value="bronze" {{ old('nivel_acesso') == 'bronze' ? 'selected' : '' }}>Bronze</option>
+                <option value="ouro" {{ old('nivelAdmin', $admin->nivelAdmin) == 'ouro' ? 'selected' : '' }}>Ouro</option>
+                <option value="prata" {{ old('nivelAdmin', $admin->nivelAdmin) == 'prata' ? 'selected' : '' }}>Prata</option>
+                <option value="bronze" {{ old('nivelAdmin', $admin->nivelAdmin) == 'bronze' ? 'selected' : '' }}>Bronze</option>
+
             </select>
-            @error('nivel_acesso')
+            @error('nivelAdmin')
                 <div class="error">{{ $message }}</div>
             @enderror
 
-            <button type="submit">Cadastrar</button>
+            <button type="submit">Alterar</button>
         </form>
     </div>
     <script>
-        const form = document.getElementById('formCadastro');
+        const form = document.getElementById('formUpdate');
 
         form.addEventListener('submit', function(event) {
             const nome = document.getElementById('nome').value;
-            const senha = document.getElementById('senha').value;
-            const confirmaSenha = document.getElementById('senhaConfirma').value;
             const email = document.getElementById('email').value;
             const nivelAdmin = document.getElementById('nivelAdmin').value;
             const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-            if(!nome || !senha || !confirmaSenha || !email || !nivelAdmin) {
+            if(!nome || !email || !nivelAdmin) {
                 event.preventDefault();
                 alert('Preencha todos os campos')
-            }
-            if(senha !== confirmaSenha) {
-                event.preventDefault();
-                alert('As senha não coincidem. Por favor, corrija.');
             }
 
             if(!regex.test(email)) {
                 event.preventDefault();
                 alert('Email invalido');
             }
-
-            if(senha.length < 8 || confirmaSenha.length < 8) {
-                event.preventDefault();
-                alert('Senha deve ter mais de 8 digitos');
-            }
-
-
         });
     </script>
 </body>

@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use App\Models\Admin;
+use App\Models\Usuario;
 
 class AdminController extends Controller
 {
@@ -21,22 +22,23 @@ class AdminController extends Controller
         return view('siteAdm.home');
     }
 
-    public function cadastroScreen()
+    public function storeScreen()
     {
         return view('siteAdm.cadastro');
     }
 
-    public function vizualisarAdmsScreen()
+    public function showAdmScreen()
     {
        
         $admins = Admin::all();
-        return view('siteAdm.vizuAdms', compact('admins'));
+        return view('siteAdm.verAdm.index', compact('admins'));
 
     }
 
-    public function vizualisarUsersScreen()
+    public function showUserScreen()
     {
-        return view('siteAdm.vizuUsers');
+        $usuario = Usuario::all();
+        return view('siteAdm.verUser.index', compact('usuario'));
     }
 
     public function login(Request $request)
@@ -91,9 +93,9 @@ class AdminController extends Controller
         return redirect()->route('adm.cadastro')->with('success', 'Adm cadastrado com sucesso!');
     }
     
-    public function alterarAdmScreen($id) {
+    public function updateAdmScreen($id) {
         $admin = Admin::findOrFail($id);
-        return view('siteAdm.alterarAdm', compact('admin'));
+        return view('siteAdm.verAdm.update', compact('admin'));
     }
 
     public function updateAdm(Request $request, $id) {
@@ -104,22 +106,48 @@ class AdminController extends Controller
         ]);
 
         $admin = Admin::findOrFail($id);
-
         $admin->update($dados);
 
-        return redirect()->route('adm.vizuAdms')->with('success','Adm alterado com sucesso');
+        return redirect()->route('adm.showadm')->with('success','Adm alterado com sucesso');
+    }
+
+    public function updateUserScreen($id) {
+        $admin = Usuario::findOrFail($id);
+        return view('siteAdm.verUser.update', compact('usuario'));
+    }
+
+    public function updateUser(Request $request, $id) {
+        $dados = $request->validate([
+            'nome' => 'required|max:225|string',
+            'email' => 'required|max:225|string|unique:tbAdmin,email,' . $id . ',id',
+            'telefone' => 'required|string',
+            'genero' => 'required',
+        ]);
+
+        $usuario = Usuario::findOrFail($id);
+        $usuario->update($dados);
+
+        return redirect()->route('adm.showUser')->with('success','Usuario alterado com sucesso');
     }
 
     public function deleteAdm($id) {
         $admin = Admin::find($id);
-
         if(!$admin) {
             return redirect()->back()->with('Error','O adm não encontrado');
         }
-
         $admin->delete();
 
-        return redirect()->route('adm.vizuAdms')->with('success','Adm deletado com sucesso');
+        return redirect()->route('adm.showAdm')->with('success','Adm deletado com sucesso');
+    }
+
+    public function deleteUser($id) {
+        $usuario = Usuario::find($id);
+        if(!$usuario) {
+            return redirect()->back()->with('Error','O usuario não encontrado');
+        }
+        $usuario->delete();
+
+        return redirect()->route('adm.showUser')->with('success','Usuario deletado com sucesso');
     }
 
 }

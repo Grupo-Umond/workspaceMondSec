@@ -18,6 +18,7 @@
                         <th>ID</th>
                         <th>Nome</th>
                         <th>Email</th>
+                        <th>Telefone</th>
                         <th>Nivel de Acesso</th>
                         <th>Data de Criação</th>
                     </tr>
@@ -28,11 +29,12 @@
                             <td>{{ $admin->id }}</td>
                             <td>{{ $admin->nome }}</td>
                             <td>{{ $admin->email }}</td>
+                            <td>{{ $admin->telefone }}</td>
                             <td>{{ $admin->nivelAdmin }}</td>
                             <td>{{ $admin->created_at->format('d/m/Y H:i') }}</td>
-                            <td><a href="{{ route('adm.alterarAdm', $admin->id)}}">Editar</a></td>
+                            <td><a href="{{ route('adm.updateAdm', $admin->id)}}">Editar</a></td>
                             <td>
-                            <form action="{{ route('adm.deletarAdm', $admin->id) }}" method="POST" onsubmit="return confirm('Tem certeza que quer excluir?');">
+                            <form action="{{ route('adm.deleteAdm', $admin->id) }}" method="POST" onsubmit="return confirm('Tem certeza que quer excluir?');">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit" class="btn btn-danger btn-sm">Excluir</button>

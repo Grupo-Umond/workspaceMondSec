@@ -11,8 +11,8 @@
         <h1 class="mb-4">Escolha para onde deseja ir:</h1>
 
         <div class="d-flex gap-3">
-            <a href="{{ route('adm.vizuAdms') }}" class="btn btn-primary btn-lg flex-fill">Ver Adms Cadastrados</a>
-            <a href="{{ route('adm.vizuUsers') }}" class="btn btn-secondary btn-lg flex-fill">Ver Usuários Cadastrados</a>
+            <a href="{{ route('adm.showadm') }}" class="btn btn-primary btn-lg flex-fill">Ver Adms Cadastrados</a>
+            <a href="{{ route('adm.showuser') }}" class="btn btn-secondary btn-lg flex-fill">Ver Usuários Cadastrados</a>
         </div>
     </div>
 </body>
