@@ -12,20 +12,19 @@ class Usuario extends Authenticatable
     use HasApiTokens, HasFactory, Notifiable;
 
     protected $table = 'tbUsuario';
-    protected $primaryKey = 'idUsuario';
     public $timestamps = false;
 
     protected $fillable = [
-        'nomeUsuario',
-        'emailUsuario',
-        'telefoneUsuario',
-        'senhaUsuario',
-        'generoUsuario',
-        'dataCadastroUsuario',
-        'expo_token', 
+        'nome',
+        'email',
+        'telefone',
+        'senha',
+        'genero',
+        'dataCadastro',
+        'expoToken', 
     ];
 
     protected $hidden = [
-        'senhaUsuario',
+        'senha',
     ];
 }
