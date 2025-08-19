@@ -15,6 +15,7 @@ return new class extends Migration
     {
         Schema::create('tbFeedback', function (Blueprint $table) {
             $table->id();
+            $table->increments('idPai');
             $table->string('titulo');
             $table->text('mensagem');
             $table->unsignedBigInteger('idUsuario');
