@@ -15,6 +15,7 @@ return new class extends Migration
     {
         Schema::create('tbComentario', function (Blueprint $table) {
             $table->id();
+            $table->increments('idPai');
             $table->text('mensagem');
             $table->timestamp('data')->useCurrent();
             $table->unsignedBigInteger('idUsuario');
