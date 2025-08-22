@@ -91,6 +91,7 @@ const LoginScreen = ({navigation, setUserToken}) => {
         autoCapitalize="none"
         autoCorrect={false}
         style={styles.input}
+        secureTextEntry
       />
 
       <Pressable style={styles.link} onPress={() => navigation.navigate('DigiteCodigo')}>
