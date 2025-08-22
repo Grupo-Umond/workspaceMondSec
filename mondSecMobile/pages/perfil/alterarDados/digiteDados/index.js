@@ -43,7 +43,7 @@ const DigiteDadosScreen = ({navigation}) => {
     const buscarDados = async () => {
         const tokenUser = await AsyncStorage.getItem('userToken');
         try{
-        const response = await axios.get('http://127.0.0.1:8000/api/buscar',{
+        const response = await axios.get('http://127.0.0.1:8000/api/usuario/buscar',{
             headers:{
                 authorization: `Bearer ${tokenUser}`
             }
@@ -53,10 +53,10 @@ const DigiteDadosScreen = ({navigation}) => {
         
         const usuario = response.data.usuario;
         console.log(usuario);
-        setNome(usuario.nomeUsuario ?? '');
-        setEmail(usuario.emailUsuario ?? '');
-        setTelefone(usuario.telefoneUsuario ?? '');
-        setGenero(usuario.generoUsuario ?? '');
+        setNome(usuario.nome ?? '');
+        setEmail(usuario.email ?? '');
+        setTelefone(usuario.telefone ?? '');
+        setGenero(usuario.genero ?? '');
 
         }catch(erro){
             console.log(erro);
@@ -68,7 +68,7 @@ const DigiteDadosScreen = ({navigation}) => {
 
         const tokenUser = await AsyncStorage.getItem('userToken');
 
-        const response = await axios.put('http://127.0.0.1:8000/api/update', {
+        const response = await axios.put('http://127.0.0.1:8000/api/usuario/update', {
             nome,
             email,
             telefone,

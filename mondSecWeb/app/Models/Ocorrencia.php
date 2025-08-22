@@ -19,17 +19,17 @@ class Ocorrencia extends Model
     public $timestamps = false;
 
     protected $fillable = [
-        'tituloOcorrencia',
-        'latitudeOcorrencia',
-        'longitudeOcorrencia',
-        'dataRegistradaOcorrencia',
+        'titulo',
+        'latitude',
+        'longitude',
+        'data',
         'idUsuario',
-        'idTipo',
+        'idTipoOcorrencia',
     ];
 
     public function tipoOcorrencia()
     {
-        return $this->belongsTo(TipoOcorrencia::class, 'idTipo', 'idTipo');
+        return $this->belongsTo(TipoOcorrencia::class, 'idTipoOcorrencia', 'id');
     }
 
 

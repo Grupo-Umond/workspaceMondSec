@@ -18,7 +18,7 @@ const MenuScreen = ({navigation, setUserToken}) => {
                     console.log("Token não recebido");
                 }
 
-                const response = await axios.get('http://127.0.0.1:8000/api/buscar', {
+                const response = await axios.get('http://127.0.0.1:8000/api/usuario/buscar', {
                     headers: { 
                         Authorization: `Bearer ${token}`,
                     },
@@ -26,8 +26,8 @@ const MenuScreen = ({navigation, setUserToken}) => {
 
                 console.log(response);
 
-                setNome(response.data.usuario.nomeUsuario);
-                setEmail(response.data.usuario.emailUsuario);
+                setNome(response.data.usuario.nome);
+                setEmail(response.data.usuario.email);
         
             }catch(err) {
                 if(err.response?.status === 401) {

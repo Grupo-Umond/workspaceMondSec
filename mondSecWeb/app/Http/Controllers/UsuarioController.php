@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Cache;
 class UsuarioController extends Controller
 {
     
-    public function informationProfile(Request $request)
+    public function buscarUsuario(Request $request)
     {
         return response()->json([
             'usuario' => $request->user()
@@ -32,6 +32,7 @@ class UsuarioController extends Controller
         if (!str_starts_with($telefone, '55')) {
             $telefone = '55' . $telefone;
         }
+
         $telefone = '+' . $telefone;
 
         $usuario = Usuario::create([
@@ -40,7 +41,7 @@ class UsuarioController extends Controller
             'email' => $dados['email'],
             'telefone' => $telefone,
             'senha' => Hash::make($dados['senha']),
-            'dataCadastro' => now(),
+            'data' => now(),
         ]);
 
         $token = $usuario->createToken('userToken')->accessToken;
@@ -71,13 +72,20 @@ class UsuarioController extends Controller
         if (!$usuario || !Hash::check($request->senha, $usuario->senha)) {
             return response()->json(['error' => 'Credenciais inválidas'], 401);
         }
+        $token = $usuario->createToken('userToken')->accessToken;
+
+        return response()->json([
+            'tokenUser' => $token,
+            'tokenTipo' => 'Bearer',
+            'expiraEm' => 3600,
+        ]);
     }
 
     public function updateUsuario(Request $request) {
         $request->validate([
-            'nome' => 'max:100',
-            'email'  => 'email|unique:tbUsuario,emailUsuario',
-            'telefone' => 'unique:tbUsuario,telefoneUsuario',
+            'nome' => 'string|max:100',
+            'email' => 'email',
+            'telefone' => 'string',
         ]);
         
         $usuario = $request->user();
@@ -113,7 +121,7 @@ class UsuarioController extends Controller
     {
         $request->validate([
             'tokenTemp' => 'required',
-            'novaSenhaConfirma' => 'nullable|min:6',
+            'novaSenhaConfirma' => 'required|min:6',
         ]);
 
         $email = Cache::get("token_{$request->tokenTemp}");
@@ -127,7 +135,7 @@ class UsuarioController extends Controller
             $usuario->senha = bcrypt($request->novaSenhaConfirma);
         }
 
-        $user->save();
+        $usuario->save();
         Cache::forget("token_{$request->tokenTemp}");
 
         return response()->json(['message' => 'Dados atualizados com sucesso']);
@@ -140,8 +148,6 @@ class UsuarioController extends Controller
         if(!$senha) {
             return response()->json(['message' => 'Senha não recebida']);
         }
-
-        
 
         $usuario = $request->user();
 
