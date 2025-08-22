@@ -16,7 +16,7 @@ Route::prefix('usuario')
         Route::post('/login', 'login')->withoutMiddleware('auth:api')->name('login');
 
         Route::middleware('auth:api')->group(function () {
-            Route::get('/buscar', 'informationProfile')->name('buscar');
+            Route::get('/buscar', 'buscarUsuario')->name('buscar');
             Route::put('/update', 'updateUsuario')->name('update');
             Route::put('/alterar', 'updateSenha')->name('alterarSenha');
             Route::delete('/deletar', 'delete')->name('deletar');
@@ -38,6 +38,7 @@ Route::prefix('codigo')
     ->middleware('auth:api')
     ->group(function () {
         Route::post('/sendEmail', 'sendCodeEmail')->name('enviar');
+        Route::post('/sendSms', 'sendCodeSms')->name('verify');
         Route::post('/verify', 'verifyCode')->name('verificar');
     });
 

@@ -35,20 +35,20 @@ const RegistrarScreen = ({ navigation }) => {
     setCarregando(true);
 
     const dados = {
-        tituloOcorrencia: titulo,
-        descricaoTipo: descricao, 
-        latitudeOcorrencia: latitude,
-        longitudeOcorrencia: longitude,
+        titulo: titulo,
+        descricao: descricao, 
+        latitude: latitude,
+        longitude: longitude,
         tbTipoOcorrencia: {
-            tipoOcorrencia: tipo,
-            descricaoOcorrencia: descricao
+            tipo: tipo,
+            descricao: descricao
     }
 }
 
 
     try {
       const token = await AsyncStorage.getItem('userToken');
-      const response = await axios.post('http://127.0.0.1:8000/api/registrar', dados, {
+      const response = await axios.post('http://127.0.0.1:8000/api/ocorrencia/registrar', dados, {
         headers: {
           Authorization: `Bearer ${token}`
         }
@@ -127,6 +127,7 @@ const RegistrarScreen = ({ navigation }) => {
               setDescricao('');
               setLatitude('');
               setLongitude('');
+              navigation.navigate('Ocorrencia');
             }}>
               <Text style={styles.modalButton}>Ver Minhas Ocorrências</Text>
             </Pressable>

@@ -12,11 +12,12 @@ class TipoOcorrencia extends Model
 {
     use HasApiTokens, HasFactory, Notifiable;
     protected $table = 'tbTipoOcorrencia';
-
+    protected $primaryKey = 'id';
+    
     public $timestamps = false;
 
     protected $fillable = [
-        'nome',
+        'categoria',
         'descricao',
     ];
 }

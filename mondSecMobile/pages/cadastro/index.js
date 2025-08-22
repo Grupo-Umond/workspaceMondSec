@@ -54,7 +54,7 @@ const CadastroScreen = ({navigation, setUserToken}) => {
     setCarregando(true);
 
     try{
-      const response = await axios.post('http://127.0.0.1:8000/api/cadastrar', {
+      const response = await axios.post('http://127.0.0.1:8000/api/usuario/cadastrar', {
         nome,
         email,
         telefone,

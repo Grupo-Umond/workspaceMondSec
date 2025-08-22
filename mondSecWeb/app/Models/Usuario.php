@@ -27,4 +27,9 @@ class Usuario extends Authenticatable
     protected $hidden = [
         'senha',
     ];
+
+    public function usuario()
+    {
+        return $this->belongsTo(Usuario::class, 'idUsuario', 'id');
+    }
 }

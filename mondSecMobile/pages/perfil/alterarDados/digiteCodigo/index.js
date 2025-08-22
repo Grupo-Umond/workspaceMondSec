@@ -8,23 +8,43 @@ const DigiteCodigoScreen = ({navigation}) => {
     const[direcao, setDirecao] = useState(true);
     const[erroMessage, setErroMessage] = useState('')
     const[carregando, setCarregando] = useState(false);
+    const[email,setEmail] = useState('');
+    const[telefone,setTelefone] = useState('');
     
     useEffect(() => {
+      buscarDados();
       criarCodigo();
     }, [])
 
+    const buscarDados = async () => {
+      const tokenUser = await AsyncStorage.getItem('userToken');
+      try{
+        const response = await axios.get('http://127.0.0.1:8000/api/usuario/buscar',{
+            headers: {
+              Authorization: `Bearer ${tokenUser}`,
+            },
+          });
+          
+          setEmail(response.data.usuario.email);
+          setTelefone(response.data.usuario.telefone);
+
+      }catch(erro){
+        console.log(erro);
+        return;
+      }
+    }
     const criarCodigo = async () => {
       const tokenUser = await AsyncStorage.getItem('userToken');
 
       try{
         if(direcao){
-          const response = await axios.post('http://127.0.0.1:8000/api/sendCodeEmail', {}, {
+          const response = await axios.post('http://127.0.0.1:8000/api/codigo/sendEmail', {}, {
             headers: {
               Authorization: `Bearer ${tokenUser}`
             }
           });
         }else{
-          const response = await axios.post('http://127.0.0.1:8000/api/sendCodeSms', {}, {
+          const response = await axios.post('http://127.0.0.1:8000/api/codigo/sendSms', {}, {
           headers: {
             Authorization: `Bearer ${tokenUser}`
           }
@@ -60,7 +80,7 @@ const DigiteCodigoScreen = ({navigation}) => {
       
         const tokenUser = await AsyncStorage.getItem('userToken');
         try{
-          const response = await axios.post('http://127.0.0.1:8000/api/verifyCode', 
+          const response = await axios.post('http://127.0.0.1:8000/api/codigo/verify', 
             {
               code,
             },{
@@ -94,15 +114,15 @@ const DigiteCodigoScreen = ({navigation}) => {
     </View>
 
     <Text style={styles.title}>{direcao
-     ? 'Digite o código que enviamos para o email {email}' 
-     : 'Digite o codigo que enviamos para o numero {telefone}' }
+     ? `Digite o código que enviamos para o email ${email}` 
+     : `Digite o codigo que enviamos para o numero ${telefone}` }
      </Text>
-     {metodo && (
+     {direcao && (
         <Pressable onPress={() => {setDirecao(false); criarCodigo();}}>
           <Text>Não Tenho acesso a esse email. Enviar por sms</Text>
         </Pressable>
       )}
-      {!metodo && (
+      {!direcao && (
         <Pressable onPress={() => {setDirecao(true); criarCodigo();}}>
           <Text>Não Tenho acesso a esse telefone. Enviar por email</Text>
         </Pressable>
@@ -195,7 +215,5 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
 });
-
-
 
 export default DigiteCodigoScreen;

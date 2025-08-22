@@ -14,15 +14,15 @@ class OcorrenciaController extends Controller
         $usuario = auth()->user();
 
         $ocorrencias = Ocorrencia::with('tipoOcorrencia')
-            ->where('idUsuario', $usuario->idUsuario)
+            ->where('idUsuario', $usuario->id)
             ->get()
             ->map(function ($ocorrencias) {
                 return [
-                    'tituloOcorrencia' => $ocorrencias->tituloOcorrencia,
-                    'longitudeOcorrencia' => $ocorrencias->longitudeOcorrencia,
-                    'latitudeOcorrencia' => $ocorrencias->latitudeOcorrencia,
-                    'dataRegistradaOcorrencia' => $ocorrencias->dataRegistradaOcorrencia,
-                    'descricaoTipo' => $ocorrencias->tbTipoOcorrencia->descricaoTipo ?? 'Sem descrição',
+                    'titulo' => $ocorrencias->titulo,
+                    'longitude' => $ocorrencias->longitude,
+                    'latitude' => $ocorrencias->latitude,
+                    'data' => $ocorrencias->data,
+                    'descricao' => $ocorrencias->tbTipoOcorrencia->descricao ?? 'Sem descrição',
                 ];
             });
             return response()->json($ocorrencias);
@@ -33,25 +33,25 @@ class OcorrenciaController extends Controller
         $usuario = auth()->user();
 
         $dados = $request->validate([
-            'tituloOcorrencia' => 'required|string',
-            'descricaoTipo' => 'nullable|string',
-            'latitudeOcorrencia' => 'required|numeric',
-            'longitudeOcorrencia' => 'required|numeric',
-            'tbTipoOcorrencia.tipoOcorrencia' => 'required|string',
-            'tbTipoOcorrencia.descricaoOcorrencia' => 'nullable|string',
+            'titulo' => 'required|string',
+            'descricao' => 'nullable|string',
+            'latitude' => 'required|numeric',
+            'longitude' => 'required|numeric',
+            'tbTipoOcorrencia.tipo' => 'required|string',
+            'tbTipoOcorrencia.descricao' => 'nullable|string',
         ]);
 
-        $tipo = \App\Models\TipoOcorrencia::firstOrCreate(
-            ['nomeTipo' => $dados['tbTipoOcorrencia']['tipoOcorrencia']],
-            ['descricaoTipo' => $dados['tbTipoOcorrencia']['descricaoOcorrencia'] ?? null]
+        $tipo = TipoOcorrencia::firstOrCreate(
+            ['categoria' => $dados['tbTipoOcorrencia']['tipo']],
+            ['descricao' => $dados['tbTipoOcorrencia']['descricao'] ?? null]
         );
 
         $ocorrencia = Ocorrencia::create([
-            'tituloOcorrencia' => $dados['tituloOcorrencia'],
-            'latitudeOcorrencia' => $dados['latitudeOcorrencia'],
-            'longitudeOcorrencia' => $dados['longitudeOcorrencia'],
-            'idTipo' => $tipo->idTipo,
-            'idUsuario' => $usuario->idUsuario,
+            'titulo' => $dados['titulo'],
+            'latitude' => $dados['latitude'],
+            'longitude' => $dados['longitude'],
+            'idTipoOcorrencia' => $tipo->id,
+            'idUsuario' => $usuario->id,
         ]);
 
 

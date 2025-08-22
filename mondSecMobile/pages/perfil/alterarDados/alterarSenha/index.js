@@ -39,7 +39,7 @@ const AlterarSenhaScreen = ({navigation}) => {
         
         const tokenUser = await AsyncStorage.getItem('userToken');
         try{
-            const response = await axios.put('http://127.0.0.1:8000/api/alterar', 
+            const response = await axios.put('http://127.0.0.1:8000/api/usuario/alterar', 
             {
                 tokenTemp,
                 novaSenhaConfirma,
