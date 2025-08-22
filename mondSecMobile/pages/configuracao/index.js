@@ -5,7 +5,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import CheckBox from 'expo-checkbox';
 
-const ConfiguracaoScreen = ({navigation}) => {
+const ConfiguracaoScreen = ({navigation, setUserToken}) => {
     const [notificacao, setNotificacao] = useState(true);
     const [oculto, setOculto] = useState(true);
     const [volumeEfeito, setVolumeEfeito] = useState(100);
@@ -25,16 +25,15 @@ const ConfiguracaoScreen = ({navigation}) => {
 
         const tokenUser = await AsyncStorage.getItem('userToken');
         try {
-            const response = await axios.delete('http://127.0.0.1:8000/api/deletar', {
+            const response = await axios.delete('http://127.0.0.1:8000/api/usuario/deletar', {
                 headers: {
                     Authorization: `Bearer ${tokenUser}`,
                     senha: senha,
                 },
             });
-
+            await AsyncStorage.removeItem('userToken');
             setModalDelete(false);
-
-            navigation.navigate('Login');
+            setUserToken(null);
         }catch(erro){
             if(erro.response?.status) {
                 const codigo = erro.response.status;

@@ -51,7 +51,9 @@ export default function App() {
             <Stack.Screen name="Ocorrencia" component={OcorrenciaScreen} />
             <Stack.Screen name="Registrar" component={RegistrarScreen} />
             <Stack.Screen name="Sobre" component={SobreScreen} />
-            <Stack.Screen name="Configuracao" component={ConfiguracaoScreen} />
+            <Stack.Screen name="Configuracao">
+              {props => <ConfiguracaoScreen {...props} setUserToken={setUserToken} />}
+            </Stack.Screen>
             <Stack.Screen name="DigiteDados" component={DigiteDadosScreen} />
             <Stack.Screen name="DigiteCodigo" component={DigiteCodigoScreen} />
             <Stack.Screen name="AlterarSenha" component={AlterarSenhaScreen} />
