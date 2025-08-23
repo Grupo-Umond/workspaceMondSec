@@ -1,5 +1,5 @@
 import React, { useState, useEffect} from "react";
-import { View, Text, TextInput, Button, Pressable, StyleSheet} from 'react-native';
+import { View, Text, TextInput, Button, Pressable, StyleSheet, TouchableOpacity, Image}  from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import  axios  from 'axios';
 
@@ -70,48 +70,79 @@ const LoginScreen = ({navigation, setUserToken}) => {
 
   return (
   <View style={styles.container}>
-    <Text style={styles.title}>Entrar</Text>
+     <View style={styles.containerFundo}>
+        <View style={[styles.metadeFundo, styles.metadeSuperior]} />
+        <View style={[styles.metadeFundo, styles.metadeInferior]} />
+      </View>
+        <View style={styles.containerConteudo}>
+            <View style={styles.logoContainer}>
+                <Image
+                  source={require('../../assets/mondlogo.png')}
+                  style={styles.logo}
+                />
+              </View>
+              <Text style={styles.textoBoasVindas}>Bem-vindo à MondSec!</Text>
+    <Text style={styles.textoEntrar}>Entrar</Text>
 
-    <View>
-      <Text>Email</Text>
-      <TextInput
-        placeholder="Digite seu email..."
-        keyboardType="default"
-        onChangeText={setLogin}
-        autoCapitalize="none"
-        autoCorrect={false}
-        style={styles.input}
-      />
+     <View style={styles.containerInput}>
+          <Text style={styles.rotulo}>Email</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="Digite seu email..."
+            placeholderTextColor="#999"
+            onChangeText={setLogin}
+            keyboardType="default"
+            autoCorrect={false}
+            autoCapitalize="none"
+          />
+        </View>
+    
+     <View style={styles.containerInput}>
+           <Text style={styles.rotulo}>Senha</Text>
+           <TextInput
+             style={styles.input}
+             keyboardType="default"
+             placeholder="Digite sua senha..."
+             placeholderTextColor="#999"
+             onChangeText={setSenha}
+             secureTextEntry
+           />
+         </View>
 
-      <Text>Senha</Text>
-      <TextInput
-        placeholder="Digite sua senha..."
-        keyboardType="default"
-        onChangeText={setSenha}
-        autoCapitalize="none"
-        autoCorrect={false}
-        style={styles.input}
-        secureTextEntry
-      />
-
-      <Pressable style={styles.link} onPress={() => navigation.navigate('DigiteCodigo')}>
-          <Text>Esqueceu a senha?</Text>
-      </Pressable>
+         <View style={styles.linhaOpcoes}>
+     
+           <Pressable onPress={() => navigation.navigate('DigiteCodigo')}>
+             <Text style={styles.textoSenhaEsquecida}>Esqueceu a senha?</Text>
+           </Pressable>
+         </View>
 
       {erroMessage ? <Text style={styles.error}>{erroMessage}</Text> : null}
+<TouchableOpacity 
+  style={styles.botaoLogin} 
+  onPress={validarLogin} 
+  disabled={carregando}
+>
+  <Text style={styles.textoBotaoLogin}>
+    {carregando ? 'Entrando...' : 'Entrar'}
+  </Text>
+</TouchableOpacity>
 
-      <Button
-        title={carregando ? 'Entrando...' : 'Entrar'}
-        onPress={validarLogin}
-        disabled={carregando}
-      />
 
+    
 
-      <Pressable style={styles.link} onPress={() => navigation.navigate('Cadastro')}>
-      <Text style={styles.link}>Ja tem uma conta? Cadastre agora</Text>
-      </Pressable>
-      </View>
+    <View style={styles.divisor}>
+      <View style={styles.linhaDivisor} />
+      <Text style={styles.textoDivisor}>ou</Text>
+      <View style={styles.linhaDivisor} />
+    </View>
 
+    <Pressable 
+      style={styles.linkCadastro} 
+      onPress={() => navigation.navigate('Cadastro')}
+    >
+      <Text style={styles.textoLinkCadastro}>Ainda não tem uma conta? <Text style={styles.destaqueLinkCadastro}>Cadastre-se</Text></Text>
+    </Pressable>
+  </View>
 
   </View>
   );
@@ -119,26 +150,146 @@ const LoginScreen = ({navigation, setUserToken}) => {
 
 
 const styles = StyleSheet.create({
-  container: {
+ container: {
     flex: 1,
-    backgroundColor: '#fff',
-    paddingHorizontal: 24,
+    position: 'relative',
+    backgroundColor: '#FFFFFF',
+  },
+  containerFundo: {
+    position: 'absolute',
+    width: '100%',
+    height: '100%',
+    zIndex: 0,
+  },
+  metadeFundo: {
+    height: '50%',
+  },
+  metadeSuperior: {
+    backgroundColor: '#12577B',
+  },
+  metadeInferior: {
+    backgroundColor: '#a9cfe5',
+  },
+  containerConteudo: {
+    flex: 1,
+    paddingHorizontal: 20,
+    marginHorizontal: 25,
+    marginTop: 80,
+    marginBottom: 80,
+    zIndex: 1,
+    backgroundColor: 'whitesmoke',
+    borderRadius: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
     justifyContent: 'center',
   },
-  title: { fontSize: 28, fontWeight: 'bold', marginBottom: 24, textAlign: 'center' },
-  input: {
-    borderWidth: 1,
-    borderColor: '#ccc',
-    backgroundColor: '#f9f9f9',
-    padding: 12,
-    borderRadius: 8,
-    marginBottom: 16,
-    fontSize: 16,
+  logoContainer: {
+    alignSelf: 'center',
+    backgroundColor: 'transparent',
+    paddingVertical: 12,
+    paddingHorizontal: 30,
+    elevation: 3,
+    width: '80%'
   },
-  checkboxContainer: { flexDirection: 'row', alignItems: 'center', marginBottom: 16 },
-  checkboxLabel: { marginLeft: 8 },
-  link: { marginTop: 24, color: '#1e90ff', textAlign: 'center', fontSize: 16 },
-  error: { color: 'red', marginBottom: 10, textAlign: 'center' },
+  logo: {
+    width: '100%',
+    height: 80,
+    resizeMode: 'contain'
+  },
+  textoBoasVindas: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#021b33',
+    textAlign: 'center',
+    marginBottom: 20,
+    marginTop: 10,
+  },
+  textoEntrar: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#021b33',
+    textAlign: 'center',
+    marginBottom: 20,
+  },
+  containerInput: {
+    marginBottom: 5,
+  },
+  rotulo: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#333',
+    marginBottom: -12,
+  },
+  input: {
+    width: '100%',
+    height: 60,
+    backgroundColor: 'transparent',
+    borderBottomWidth: 0.8,
+    borderBottomColor: 'gray',
+    fontSize: 16,
+    color: '#333',
+  },
+  linhaOpcoes: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  textoSenhaEsquecida: {
+    color: '#12577B',
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  containerBotoes: {
+    width: '100%',
+    marginTop: 20,
+  },
+  botaoLogin: {
+    width: '70%',
+    height: 45, 
+    backgroundColor: '#12577B',
+    borderRadius: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 15,
+    alignSelf: 'center',
+  },
+  textoBotaoLogin: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+  divisor: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  linhaDivisor: {
+    flex: 1,
+    height: 1,
+    backgroundColor: '#E0E0E0',
+  },
+  textoDivisor: {
+    color: '#757575',
+    fontSize: 14,
+    fontWeight: '600',
+    paddingHorizontal: 10,
+  },
+  linkCadastro: {
+    marginTop: 10,
+  },
+  textoLinkCadastro: {
+    color: '#757575',
+    fontSize: 14,
+    textAlign: 'center',
+  },
+  destaqueLinkCadastro: {
+    color: '#12577B',
+    fontWeight: '600',
+
+  },
 });
 
 export default LoginScreen;

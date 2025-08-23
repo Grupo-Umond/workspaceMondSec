@@ -1,5 +1,5 @@
 import React, {useState, useEffect} from "react";
-import {View, Text, TextInput, Pressable, StyleSheet, Button} from 'react-native';
+import {View, Text, TextInput, Pressable, StyleSheet, TouchableOpacity, Image} from 'react-native';
 import axios from 'axios';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
@@ -104,48 +104,84 @@ const DigiteCodigoScreen = ({navigation}) => {
           setCarregando(false);
         }
       }
-    
-    return(
+  return (
     <View style={styles.container}>
-    <View style={styles.header}>
-        <Pressable style={styles.backButton} onPress={() => navigation.goBack()}>
-        <Text style={styles.backButtonText}>Back</Text>
+       <View style={styles.nav}> 
+          <Pressable style={styles.backButton} onPress={() => navigation.goBack()}>
+          <Text style={styles.backArrow}>{"<"}</Text>
         </Pressable>
+      <View style={styles.header}>
+        <Text style={styles.headerTitle}>Verificação de Conta</Text>
+      </View>
+
+       </View>
+          
+  
+      <View style={styles.avatarContainer}>
+            <View style={styles.logoContainer}>
+                  <Image
+                                source={require('../../../../assets/mondSecLogo.png')}
+                                style={styles.logo}
+                            />
+                        </View>
+        
+      </View>
+
+   
+      <Text style={styles.title}>
+  {direcao
+    ? `Digite o código que enviamos para o email ${email}` 
+    : `Digite o código que enviamos para o número ${telefone}`
+  }
+</Text>
+
+{direcao && (
+  <Pressable onPress={() => {setDirecao(false); criarCodigo();}}>
+    <Text style={styles.linkText}>
+      Não tenho acesso a esse email. <Text style={styles.linkHighlight}>Enviar por SMS</Text>
+    </Text>
+  </Pressable>
+)}
+
+{!direcao && (
+  <Pressable onPress={() => {setDirecao(true); criarCodigo();}}>
+    <Text style={styles.linkText}>
+      Não tenho acesso a esse telefone. <Text style={styles.linkHighlight}>Enviar por email</Text>
+    </Text>
+  </Pressable>
+)}
+
+
+   
+<View style={styles.inputContainer}>
+  <TextInput
+    style={styles.input}
+    keyboardType="numeric"
+    maxLength={6}
+    value={code}
+    onChangeText={setCode}
+    placeholder="Digite o código"
+    placeholderTextColor="#4e4747ff"
+  />
+</View>
+
+   
+      {erroMessage ? <Text style={styles.errorMessage}>{erroMessage}</Text> : null}
+
+
+      <TouchableOpacity>
+        <Text style={styles.resendLink}>Não recebeu o código? Reenviar</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity
+        style={[styles.confirmButton, carregando && styles.disabledButton]}
+        onPress={enviarCodigo}
+        disabled={carregando}
+      >
+        <Text style={styles.confirmButtonText}>{carregando ? "Enviando..." : "Confirmar"}</Text>
+      </TouchableOpacity>
     </View>
-
-    <Text style={styles.title}>{direcao
-     ? `Digite o código que enviamos para o email ${email}` 
-     : `Digite o codigo que enviamos para o numero ${telefone}` }
-     </Text>
-     {direcao && (
-        <Pressable onPress={() => {setDirecao(false); criarCodigo();}}>
-          <Text>Não Tenho acesso a esse email. Enviar por sms</Text>
-        </Pressable>
-      )}
-      {!direcao && (
-        <Pressable onPress={() => {setDirecao(true); criarCodigo();}}>
-          <Text>Não Tenho acesso a esse telefone. Enviar por email</Text>
-        </Pressable>
-      )}
-    {erroMessage ? <Text style={styles.errorMessage}>{erroMessage}</Text> : null}
-
-    <TextInput
-        style={styles.input}
-        keyboardType="numeric"
-        maxLength={6}
-        value={code}
-        onChangeText={setCode}
-    />
-
-        <Text style={styles.linkText}>Não recebeu o código? Reenvie aqui</Text>
-
-    <Button 
-      title={carregando ? 'Enviando...' : 'Enviar'}
-      onPress={() => enviarCodigo()}
-      disabled={carregando}
-    />
-    </View>
-    );
+  );
 };
 
 const styles = StyleSheet.create({
@@ -153,65 +189,106 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 20,
     backgroundColor: "#fff",
+    alignItems: "center", 
+   
   },
-
   header: {
-    marginBottom: 20,
-  },
-
+    flexDirection: "row",
+    alignItems: "center",
+    
+  }, 
   backButton: {
-    paddingVertical: 8,
-    paddingHorizontal: 12,
+    marginRight: 90,
+    marginBottom: 10, 
   },
 
-  backButtonText: {
-    color: "#007AFF",
-    fontSize: 16,
+  nav: { 
+    flexDirection: 'row'
+  }, 
+  backArrow: {
+    fontSize: 70,
+    color: "#12577B",
   },
-
-  title: {
-    fontSize: 18,
-    fontWeight: "bold",
+  headerTitle: {
+    fontSize: 22,
+    fontWeight: 600,
+    color: "#000",
+    marginLeft: -50, 
+  },
+  avatarContainer: {
+    alignItems: "center",
     marginBottom: 10,
-    textAlign: "center",
   },
-
+      logoContainer: {
+        alignItems: 'center',
+     
+    },
+  logo: {
+    width: 200, 
+    height: 200, 
+    resizeMode: 'contain'
+  }, 
+   inputContainer: {
+    alignItems: "center",
+    marginVertical: 20,
+  },
   input: {
+    width: "100%",
+    fontSize: 20,
+    textAlign: "center",
+    paddingVertical: 12,
     borderWidth: 1,
     borderColor: "#ccc",
-    borderRadius: 8,
-    padding: 10,
-    fontSize: 16,
-    marginBottom: 10,
-    textAlign: "center",
+    borderRadius: 12,
+    backgroundColor: "#fff",
+    elevation: 2, // sombra no Android
+    shadowColor: "#000", // sombra no iOS
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    letterSpacing: 4, // espaçamento entre dígitos
   },
-
   errorMessage: {
     color: "red",
-    textAlign: "center",
     marginBottom: 10,
+    textAlign: "center",
   },
-
-  linkButton: {
-    alignItems: "center",
-    marginBottom: 15,
-  },
-
-  linkText: {
+  resendLink: {
     color: "#007AFF",
     fontSize: 14,
+    textAlign: "center",
+    marginBottom: 20,
   },
-
-  mainButton: {
-    backgroundColor: "#007AFF",
-    padding: 12,
+  confirmButton: {
+    backgroundColor: "#003366",
+    paddingVertical: 12,
+    paddingHorizontal: 40,
     borderRadius: 8,
     alignItems: "center",
   },
-
-  mainButtonText: {
+  confirmButtonText: {
     color: "#fff",
     fontSize: 16,
+    fontWeight: "bold",
+  },
+  disabledButton: {
+    opacity: 0.5,
+  },
+   title: {
+    fontSize: 18,
+    fontWeight: "600",
+    color: "#333",
+    textAlign: "center",
+    marginBottom: 20,
+  },
+  linkText: {
+    fontSize: 14,
+    color: "#555",
+    textAlign: "center",
+    marginTop: 10,
+  },
+  linkHighlight: {
+    color: "#1E90FF",
     fontWeight: "bold",
   },
 });

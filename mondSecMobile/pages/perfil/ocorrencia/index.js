@@ -1,6 +1,7 @@
 import React, {useState, useEffect} from "react";
-import {Pressable, View, Button, Text, ScrollView, TextInput} from 'react-native';
+import {Pressable, View, Button, Text} from 'react-native';
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { TextInput } from "react-native";
 import axios from "axios";
 
 const OcorrenciaScreen = ({navigation}) => {
@@ -22,11 +23,15 @@ const OcorrenciaScreen = ({navigation}) => {
                 return;
             }
             
-            const {data} = await axios.get('http://127.0.0.1:8000/api/ocorrencia/procurar', {
+            const {data} = await axios.get('http://127.0.0.1:8000/api/procurar', {
                 headers: {
                     Authorization: `Bearer ${token}`
                 }
             });
+
+            if (!data) {
+                console.log("Tem parada errada parceiro");
+            }
 
             console.log(data);
 
@@ -38,7 +43,7 @@ const OcorrenciaScreen = ({navigation}) => {
     }
 
     return (
-        <ScrollView>
+        <View>
             <View>
                 <Pressable onPress={() => navigation.navigate('Menu')}>
                     <Text>Back</Text>
@@ -56,15 +61,15 @@ const OcorrenciaScreen = ({navigation}) => {
                 </Pressable>
                 {ocorrencias.map((ocorrencia, index) => (
                     <View key={index}>
-                        <Text>{ocorrencia.titulo}</Text>
-                        <Text>{ocorrencia.longitude}</Text>
-                        <Text>{ocorrencia.latitude}</Text>
-                        <Text>{ocorrencia.data}</Text>
+                        <Text>{ocorrencia.tituloOcorrencia}</Text>
+                        <Text>{ocorrencia.longitudeOcorrencia}</Text>
+                        <Text>{ocorrencia.latitudeOcorrencia}</Text>
+                        <Text>{ocorrencia.dataRegistradaOcorrencia}</Text>
                         <Button/>
                     </View>
                     ))}
             </View>
-        </ScrollView>
+        </View>
     );
 };
 export default OcorrenciaScreen;

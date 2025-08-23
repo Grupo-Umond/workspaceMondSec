@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import { View, Text, TextInput, Button, Pressable, StyleSheet } from 'react-native';
+import { View, Text, TextInput, Button, Pressable, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import CheckBox from 'expo-checkbox';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -88,129 +88,296 @@ const CadastroScreen = ({navigation, setUserToken}) => {
 
   return (
     <View style={styles.container}>
-      <Text>Usuário</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="Digite seu usuário..."
-        value={nome}
-        onChangeText={setNome}
-      />
+      <View style={styles.containerLogo}>
+          <Text style={styles.textoCabecalho}>Cadastre-se Agora</Text>
+          <Image 
+            source={require('../../assets/mondSecLogo.png')} 
+            style={styles.imagemLogo} 
+          />
+        </View> 
+        <View style={styles.containerFormulario}>
+      <View style={styles.grupoInput}>
+           <Text style={styles.rotulo}>Usuário</Text>
+           <TextInput
+             style={styles.input}
+             placeholder="Digite seu usuário..."
+             placeholderTextColor="#999"
+             value={nome}
+             onChangeText={setNome}
+           />
+             </View>
+      <View style={styles.grupoInput}>
+        <Text style={styles.rotulo}>Email</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="Digite seu email..."
+          placeholderTextColor="#999"
+          value={email}
+          onChangeText={setEmail}
+          keyboardType="phone-pad"
+          autoCapitalize="none"
+        />
+      </View>
+      <View style={styles.grupoInput}>
+        <Text style={styles.rotulo}>Telefone</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="Digite seu Telefone..."
+          placeholderTextColor="#999"
+          value={telefone}
+          onChangeText={setTelefone}
+          keyboardType="numeric"
+          autoCapitalize="none"
+        />
+      </View>
 
-      <Text>Email</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="Digite seu email..."
-        value={email}
-        onChangeText={setEmail}
-        keyboardType="email-address"
-        autoCapitalize="none"
-      />
+      <View style={styles.grupoInput}>
+           <Text style={styles.rotulo}>Senha</Text>
+           <TextInput
+             style={styles.input}
+             placeholder="Digite sua senha..."
+             placeholderTextColor="#999"
+             value={senha}
+             onChangeText={setSenha}
+             secureTextEntry
+           />
+         </View>
+     
 
-      <Text>Telefone</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="Digite seu numero de telefone..."
-        value={telefone}
-        onChangeText={setTelefone}
-        keyboardType="numeric"
-        autoCapitalize="none"
-      />
-
-      <Text>Senha</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="Digite sua senha..."
-        value={senha}
-        onChangeText={setSenha}
-        secureTextEntry
-      />
-
-      <Text style={styles.label}>Gênero</Text>
-      {opcoesGenero.map((op) => (
-        <Pressable key={op} style={styles.opcao} onPress={() => setGenero(op)}>
-          <View style={styles.radioContainer}>
-            <View style={styles.radio}>
-              {genero === op && <View style={styles.radioSelecionado} />}
+<View style={styles.grupoInput}>
+      <Text style={styles.rotulo}>Gênero</Text>
+      <View style={styles.opcoesGenero}>
+        {opcoesGenero.map((op) => (
+          <Pressable 
+            key={op} 
+            style={styles.botaoOpcao} 
+            onPress={() => setGenero(op)}
+          >
+            <View style={[
+              styles.radioExterno,
+              genero === op && styles.radioSelecionado
+            ]}>
+              {genero === op && <View style={styles.radioInterno} />}
             </View>
-            <Text style={styles.texto}>{op}</Text>
-          </View>
-        </Pressable>
-      ))}
+            <Text style={styles.textoOpcao}>{op}</Text>
+          </Pressable>
+        ))}
+      </View>
+    </View>
 
-      <CheckBox
-        value={concordoTermos}
-        onValueChange={setConcordoTermos}
-        tintColors={{ true: '#00ff08ff', false: '#aaa' }}
-      />
-      <Text>Concordo com os termos de uso</Text>
+
+
+      <View style={styles.containerTermos}>
+           <CheckBox
+             value={concordoTermos}
+             onValueChange={setConcordoTermos}
+             tintColors={{ true: '#4CAF50', false: '#aaa' }}
+             style={styles.checkbox}
+           />
+           <Text style={styles.textoTermos}>Concordo com os termos de uso</Text>
+         </View>
 
       {erroMessage ? (
         <Text style={{ color: 'red', marginBottom: 10 }}>{erroMessage}</Text>
       ) : null}
+ <TouchableOpacity 
+      style={[
+        styles.botaoPrimario, 
+        carregando && styles.botaoDesativado
+      ]} 
+      onPress={enviarDados}
+      disabled={carregando}
+    >
+      <Text style={styles.textoBotao}>
+        {carregando ? 'Cadastrando...' : 'Cadastrar'}
+      </Text>
+    </TouchableOpacity>
 
-      <Button
-        title={carregando ? 'Cadastrando...' : 'Cadastrar'}
-        onPress={() => enviarDados()}
-        color="black"
-        disabled={carregando}
-      />
 
-      <Pressable onPress={() => navigation.navigate('Login')}>
-        <Text style={styles.link}>Já tem uma conta? Faça o login aqui!</Text>
-      </Pressable>
+    <Pressable 
+         style={styles.linkLogin} 
+         onPress={() => navigation.navigate('Login')}
+       >
+         <Text style={styles.textoLinkLogin}>
+           Já tem uma conta? <Text style={styles.textoLinkLoginNegrito}>Faça login</Text>
+         </Text>
+       </Pressable>
     </View>
+        </View>
   );
-};
+  };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
-    backgroundColor: 'white',
+    backgroundColor: '#FFFFFF',
+    paddingHorizontal: 24,
     justifyContent: 'center',
+  },
+  containerLogo: {
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  textoCabecalho: {
+    fontSize: 22,
+    fontWeight: '700',
+    color: '#2D3748',
+    marginBottom: 8,
+  },
+  imagemLogo: {
+    width: 100,
+    height: 100,
+    resizeMode: 'contain',
+    marginBottom: 8,
+  },
+  containerFormulario: {
+    width: '100%',
+  },
+  grupoInput: {
+    marginBottom: 12,
+  },
+  rotulo: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: '#4A5568',
+    marginBottom: 4,
   },
   input: {
+    width: '100%',
+    height: 42,
+    backgroundColor: '#F7FAFC',
     borderWidth: 1,
-    borderColor: '#ccc',
-    marginBottom: 12,
-    padding: 10,
-    borderRadius: 8,
+    borderColor: '#E2E8F0',
+    borderRadius: 6,
+    paddingHorizontal: 12,
+    fontSize: 14,
+    color: '#1A202C',
   },
-  label: {
-    fontWeight: 'bold',
-    marginBottom: 6,
-    marginTop: 8,
+  opcoesGenero: {
+    flexDirection: 'row',
+    justifyContent: 'flex-start',
+    marginTop: 6,
   },
-  opcao: {
-    marginVertical: 8,
-  },
-  radioContainer: {
+  botaoOpcao: {
     flexDirection: 'row',
     alignItems: 'center',
+    marginRight: 20,
   },
-  radio: {
-    height: 24,
-    width: 24,
-    borderRadius: 12,
-    borderWidth: 2,
-    borderColor: '#555',
-    alignItems: 'center',
+  radioExterno: {
+    width: 18,
+    height: 18,
+    borderRadius: 9,
+    borderWidth: 1.5,
+    borderColor: '#CBD5E0',
     justifyContent: 'center',
-    marginRight: 10,
+    alignItems: 'center',
+    marginRight: 6,
   },
   radioSelecionado: {
-    height: 12,
-    width: 12,
-    borderRadius: 6,
-    backgroundColor: '#555',
+    borderColor: '#4299E1',
   },
-  texto: {
-    fontSize: 16,
+  radioInterno: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: '#4299E1',
   },
-  link: {
-    marginTop: 20,
-    color: 'blue',
+  textoOpcao: {
+    fontSize: 13,
+    color: '#4A5568',
+  },
+  containerTermos: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 16,
+    marginTop: 8,
+  },
+  textoTermos: {
+    fontSize: 13,
+    color: '#718096',
+    marginLeft: 6,
+  },
+  textoErro: {
+    color: '#E53E3E',
+    fontSize: 13,
+    marginBottom: 12,
     textAlign: 'center',
+  },
+  botaoPrimario: {
+    width: '100%',
+    height: 44,
+    backgroundColor: '#4299E1',
+    borderRadius: 6,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 8,
+  },
+  botaoDesativado: {
+    backgroundColor: '#BEE3F8',
+  },
+  textoBotao: {
+    color: '#FFFFFF',
+    fontSize: 15,
+    fontWeight: '600',
+  },
+  divisor: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginVertical: 16,
+  },
+  linhaDivisor: {
+    flex: 1,
+    height: 1,
+    backgroundColor: '#E2E8F0',
+  },
+  textoDivisor: {
+    color: '#718096',
+    fontSize: 13,
+    fontWeight: '600',
+    paddingHorizontal: 10,
+  },
+  conteudoBotaoGoogle: {
+    flexDirection: 'row',    
+  alignItems: 'center',   
+  justifyContent: 'center', 
+  padding: 10,
+  backgroundColor: 'transparent', 
+  }, 
+  botaoGoogle: {
+    width: '100%',
+    height: 44,
+    backgroundColor: '#12577B',
+    borderRadius: 6,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  iconeGoogle: {
+    width: 18,
+    height: 18,
+    marginRight: 10,
+        flexDirection: 'row',
+    justifyContent: 'flex-start',
+  },
+  textoBotaoGoogle: {
+    color: '#ffffffff',
+    fontSize: 15,
+    fontWeight: '600',
+  },
+  linkLogin: {
+    marginTop: 12,
+    marginBottom: 20,
+  },
+  textoLinkLogin: {
+    color: '#718096',
+    fontSize: 13,
+    textAlign: 'center',
+  },
+  textoLinkLoginNegrito: {
+    color: '#4299E1',
+    fontWeight: '600',
   },
 });
 

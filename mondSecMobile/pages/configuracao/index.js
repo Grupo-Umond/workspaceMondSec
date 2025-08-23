@@ -5,13 +5,12 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import CheckBox from 'expo-checkbox';
 
-const ConfiguracaoScreen = ({navigation, setUserToken}) => {
+const ConfiguracaoScreen = ({navigation}) => {
     const [notificacao, setNotificacao] = useState(true);
     const [oculto, setOculto] = useState(true);
     const [volumeEfeito, setVolumeEfeito] = useState(100);
     const [volumeNotificacao, setVolumeNotificacao] = useState(100);
-    const [escuro, setEscuro] = useState(false);
-    const [claro, setClaro] = useState(true);
+   const [temaSelecionado, setTemaSelecionado] = useState('claro');
     const [senha, setSenha] = useState('');
     const [modalDelete, setModalDelete] = useState(false);
     const [modalPermissaoDelete, setModalPermissaoDelete] = useState(false);
@@ -31,9 +30,11 @@ const ConfiguracaoScreen = ({navigation, setUserToken}) => {
                     senha: senha,
                 },
             });
-            await AsyncStorage.removeItem('userToken');
+              await AsyncStorage.removeItem('userToken');
             setModalDelete(false);
             setUserToken(null);
+            navigation.navigate('Cadastro')
+
         }catch(erro){
             if(erro.response?.status) {
                 const codigo = erro.response.status;
@@ -54,9 +55,9 @@ const ConfiguracaoScreen = ({navigation, setUserToken}) => {
     return (
         <ScrollView contentContainerStyle={styles.container}>
             <View style={styles.header}>
-                <Pressable onPress={() => navigation.navigate('Home')}>
-                    <Text style={styles.backText}>Back</Text>
-                </Pressable>
+               <Pressable style={styles.backButton} onPress={() => navigation.navigate('Home')}>
+               <Text style={styles.backArrow}>{"<"}</Text>
+             </Pressable>
                 <Text style={styles.title}>Configuração</Text>
             </View>
 
@@ -70,7 +71,7 @@ const ConfiguracaoScreen = ({navigation, setUserToken}) => {
                     minimumValue={0}
                     maximumValue={100}
                 />
-                <Text>Notificações</Text>
+                <Text style={styles.sectionTitle}>Notificações</Text>
                 <Slider
                     style={styles.slider}
                     value={volumeNotificacao}
@@ -88,18 +89,23 @@ const ConfiguracaoScreen = ({navigation, setUserToken}) => {
                 />
             </View>
 
-            <View style={styles.section}>
-                <Text style={styles.sectionTitle}>Tema</Text>
-                <View style={styles.checkboxContainer}>
-                    <CheckBox value={claro} onValueChange={setClaro} />
-                    <Text style={styles.checkboxLabel}>Claro</Text>
-                </View>
-                <View style={styles.checkboxContainer}>
-                    <CheckBox value={escuro} onValueChange={setEscuro} />
-                    <Text style={styles.checkboxLabel}>Escuro</Text>
-                </View>
-            </View>
-
+   <View style={styles.section}>
+    <Text style={styles.sectionTitle}>Tema</Text>
+    <View style={styles.checkboxContainer}>
+        <CheckBox
+            value={temaSelecionado === 'claro'}
+            onValueChange={() => setTemaSelecionado('claro')}
+        />
+        <Text style={styles.checkboxLabel}>Claro</Text>
+    </View>
+    <View style={styles.checkboxContainer}>
+        <CheckBox
+            value={temaSelecionado === 'escuro'}
+            onValueChange={() => setTemaSelecionado('escuro')}
+        />
+        <Text style={styles.checkboxLabel}>Escuro</Text>
+    </View>
+</View>
             <View style={styles.section}>
                 <Text style={styles.sectionTitle}>Dados e Privacidade</Text>
                 <Pressable>
@@ -118,9 +124,6 @@ const ConfiguracaoScreen = ({navigation, setUserToken}) => {
                 <Text style={styles.sectionTitle}>Suporte</Text>
                 <Pressable>
                     <Text>Fale conosco</Text>
-                </Pressable>
-                <Pressable>
-                    <Text>FAQ</Text>
                 </Pressable>
                 <Pressable onPress={() => setModalDelete(true)}>
                     <Text>Excluir conta</Text>
@@ -177,13 +180,20 @@ const styles = StyleSheet.create({
     },
     header: {
         marginBottom: 20,
-    },
+        flexDirection: 'row',
+        gap: 40, 
+    }, backArrow: {
+    fontSize: 70,
+    color: "#12577B",
+  },
     backText: {
-        color: 'blue',
+        color: '#12577B',
     },
     title: {
         fontSize: 24,
         fontWeight: 'bold',
+        marginTop: 30, 
+        color: '#12577B'
     },
     section: {
         marginBottom: 25,
@@ -191,7 +201,8 @@ const styles = StyleSheet.create({
     sectionTitle: {
         fontSize: 18,
         fontWeight: '600',
-        marginBottom: 10,
+        color:' #12577B'  
+   
     },
     slider: {
         width: '100%',
@@ -206,13 +217,13 @@ const styles = StyleSheet.create({
         marginLeft: 8,
     },
     linkText: {
-        color: 'blue',
+        color: '#12577B',
         textDecorationLine: 'underline',
         marginTop: 5,
     },
     modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.5)',
+    backgroundColor: 'rgba(11, 11, 11, 0.5)',
     justifyContent: 'center',
     alignItems: 'center',
 },

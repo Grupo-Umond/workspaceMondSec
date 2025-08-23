@@ -1,8 +1,8 @@
 import React, {useState} from 'react';
-import {Pressable, View, TextInput, Text, Button, StyleSheet} from 'react-native';
+import {Pressable, View, TextInput, Text, StyleSheet, TouchableOpacity, Image} from 'react-native';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
+import Icon from 'react-native-vector-icons/FontAwesome'; 
 const AlterarSenhaScreen = ({navigation}) => {
     const[novaSenha, setNovaSenha] = useState('');
     const[novaSenhaConfirma, setNovaSenhaConfirma] = useState('');
@@ -59,25 +59,55 @@ const AlterarSenhaScreen = ({navigation}) => {
         }
     };
 
-   
+
     return (
         <View style={styles.container}>
-            <Pressable style={styles.backButton} onPress={() => navigation.goBack()}>
-                <Text style={styles.backText}>← Voltar</Text>
-            </Pressable>
+            {/* Fundo dividido */}
+            <View style={styles.containerFundo}>
+                <View style={[styles.metadeFundo, styles.metadeSuperior]} />
+                <View style={[styles.metadeFundo, styles.metadeInferior]} />
+            </View>
 
-            <View style={styles.form}>
-                <Text style={styles.label}>Digite sua nova senha</Text>
+            {/* Card central */}
+            <View style={styles.card}>
+                {/* Botão voltar */}
+                <Pressable style={styles.backButton} onPress={() => navigation.goBack()}>
+                    {/* AQUI ESTÁ A MUDANÇA */}
+                    <Icon name="arrow-left" size={32} color="#12577B" />
+                </Pressable>
+
+                {/* Título */}
+                <Text style={styles.title}>Defina sua nova senha</Text>
+
+                {/* Logo / ícone */}
+                <View style={styles.logoContainer}>
+                    <Image
+                        source={require('../../../../assets/mondSecLogo.png')}
+                        style={styles.logo}
+                    />
+                </View>
+
+                {/* Subtítulo */}
+                <Text style={styles.subtitle}>
+                    Sua nova senha deve ter pelo menos 6 caracteres, incluindo letras e números.
+                </Text>
+
+                {/* Inputs */}
+                <Text style={styles.sectionTitle}>Nova Senha</Text>
                 <TextInput
                     style={styles.input}
+                    placeholder="Digite sua nova senha..."
+                    placeholderTextColor="#999"
                     secureTextEntry
                     value={novaSenha}
                     onChangeText={setNovaSenha}
                 />
 
-                <Text style={styles.label}>Confirme a sua nova senha</Text>
+                <Text style={styles.sectionTitle}>Confirmar nova senha</Text>
                 <TextInput
                     style={styles.input}
+                    placeholder="Digite a confirmação..."
+                    placeholderTextColor="#999"
                     secureTextEntry
                     value={novaSenhaConfirma}
                     onChangeText={setNovaSenhaConfirma}
@@ -85,12 +115,14 @@ const AlterarSenhaScreen = ({navigation}) => {
 
                 {erroMessage ? <Text style={styles.error}>{erroMessage}</Text> : null}
 
-                <Button 
-                    title={carregando ? 'Enviando...' : 'Enviar'}
-                    onPress={() => alterarSenha()}
+                {/* Botão */}
+                <TouchableOpacity 
+                    style={styles.button}
+                    onPress={alterarSenha}
                     disabled={carregando}
-                />
-                
+                >
+                    <Text style={styles.buttonText}>Alterar Senha</Text>
+                </TouchableOpacity>
             </View>
         </View>
     );
@@ -99,53 +131,93 @@ const AlterarSenhaScreen = ({navigation}) => {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: '#f5f5f5',
+        justifyContent: 'center', 
+        alignItems: 'center'
+    },
+    containerFundo: {
+        position: 'absolute',
+        width: '100%',
+        height: '100%',
+        zIndex: 0,
+    },
+    metadeFundo: {
+        height: '50%',
+    },
+    metadeSuperior: {
+        backgroundColor: '#12577B',
+    },
+    metadeInferior: {
+        backgroundColor: '#a9cfe5',
+        borderRadius: 10, 
+    },
+    card: {
+        backgroundColor: '#f7f7f7',
+        marginLeft: 30,
+        marginRight: 30,
+        borderRadius: 20,
         padding: 20,
+        elevation: 5,
+        height: 500, 
     },
     backButton: {
+        position: 'absolute',
+        top: 15,
+        left: 15,
+    },
+    title: {
+        fontSize: 18,
+        fontWeight: '600', // Changed to string, more compatible with RN
+        textAlign: 'center',
+        marginLeft: 15,
+        marginBottom: 5,
+        color: '#000',
+    },
+    logoContainer: {
+        alignItems: 'center',
+        marginBottom: 5,
+    },
+    logo: {
+        width: 140,
+        height: 140,
+        resizeMode: 'contain',
+    },
+    subtitle: {
+        fontSize: 14,
+        textAlign: 'center',
+        color: '#052637ff',
         marginBottom: 20,
     },
-    backText: {
-        color: '#007AFF',
-        fontSize: 16,
-    },
-    form: {
-        backgroundColor: '#fff',
-        padding: 20,
-        borderRadius: 10,
-        shadowColor: '#000',
-        shadowOpacity: 0.1,
-        shadowRadius: 5,
-        elevation: 3,
-    },
-    label: {
-        fontSize: 16,
-        fontWeight: 'bold',
+    sectionTitle: {
+        fontSize: 14,
+        fontWeight: '600', // Changed to string
+        color: '#000',
         marginBottom: 5,
     },
     input: {
         borderWidth: 1,
-        borderColor: '#ccc',
+        borderColor: '#ddd',
         borderRadius: 8,
-        paddingHorizontal: 10,
-        paddingVertical: 8,
+        padding: 12,
+        fontSize: 14,
         marginBottom: 15,
-        backgroundColor: '#fff',
+        backgroundColor: '#f9f9f9',
     },
     button: {
-        backgroundColor: '#007AFF',
-        paddingVertical: 12,
-        borderRadius: 8,
+        backgroundColor: '#12577B',
+        padding: 15,
+        borderRadius: 10,
         alignItems: 'center',
+        marginTop: 10,
     },
     buttonText: {
         color: '#fff',
         fontWeight: 'bold',
-        fontSize: 16,
+        fontSize: 15,
     },
     error: {
         color: 'red',
         marginBottom: 10,
+        textAlign: 'center',
     },
 });
 
