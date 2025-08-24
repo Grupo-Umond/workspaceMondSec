@@ -15,11 +15,6 @@ export default function MapaService() {
           center: { lat: -23.5505, lng: -46.6333 },
           zoom: 12,
         });
-        new window.google.maps.Marker({
-          position: { lat: -23.5505, lng: -46.6333 },
-          map: mapa,
-          title: "Estou aqui!",
-        });
       };
       document.body.appendChild(script);
     }
@@ -39,13 +34,10 @@ export default function MapaService() {
           latitudeDelta: 0.0922,
           longitudeDelta: 0.0421,
         }}
-        provider="google"
+        showsUserLocation={true}
+        followsUserLocation={true}
+        provider="PROVIDER_GOOGLE"
       >
-        <Marker
-          coordinate={{ latitude: -23.5505, longitude: -46.6333 }}
-          title="São Paulo"
-          description="Centro de SP"
-        />
       </MapView>
     </View>
   );
