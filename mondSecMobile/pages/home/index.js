@@ -1,29 +1,30 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, Pressable, TextInput, Modal, StyleSheet } from 'react-native';
-import  {notificacaoService}  from '../../services/NotificacaoService';
+import {NotificacaoService} from '../../services/NotificacaoService';
+import {LocalizacaoService} from '../../services/LocalizacaoService';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Mapa from "../../services/MapaService";
 
 
 const HomeScreen = ({ navigation }) => {
-  const [visivelSolicitar, setVisivelSolicitar] = useState(true);
-  const [visivelWelcome, setVisivelWelcome] = useState(false);
-  let vidaUtilModal = true;
+  const [permissao, setPermissao] = useState(true);
+  const [welcome, setWelcome] = useState(false);
+  let viewModal = true;
 
   
   useEffect(() => {
     const verificarModal = async () => {
-      const response = await AsyncStorage.getItem('permissaoNot');
+      const response = await AsyncStorage.getItem('Localizacao');
       if(response == 'granted') {
-        setVisivelSolicitar(false);
+        setPermissao(false);
       }
 
 
-      vidaUtilModal = await AsyncStorage.getItem('vidaUtilModal');
-      if(vidaUtilModal === "false") {
-        setVisivelWelcome(false);
+      viewModal = await AsyncStorage.getItem('viewModal');
+      if(viewModal === false) {
+        setWelcome(false);
       }else{
-        setVisivelWelcome(true);
+        setWelcome(true);
       }
     };
 
@@ -31,10 +32,14 @@ const HomeScreen = ({ navigation }) => {
   },[]);
 
   const modalPermissao = async () => {
-    await notificacaoService();
-    setVisivelSolicitar(false);
-    if(!visivelWelcome){
-      await AsyncStorage.setItem('vidaUtilModal', false);
+    await LocalizacaoService();
+    setPermissao(false);
+
+    if(!welcome){
+      const response = await AsyncStorage.getItem('viewModal');
+      if(response === false){
+      await AsyncStorage.setItem('viewModal', false);
+      }
     }
 
   };
@@ -53,7 +58,7 @@ const HomeScreen = ({ navigation }) => {
         <Pressable onPress={() => navigation.navigate('Menu')}><Text>Perfil</Text></Pressable>
       </View>
 
-      <Modal animationType="slide" transparent visible={visivelSolicitar}>
+      <Modal animationType="slide" transparent visible={permissao}>
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
             <Text style={styles.modalTitle}>Aviso!</Text>
@@ -66,12 +71,12 @@ const HomeScreen = ({ navigation }) => {
         </View>
       </Modal>
 
-      <Modal animationType="slide" transparent visible={visivelWelcome}>
+      <Modal animationType="slide" transparent visible={welcome}>
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
             <Text style={styles.modalTitle}>Bem-vindo ao MondSec!</Text>
             <Text style={styles.modalText}>Seu app de rotas seguras!</Text>
-            <Pressable onPress={() => setVisivelWelcome(false)}>
+            <Pressable onPress={() => setWelcome(false)}>
               <Text style={styles.modalButton}>Ok</Text>
             </Pressable>
           </View>
