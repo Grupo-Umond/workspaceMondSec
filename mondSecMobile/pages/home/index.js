@@ -15,7 +15,7 @@ const HomeScreen = ({ navigation }) => {
   useEffect(() => {
     const verificarModal = async () => {
       viewModal = await AsyncStorage.getItem('viewModal');
-      if(viewModal === false) {
+      if(!viewModal) {
         setWelcome(true);
       }else{
         setWelcome(false);
