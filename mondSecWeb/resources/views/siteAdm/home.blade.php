@@ -14,6 +14,9 @@
             <a href="{{ route('adm.showadm') }}" class="btn btn-primary btn-lg flex-fill">Ver Adms Cadastrados</a>
             <a href="{{ route('adm.showuser') }}" class="btn btn-secondary btn-lg flex-fill">Ver Usuários Cadastrados</a>
         </div>
+        
     </div>
+@include('siteAdm.dashboard')
 </body>
+
 </html>

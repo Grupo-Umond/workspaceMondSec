@@ -47,7 +47,7 @@
             </table>
         @endif
 
-        <a href="{{ route('adm.home') }}" class="btn btn-secondary mt-4">Voltar ao Painel</a>
+        <a href="{{ route('adm.dashboard') }}" class="btn btn-secondary mt-4">Voltar ao Painel</a>
     </div>
 </body>
 </html>

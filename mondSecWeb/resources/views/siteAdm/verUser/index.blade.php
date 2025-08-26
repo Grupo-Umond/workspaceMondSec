@@ -24,17 +24,17 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach($usuarios as $usuario)
+                    @foreach($usuario as $usuarios)
                         <tr>
-                            <td>{{ $usuario->id }}</td>
-                            <td>{{ $usuario->nome }}</td>
-                            <td>{{ $usuario->email }}</td>
-                            <td>{{ $usuario->telefone }}</td>
-                            <td>{{ $usuario->genero }}</td>
-                            <td>{{ $admin->data->format('d/m/Y H:i') }}</td>
-                            <td><a href="{{ route('adm.updateUserScreen', $usuario->id)}}">Editar</a></td>
+                            <td>{{ $usuarios->id }}</td>
+                            <td>{{ $usuarios->nome }}</td>
+                            <td>{{ $usuarios->email }}</td>
+                            <td>{{ $usuarios->telefone }}</td>
+                            <td>{{ $usuarios->genero }}</td>
+                            <td>{{ $usuarios->data }}</td>
+                            <td><a href="{{ route('adm.updateUser', $usuarios->id)}}">Editar</a></td>
                             <td>
-                            <form action="{{ route('adm.deleteUser', $usuario->id) }}" method="POST" onsubmit="return confirm('Tem certeza que quer excluir?');">
+                            <form action="{{ route('adm.deleteUser', $usuarios->id) }}" method="POST" onsubmit="return confirm('Tem certeza que quer excluir?');">
                                 @csrf
                                 @method('DELETE')
                                 <button type="submit" class="btn btn-danger btn-sm">Excluir</button>
@@ -47,7 +47,7 @@
             </table>
         @endif
 
-        <a href="{{ route('adm.home') }}" class="btn btn-secondary mt-4">Voltar ao Painel</a>
+        <a href="{{ route('adm.dashboard') }}" class="btn btn-secondary mt-4">Voltar ao Painel</a>
     </div>
 </body>
 </html>
