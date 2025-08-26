@@ -12,8 +12,8 @@ export async function LocalizacaoService() {
 
   const loc = await Location.getCurrentPositionAsync({});
   
-  console.log('Latitude:', loc.coords.latitude);
-  console.log('Longitude:', loc.coords.longitude);
+  //console.log('Latitude:', loc.coords.latitude);
+  //console.log('Longitude:', loc.coords.longitude);
 
 
 };

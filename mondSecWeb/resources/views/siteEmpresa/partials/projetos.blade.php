@@ -11,12 +11,17 @@
             </div>
             <div class="item">
                 <div class="image">
-                    <img src="{{ asset('Imagens/Projetos/ProjetoEtec2ºano.png') }}" alt="">
+                    <img src="{{ asset('Imagens/Projetos/mondsecprev.png') }}" alt="">
                 </div>
             </div>
             <div class="item">
                 <div class="image">
                     <img src="{{ asset('Imagens/Projetos/ProjetoEtec2ºano.png') }}" alt="">
+                </div>
+            </div>
+               <div class="item">
+                <div class="image">
+                    <img src="{{ asset('Imagens/Projetos/mondsecprev.png') }}" alt="">
                 </div>
             </div>
         </div>

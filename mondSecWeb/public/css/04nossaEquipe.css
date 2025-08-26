@@ -1,5 +1,6 @@
 .body .titulo {
     margin-bottom: 30px;
+    color: rgb(0, 0, 0);
 }
 
 .body {
@@ -9,6 +10,14 @@
     flex-direction: column;
     padding: 0 35px;
     min-height: 100vh;
+}
+
+.titulo span {
+    color: rgb(1, 1, 82);
+    background: linear-gradient(135deg, rgb(1, 1, 82) 0%, rgb(0, 0, 60) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
 }
 
 .wrapper {
@@ -106,10 +115,20 @@
 
 .funcao h3 {
     position: absolute;
-    font-weight: 500;
+    font-weight: 600;
     top: 70%;
     left: 50%;
     transform: translate(-50%, -50%);
+    color: rgb(1, 1, 82);
+    font-size: 1.1rem;
+    background: rgba(1, 1, 82, 0.1);
+    padding: 8px 16px;
+    border-radius: 20px;
+}
+
+.carousel .card:hover .funcao h3 {
+    transform: translate(-50%, -50%) scale(1.05);
+    box-shadow: 0 8px 20px rgba(1, 1, 82, 0.4);
 }
 
 .card .image {
