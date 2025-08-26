@@ -90,7 +90,7 @@ class AdminController extends Controller
             'nivelAdmin' => $dados['nivelAdmin'],
         ]);
 
-        return redirect()->route('adm.cadastro')->with('success', 'Adm cadastrado com sucesso!');
+        return redirect()->route('adm.store')->with('success', 'Adm cadastrado com sucesso!');
     }
     
     public function updateAdmScreen($id) {
@@ -137,7 +137,7 @@ class AdminController extends Controller
         }
         $admin->delete();
 
-        return redirect()->route('adm.showAdm')->with('success','Adm deletado com sucesso');
+        return redirect()->route('adm.showadm')->with('success','Adm deletado com sucesso');
     }
 
     public function deleteUser($id) {
