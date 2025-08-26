@@ -30,10 +30,11 @@ const ConfiguracaoScreen = ({navigation, setUserToken}) => {
                     senha: senha,
                 },
             });
-              await AsyncStorage.removeItem('userToken');
+            await AsyncStorage.removeItem('userToken');
+            await AsyncStorage.removeItem('Localizacao');
+            await AsyncStorage.removeItem('viewModal');
             setModalDelete(false);
             setUserToken(null);
-            navigation.navigate('Cadastro')
 
         }catch(erro){
             if(erro.response?.status) {

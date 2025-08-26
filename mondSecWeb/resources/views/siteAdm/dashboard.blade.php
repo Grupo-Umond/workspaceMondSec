@@ -11,14 +11,13 @@
 
     <!-- Gráficos -->
     <section class="graficos">
-         <canvas id="pieChart"  class="chart-fixed pie-size"></canvas>
-         <canvas id="lineChart" class="chart-fixed line-size"></canvas>
-         <canvas id="barChart"  class="chart-fixed bar-size"></canvas>
+        <canvas id="lineChart" class="chart-fixed line-size" width="520" height="320"></canvas>
+        <canvas id="barChart"  class="chart-fixed bar-size"  width="420" height="320"></canvas>
+
        </section>
 
     </section>
 
-    <!-- Cards -->
     <section class="cards">
         <div class="card">
             <h3>Usuários</h3>

@@ -40,15 +40,13 @@ const HomeScreen = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      {/* Header */}
       <View style={styles.header}>
         <Text style={styles.headerText}>Tela Inicial</Text>
-        <Pressable style={styles.settingsButton}>
+        <Pressable style={styles.settingsButton} onPress={() => navigation.navigate('Configuracao')}>
           <Icon name="settings" size={24} color="#003366" /> 
         </Pressable>
       </View>
 
-      {/* Search Bar */}
       <View style={styles.searchContainer}>
         <TextInput
           style={styles.searchInput}
@@ -60,12 +58,10 @@ const HomeScreen = ({ navigation }) => {
         </Pressable>
       </View>
 
-      {/* Static Map */}
       <View style={styles.mapContainer}>
          <Mapa style={styles.mapImage} />
   
 
-      {/* Navigation Bar */}
          <View style={styles.navigationContainer}>
           <Pressable 
             style={({ pressed }) => [
@@ -192,7 +188,7 @@ mapContainer: {
 },
 mapImage: {
   width: '100%',
-  flex: 1, // faz o mapa preencher a altura do container
+  flex: 1, 
 },
   navigationContainer: {
     position: 'absolute',
