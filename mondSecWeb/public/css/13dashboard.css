@@ -1,11 +1,5 @@
-/* 13dashboard.css
-   - Mantém 3 charts SEMPRE lado a lado (overflow-x: auto em telas pequenas)
-   - Cards (4) sempre abaixo dos charts
-   - Charts com layout próprio (tamanhos fixos via classes) e shadow box nos cards
-*/
 
-/* === Variáveis de tema === */
-:root{
+:root {
   --bg: #f4f6fb;
   --card-bg: #ffffff;
   --text: #111827;
@@ -13,13 +7,13 @@
   --accent: #0f62fe;
   --shadow-1: 0 8px 20px rgba(15,24,39,0.06);
   --shadow-2: 0 14px 36px rgba(15,24,39,0.08);
+
+  --sidebar-width: 240px;
 }
 
-/* === Reset simples === */
-* { box-sizing: border-box; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
 html, body { height: 100%; }
 body {
-  margin: 0;
   font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -28,78 +22,98 @@ body {
   line-height: 1.35;
 }
 
-/* === Container principal === */
-main.container {
-  max-width: 1200px;
-  margin: 28px auto;
-  padding: 20px;
-  width: calc(100% - 40px);
-  box-sizing: border-box;
-  display: block; /* garante fluxo normal: graficos em cima, cards embaixo */
+header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: var(--sidebar-width);
+  height: 100vh;
+  background-color: #24253e;
+  z-index: 9999;
+  padding: 24px 12px;
+  display: flex;
+  align-items: flex-start;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.04);
 }
 
-/* ===========================
-   ÁREA DE GRÁFICOS (sempre em 1 linha)
-   =========================== */
+header nav {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+header nav a {
+  text-decoration: none;
+  color: #fff;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  font-weight: 600;
+  padding: 8px 10px;
+  border-radius: 8px;
+}
+
+header nav a:hover {
+  background: rgba(255,255,255,0.04);
+}
+
+
+header nav a.btn {
+  background: rgba(255,255,255,0.06);
+  padding: 10px;
+  border-radius: 10px;
+}
+
+
+main.container {
+  margin: 28px 28px 28px var(--sidebar-width);
+  padding: 20px;
+  width: calc(100% - var(--sidebar-width) - 56px);
+  max-width: none;
+}
+
 .graficos {
   display: flex;
   gap: 16px;
   align-items: flex-start;
-  justify-content: center; /* centraliza o grupo quando couber */
-  flex-wrap: nowrap;       /* NÃO empilha os charts */
-  overflow-x: auto;        /* permite rolagem horizontal em telas pequenas */
+  justify-content: flex-start;
+  flex-wrap: nowrap;       
+  overflow-x: auto;        
   -webkit-overflow-scrolling: touch;
   padding-bottom: 8px;
   margin-bottom: 20px;
   width: 100%;
 }
 
-/* Cada canvas é "fixo" e não encolhe */
-.chart-fixed {
-  flex: 0 0 auto;           /* respeita o tamanho definido */
+canvas.chart-fixed {
+  flex: 0 0 auto;
   display: block;
   border-radius: 12px;
   background: var(--card-bg);
   padding: 10px;
   box-shadow: var(--shadow-1);
   border: 1px solid rgba(15,24,39,0.03);
-  margin: 0;                 /* evita deslocamentos inesperados */
+  margin: 0;
+  box-sizing: border-box;
 }
 
-/* Tamanhos sugeridos — ajuste se quiser
-   Essas classes controlam o tamanho visual do canvas.
-   Recomendo também setar width/height no HTML: <canvas width="360" height="320"> etc. */
-.pie-size  { width: 360px;  height: 320px; }
-.line-size { width: 520px;  height: 320px; }
-.bar-size  { width: 420px;  height: 320px; }
+canvas.pie-size  { width: 360px !important;  height: 320px !important; }
+canvas.line-size { width: 520px !important;  height: 320px !important; }
+canvas.bar-size  { width: 420px !important;  height: 320px !important; }
 
-/* Garante que o elemento canvas interno preencha o wrapper.
-   IMPORTANTE: para Chart.js com responsive: false, preferível declarar width/height no elemento <canvas> também. */
-.chart-fixed > canvas,
-.chart-fixed canvas {
-  display: block;
-  width: 100%  !important;
-  height: 100% !important;
-}
-
-/* ===========================
-   CARDS (4) — sempre abaixo
-   =========================== */
 .cards {
   display: grid;
-  grid-template-columns: repeat(4, 1fr); /* 4 colunas em desktops */
+  grid-template-columns: repeat(4, 1fr);
   gap: 16px;
   margin-top: 8px;
   width: 100%;
-  box-sizing: border-box;
   align-items: stretch;
-  justify-items: center;  /* centraliza cada card como bloco dentro da grade */
+  justify-items: center;
 }
 
-/* Card individual */
 .card {
   width: 100%;
-  max-width: 100%;
   background: var(--card-bg);
   padding: 18px;
   border-radius: 12px;
@@ -107,70 +121,34 @@ main.container {
   min-height: 84px;
   display: flex;
   flex-direction: column;
-  justify-content: center; /* centra verticalmente o conteúdo do card */
-  align-items: center;     /* centra horizontalmente */
+  justify-content: center;
+  align-items: center;
   transition: transform .16s ease, box-shadow .16s ease;
   border: 1px solid rgba(15,24,39,0.03);
   text-align: center;
 }
 
-.card:hover {
-  transform: translateY(-4px);
-  box-shadow: var(--shadow-2);
-}
+.card:hover { transform: translateY(-4px); box-shadow: var(--shadow-2); }
+.card h3 { margin: 0 0 8px 0; font-size: 0.95rem; color: var(--muted); font-weight: 600; }
+.card p { margin: 0; font-size: 1.45rem; font-weight: 700; color: var(--text); }
 
-.card h3 {
-  margin: 0 0 8px 0;
-  font-size: 0.95rem;
-  color: var(--muted);
-  font-weight: 600;
-}
 
-.card p {
-  margin: 0;
-  font-size: 1.45rem;
-  font-weight: 700;
-  color: var(--text);
-}
+.graficos::-webkit-scrollbar { height: 8px; }
+.graficos::-webkit-scrollbar-thumb { background: rgba(15,24,39,0.08); border-radius: 8px; }
+.graficos::-webkit-scrollbar-track { background: transparent; }
 
-/* ===========================
-   Scrollbar estilizada (opcional)
-   =========================== */
-.graficos::-webkit-scrollbar {
-  height: 8px;
-}
-.graficos::-webkit-scrollbar-thumb {
-  background: rgba(15,24,39,0.08);
-  border-radius: 8px;
-}
-.graficos::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-/* ===========================
-   Responsividade
-   - Os CHARTS continuam LADO A LADO (scroll horizontal quando menor)
-   - Os cards reorganizam para 2 colunas / 1 coluna conforme largura
-   =========================== */
 @media (max-width: 1024px) {
   .cards { grid-template-columns: repeat(2, 1fr); }
+  :root { --sidebar-width: 200px; }
+  main.container { margin-left: var(--sidebar-width); width: calc(100% - var(--sidebar-width) - 56px); }
 }
 
 @media (max-width: 640px) {
-  main.container { padding: 14px; }
-  .graficos { gap: 12px; }
+  :root { --sidebar-width: 72px; } 
+  main.container { margin-left: var(--sidebar-width); width: calc(100% - var(--sidebar-width) - 28px); padding: 14px; }
   .cards { grid-template-columns: 1fr; }
-  .card { padding: 14px; }
+  canvas.pie-size  { width: 300px !important; height: 240px !important; }
+  canvas.line-size { width: 360px !important; height: 240px !important; }
+  canvas.bar-size  { width: 320px !important; height: 240px !important; }
 }
 
-/* ===========================
-   Notas rápidas:
-   - Certifique-se que seu HTML coloque os 3 canvases dentro da MESMA section.graficos:
-       <section class="graficos">
-         
-       </section>
-       <section class="cards"> ... </section>
-   - No JS (Chart.js) use: options: { responsive: false, maintainAspectRatio: false }
-   - Se quiser que um dos charts seja menor/grande, ajuste as classes .pie-size/.line-size/.bar-size
-     ou defina inline attributes width/height no próprio <canvas>.
-*/

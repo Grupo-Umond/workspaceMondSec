@@ -47,6 +47,8 @@ const MenuScreen = ({navigation, setUserToken}) => {
 
 
     const sairConta = async () => {
+        await AsyncStorage.removeItem('Localizacao');
+        await AsyncStorage.removeItem('viewModal');
         await AsyncStorage.removeItem('userToken');
         setUserToken(null);
         
