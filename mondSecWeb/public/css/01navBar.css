@@ -1,10 +1,17 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap');
 
 .cabecalho {
-    /* display: none; */
     position: fixed;
     width: 100%;
-    z-index: 11;
+    z-index: 1000;
+    backdrop-filter: blur(10px);
+    background: rgba(1, 1, 82, 0.1);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.cabecalho.scrolled {
+    background: rgba(1, 1, 82, 0.95);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
 }
 
 .cabecalho .cabecalho__menu {
@@ -12,77 +19,198 @@
     justify-content: space-between;
     padding: 1% 5%;
     align-items: center;
-    transition: top 0.3s, background-color 0.5s ease;
-    /* background-color: #040439; */
-    /* background-color: transparent; */
+    transition: all 0.4s ease;
 }
 
 .cabecalho .cabecalho__menu .cabecalho__menu__logo {
-    width: 200px;
-    height: 50px;
+    width: 240px; 
+    height: 60px; 
+    transition: transform 0.3s ease;
+}
+
+@media (max-width: 1050px) {
+    .cabecalho .cabecalho__menu .cabecalho__menu__logo {
+        width: 220px;
+        height: 55px; 
+    }
+}
+
+@media (max-width: 768px) {
+    .cabecalho .cabecalho__menu .cabecalho__menu__logo {
+        width: 200px; 
+        height: 50px;
+    }
+}
+
+@media (max-width: 480px) {
+    .cabecalho .cabecalho__menu .cabecalho__menu__logo {
+        width: 180px;
+        height: 45px;
+    }
+}
+
+.cabecalho .cabecalho__menu .cabecalho__menu__logo:hover {
+    transform: scale(1.05);
 }
 
 .cabecalho .cabecalho__menu .cabecalho__menu__logo img {
     width: 100%;
     height: 100%;
-    object-fit: cover;
+    object-fit: contain;
+    filter: brightness(0) invert(1);
+}
+
+.cabecalho__menu__itens {
+    display: flex;
+    gap: 2.5rem;
+    align-items: center;
 }
 
 .cabecalho__menu__itens a {
     font-family: 'Inter', sans-serif;
-    font-size: 18px;
+    font-size: 1.1rem;
     font-weight: 500;
     color: white;
     text-decoration: none;
-    padding: 8px 4px;
+    padding: 10px 0;
     position: relative;
-    overflow: hidden;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.cabecalho__menu__itens a::before {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    width: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #ffffff, transparent);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    transform: translateX(-50%);
 }
 
 .cabecalho__menu__itens a::after {
     content: '';
     position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 0;
-    height: 2px;
-    background: rgb(223, 214, 214);
-    transition: width 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-
+    bottom: -5px;
+    left: 50%;
+    width: 6px;
+    height: 6px;
+    background: white;
+    border-radius: 50%;
+    opacity: 0;
+    transform: translateX(-50%) scale(0);
+    transition: all 0.3s ease;
 }
 
-.cabecalho__menu__itens a:hover{
-    color: rgb(223, 214, 214);
+.cabecalho__menu__itens a:hover {
+    color: rgba(255, 255, 255, 0.9);
+    transform: translateY(-2px);
+}
+
+.cabecalho__menu__itens a:hover::before {
+    width: 100%;
 }
 
 .cabecalho__menu__itens a:hover::after {
-    width: 100%;
+    opacity: 1;
+    transform: translateX(-50%) scale(1);
 }
 
 .icons__menu {
     display: none;
+    background: none;
+    border: none;
+    color: white;
+    cursor: pointer;
+    padding: 10px;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+    z-index: 1001;
+}
+
+.icons__menu:hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: rotate(90deg);
 }
 
 .cabecalho__menu__itens__mobile {
-    background-color: white;
-    position: absolute;
-    top: 100%;
-    left: 0;
+    position: fixed;
+    top: 0;
+    left: -100%;
     width: 100%;
-    height: 0;
-    visibility: hidden;
-    transition: 0.3s;
-    overflow: hidden;
-    /* padding: 8% 5%; */
+    height: 100vh;
+    background: linear-gradient(135deg, rgb(1, 1, 82) 0%, rgb(0, 0, 60) 100%);
+    z-index: 999;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 2rem;
+}
+
+.cabecalho__menu__itens__mobile.abrir {
+    left: 0;
 }
 
 .cabecalho__menu__itens__mobile a {
-    font-family: Arial, sans-serif;
+    font-family: 'Inter', sans-serif;
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: white;
     text-decoration: none;
-    font-size: 1rem;
-    color: black;
-    display: block;
-    padding: 2% 5%;
+    padding: 15px 30px;
+    border-radius: 50px;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    position: relative;
+    overflow: hidden;
+}
+
+.cabecalho__menu__itens__mobile a::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.1);
+    transition: all 0.4s ease;
+    z-index: -1;
+}
+
+.cabecalho__menu__itens__mobile a:hover {
+    transform: translateX(10px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+.cabecalho__menu__itens__mobile a:hover::before {
+    left: 0;
+}
+
+.fa-xmark {
+    position: absolute;
+    top: 30px;
+    right: 30px;
+    font-size: 2rem;
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    z-index: 1000;
+}
+
+.fa-xmark:hover {
+    transform: rotate(90deg) scale(1.1);
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.icons__menu i {
+    font-size: 1.5rem;
+    transition: all 0.3s ease;
 }
 
 @media (max-width: 1050px) {
@@ -92,59 +220,52 @@
     
     .icons__menu {
         display: block;
-        background: none;
-        border: none;
-        color: white;
-        font-family: 'Inter', sans-serif;
-        cursor: pointer;
-        transition: opacity 0.3s ease;
     }
-
-    .botao:hover {
-        opacity: 0.8;
+    
+    .cabecalho .cabecalho__menu {
+        padding: 2% 5%;
     }
-
-    .cabecalho__menu__itens__mobile {
-        display: flex;
-        flex-direction: column;
-        position: absolute;
-        top: 100%;
-        left: 0;
-        width: 100%;
-        background-color: rgb(1, 1, 83);
+    
+    .cabecalho .cabecalho__menu .cabecalho__menu__logo {
+        width: 180px;
+        height: 45px;
     }
+}
 
+@media (max-width: 768px) {
     .cabecalho__menu__itens__mobile a {
-        color: white;
-        text-decoration: none;
-        padding: 3% 5%;
-    }
-
-    .cabecalho__menu__itens {
-        display: none;
+        font-size: 1.3rem;
+        padding: 12px 25px;
     }
     
-    .botao, .botaoVoltarFooter {
-        display: block;
+    .cabecalho .cabecalho__menu .cabecalho__menu__logo {
+        width: 160px;
+        height: 40px;
     }
     
-    .cabecalho__menu__itens__mobile.abrir {
-        visibility: visible;
-        height: 100vh;
+    .icons__menu {
+        padding: 8px;
     }
     
-    .botaoVoltar a {
-        display: none;
+    .icons__menu i {
+        font-size: 1.3rem;
     }
 }
 
-.fa-xmark {
-    display: none;
-}
-
-.icons__menu i {
-    color: white;
-}
-
-@media (max-width: 1000px) {
+@media (max-width: 480px) {
+    .cabecalho__menu__itens__mobile a {
+        font-size: 1.1rem;
+        padding: 10px 20px;
+    }
+    
+    .cabecalho .cabecalho__menu .cabecalho__menu__logo {
+        width: 140px;
+        height: 35px;
+    }
+    
+    .fa-xmark {
+        top: 20px;
+        right: 20px;
+        font-size: 1.5rem;
+    }
 }
