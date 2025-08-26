@@ -32,4 +32,10 @@ class Usuario extends Authenticatable
     {
         return $this->belongsTo(Usuario::class, 'idUsuario', 'id');
     }
+
+    public function ocorrencia()
+    {
+        return $this->hasMany(Ocorrencia::class, 'idUsuario', 'id'); // chave estrangeira
+    }
+
 }

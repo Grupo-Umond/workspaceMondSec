@@ -30,7 +30,13 @@ class Ocorrencia extends Model
     public function tipoOcorrencia()
     {
         return $this->belongsTo(TipoOcorrencia::class, 'idTipoOcorrencia', 'id');
+        
     }
+    public function usuario()
+    {
+        return $this->belongsTo(Usuario::class, 'idUsuario', 'id');
+    }
+
 
 
 }
