@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\DashboardController;
 
 Route::get('/', function () {
         return view('siteEmpresa.index');
@@ -23,7 +24,7 @@ Route::prefix('siteAdm')
 
         Route::middleware('admin.auth')->group(function () {
             Route::get('/home', 'homeScreen')->name('home');
-
+            Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
             Route::get('/admlist', 'showAdmScreen')->name('showadm');
             Route::get('/userlist', 'showUserScreen')->name('showuser');
 
@@ -34,6 +35,7 @@ Route::prefix('siteAdm')
             Route::put('/user/{id}', 'updateUser')->name('updateUser.submit');
 
             Route::delete('/excluir/{id}', 'deleteAdm')->name('deleteAdm');
+            Route::delete('/exclui/{id}', 'deleteUser')->name('deleteUser');
 
             Route::get('/logout', 'logout')->name('logout');
         });

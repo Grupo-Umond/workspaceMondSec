@@ -92,6 +92,12 @@
                 <div class="error">{{ $message }}</div>
             @enderror
 
+            <label for="telefone">Telefone:</label>
+            <input type="text" id="telefone" name="telefone" value="{{ old('telefone', $admin->telefone) }}">
+            @error('email')
+                <div class="error">{{ $message }}</div>
+            @enderror
+
             <label for="nivelAdmin">Nível de Acesso:</label>
             <select id="nivelAdmin" name="nivelAdmin">
                 <option value="">-- Selecione --</option>
@@ -115,11 +121,6 @@
             const email = document.getElementById('email').value;
             const nivelAdmin = document.getElementById('nivelAdmin').value;
             const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-            if(!nome || !email || !nivelAdmin) {
-                event.preventDefault();
-                alert('Preencha todos os campos')
-            }
 
             if(!regex.test(email)) {
                 event.preventDefault();

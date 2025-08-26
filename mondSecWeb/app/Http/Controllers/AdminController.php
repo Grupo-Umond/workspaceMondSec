@@ -53,7 +53,8 @@ class AdminController extends Controller
         if($admin && Hash::check($credentials['senha'], $admin['senha'])) {
             Auth::guard('admin')->login($admin);
             $request->session()->regenerate();
-            return redirect()->route('adm.home');
+
+            return redirect()->route('adm.dashboard');
         }
 
         return back()->withErrors([
@@ -90,7 +91,7 @@ class AdminController extends Controller
             'nivelAdmin' => $dados['nivelAdmin'],
         ]);
 
-        return redirect()->route('adm.cadastro')->with('success', 'Adm cadastrado com sucesso!');
+        return redirect()->route('adm.store')->with('success', 'Adm cadastrado com sucesso!');
     }
     
     public function updateAdmScreen($id) {
@@ -100,34 +101,79 @@ class AdminController extends Controller
 
     public function updateAdm(Request $request, $id) {
         $dados = $request->validate([
-            'nome' => 'required|max:225|string',
-            'email' => 'required|max:225|string|unique:tbAdmin,email,' . $id . ',id',
-            'nivelAdmin' => 'required|string',
+            'nome' => 'nullable|max:225|string',
+            'email' => 'nullable|max:225|string',
+            'telefone' => 'nullable|max:255|string',
+            'nivelAdmin' => 'nullable|string',
         ]);
 
         $admin = Admin::findOrFail($id);
-        $admin->update($dados);
+        if($request->nome) {
+            $admin->nome = $request->nome;
+        }
+
+        if($request->email) {
+            $admin->email = $request->email;
+        }
+        
+        if($request->telefone) {
+            $telefone = preg_replace('/\D/', '', $request->telefone);
+
+            if (!str_starts_with($telefone, '55')) {
+                $telefone = '55' . $telefone;
+            }
+
+            $telefone = '+' . $telefone;
+
+            $admin->telefone = $telefone;
+        }
+
+        $admin->save();
 
         return redirect()->route('adm.showadm')->with('success','Adm alterado com sucesso');
     }
 
     public function updateUserScreen($id) {
-        $admin = Usuario::findOrFail($id);
+        $usuario = Usuario::findOrFail($id);
         return view('siteAdm.verUser.update', compact('usuario'));
     }
 
     public function updateUser(Request $request, $id) {
         $dados = $request->validate([
-            'nome' => 'required|max:225|string',
-            'email' => 'required|max:225|string|unique:tbAdmin,email,' . $id . ',id',
-            'telefone' => 'required|string',
-            'genero' => 'required',
+            'nome' => 'nullable|max:225|string',
+            'email' => 'nullable|max:225|string',
+            'telefone' => 'nullable|string',
+            'genero' => 'nullable',
         ]);
 
         $usuario = Usuario::findOrFail($id);
-        $usuario->update($dados);
+        if($request->nome) {
+            $usuario->nome = $request->nome;
+        }
 
-        return redirect()->route('adm.showUser')->with('success','Usuario alterado com sucesso');
+        if($request->email) {
+            $usuario->email = $request->email;
+        }
+
+        if($request->telefone) {
+            $telefone = preg_replace('/\D/', '', $request->telefone);
+
+            if (!str_starts_with($telefone, '55')) {
+                $telefone = '55' . $telefone;
+            }
+
+            $telefone = '+' . $telefone;
+
+            $usuario->telefone = $telefone;
+        }
+
+        if($request->genero) {
+            $usuario->genero = $request->genero;
+        }
+
+        $usuario->save();
+
+        return redirect()->route('adm.showuser')->with('success','Usuario alterado com sucesso');
     }
 
     public function deleteAdm($id) {
@@ -137,7 +183,7 @@ class AdminController extends Controller
         }
         $admin->delete();
 
-        return redirect()->route('adm.showAdm')->with('success','Adm deletado com sucesso');
+        return redirect()->route('adm.showadm')->with('success','Adm deletado com sucesso');
     }
 
     public function deleteUser($id) {
@@ -147,7 +193,7 @@ class AdminController extends Controller
         }
         $usuario->delete();
 
-        return redirect()->route('adm.showUser')->with('success','Usuario deletado com sucesso');
+        return redirect()->route('adm.showuser')->with('success','Usuario deletado com sucesso');
     }
 
 }

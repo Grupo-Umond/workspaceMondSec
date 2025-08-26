@@ -87,23 +87,23 @@
             @enderror
 
             <label for="email">Email:</label>
-            <input type="email" id="email" name="email" value="{{ old('email', $usuaurio->email) }}">
+            <input type="email" id="email" name="email" value="{{ old('email', $usuario->email) }}">
             @error('email')
                 <div class="error">{{ $message }}</div>
             @enderror
 
             <label for="telefone">Telefone:</label>
-            <input type="telefone" id="telefone" name="telefone" value="{{ old('telefone', $suaurio->telefone) }}">
-            @error('email')
+            <input type="telefone" id="telefone" name="telefone" value="{{ old('telefone', $usuario->telefone) }}">
+            @error('telefone')
                 <div class="error">{{ $message }}</div>
             @enderror
 
             <label for="genero">Genero:</label>
             <select id="genero" name="genero">
                 <option value="">-- Selecione --</option>
-                <option value="Homem" {{ old('genero', $usuario->genero) == 'Homem' ? 'selected' : '' }}>Homem</option>
-                <option value="Mulher" {{ old('genero', $usuario->genero) == 'Mulher' ? 'selected' : '' }}>Mulher</option>
-                <option value="Prefiro Nao Informar" {{ old('genero', $usuario->genero) == 'Prefiro Nao Informar' ? 'selected' : '' }}>Prefiro Nao Informar</option>
+                <option value="Masculino" {{ old('genero', $usuario->genero) == 'Masculino' ? 'selected' : '' }}>Masculino</option>
+                <option value="Feminino" {{ old('genero', $usuario->genero) == 'Feminino' ? 'selected' : '' }}>Feminino</option>
+                <option value="Prefiro Não Informar" {{ old('genero', $usuario->genero) == 'Prefiro Não Informar' ? 'selected' : '' }}>Prefiro Não Informar</option>
 
             </select>
             @error('nivelAdmin')
@@ -121,11 +121,6 @@
             const email = document.getElementById('email').value;
             const nivelAdmin = document.getElementById('genero').value;
             const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-            if(!nome || !email || !genero) {
-                event.preventDefault();
-                alert('Preencha todos os campos')
-            }
 
             if(!regex.test(email)) {
                 event.preventDefault();
