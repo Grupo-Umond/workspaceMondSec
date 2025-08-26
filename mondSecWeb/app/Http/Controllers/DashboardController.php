@@ -37,11 +37,17 @@ class DashboardController extends Controller
             $usuariosPorMes['data'][] = $dados[$i] ?? 0;
         }
 
+        $usuariosComOcorrencia = Usuario::has('ocorrencia')->count();
+
+        $usuariosSemOcorrencia = Usuario::doesntHave('ocorrencia')->count();
+
         return view('siteAdm.home', compact(
             'usuariosHomem',
             'usuariosMulher',
             'usuariosNaoInformar',
-            'usuariosPorMes'
+            'usuariosPorMes',
+            'usuariosComOcorrencia',
+            'usuariosSemOcorrencia'
         ));
     }
 }

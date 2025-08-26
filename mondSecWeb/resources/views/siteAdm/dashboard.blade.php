@@ -1,5 +1,44 @@
-<canvas id="pieChart" width="400" height="200"></canvas>
-<canvas id="lineChart" width="400" height="200"></canvas>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="{{ asset('css/13dashboard.css') }}">
+</head>
+
+<main class="container">
+
+    <!-- Gráficos -->
+    <section class="graficos">
+         <canvas id="pieChart"  class="chart-fixed pie-size"></canvas>
+         <canvas id="lineChart" class="chart-fixed line-size"></canvas>
+         <canvas id="barChart"  class="chart-fixed bar-size"></canvas>
+       </section>
+
+    </section>
+
+    <!-- Cards -->
+    <section class="cards">
+        <div class="card">
+            <h3>Usuários</h3>
+            <p>{{ $usuariosHomem + $usuariosMulher + $usuariosNaoInformar }}</p>
+        </div>
+        <div class="card">
+            <h3>Com Ocorrência</h3>
+            <p>{{ $usuariosComOcorrencia ?? 0 }}</p>
+        </div>
+        <div class="card">
+            <h3>Sem Ocorrência</h3>
+            <p>{{ $usuariosSemOcorrencia ?? 0 }}</p>
+        </div>
+        <div class="card">
+            <h3>Este Mês</h3>
+            <p>{{ array_sum($usuariosPorMes['data']) }}</p>
+        </div>
+    </section>
+
+</main>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
@@ -7,64 +46,66 @@
 <script>
     const ctxPie = document.getElementById('pieChart');
     const ctxLine = document.getElementById('lineChart');
+    const ctxBar = document.getElementById('barChart');
 
+    // Pie Chart
     new Chart(ctxPie, {
         type: 'pie',
         data: {
             labels: ['Masculino', 'Feminino', 'Não Informado'],
             datasets: [{
                 label: 'Usuários',
-                data: [{{ $usuariosHomem}}, {{ $usuariosMulher}}, {{ $usuariosNaoInformar}}],
+                data: [{{ $usuariosHomem }}, {{ $usuariosMulher }}, {{ $usuariosNaoInformar }}],
                 borderWidth: 0
             }]
         },
         plugins: [ChartDataLabels],
         options: {
-            responsive: false,
+            responsive: false, 
             maintainAspectRatio: false,
             plugins: {
-            legend: {
-                position: 'bottom'
-            },
-            datalabels: {  
-                color: 'white',
-                formatter: (value, context) => {
-                    let sum = context.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
-                    let percentage = (value / sum * 100).toFixed(1) + '%';
-                    return percentage;
-                },
-                font: {
-                    weight: 'bold',
-                    size: 14
+                legend: { position: 'bottom' },
+                datalabels: {  
+                    color: 'white',
+                    formatter: (value, context) => {
+                        let sum = context.chart.data.datasets[0].data.reduce((a, b) => a + b, 0);
+                        return (value / sum * 100).toFixed(1) + '%';
+                    },
+                    font: { weight: 'bold', size: 14 }
                 }
             }
         }
-        }
     });
-    
+
+    // Line Chart
     new Chart(ctxLine, {
         type: 'line',
         data: {
-            labels: @json($usuariosPorMes['labels']),  
+            labels: @json($usuariosPorMes['labels']),
             datasets: [{
                 label: 'Usuários cadastrados',
-                data: @json($usuariosPorMes['data']),  
-                borderWidth: 2,
+                data: @json($usuariosPorMes['data']),
                 borderColor: 'blue',
                 backgroundColor: 'rgba(0,0,255,0.2)',
                 fill: true,
                 tension: 0.3
             }]
         },
-        options: {
-            responsive: false,
-            maintainAspectRatio: false,
-            scales: {
-                y: {
-                    beginAtZero: true
-                }
-            }
-        }
+        options: { responsive: false, maintainAspectRatio: false, scales: { y: { beginAtZero: true } } }
     });
 
+    // Bar Chart
+    new Chart(ctxBar, {
+        type: 'bar',
+        data: {
+            labels: ['Fizeram Ocorrência', 'Não Fizeram Ocorrência'],
+            datasets: [{
+                label: 'Usuários',
+                data: [{{ $usuariosComOcorrencia ?? 0 }}, {{ $usuariosSemOcorrencia ?? 0 }}],
+                borderWidth: 1,
+                backgroundColor: ['#4CAF50', '#F44336']
+            }]
+        },
+        options: { responsive: false, maintainAspectRatio: false, scales: { y: { beginAtZero: true } } }
+    });
 </script>
