@@ -3,11 +3,12 @@ import {Pressable, View, TextInput, Text, StyleSheet, TouchableOpacity, Image} f
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Icon from 'react-native-vector-icons/FontAwesome'; 
-const AlterarSenhaScreen = ({navigation}) => {
+const AlterarSenhaScreen = ({navigation, route}) => {
     const[novaSenha, setNovaSenha] = useState('');
     const[novaSenhaConfirma, setNovaSenhaConfirma] = useState('');
     const[carregando, setCarregando] = useState(false);
     const[erroMessage, setErroMessage] = useState('');
+    const direcao = route.params?.direcao;
 
 
     const validarSenhaNova = () => {
@@ -43,6 +44,7 @@ const AlterarSenhaScreen = ({navigation}) => {
             {
                 tokenTemp,
                 novaSenhaConfirma,
+                direcao,
             },{
                 headers: {
                     Authorization: `Bearer ${tokenUser}`

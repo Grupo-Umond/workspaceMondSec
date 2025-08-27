@@ -14,7 +14,7 @@ const DigiteCodigoScreen = ({navigation}) => {
     useEffect(() => {
       buscarDados();
       criarCodigo();
-    }, [])
+    }, [direcao])
 
     const buscarDados = async () => {
       const tokenUser = await AsyncStorage.getItem('userToken');
@@ -83,6 +83,7 @@ const DigiteCodigoScreen = ({navigation}) => {
           const response = await axios.post('http://127.0.0.1:8000/api/codigo/verify', 
             {
               code,
+              direcao,
             },{
               headers:{
                 Authorization: `Bearer ${tokenUser}`,
@@ -96,7 +97,7 @@ const DigiteCodigoScreen = ({navigation}) => {
           }
           
           await AsyncStorage.setItem('tokenTemp', tokenTemp);
-            navigation.navigate('AlterarSenha');
+            navigation.navigate('AlterarSenha', direcao);
 
         }catch(err){
           console.log(err);
@@ -136,7 +137,7 @@ const DigiteCodigoScreen = ({navigation}) => {
 </Text>
 
 {direcao && (
-  <Pressable onPress={() => {setDirecao(false); criarCodigo();}}>
+  <Pressable onPress={() => {setDirecao(false);}}>
     <Text style={styles.linkText}>
       Não tenho acesso a esse email. <Text style={styles.linkHighlight}>Enviar por SMS</Text>
     </Text>
@@ -144,7 +145,7 @@ const DigiteCodigoScreen = ({navigation}) => {
 )}
 
 {!direcao && (
-  <Pressable onPress={() => {setDirecao(true); criarCodigo();}}>
+  <Pressable onPress={() => {setDirecao(true);}}>
     <Text style={styles.linkText}>
       Não tenho acesso a esse telefone. <Text style={styles.linkHighlight}>Enviar por email</Text>
     </Text>
