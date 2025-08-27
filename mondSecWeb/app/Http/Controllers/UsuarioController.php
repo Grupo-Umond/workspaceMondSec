@@ -124,12 +124,19 @@ class UsuarioController extends Controller
             'novaSenhaConfirma' => 'required|min:6',
         ]);
 
-        $email = Cache::get("token_{$request->tokenTemp}");
-        if (!$email) {
+        $login = Cache::get("token_{$request->tokenTemp}");
+        
+        if (!$login) {
             return response()->json(['message' => 'Token inválido ou expirado'], 400);
         }
 
-        $usuario = Usuario::where('email', $email)->firstOrFail();
+        $campo = 'email';
+
+        if(!$request->direcao){
+            $campo = 'telefone';
+        }
+
+        $usuario = Usuario::where($campo, $login)->firstOrFail();
 
         if ($request->novaSenhaConfirma) {
             $usuario->senha = bcrypt($request->novaSenhaConfirma);

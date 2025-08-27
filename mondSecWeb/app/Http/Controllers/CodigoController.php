@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Mail;
+use Twilio\Rest\Client;
+
 
 class CodigoController extends Controller
 {
@@ -35,7 +37,7 @@ class CodigoController extends Controller
         $token  = env('TWILIO_TOKEN');
         $twilio = new Client($sid, $token);
 
-        $twilio->messages->create($phone, [
+        $twilio->messages->create($telefone, [
             'from' => env('TWILIO_FROM'),
             'body' => "Seu código de verificação é: {$code}"
     ]);
@@ -47,13 +49,16 @@ class CodigoController extends Controller
     public function verifyCode(Request $request)
     {
         $request->validate([
-            'code'  => 'required|digits:6'
+            'code'  => 'required|digits:6',
         ]);
 
-        $user = $request->user();
-        $email = $user->email;
+        $usuario = $request->user();
+        $login = $usuario->email;
+        if(!$request->direcao){
+            $login = $usuario->telefone;
+        }
 
-        $cachedCode = Cache::get("verify_{$email}");
+        $cachedCode = Cache::get("verify_{$login}");
 
         if (!$cachedCode || $cachedCode != $request->code) {
             return response()->json(['message' => 'Código inválido ou expirado'], 400);
@@ -61,7 +66,7 @@ class CodigoController extends Controller
 
         
         $tempToken = bin2hex(random_bytes(16));
-        Cache::put("token_{$tempToken}", $email, now()->addMinutes(10));
+        Cache::put("token_{$tempToken}", $login, now()->addMinutes(10));
 
         return response()->json(['token' => $tempToken]);
     }

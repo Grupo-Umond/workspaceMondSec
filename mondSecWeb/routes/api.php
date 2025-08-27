@@ -37,8 +37,8 @@ Route::prefix('codigo')
     ->controller(CodigoController::class)
     ->middleware('auth:api')
     ->group(function () {
-        Route::post('/sendEmail', 'sendCodeEmail')->name('enviar');
-        Route::post('/sendSms', 'sendCodeSms')->name('verify');
+        Route::post('/sendEmail', 'sendCodeEmail')->name('email');
+        Route::post('/sendSms', 'sendCodeSms')->name('sms');
         Route::post('/verify', 'verifyCode')->name('verificar');
     });
 
