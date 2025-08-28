@@ -82,11 +82,6 @@ class UsuarioController extends Controller
     }
 
     public function updateUsuario(Request $request) {
-        $request->validate([
-            'nome' => 'string|max:100',
-            'email' => 'email',
-            'telefone' => 'string',
-        ]);
         
         $usuario = $request->user();
 

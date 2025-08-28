@@ -73,7 +73,7 @@ const AlterarSenhaScreen = ({navigation, route}) => {
             {/* Card central */}
             <View style={styles.card}>
                 {/* Botão voltar */}
-                <Pressable style={styles.backButton} onPress={() => navigation.goBack()}>
+                <Pressable style={styles.backButton} onPress={() => navigation.navigate('Menu')}>
                     {/* AQUI ESTÁ A MUDANÇA */}
                     <Icon name="arrow-left" size={32} color="#12577B" />
                 </Pressable>

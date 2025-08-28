@@ -8,7 +8,9 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 const DigiteDadosScreen = ({navigation}) => {
     const [nome, setNome] = useState('');
     const [email, setEmail] = useState('');
+    const [emailV, setEmailV] = useState('');
     const [telefone, setTelefone] = useState('');
+    const [telefoneV, setTelefoneV] = useState('');
     const [genero, setGenero] = useState('');
 
     const opcoesGenero = ['Masculino', 'Feminino', 'Prefiro não informar'];
@@ -28,17 +30,20 @@ const DigiteDadosScreen = ({navigation}) => {
 
     const validarDados = () => {
 
-        if(!regexEmail.test(email)) {
-            setErroMessage('Digite um email valido');
-            return false;
+    if(email){
+        if(emailV !== email){
+            if(!regexEmail.test(email)) {
+                setErroMessage('Digite um email valido');
+                return false;
+            }
         }
-
-        if(!regexTelefone.test(telefone)) {
-            setErroMessage('Digite um telefone valido');
-            return false;
+        if(telefoneV !== telefone){
+            if(!regexTelefone.test(telefone)) {
+                setErroMessage('Digite um telefone valido');
+                return false;
+            }
         }
-
-
+    }
         return true;
     }
 
@@ -56,7 +61,9 @@ const DigiteDadosScreen = ({navigation}) => {
         const usuario = response.data.usuario;
         console.log(usuario);
         setNome(usuario.nome ?? '');
+        setEmailV(usuario.email ?? '');
         setEmail(usuario.email ?? '');
+        setTelefoneV(usuario.telefone ?? '');
         setTelefone(usuario.telefone ?? '');
         setGenero(usuario.genero ?? '');
 
