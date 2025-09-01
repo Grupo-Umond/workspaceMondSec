@@ -2,22 +2,20 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, Pressable, TextInput, Modal, StyleSheet, Image} from 'react-native';
 import  {notificacaoService}  from '../../services/NotificacaoService';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import Icon from 'react-native-vector-icons/MaterialIcons'; // Importando ícones
+import Icon from 'react-native-vector-icons/MaterialIcons';
 import Mapa from "../../services/MapaService";
 
 const HomeScreen = ({ navigation }) => {
   const [visivelSolicitar, setVisivelSolicitar] = useState(true);
   const [visivelWelcome, setVisivelWelcome] = useState(false);
-    let vidaUtilModal = true;
+  let vidaUtilModal = true;
 
-   
   useEffect(() => {
     const verificarModal = async () => {
       const response = await AsyncStorage.getItem('permissaoNot');
       if(response == 'granted') {
         setVisivelSolicitar(false);
       }
-
 
       vidaUtilModal = await AsyncStorage.getItem('vidaUtilModal');
       if(vidaUtilModal === "false") {
@@ -40,84 +38,85 @@ const HomeScreen = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      {/* Header */}
-      <View style={styles.header}>
-        <Text style={styles.headerText}>Tela Inicial</Text>
-        <Pressable style={styles.settingsButton}>
-          <Icon name="settings" size={24} color="#003366" /> {/* Ícone de configurações */}
-        </Pressable>
-      </View>
-
-      {/* Search Bar */}
-      <View style={styles.searchContainer}>
-        <TextInput
-          style={styles.searchInput}
-          placeholder="Pesquise um local..."
-          placeholderTextColor="#888"
-        />
-        <Pressable style={styles.searchButton}>
-          <Icon name="search" size={24} color="#003366" /> {/* Ícone de busca */}
-        </Pressable>
-      </View>
-
-      {/* Static Map */}
-      <View style={styles.mapContainer}>
-         <Mapa style={styles.mapImage} />
-  
-
-      {/* Navigation Bar */}
-         <View style={styles.navigationContainer}>
+      {/* Header e Search Bar - Agora fixo no topo */}
+      <View style={styles.navCima}>
+        <View style={styles.navRota}>
           <Pressable 
             style={({ pressed }) => [
               styles.navButton,
               { opacity: pressed ? 0.6 : 1 }
             ]} 
-            onPress={() => navigation.navigate('Home')}
+            onPress={() => navigation.navigate('registrar')}
           >
-            <Icon name="home" size={26} color="#FFFFFF" />
-            <Text style={styles.navButtonText}>Início</Text>
-          </Pressable>
-          
-          <Pressable 
-            style={({ pressed }) => [
-              styles.navButton,
-              { opacity: pressed ? 0.6 : 1 }
-            ]} 
-            onPress={() => navigation.navigate('Sobre')}
-          >
-            <View style={styles.centralButton}>
-              <Icon name="directions" size={28} color="#003366" />
+            <View style={styles.buttonRota}>
+              <Icon name="directions" size={28} color="#fafafaff" />
             </View>
           </Pressable>
-          
-          <Pressable 
-            style={({ pressed }) => [
-              styles.navButton,
-              { opacity: pressed ? 0.6 : 1 }
-            ]} 
-            onPress={() => navigation.navigate('Menu')}
-          >
-            <Icon name="person" size={26} color="#FFFFFF" />
-            <Text style={styles.navButtonText}>Perfil</Text>
+        </View>
+        <View style={styles.searchContainer}>
+          <TextInput
+            style={styles.searchInput}
+            placeholder="Pesquise um local..."
+            placeholderTextColor="#888"
+          />
+          <Pressable style={styles.searchButton}>
+            <Icon name="search" size={24} color="#003366" />
           </Pressable>
         </View>
-             </View>   
+      </View>
 
-      {/* Permission Modal */}
-       {/* <Modal animationType="slide" transparent visible={visivelSolicitar}>
-        <View style={styles.modalContainer}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Aviso!</Text>
-            <Text style={styles.modalText}>
-              Este app utiliza a localização do seu dispositivo. É necessário que o acesso esteja ativo.
-            </Text>
-            <Text style={styles.modalText}>Deseja permitir o acesso?</Text>
-            <Pressable onPress={modalPermissao}>
-              <Text style={styles.modalButton}>Sim</Text>
-            </Pressable>
+      {/* Mapa - Agora ocupa toda a tela */}
+      <View style={styles.mapContainer}>
+        <Mapa style={styles.mapImage} />
+      </View>
+
+      {/* Botão de Ocorrência Vermelho */}
+      <Pressable 
+        style={({ pressed }) => [
+          styles.ocorrenciaButton,
+          { opacity: pressed ? 0.6 : 1 }
+        ]} 
+        onPress={() => navigation.navigate('Registrar')}
+      >
+        <Icon name="warning" size={28} color="#FFFFFF" />
+      </Pressable>
+
+      {/* Navigation Bar */}
+      <View style={styles.navigationContainer}>
+        <Pressable 
+          style={({ pressed }) => [
+            styles.navButton,
+            { opacity: pressed ? 0.6 : 1 }
+          ]} 
+          onPress={() => navigation.navigate('Home')}
+        >
+          <Icon name="home" size={26} color="#FFFFFF" />
+          <Text style={styles.navButtonText}>Início</Text>
+        </Pressable>
+        
+        <Pressable 
+          style={({ pressed }) => [
+            styles.navButton,
+            { opacity: pressed ? 0.6 : 1 }
+          ]} 
+          onPress={() => navigation.navigate('Sobre')}
+        >
+          <View style={styles.centralButton}>
+            <Icon name="info" size={28} color="#003366" />
           </View>
-        </View>
-      </Modal>  */}
+        </Pressable>
+        
+        <Pressable 
+          style={({ pressed }) => [
+            styles.navButton,
+            { opacity: pressed ? 0.6 : 1 }
+          ]} 
+          onPress={() => navigation.navigate('Menu')}
+        >
+          <Icon name="person" size={26} color="#FFFFFF" />
+          <Text style={styles.navButtonText}>Perfil</Text>
+        </Pressable>
+      </View>
 
       {/* Welcome Modal */}
       <Modal animationType="slide" transparent visible={visivelWelcome}>
@@ -140,23 +139,17 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#E6F0FA',
   },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+  navCima: { 
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    zIndex: 10,
+    flexDirection: 'row', 
     alignItems: 'center',
-    padding: 15,
-    backgroundColor: '#FFFFFF',
-    borderBottomWidth: 1,
-    borderBottomColor: '#DDDDDD',
-  },
-  headerText: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#003366',
-  },
-  settingsButton: {
-    padding: 8,
-  },
+    padding: 20,
+    backgroundColor: 'transparent',
+  }, 
   searchContainer: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -167,33 +160,56 @@ const styles = StyleSheet.create({
     shadowColor: '#000',
     shadowOpacity: 0.1,
     shadowRadius: 4,
+    width: '75%', 
   },
+  navRota: { 
+    flexDirection: 'row', 
+  }, 
   searchInput: {
     flex: 1,
     height: 40,
     color: '#333',
+    width: '100%', 
   },
-  searchButton: {
+  buttonRota: {
     padding: 8,
+    height: 'auto', 
+    width: 45, 
+    backgroundColor: '#12577B', 
+    borderRadius: 6,
   },
-
-mapContainer: {
-  flex: 1, 
-  margin: 18,
-  borderRadius: 12,
-  overflow: 'hidden',
-  width: '90%',
-  alignItems: 'center'
-},
-mapImage: {
-  width: '100%',
-  flex: 1, // faz o mapa preencher a altura do container
-},
+  mapContainer: {
+    flex: 1,
+    overflow: 'hidden',
+    width: '100%',
+  },
+  mapImage: {
+    width: '100%',
+    height: '100%',
+  },
+  // Botão de Ocorrência
+  ocorrenciaButton: {
+    position: 'absolute',
+    bottom: 90,
+    right: 20,
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: '#e55858',
+    justifyContent: 'center',
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 5,
+    zIndex: 10,
+  },
   navigationContainer: {
     position: 'absolute',
-    bottom: 24,
-    left: 16,
-    right: 16,
+    bottom: 1,
+    left: 4,
+    right: 14,
     flexDirection: 'row',
     justifyContent: 'space-around',
     alignItems: 'center',
@@ -206,13 +222,7 @@ mapImage: {
     shadowOpacity: 0.3,
     shadowRadius: 8,
     elevation: 10,
-  },
-  navButton: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    borderRadius: 20,
+    zIndex: 10,
   },
   centralButton: {
     alignItems: 'center',
