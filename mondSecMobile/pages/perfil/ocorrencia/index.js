@@ -44,52 +44,70 @@ const OcorrenciaScreen = ({navigation}) => {
     }
 
     return (
-   <View style={styles.container}>
-  <View style={styles.cabecalho}>
-    <Pressable onPress={() => navigation.navigate('Home')} style={styles.iconeCabecalho}>
-      <FontAwesome name="arrow-left" size={24} color="#12577B" />
-    </Pressable>
-    <Text style={styles.tituloCabecalho}>Seu Perfil</Text>
-    <Pressable onPress={() => navigation.navigate('Configuracao')} style={styles.iconeCabecalho}>
-      <FontAwesome name="cog" size={24} color="#12577B" />
-    </Pressable>
-  </View>
-
-  {/* Barra de Pesquisa */}
-  <TextInput
-    style={styles.searchBar}
-    placeholder="Pesquisar ocorrências..."
-    placeholderTextColor="#A2A2A2"
-  />
-
-
-  <View>
-    <Text style={styles.totalOcorrencias}>Total de Ocorrências: {lengthNumber}</Text>
-    <Pressable onPress={() => navigation.navigate('Registrar')} style={styles.addButton}>
-      <Text style={styles.addButtonText}>+</Text>
-    </Pressable>
-
-    {ocorrencias.map((ocorrencia, index) => (
-      <View key={index} style={[styles.card, styles[`card${ocorrencia.tipo}`]]}>
-        <View style={styles.cardAssalto}>
-          <Text style={styles.cardTitle}>{ocorrencia.tituloOcorrencia}</Text>
-          <FontAwesome name={ocorrencia.icon} size={24} color="#ffffffff" />
-        </View>
-        <Text style={styles.cardHomicidio}>{ocorrencia.longitudeOcorrencia}</Text>
-        <Text style={styles.cardAlagamento}>
-          Registrado em: {ocorrencia.dataRegistradaOcorrencia}
-        </Text>
-        <Pressable style={styles.detailsButton}>
-          <Text style={styles.detailsButtonText}>Ver detalhes</Text>
+    <View style={styles.container}>
+      {/* Cabeçalho */}
+      <View style={styles.cabecalho}>
+        <Pressable
+          onPress={() => navigation.navigate('Home')}
+          style={styles.iconeCabecalho}
+        >
+          <FontAwesome name="arrow-left" size={24} color="#12577B" />
+        </Pressable>
+        <Text style={styles.tituloCabecalho}>Seu Perfil</Text>
+        <Pressable
+          onPress={() => navigation.navigate('Configuracao')}
+          style={styles.iconeCabecalho}
+        >
+          <FontAwesome name="cog" size={24} color="#12577B" />
         </Pressable>
       </View>
-    ))}
-  </View>
-</View>
-    );
+
+      {/* Barra de Pesquisa */}
+      <TextInput
+        style={styles.searchBar}
+        placeholder="Pesquisar ocorrências..."
+        placeholderTextColor="#A2A2A2"
+      />
+
+      {/* Total de Ocorrências e botão adicionar */}
+      <View style={styles.topSection}>
+        <Text style={styles.totalOcorrencias}>
+          Total de Ocorrências: {lengthNumber}
+        </Text>
+        <Pressable
+          onPress={() => navigation.navigate('Registrar')}
+          style={styles.addButton}
+        >
+          <Text style={styles.addButtonText}>+</Text>
+        </Pressable>
+      </View>
+
+      {/* Lista de ocorrências */}
+      <View>
+        {ocorrencias.map((ocorrencia, index) => (
+          <View
+            key={index}
+            style={[styles.card, styles[`card${ocorrencia.tipo}`]]} 
+          >
+            <View style={styles.cardHeader}>
+              <Text style={styles.cardTitle}>{ocorrencia.titulo}</Text>
+              <FontAwesome name={ocorrencia.longitude} size={24} color="#FFFFFF" />
+            </View>
+            <Text style={styles.cardAddress}>{ocorrencia.latitude}</Text>
+            <Text style={styles.cardDate}>
+              Registrado em: {ocorrencia.data}
+            </Text>
+            <Pressable style={styles.detailsButton}>
+              <Text style={styles.detailsButtonText}>Ver detalhes</Text>
+            </Pressable>
+          </View>
+        ))}
+      </View>
+    </View>
+  );
 };
 
-const styles = {
+const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#FFFFFF',
@@ -100,7 +118,7 @@ const styles = {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 20, 
+    marginBottom: 20,
     paddingHorizontal: 10,
   },
   tituloCabecalho: {
@@ -120,20 +138,23 @@ const styles = {
     fontSize: 14,
     color: '#333333',
   },
+  topSection: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
   totalOcorrencias: {
     fontSize: 16,
     fontWeight: '600',
-    marginBottom: 10,
   },
   addButton: {
-    alignSelf: 'flex-end',
     backgroundColor: '#12577B',
     borderRadius: 50,
     width: 40,
     height: 40,
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 20,
   },
   addButtonText: {
     color: '#FFFFFF',
@@ -192,6 +213,6 @@ const styles = {
   cardHomicidio: {
     backgroundColor: '#E57373',
   },
-};
+});
 
-export default OcorrenciaScreen; 
+export default OcorrenciaScreen;
