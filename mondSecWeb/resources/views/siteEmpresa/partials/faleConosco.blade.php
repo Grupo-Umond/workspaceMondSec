@@ -1,6 +1,6 @@
 <section class="faleConosco" id="apresentacao6">
     <div class="inicio_texto">
-        <h2 class="titulo">Fale <span>conosco</span></h2>
+        <h2 class="titulo">Fale <span>Conosco</span></h2>
     </div>
     <div class="conteudo_faleConosco">
         <div class="cards_faleConosco">
@@ -9,7 +9,7 @@
                     <i class="fa-solid fa-location-dot"></i>
                 </div>
                 <h3>Endereço</h3>
-                <p>R. Feliciano de Mendonça, 290 - Guaianases, São Paulo - SP, 08460-365</p>
+                <p>R. Feliciano de Mendonça, 290</p>
             </div>
             <div class="card">
                 <div class="icon-container">

@@ -1,5 +1,5 @@
 .nossos_projetos {
-    padding: 10% 5% 0% 5%;
+    padding: 7% 5% 0% 5%;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -12,23 +12,21 @@
     width: 1000px;
     height: 550px;
     overflow: hidden;
-    border-radius: 16px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-    background: white;
+    margin-top: 2%;
+}
+
+.nossos_projetos .titulo { 
+    font-size: 1.8rem;
+    font-weight: 600;
 }
 
 .nossos_projetos .titulo span {
-    color: rgb(1, 1, 82);
-    background: linear-gradient(135deg, rgb(1, 1, 82) 0%, rgb(0, 0, 60) 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    font-weight: 600;
+    -webkit-text-fill-color: rgb(19, 19, 226);
 }
 
 .directional {
     position: absolute;
-    bottom: 5%;
+    bottom: 13%;
     width: 100%;
     display: flex;
     justify-content: center;

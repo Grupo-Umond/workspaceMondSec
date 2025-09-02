@@ -75,43 +75,44 @@
 {{-- QUEM SOMOS --}}
 <section id="apresentacao2" class="quemSomos">
     <div class="inicio_texto">
-        <h2 class="titulo"> Quem <span> somos </span> </h2>
+        <h2 class="titulo"> Quem <span class="span">Somos </span> </h2>
     </div>
-    <div class="quemSomos_identificacao">
-        <img src="{{ asset('Imagens/Logos/umondlogoazul-removebg-preview.png') }}" alt="">
-    </div>
-    <div class="cards_quemSomos">
-        <div class="card">
-            <i class="fa-solid fa-lock"></i>
-            <h3>Segurança</h3>
-            <p>Mais segurança no seu dia a dia, com proteção ativa nas ruas.</p>
+    <div class="quemSomos_conteudo">
+        <div class="quemSomos_identificacao">
+            <img src="{{ asset('Imagens/Logos/etec.jpg') }}" alt="">
         </div>
-        <div class="card">
-            <i class="fa-solid fa-location-dot"></i>
-            <h3>Localização</h3>
-            <p>Localização em tempo real para agir com agilidade.</p>
+        <div class="cards_quemSomos">
+            <div class="card">
+                <i class="fa-solid fa-graduation-cap"></i>
+                <h3>Alunos</h3>
+                <p>Somos alunos da ETEC de Guaianazes que criamos essa empresa para colocar nossas ideias em prática.</p>
+            </div>
+            <div class="card">
+                <i class="fa-solid fa-lock"></i>
+                <h3>Segurança</h3>
+                <p>Oferecemos soluções digitais confiáveis para proteger seus dados e usuários.</p>
+            </div>
+            <div class="card">
+                <i class="fa-solid fa-users"></i>
+                <h3>Tecnologia</h3>
+                <p>Sites modernos e sistemas inteligentes com alto desempenho</p>
+            </div>
+            <div class="card">
+                <i class="fa-solid fa-person-running"></i>
+                <h3>Acessibilidade</h3>
+                <p>Plataformas inclusivas, pensadas para todos os públicos.</p>
+            </div>
+            <div class="card">
+                <i class="fa-brands fa-uncharted"></i>
+                <h3>Softwares</h3>
+                <p>Aplicações personalizadas, práticas e de fácil utilização.</p>
+            </div>
+            <div class="card">
+                <i class="fa-solid fa-star"></i>
+                <h3>Qualidade</h3>
+                <p>Projetos robustos, ágeis e feitos para gerar resultados.</p>
+            </div>
         </div>
-        <div class="card">
-            <i class="fa-solid fa-users"></i>
-            <h3>Tecnologia</h3>
-            <p>Conectamos pessoas e autoridades com tecnologia eficaz.</p>
-        </div>
-        <div class="card">
-            <i class="fa-solid fa-person-running"></i>
-            <h3>Acessibilidade</h3>
-            <p>Acessibilidade para todos.</p>
-        </div>
-        <div class="card">
-            <i class="fa-brands fa-uncharted"></i>
-            <h3>Softwares</h3>
-            <p>Softwares de fácil manejo.</p>
-        </div>
-        <div class="card">
-            <i class="fa-solid fa-chart-simple"></i>
-            <h3>Trabalho</h3>
-            <p>Trabalhamos para a sua segurança.</p>
-        </div>
-    </div>
 </section>
 
 @include('siteEmpresa.partials.equipe')

@@ -1,6 +1,6 @@
 <div class="nossos_projetos" id="apresentacao4">
     <div class="inicio_texto">
-        <h2 class="titulo"> Nossos <span> projetos </span> </h2>
+        <h2 class="titulo"> Nossos <span>Projetos </span> </h2>
     </div>
     <div class="container">
         <div id="slide">
