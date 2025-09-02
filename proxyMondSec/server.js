@@ -18,4 +18,18 @@ app.get("/geocode", async (req, res) => {
   }
 });
 
+app.get('/reverse-geocode', async (req, res) => {
+  const { lat, lon } = req.query;
+
+  try {
+    const response = await axios.get(
+      `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`
+    );
+    res.json(response.data);
+  } catch (error) {
+    console.error('Erro no reverse geocoding:', error.message);
+    res.status(500).json({ error: 'Erro ao buscar endereço' });
+  }
+});
+
 app.listen(PORT, () => console.log(`Servidor rodando na porta ${PORT}`));

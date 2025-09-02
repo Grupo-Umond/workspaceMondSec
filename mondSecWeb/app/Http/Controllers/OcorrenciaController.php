@@ -22,7 +22,7 @@ class OcorrenciaController extends Controller
                     'longitude' => $ocorrencias->longitude,
                     'latitude' => $ocorrencias->latitude,
                     'data' => $ocorrencias->data,
-                    'descricao' => $ocorrencias->tbTipoOcorrencia->descricao ?? 'Sem descrição',
+                    'descricao' => $ocorrencias->tipoOcorrencia->descricao ?? 'Sem descrição',
                 ];
             });
             return response()->json($ocorrencias);
@@ -35,8 +35,8 @@ class OcorrenciaController extends Controller
         $dados = $request->validate([
             'titulo' => 'required|string',
             'descricao' => 'nullable|string',
-            'latitude' => 'required|numeric',
-            'longitude' => 'required|numeric',
+            'latitude' => 'required',
+            'longitude' => 'required',
             'tbTipoOcorrencia.tipo' => 'required|string',
             'tbTipoOcorrencia.descricao' => 'nullable|string',
         ]);
