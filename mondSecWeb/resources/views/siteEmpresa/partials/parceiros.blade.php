@@ -1,7 +1,7 @@
 <section class="apresentacao__nossosParceiros" id="apresentacao5">
     <div class="apresentacao__nossosParceiros__conteudo">
         <h2 class="apresentacao__nossosParceiros__subtitulo">
-            Nossos <span>parceiros</span>
+            Nossos <span>Parceiros</span>
         </h2>
         <div class="apresentacao__nossosParceiros__cards">
             <div class="apresentacao__nossosParceiros__cards__card">

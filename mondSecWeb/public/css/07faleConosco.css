@@ -1,6 +1,5 @@
 .faleConosco {
-    padding: 6% 8%;
-    margin-bottom: 4%;
+    padding: 6% 0%;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -9,44 +8,41 @@
 
 .faleConosco .titulo {
     text-align: center;
-    font-size: 2.8rem;
-    margin-bottom: 3%;
-    color: #1f2937;
+    font-size: 1.8rem;
+    margin-bottom: 19%;
+    color: black;
     font-weight: 700;
 }
 
 .faleConosco .titulo span {
-    color: rgb(1, 1, 82);
-    background: linear-gradient(135deg, rgb(1, 1, 82) 0%, rgb(0, 0, 60) 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
+    -webkit-text-fill-color: rgb(19, 19, 226);
 }
 
 .conteudo_faleConosco {
     display: flex;
     justify-content: space-between;
-    align-items: flex-start;
+    align-items: center;
     gap: 50px;
     flex-wrap: wrap;
 }
 
 .cards_faleConosco {
-    width: 45%;
+    width: 50%;
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 20px;
 }
 
 .cards_faleConosco .card {
-    padding: 25px 20px;
+    width: 100%;
+    padding: 20px 80px;
     font-family: 'Inter', 'Segoe UI', sans-serif;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
     text-align: center;
-    gap: 15px;
+    gap: 0px;
     background-color: white;
     border-radius: 16px;
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -54,6 +50,7 @@
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
     position: relative;
     overflow: hidden;
+    white-space: nowrap; /* impede quebra de linha */
 }
 
 .cards_faleConosco .card::before {
@@ -63,7 +60,6 @@
     left: 0;
     width: 100%;
     height: 0;
-    background: linear-gradient(135deg, rgb(1, 1, 82) 0%, rgb(0, 0, 60) 100%);
     opacity: 0.03;
     transition: height 0.4s ease;
     z-index: 0;
@@ -80,8 +76,8 @@
 }
 
 .icon-container {
-    width: 70px;
-    height: 70px;
+    width: 50px;
+    height: 50px;
     border-radius: 50%;
     background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
     display: flex;
@@ -102,7 +98,7 @@
 
 .cards_faleConosco .card i {
     color: rgb(1, 1, 82);
-    font-size: 1.8rem;
+    font-size: 1.5rem;
     transition: all 0.3s ease;
 }
 
@@ -115,7 +111,7 @@
     margin: 5px 0;
     font-weight: 600;
     color: #1f2937;
-    font-size: 1.2rem;
+    font-size: 1rem;
     position: relative;
     z-index: 1;
 }
@@ -123,13 +119,13 @@
 .cards_faleConosco .card p {
     color: #4b5563;
     line-height: 1.6;
-    font-size: 0.95rem;
+    font-size: 0.9rem;
     position: relative;
     z-index: 1;
 }
 
 .form_faleConosco {
-    width: 45%;
+    width: 40%;
     background: #ffffff;
     border-radius: 20px;
     box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1);
@@ -155,10 +151,10 @@
 }
 
 form h3 {
-    font-size: 2.2rem;
+    font-size: 1.5rem;
     font-weight: 700;
     color: #1f2937;
-    margin-bottom: 15px;
+    margin-bottom: 5px;
     position: relative;
     text-align: center;
     font-family: 'Inter', 'Segoe UI', sans-serif;
@@ -167,12 +163,12 @@ form h3 {
 .input-group {
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 5px;
     position: relative;
 }
 
 .input-group label {
-    font-size: 1rem;
+    font-size: 0.9rem;
     color: #374151;
     font-weight: 500;
     font-family: 'Inter', 'Segoe UI', sans-serif;
@@ -180,10 +176,10 @@ form h3 {
 
 form input, form textarea {
     width: 100%;
-    padding: 16px 18px;
+    padding: 8px 10px;
     border: 1px solid #e5e7eb;
     border-radius: 10px;
-    font-size: 1rem;
+    font-size: 0.9rem;
     color: #1f2937;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -204,13 +200,13 @@ form input::placeholder, form textarea::placeholder {
 }
 
 form textarea {
-    min-height: 160px;
+    min-height: 100px;
     resize: vertical;
 }
 
 #enviar {
-    padding: 16px 30px;
-    font-size: 1.1rem;
+    padding: 10px 10px;
+    font-size: 1rem;
     font-weight: 600;
     color: white;
     background: linear-gradient(135deg, rgb(1, 1, 82) 0%, rgb(0, 0, 60) 100%);
@@ -226,25 +222,6 @@ form textarea {
     overflow: hidden;
 }
 
-#enviar::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-    transition: all 0.6s ease;
-}
-
-#enviar:hover::before {
-    left: 100%;
-}
-
-#enviar:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 8px 25px rgba(1, 1, 82, 0.4);
-}
 
 /* Responsividade */
 @media (max-width: 1200px) {

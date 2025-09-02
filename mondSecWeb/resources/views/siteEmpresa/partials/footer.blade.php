@@ -4,7 +4,7 @@
             <div class="footer-logo">
                 <a href="#"><img src="{{ asset('Imagens/Logos/umondlogofooter.png') }}" class="logo"></a>
             </div>
-            <p class="footer-about">Somos sua Segurança!</p>
+            <p class="footer-about">Lapidando você!</p>
             <div class="footer-social">
                 <a href="#"><i class="fab fa-instagram"></i></a>
                 <a href="#"><i class="fab fa-facebook-f"></i></a>
