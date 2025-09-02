@@ -1,17 +1,18 @@
 import { Platform, View, StyleSheet } from "react-native";
-import { useEffect, useRef } from "react";
+import { useRef, useEffect, forwardRef, useImperativeHandle } from "react";
 
-export default function MapaService() {
+const MapaService = forwardRef((props, ref) => {
   const mapRef = useRef(null);
+  const googleMap = useRef(null);
 
   useEffect(() => {
     if (Platform.OS === "web") {
       const script = document.createElement("script");
-      script.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyDi1uaeP6YMzdW3o-DwT6weS7KkqKv344E&libraries=places`;
+      script.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyBojQS_cK54zyvBGj9ZIaCnZ4eCySSRrTE&libraries=places`;
       script.async = true;
       script.defer = true;
       script.onload = () => {
-        const mapa = new window.google.maps.Map(mapRef.current, {
+        googleMap.current = new window.google.maps.Map(mapRef.current, {
           center: { lat: -23.5505, lng: -46.6333 },
           zoom: 12,
         });
@@ -20,30 +21,27 @@ export default function MapaService() {
     }
   }, []);
 
+  useImperativeHandle(ref, () => ({
+    centralizarNoEndereco(lat, lng) {
+      if (Platform.OS === "web" && googleMap.current) {
+        googleMap.current.setCenter({ lat, lng });
+        new window.google.maps.Marker({
+          position: { lat, lng },
+          map: googleMap.current,
+        });
+      }
+    },
+  }));
+
   if (Platform.OS === "web") {
-    return <div ref={mapRef} style={{ width: "100%", height: "300px" }} />;
+    return <div ref={mapRef} style={{ width: "100%", height: 300 }} />;
   }
 
-  return (
-    <View style={styles.container}>
-      <MapView
-        style={styles.map}
-        initialRegion={{
-          latitude: -23.5505,
-          longitude: -46.6333,
-          latitudeDelta: 0.0922,
-          longitudeDelta: 0.0421,
-        }}
-        showsUserLocation={true}
-        followsUserLocation={true}
-        provider="PROVIDER_GOOGLE"
-      >
-      </MapView>
-    </View>
-  );
-}
+  return <View style={styles.container}>{/* Mobile MapView aqui */}</View>;
+});
+
+export default MapaService;
 
 const styles = StyleSheet.create({
   container: { width: "100%", height: 300 },
-  map: { flex: 1 },
 });

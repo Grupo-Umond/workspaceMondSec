@@ -15,6 +15,8 @@ const RegistrarScreen = ({ navigation }) => {
   const [carregando, setCarregando] = useState(false);
   const [mostrar, setMostrar] = useState('');
   const [menssagemErro, setMessagemErro] = useState('');
+  const [endereco, setEndereco] = useState('');
+  conts [coordenadas, setCoordenadas] = useState('');
 
   const validarDados = () => {
     if (!tipo || !longitude || !latitude) {
@@ -27,6 +29,15 @@ const RegistrarScreen = ({ navigation }) => {
         return false;
     }
     return true;
+  };
+
+  const buscar = async () => { 
+    try {
+      const coords = await getCoordinatesFromAddress(endereco);
+      setCoordenadas(coords);
+    } catch (e) {
+      alert("Erro: " + e.message);
+    }
   };
 
   async function enviarOcorrencia() {
@@ -82,11 +93,8 @@ const RegistrarScreen = ({ navigation }) => {
         <Text style={styles.label}>Tipo de Ocorrência</Text>
         <TextInput style={styles.input} placeholder="Ex: Roubo, Acidente..." onChangeText={setTipo} />
 
-        <Text style={styles.label}>Longitude</Text>
-        <TextInput style={styles.input} placeholder="Digite a longitude..." onChangeText={setLongitude} keyboardType="Numeric" />
-
-        <Text style={styles.label}>Latitude</Text>
-        <TextInput style={styles.input} placeholder="Digite a latitude..." keyboardType="numeric" onChangeText={setLatitude} />
+        <Text style={styles.label}>Endereço</Text>
+        <TextInput style={styles.input} placeholder="Digite o endereço.." onChangeText={setEndereco} keyboardType="default" />
 
         <Text style={styles.label}>Descrição</Text>
         <TextInput style={styles.input} placeholder="Descreva a ocorrência..." onChangeText={setDescricao} />
