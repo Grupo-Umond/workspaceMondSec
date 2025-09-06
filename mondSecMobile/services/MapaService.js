@@ -1,7 +1,5 @@
-
-import { Platform, View, StyleSheet } from "react-native";
+import { Platform, View, StyleSheet, Text } from "react-native";
 import { useRef, useEffect, forwardRef, useImperativeHandle } from "react";
-
 
 const MapaService = forwardRef((props, ref) => {
   const mapRef = useRef(null);
@@ -14,114 +12,33 @@ const MapaService = forwardRef((props, ref) => {
       script.async = true;
       script.defer = true;
       script.onload = () => {
-
         googleMap.current = new window.google.maps.Map(mapRef.current, {
-
           center: { lat: -23.5505, lng: -46.6333 },
           zoom: 14,
           styles: [
-            {
-              "elementType": "geometry",
-              "stylers": [{ "color": "#f5f5f5" }]
-            },
-            {
-              "elementType": "labels.icon",
-              "stylers": [{ "visibility": "off" }]
-            },
-            {
-              "elementType": "labels.text.fill",
-              "stylers": [{ "color": "#616161" }]
-            },
-            {
-              "elementType": "labels.text.stroke",
-              "stylers": [{ "color": "#f5f5f5" }]
-            },
-            {
-              "featureType": "administrative.land_parcel",
-              "stylers": [{ "visibility": "off" }]
-            },
-            {
-              "featureType": "administrative.land_parcel",
-              "elementType": "labels.text.fill",
-              "stylers": [{ "color": "#bdbdbd" }]
-            },
-            {
-              "featureType": "administrative.neighborhood",
-              "stylers": [{ "visibility": "off" }]
-            },
-            {
-              "featureType": "poi",
-              "elementType": "geometry",
-              "stylers": [{ "color": "#eeeeee" }]
-            },
-            {
-              "featureType": "poi",
-              "elementType": "labels.text.fill",
-              "stylers": [{ "color": "#757575" }]
-            },
-            {
-              "featureType": "poi.park",
-              "elementType": "geometry",
-              "stylers": [{ "color": "#e5e5e5" }]
-            },
-            {
-              "featureType": "poi.park",
-              "elementType": "labels.text.fill",
-              "stylers": [{ "color": "#9e9e9e" }]
-            },
-            {
-              "featureType": "road",
-              "elementType": "geometry",
-              "stylers": [{ "color": "#ffffff" }]
-            },
-            {
-              "featureType": "road",
-              "elementType": "labels.icon",
-              "stylers": [{ "visibility": "off" }]
-            },
-            {
-              "featureType": "road.arterial",
-              "elementType": "labels.text.fill",
-              "stylers": [{ "color": "#757575" }]
-            },
-            {
-              "featureType": "road.highway",
-              "elementType": "geometry",
-              "stylers": [{ "color": "#dadada" }]
-            },
-            {
-              "featureType": "road.highway",
-              "elementType": "labels.text.fill",
-              "stylers": [{ "color": "#616161" }]
-            },
-            {
-              "featureType": "road.local",
-              "elementType": "labels.text.fill",
-              "stylers": [{ "color": "#9e9e9e" }]
-            },
-            {
-              "featureType": "transit.line",
-              "elementType": "geometry",
-              "stylers": [{ "color": "#e5e5e5" }]
-            },
-            {
-              "featureType": "transit.station",
-              "elementType": "geometry",
-              "stylers": [{ "color": "#eeeeee" }]
-            },
-            {
-              "featureType": "water",
-              "elementType": "geometry",
-              "stylers": [{ "color": "#c9c9c9" }]
-            },
-            {
-              "featureType": "water",
-              "elementType": "labels.text.fill",
-              "stylers": [{ "color": "#9e9e9e" }]
-            }
+            { elementType: "geometry", stylers: [{ color: "#f5f5f5" }] },
+            { elementType: "labels.icon", stylers: [{ visibility: "off" }] },
+            { elementType: "labels.text.fill", stylers: [{ color: "#616161" }] },
+            { elementType: "labels.text.stroke", stylers: [{ color: "#f5f5f5" }] },
+            { featureType: "administrative.land_parcel", stylers: [{ visibility: "off" }] },
+            { featureType: "administrative.land_parcel", elementType: "labels.text.fill", stylers: [{ color: "#bdbdbd" }] },
+            { featureType: "administrative.neighborhood", stylers: [{ visibility: "off" }] },
+            { featureType: "poi", elementType: "geometry", stylers: [{ color: "#eeeeee" }] },
+            { featureType: "poi", elementType: "labels.text.fill", stylers: [{ color: "#757575" }] },
+            { featureType: "poi.park", elementType: "geometry", stylers: [{ color: "#e5e5e5" }] },
+            { featureType: "poi.park", elementType: "labels.text.fill", stylers: [{ color: "#9e9e9e" }] },
+            { featureType: "road", elementType: "geometry", stylers: [{ color: "#ffffff" }] },
+            { featureType: "road", elementType: "labels.icon", stylers: [{ visibility: "off" }] },
+            { featureType: "road.arterial", elementType: "labels.text.fill", stylers: [{ color: "#757575" }] },
+            { featureType: "road.highway", elementType: "geometry", stylers: [{ color: "#dadada" }] },
+            { featureType: "road.highway", elementType: "labels.text.fill", stylers: [{ color: "#616161" }] },
+            { featureType: "road.local", elementType: "labels.text.fill", stylers: [{ color: "#9e9e9e" }] },
+            { featureType: "transit.line", elementType: "geometry", stylers: [{ color: "#e5e5e5" }] },
+            { featureType: "transit.station", elementType: "geometry", stylers: [{ color: "#eeeeee" }] },
+            { featureType: "water", elementType: "geometry", stylers: [{ color: "#c9c9c9" }] },
+            { featureType: "water", elementType: "labels.text.fill", stylers: [{ color: "#9e9e9e" }] }
           ]
         });
-
 
         const locations = [
           { lat: -23.5489, lng: -46.6388, title: "Shopping Paulista" },
@@ -134,7 +51,7 @@ const MapaService = forwardRef((props, ref) => {
         locations.forEach(location => {
           new window.google.maps.Marker({
             position: { lat: location.lat, lng: location.lng },
-            map: map,
+            map: googleMap.current,
             title: location.title,
             icon: {
               url: "data:image/svg+xml;base64," + btoa(`
@@ -147,7 +64,6 @@ const MapaService = forwardRef((props, ref) => {
             }
           });
         });
-
       };
       document.body.appendChild(script);
     }
@@ -166,7 +82,6 @@ const MapaService = forwardRef((props, ref) => {
   }));
 
   if (Platform.OS === "web") {
-
     return (
       <div style={styles.webContainer}>
         <div ref={mapRef} style={styles.webMap} />
@@ -174,7 +89,13 @@ const MapaService = forwardRef((props, ref) => {
     );
   }
 
-
+  // Placeholder para mobile (Android/iOS)
+  return (
+    <View style={styles.nativePlaceholder}>
+      <Text style={styles.nativeOverlayText}>Mapa não disponível no Mobile</Text>
+    </View>
+  );
+});
 
 const styles = StyleSheet.create({
   container: { 
@@ -204,3 +125,5 @@ const styles = StyleSheet.create({
     color: '#666'
   }
 });
+
+export default MapaService;

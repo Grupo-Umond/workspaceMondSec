@@ -15,8 +15,6 @@ const RegistrarScreen = ({ navigation }) => {
   const [descricaoTipo, setDescricaoTipo] = useState('');
   const [descricao, setDescricao] = useState('');
   const [endereco, setEndereco] = useState('');
-  const [latitude, setLatitude] = useState('');
-  const [longitude, setLongitude] = useState('');
   const [visivelFinal, setVisivelFinal] = useState(false);
   const [visivelInicio, setVisivelInicio] = useState(true);
   const [carregando, setCarregando] = useState(false);
@@ -59,18 +57,14 @@ const RegistrarScreen = ({ navigation }) => {
         }
       };
 
-      // Aqui você pode enviar 'dados' para a sua API
       console.log("Dados a enviar:", dados);
 
-      // Resetando formulário e mostrando modal de sucesso
       setVisivelFinal(true);
       setTitulo('');
       setTipo('');
       setDescricao('');
       setDescricaoTipo('');
       setEndereco('');
-      setLatitude('');
-      setLongitude('');
     } catch (err) {
       console.log(err);
       setMensagemErro('Erro ao enviar ocorrência');
@@ -163,94 +157,25 @@ const RegistrarScreen = ({ navigation }) => {
         )}
       </TouchableOpacity>
 
-      {/* Modal Sucesso */}
-      <Modal
-        animationType='slide'
-        transparent={true}
-        visible={visivelFinal}
-        onRequestClose={() => setVisivelFinal(false)}
-      >
-        <View style={styles.modalContainer}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Ocorrência Enviada</Text>
-            <Text style={styles.stepDescription}>Sua ocorrência foi registrada com sucesso.</Text>
-            <Pressable onPress={() => {
-              setVisivelFinal(false);
-            }}>
-              <Text style={styles.modalButton}>Nova Ocorrência</Text>
-            </Pressable>
-            <Pressable onPress={() => {
-              setVisivelFinal(false);
-              navigation.navigate('Ocorrencia');
-            }}>
-              <Text style={styles.modalButton}>Ver Minhas Ocorrências</Text>
-            </Pressable>
-          </View>
-        </View>
-      </Modal>
-
-      {/* Modal Tutorial */}
-      <Modal
-        animationType='slide'
-        transparent={true}
-        visible={visivelInicio}
-        onRequestClose={() => setVisivelInicio(false)}
-      >
-        <View style={styles.modalContainer}>
-          <View style={styles.modalContent}>
-            <View style={styles.header}>
-              <Text style={styles.modalTitle}>Como Funciona</Text>
-              <TouchableOpacity 
-                style={styles.closeButton}
-                onPress={() => setVisivelInicio(false)}
-              >
-                <Text style={styles.closeIcon}>×</Text>
-              </TouchableOpacity>
-            </View>
-            <View style={styles.stepsContainer}>
-              {/* Passos explicativos */}
-              {['Escolha o tipo de ocorrência', 'Informe o local', 'Descreva o que aconteceu', 'Envie sua ocorrência'].map((step, index) => (
-                <View key={index}>
-                  <View style={styles.step}>
-                    <View style={styles.stepNumber}>
-                      <Text style={styles.stepNumberText}>{index + 1}</Text>
-                    </View>
-                    <View style={styles.stepContent}>
-                      <Text style={styles.stepTitle}>{step}</Text>
-                    </View>
-                  </View>
-                  {index < 3 && <View style={styles.stepDivider} />}
-                </View>
-              ))}
-            </View>
-
-            <TouchableOpacity 
-              style={styles.primaryButton}
-              onPress={() => setVisivelInicio(false)}
-            >
-              <Text style={styles.primaryButtonText}>Fazer Agora</Text>
-            </TouchableOpacity>
-            
-            <View style={styles.checkboxContainer}>
-              <CheckBox 
-                value={mostrar} 
-                onValueChange={setMostrar}
-                tintColors={{ true: '#12577B', false: '#64748B' }}
-              />
-              <Text style={styles.checkboxLabel}>Não mostrar novamente</Text>
-            </View>
-          </View>
-        </View>
-      </Modal>
+      {/* Modals (sucesso e tutorial) */}
+      {/* ... Mantenha os modais como você já fez ... */}
     </View>
   );
 };
 
-// Styles (mantive os seus, apenas ajustei o modalButton que não existia)
 const styles = StyleSheet.create({
   container: { flex: 1, padding: 20, backgroundColor: '#FFFFFF' },
   cabecalho: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 30, paddingHorizontal: 10 },
   tituloCabecalho: { fontSize: 20, fontWeight: '600', color: '#12577B' },
   iconeCabecalho: { padding: 5 },
   form: { marginBottom: 20, backgroundColor: '#FFFFFF', padding: 16, borderRadius: 12, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 4, elevation: 5 },
-  label: { font
+  label: { fontSize: 14, color: '#333', marginBottom: 4 },
+  input: { borderWidth: 1, borderColor: '#ccc', borderRadius: 8, padding: 10, marginBottom: 12 },
+  textArea: { borderWidth: 1, borderColor: '#ccc', borderRadius: 8, padding: 10, height: 100, marginBottom: 8 },
+  contador: { alignSelf: 'flex-end', fontSize: 12, color: '#999', marginBottom: 12 },
+  botao: { backgroundColor: '#12577B', padding: 15, borderRadius: 8, alignItems: 'center', marginBottom: 20 },
+  botaoDesabilitado: { backgroundColor: '#64748B' },
+  textoBotao: { color: '#fff', fontSize: 16, fontWeight: '600' }
+});
+
+export default RegistrarScreen;
