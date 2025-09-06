@@ -1,9 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, Pressable, TextInput, Modal, StyleSheet } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-<<<<<<< HEAD
 import Icon from 'react-native-vector-icons/MaterialIcons'; 
-import MapaService from "../../services/MapaService";
+import Mapa from "../../services/MapaService";
 import { CoordenadaService } from '../../services/CoordenadaService';
 import { LocalizacaoService } from '../../services/LocalizacaoService';
 
@@ -28,10 +27,9 @@ const HomeScreen = ({ navigation }) => {
     verificarModal();
   }, []);
 
-  const modalPermissao = async () => {
+  const pedirPermissao = async () => {
     await LocalizacaoService();
-    setPermissao(false);
-    await AsyncStorage.setItem('viewModal', 'true');
+    await AsyncStorage.setItem('viewModal', true);
   };
 
   const buscarEndereco = async () => {
@@ -67,18 +65,16 @@ const HomeScreen = ({ navigation }) => {
             placeholder="Pesquise um local..."
             placeholderTextColor="#888"
           />
-          <Pressable style={styles.searchButton}>
+          <Pressable style={styles.searchButton} onPress={() => buscarEndereco()}>
             <Icon name="search" size={24} color="#003366" />
           </Pressable>
         </View>
       </View>
 
-      {/* Mapa - Agora ocupa toda a tela */}
       <View style={styles.mapContainer}>
         <Mapa style={styles.mapImage} />
       </View>
 
-      {/* Botão de Ocorrência Vermelho */}
       <Pressable 
         style={({ pressed }) => [
           styles.ocorrenciaButton,
@@ -89,7 +85,7 @@ const HomeScreen = ({ navigation }) => {
         <Icon name="warning" size={28} color="#FFFFFF" />
       </Pressable>
 
-      {/* Navigation Bar */}
+
       <View style={styles.navigationContainer}>
         <Pressable 
           style={({ pressed }) => [
@@ -133,6 +129,22 @@ const HomeScreen = ({ navigation }) => {
             <Text style={styles.modalText}>Seu app de rotas seguras!</Text>
             <Pressable onPress={() => {setWelcome(false); setPermissao(true);}}>
               <Text style={styles.modalButton}>Ok</Text>
+            </Pressable>
+          </View>
+        </View>
+      </Modal>
+      <Modal animationType="slide" transparent visible={permissao}>
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Aviso!</Text>
+            <Text style={styles.modalText}>Esse aplicativo usa da sua localização do seu dispositivo!</Text>
+            <Text style={styles.modalText}>É necessario que o acesso a sua localização esteja ativo</Text>
+            <Text style={styles.modalText}>Deseja permitir o acesso a sua localização?</Text>
+            <Pressable onPress={() => {pedirPermissao(); setPermissao(false);}}>
+              <Text style={styles.modalButton}>Sim</Text>
+            </Pressable>
+            <Pressable onPress={() => setPermissao(false)}>
+              <Text style={styles.modalButton}>Não</Text>
             </Pressable>
           </View>
         </View>
@@ -195,7 +207,7 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
   },
-  // Botão de Ocorrência
+
   ocorrenciaButton: {
     position: 'absolute',
     bottom: 90,
@@ -281,7 +293,6 @@ const styles = StyleSheet.create({
     marginTop: 10,
     fontWeight: 'bold',
   },
->>>>>>> teste2
 });
 
 export default HomeScreen;
