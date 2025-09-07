@@ -1,12 +1,14 @@
-import React, {useEffect, useState} from 'react';
-import {View, Text, Pressable, Image, StyleSheet } from 'react-native';
+import React, {useContext, useEffect, useState} from 'react';
+import {View, Text, Pressable, Image, StyleSheet} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import axios from 'axios';
+import { AuthContext } from '../../../services/AuthContext';
 
 const MenuScreen = ({navigation, setUserToken}) => {
     const [nome, setNome] = useState('');
     const [email, setEmail] = useState('');
+    const { logout } = useContext(AuthContext);
     const [erroMessage, setErroMessage] = useState('');
 
     useEffect(() => {
@@ -47,11 +49,7 @@ const MenuScreen = ({navigation, setUserToken}) => {
 
 
     const sairConta = async () => {
-        await AsyncStorage.removeItem('Localizacao');
-        await AsyncStorage.removeItem('viewModal');
-        await AsyncStorage.removeItem('userToken');
-        setUserToken(null);
-        
+      await logout();
     }
     return(
         <View style={styles.container}>

@@ -1,8 +1,9 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, Pressable, TextInput, Modal, StyleSheet } from 'react-native';
+import React, { useState, useEffect, useRef, useContext } from 'react';
+import { View, Text, Pressable, TextInput, Modal, StyleSheet, ActivityIndicator } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Icon from 'react-native-vector-icons/MaterialIcons'; 
 import Mapa from "../../services/MapaService";
+import { AuthContext } from '../../services/AuthContext';
 import { CoordenadaService } from '../../services/CoordenadaService';
 import { LocalizacaoService } from '../../services/LocalizacaoService';
 
@@ -10,6 +11,7 @@ const HomeScreen = ({ navigation }) => {
   const [permissao, setPermissao] = useState(false);
   const [welcome, setWelcome] = useState(false);
   const [endereco, setEndereco] = useState('');
+  const { tokenUser } = useContext(AuthContext);
   const mapaRef = useRef(null);
   let viewModal = true;
 
@@ -40,6 +42,7 @@ const HomeScreen = ({ navigation }) => {
       alert('Endereço não encontrado');
     }
   };
+
 
   return (
     <View style={styles.container}>
@@ -109,19 +112,34 @@ const HomeScreen = ({ navigation }) => {
             <Icon name="info" size={28} color="#003366" />
           </View>
         </Pressable>
-        
-        <Pressable 
-          style={({ pressed }) => [
-            styles.navButton,
-            { opacity: pressed ? 0.6 : 1 }
-          ]} 
-          onPress={() => navigation.navigate('Menu')}
-        >
-          <Icon name="person" size={26} color="#FFFFFF" />
-          <Text style={styles.navButtonText}>Perfil</Text>
-        </Pressable>
+        {tokenUser ?  (
+          <>
+            <Pressable 
+              style={({ pressed }) => [
+                styles.navButton,
+                { opacity: pressed ? 0.6 : 1 }
+              ]} 
+              onPress={() => navigation.navigate('Menu')}
+            >
+              <Icon name="person" size={26} color="#FFFFFF" />
+              <Text style={styles.navButtonText}>Perfil</Text>
+            </Pressable>
+          </>
+        ):(
+          <>
+            <Pressable 
+              style={({ pressed }) => [
+                styles.navButton,
+                { opacity: pressed ? 0.6 : 1 }
+              ]} 
+              onPress={() => navigation.navigate('Login')}
+              >
+              <Icon name="person" size={26} color="#FFFFFF" />
+              <Text style={styles.navButtonText}>Entrar/Cadastrar</Text>
+            </Pressable>
+          </>
+        )}
       </View>
-
       <Modal animationType="slide" transparent visible={welcome}>
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>

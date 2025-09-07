@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { ActivityIndicator, View } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+
+import { AuthProvider, AuthContext } from './services/AuthContext';
 
 import HomeScreen from './pages/home';
 import LoginScreen from './pages/login';
@@ -18,18 +19,8 @@ import AlterarSenhaScreen from './pages/perfil/alterarDados/alterarSenha';
 
 const Stack = createStackNavigator();
 
-export default function App() {
-  const [userToken, setUserToken] = useState(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const checkToken = async () => {
-      const token = await AsyncStorage.getItem('userToken');
-      setUserToken(token);
-      setLoading(false);
-    };
-    checkToken();
-  }, []);
+function AppRoutes() {
+  const { tokenUser, loading } = useContext(AuthContext);
 
   if (loading) {
     return (
@@ -40,35 +31,36 @@ export default function App() {
   }
 
   return (
-    <NavigationContainer>
-      <Stack.Navigator screenOptions={{ headerShown: false }}>
-        {userToken ? (
-          <>
-            <Stack.Screen name="Home" component={HomeScreen} />
-            <Stack.Screen name="Menu">
-              {props => <MenuScreen {...props} setUserToken={setUserToken} />}
-            </Stack.Screen>
-            <Stack.Screen name="Ocorrencia" component={OcorrenciaScreen} />
-            <Stack.Screen name="Registrar" component={RegistrarScreen} />
-            <Stack.Screen name="Sobre" component={SobreScreen} />
-            <Stack.Screen name="Configuracao">
-              {props => <ConfiguracaoScreen {...props} setUserToken={setUserToken} />}
-            </Stack.Screen>
-            <Stack.Screen name="DigiteDados" component={DigiteDadosScreen} />
-            <Stack.Screen name="DigiteCodigo" component={DigiteCodigoScreen} />
-            <Stack.Screen name="AlterarSenha" component={AlterarSenhaScreen} />
-          </>
-        ) : (
-          <>
-            <Stack.Screen name="Login">
-              {props => <LoginScreen {...props} setUserToken={setUserToken} />}
-            </Stack.Screen>
-            <Stack.Screen name="Cadastro">
-              {props => <CadastroScreen {...props} setUserToken={setUserToken} />}
-            </Stack.Screen>
-          </>
-        )}
-      </Stack.Navigator>
-    </NavigationContainer>
+    <Stack.Navigator screenOptions={{ headerShown: false }}>
+      <Stack.Screen name="Home" component={HomeScreen} />
+      <Stack.Screen name="Sobre" component={SobreScreen} />
+
+      {tokenUser ? (
+        <>
+          <Stack.Screen name="Menu" component={MenuScreen} />
+          <Stack.Screen name="Ocorrencia" component={OcorrenciaScreen} />
+          <Stack.Screen name="Registrar" component={RegistrarScreen} />
+          <Stack.Screen name="DigiteDados" component={DigiteDadosScreen} />
+          <Stack.Screen name="DigiteCodigo" component={DigiteCodigoScreen} />
+          <Stack.Screen name="AlterarSenha" component={AlterarSenhaScreen} />
+        </>
+      ) : (
+        <>
+          <Stack.Screen name="Configuracao" component={ConfiguracaoScreen} />
+          <Stack.Screen name="Login" component={LoginScreen} />
+          <Stack.Screen name="Cadastro" component={CadastroScreen} />
+        </>
+      )}
+    </Stack.Navigator>
+  );
+}
+
+export default function App() {
+  return (
+    <AuthProvider>
+      <NavigationContainer>
+        <AppRoutes />
+      </NavigationContainer>
+    </AuthProvider>
   );
 }
