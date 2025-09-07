@@ -1,15 +1,18 @@
 import React, {useContext, useEffect, useState} from 'react';
-import {View, Text, Pressable, Image, StyleSheet} from 'react-native';
+import {View, Text, Pressable, Image, StyleSheet, Modal, TextInput} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import axios from 'axios';
 import { AuthContext } from '../../../services/AuthContext';
 
-const MenuScreen = ({navigation, setUserToken}) => {
+const MenuScreen = ({navigation}) => {
     const [nome, setNome] = useState('');
     const [email, setEmail] = useState('');
+    const [senha, setSenha] = useState('');
     const { logout } = useContext(AuthContext);
     const [erroMessage, setErroMessage] = useState('');
+    const [modalDelete, setModalDelete] = useState(false);
+    const [modalPermissaoDelete, setModalPermissaoDelete] = useState(false);
 
     useEffect(() => {
         async function puxarInfos() {
@@ -46,7 +49,38 @@ const MenuScreen = ({navigation, setUserToken}) => {
         puxarInfos();
 
     }, []);
-
+    const excluirConta = async () => {
+        if(senha.length < 8) {
+            setErroMessage('Digite uma senha com mais de 8 caracteres')
+            return;
+        }
+    
+        const tokenUser = await AsyncStorage.getItem('userToken');
+        try {
+            const response = await axios.delete('http://127.0.0.1:8000/api/usuario/deletar', {
+                headers: {
+                    Authorization: `Bearer ${tokenUser}`,
+                    senha: senha,
+                },
+            });
+            logout();
+    
+        }catch(erro){
+            if(erro.response?.status) {
+                const codigo = erro.response.status;
+    
+                if(codigo === 401) {
+                    setErroMessage('Não autorizado');
+                    return;
+                }else if(codigo === 505) {
+                    setErroMessage('Erro no servidor, tente novamente mais tarde');
+                }else{
+                    setErroMessage('Erro inesperado, tente novamente mais tarde');
+                }
+            }
+            console.log(erro);
+        }
+    }
 
     const sairConta = async () => {
       await logout();
@@ -107,8 +141,54 @@ const MenuScreen = ({navigation, setUserToken}) => {
                 >
                     <Text style={[styles.textoOpcao, styles.textoSair]}>Sair da Conta</Text>
                 </Pressable>
+
+                <Pressable 
+                    style={[styles.botaoOpcao, styles.botaoSair]} 
+                    onPress={() => setModalDelete(true)}
+                >
+                    <Text style={[styles.textoOpcao, styles.textoSair]}>Excluir Conta</Text>
+                </Pressable>
             </View>
+
+            <Modal animationType="slide" transparent visible={modalPermissaoDelete}>
+                    <View style={styles.modalOverlay}>
+                        <View style={styles.modalContent}>
+                            <Text style={styles.modalTitle}>Aviso!</Text>
+                            <Text style={styles.modalMessage}>Deseja mesmo prosseguir com essa ação?</Text>
+            
+                            <Pressable style={styles.modalButtonConfirm} onPress={() => setModalDelete(true)}>
+                                <Text style={styles.modalButtonText}>Sim</Text>
+                            </Pressable>
+                            <Pressable style={styles.modalButtonCancel} onPress={() => setModalPermissaoDelete(false)}>
+                                <Text style={styles.modalButtonText}>Não</Text>
+                            </Pressable>
+                        </View>
+                    </View>
+            </Modal>
+            <Modal animationType="fade" transparent visible={modalDelete}>
+                  <View style={styles.modalOverlay}>
+                      <View style={styles.modalContent}>
+                            <Text style={styles.modalTitle}>Digite sua senha para confirmar</Text>
+                            <TextInput
+                                style={styles.modalInput}
+                                secureTextEntry
+                                value={senha}
+                                onChangeText={setSenha}
+                                placeholder="Senha"
+                            />
+                            {erroMessage ? <Text style={styles.modalError}>{erroMessage}</Text> : null}
+        
+                            <Pressable style={styles.modalButtonConfirm} onPress={excluirConta}>
+                                <Text style={styles.modalButtonText}>Excluir</Text>
+                            </Pressable>
+                              <Pressable style={styles.modalButtonCancel} onPress={() => setModalDelete(false)}>
+                            <Text style={styles.modalButtonText}>Voltar</Text>
+                            </Pressable>
+                      </View>
+                  </View>
+            </Modal>
         </View>
+
     );
 };
 
@@ -186,6 +266,59 @@ const styles = StyleSheet.create({
   textoSair: {
     color: '#E74C3C',
   },
+      modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(11, 11, 11, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+},
+modalContent: {
+    width: '80%',
+    backgroundColor: '#fff',
+    borderRadius: 10,
+    padding: 20,
+    elevation: 5,
+},
+modalTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 10,
+    textAlign: 'center',
+},
+modalMessage: {
+    fontSize: 16,
+    marginBottom: 20,
+    textAlign: 'center',
+},
+modalInput: {
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 5,
+    padding: 10,
+    marginBottom: 10,
+},
+modalError: {
+    color: 'red',
+    fontSize: 14,
+    marginBottom: 10,
+    textAlign: 'center',
+},
+modalButtonConfirm: {
+    backgroundColor: 'red',
+    padding: 10,
+    borderRadius: 5,
+    marginBottom: 10,
+},
+modalButtonCancel: {
+    backgroundColor: 'gray',
+    padding: 10,
+    borderRadius: 5,
+},
+modalButtonText: {
+    color: '#fff',
+    textAlign: 'center',
+    fontWeight: 'bold',
+},
 });
 
 export default MenuScreen;

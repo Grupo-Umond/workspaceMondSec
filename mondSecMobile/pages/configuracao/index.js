@@ -1,5 +1,6 @@
-import React, {useState} from "react";
+import React, {useContext, useState} from "react";
 import {View, Text, Pressable, Switch, Linking, StyleSheet, ScrollView, Modal, TextInput} from 'react-native';
+import { AuthContext } from "../../services/AuthContext";
 import Slider from '@react-native-community/slider';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
@@ -10,48 +11,12 @@ const ConfiguracaoScreen = ({navigation, setUserToken}) => {
     const [oculto, setOculto] = useState(true);
     const [volumeEfeito, setVolumeEfeito] = useState(100);
     const [volumeNotificacao, setVolumeNotificacao] = useState(100);
-   const [temaSelecionado, setTemaSelecionado] = useState('claro');
+    const [temaSelecionado, setTemaSelecionado] = useState('claro');
     const [senha, setSenha] = useState('');
-    const [modalDelete, setModalDelete] = useState(false);
-    const [modalPermissaoDelete, setModalPermissaoDelete] = useState(false);
     const [erroMessage, setErroMessage] = useState('');
+    const { logout } = useContext(AuthContext);
 
-    const excluirConta = async () => {
-        if(senha.length < 8) {
-            setErroMessage('Digite uma senha com mais de 8 caracteres')
-            return;
-        }
 
-        const tokenUser = await AsyncStorage.getItem('userToken');
-        try {
-            const response = await axios.delete('http://127.0.0.1:8000/api/usuario/deletar', {
-                headers: {
-                    Authorization: `Bearer ${tokenUser}`,
-                    senha: senha,
-                },
-            });
-            await AsyncStorage.removeItem('userToken');
-            await AsyncStorage.removeItem('Localizacao');
-            await AsyncStorage.removeItem('viewModal');
-            setModalDelete(false);
-            setUserToken(null);
-
-        }catch(erro){
-            if(erro.response?.status) {
-                const codigo = erro.response.status;
-
-                if(codigo === 401) {
-                    setErroMessage('Não autorizado');
-                    return;
-                }else if(codigo === 505) {
-                    setErroMessage('Erro no servidor, tente novamente mais tarde');
-                }else{
-                    setErroMessage('Erro inesperado, tente novamente mais tarde');
-                }
-            }
-            console.log(erro);
-        }
-    }
 
     return (
         <ScrollView contentContainerStyle={styles.container}>
@@ -130,21 +95,7 @@ const ConfiguracaoScreen = ({navigation, setUserToken}) => {
                     <Text>Excluir conta</Text>
                 </Pressable>
             </View>
-            <Modal animationType="slide" transparent visible={modalPermissaoDelete}>
-                <View style={styles.modalOverlay}>
-                    <View style={styles.modalContent}>
-                        <Text style={styles.modalTitle}>Aviso!</Text>
-                        <Text style={styles.modalMessage}>Deseja mesmo prosseguir com essa ação?</Text>
-
-                        <Pressable style={styles.modalButtonConfirm} onPress={() => setModalDelete(true)}>
-                            <Text style={styles.modalButtonText}>Sim</Text>
-                        </Pressable>
-                        <Pressable style={styles.modalButtonCancel} onPress={() => setModalPermissaoDelete(false)}>
-                            <Text style={styles.modalButtonText}>Não</Text>
-                        </Pressable>
-                    </View>
-                </View>
-            </Modal>
+            
 
             {/* Modal para digitar a senha */}
             <Modal animationType="fade" transparent visible={modalDelete}>

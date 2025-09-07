@@ -22,9 +22,9 @@ export const AuthProvider = ({ children }) => {
   };
 
   const logout = async () => {
-    await AsyncStorage.removeItem('Localizacao');
+    await AsyncStorage.removeItem('permissaoLocal');
     await AsyncStorage.removeItem('viewModal');
-    await AsyncStorage.removeItem('userTOken');
+    await AsyncStorage.removeItem('userToken');
 
     setTokenUser(null);
   };

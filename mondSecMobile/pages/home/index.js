@@ -13,34 +13,38 @@ const HomeScreen = ({ navigation }) => {
   const [endereco, setEndereco] = useState('');
   const { tokenUser } = useContext(AuthContext);
   const mapaRef = useRef(null);
-  const [viewModal, setViewModal] = useState(true);
 
-useEffect(() => {
-  const verificarModal = async () => {
-    const vizualizacao = await AsyncStorage.getItem('viewModal');
-    if (!vizualizacao) {
-      setWelcome(true);
-    }
+  useEffect(() => {
+    const verificarModal = async () => {
+      const vizualizacao = await AsyncStorage.getItem('welcomeSeen');
+      if (!vizualizacao) {
+        setWelcome(true);
+      }
 
-    const response = await AsyncStorage.getItem('permissaoLocal');
-    if (response !== 'granted') {
-      setPermissao(true);
+      const response = await AsyncStorage.getItem('permissaoLocal');
+      if (response !== 'granted') {
+        setPermissao(true);
+      }
+    };
+    verificarModal();
+  }, []);
+
+  const pedirPermissao = async (permitiu) => {
+    if (permitiu) {
+      await LocalizacaoService();
+      await AsyncStorage.setItem('permissaoLocal', 'granted');
+    } else {
+      await AsyncStorage.setItem('permissaoLocal', 'denied');
     }
+    setPermissao(false);
   };
-  verificarModal();
-}, []);
 
-const pedirPermissao = async (permitiu) => {
-  if (permitiu) {
-    await LocalizacaoService();
-    await AsyncStorage.setItem('permissaoLocal', 'granted');
-  } else {
-    await AsyncStorage.setItem('permissaoLocal', 'denied');
+  const esconderModal = async () => {
+    await AsyncStorage.setItem('welcomeSeen', 'ok');
+    setWelcome(false);
+    setPermissao(true);
+    
   }
-  setPermissao(false);
-};
-
-
   const buscarEndereco = async () => {
     try {
       const coords = await CoordenadaService(endereco);
@@ -153,7 +157,7 @@ const pedirPermissao = async (permitiu) => {
           <View style={styles.modalContent}>
             <Text style={styles.modalTitle}>Bem-vindo ao MondSec!</Text>
             <Text style={styles.modalText}>Seu app de rotas seguras!</Text>
-            <Pressable onPress={() => { setWelcome(false); setPermissao(true); }}>
+            <Pressable onPress={() => esconderModal()}>
               <Text style={styles.modalButton}>Ok</Text>
             </Pressable>
           </View>
