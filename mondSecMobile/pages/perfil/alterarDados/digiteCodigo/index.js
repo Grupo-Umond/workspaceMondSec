@@ -4,7 +4,8 @@ import axios from 'axios';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const DigiteCodigoScreen = ({navigation}) => {
-    const[code, setCode] = useState('');
+    const [digitos, setDigitos] = useState(["", "", "", "", "", ""]);
+    const code = digitos.join("");
     const[direcao, setDirecao] = useState(true);
     const[erroMessage, setErroMessage] = useState('')
     const[carregando, setCarregando] = useState(false);
@@ -15,6 +16,12 @@ const DigiteCodigoScreen = ({navigation}) => {
       buscarDados();
       criarCodigo();
     }, [direcao])
+  
+    const handleChange = (text, index) => {
+      const newDigitos = [...digitos];
+      newDigitos[index] = text;
+      setDigitos(newDigitos);
+    };
 
     const buscarDados = async () => {
       const tokenUser = await AsyncStorage.getItem('userToken');
@@ -130,42 +137,42 @@ const DigiteCodigoScreen = ({navigation}) => {
 
    
       <Text style={styles.title}>
-  {direcao
-    ? `Digite o código que enviamos para o email ${email}` 
-    : `Digite o código que enviamos para o número ${telefone}`
-  }
-</Text>
+        {direcao
+          ? `Digite o código que enviamos para o email ${email}` 
+          : `Digite o código que enviamos para o número ${telefone}`
+        }
+      </Text>
 
-{direcao && (
-  <Pressable onPress={() => {setDirecao(false);}}>
-    <Text style={styles.linkText}>
-      Não tenho acesso a esse email. <Text style={styles.linkHighlight}>Enviar por SMS</Text>
-    </Text>
-  </Pressable>
-)}
+      {direcao && (
+        <Pressable onPress={() => {setDirecao(false);}}>
+          <Text style={styles.linkText}>
+            Não tenho acesso a esse email. <Text style={styles.linkHighlight}>Enviar por SMS</Text>
+          </Text>
+        </Pressable>
+      )}
 
-{!direcao && (
-  <Pressable onPress={() => {setDirecao(true);}}>
-    <Text style={styles.linkText}>
-      Não tenho acesso a esse telefone. <Text style={styles.linkHighlight}>Enviar por email</Text>
-    </Text>
-  </Pressable>
-)}
+      {!direcao && (
+        <Pressable onPress={() => {setDirecao(true);}}>
+          <Text style={styles.linkText}>
+            Não tenho acesso a esse telefone. <Text style={styles.linkHighlight}>Enviar por email</Text>
+          </Text>
+        </Pressable>
+      )}
 
 
    
-<View style={styles.inputContainer}>
-  <TextInput
-    style={styles.input}
-    keyboardType="numeric"
-    maxLength={6}
-    value={code}
-    onChangeText={setCode}
-    placeholder="Digite o código"
-    placeholderTextColor="#4e4747ff"
-  />
-</View>
-
+    <View style={styles.inputContainer}>
+        {digitos.map((d, index) => (
+          <TextInput
+            key={index}
+            style={styles.input}
+            value={d}
+            maxLength={1}
+            keyboardType="numeric"
+            onChangeText={(text) => handleChange(text, index)}
+          />
+        ))}
+      </View>
    
       {erroMessage ? <Text style={styles.errorMessage}>{erroMessage}</Text> : null}
 
@@ -230,25 +237,27 @@ const styles = StyleSheet.create({
     resizeMode: 'contain'
   }, 
    inputContainer: {
-    alignItems: "center",
+    flexDirection: "row", 
+    justifyContent: "center",
+    gap: 10,
     marginVertical: 20,
   },
   input: {
-    width: "100%",
+    width: 45,
+    height: 55,
     fontSize: 20,
     textAlign: "center",
-    paddingVertical: 12,
     borderWidth: 1,
     borderColor: "#ccc",
-    borderRadius: 12,
+    borderRadius: 8,
     backgroundColor: "#fff",
-    elevation: 2, // sombra no Android
-    shadowColor: "#000", // sombra no iOS
+    elevation: 2,
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
-    letterSpacing: 4, // espaçamento entre dígitos
   },
+
   errorMessage: {
     color: "red",
     marginBottom: 10,

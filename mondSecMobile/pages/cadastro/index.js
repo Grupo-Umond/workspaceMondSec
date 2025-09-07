@@ -4,7 +4,7 @@ import CheckBox from 'expo-checkbox';
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const CadastroScreen = ({navigation, setUserToken}) => {
+const CadastroScreen = ({navigation}) => {
   const [nome, setNome] = useState('');
   const [genero, setGenero] = useState(null);          
   const [email, setEmail] = useState('');
@@ -61,10 +61,7 @@ const CadastroScreen = ({navigation, setUserToken}) => {
         genero,
         senha,
       });
-
-      const tokenUser = response.data.tokenUser;
-      await AsyncStorage.setItem('userToken', tokenUser);
-      setUserToken(tokenUser);
+      navigation.navigate('Login');
     } catch (erro) {
       console.log(erro);
       if(erro.status === 401) {
@@ -97,7 +94,7 @@ const CadastroScreen = ({navigation, setUserToken}) => {
         </View> 
         <View style={styles.containerFormulario}>
       <View style={styles.grupoInput}>
-           <Text style={styles.rotulo}>Usuário</Text>
+           <Text style={styles.rotulo}>Nome</Text>
            <TextInput
              style={styles.input}
              placeholder="Digite seu usuário..."

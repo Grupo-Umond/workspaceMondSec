@@ -4,7 +4,7 @@ import { AuthContext } from '../../services/AuthContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import  axios  from 'axios';
 
-const LoginScreen = ({navigation, setUserToken}) => {
+const LoginScreen = ({navigation}) => {
   const[erroMessage, setErroMessage] = useState('');
   const[carregando, setCarregando] = useState(false);
   const[login, setLogin] = useState('');
