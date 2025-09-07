@@ -1,5 +1,6 @@
-import React, { useState, useEffect} from "react";
+import React, { useState, useEffect, useContext} from "react";
 import { View, Text, TextInput, Button, Pressable, StyleSheet, TouchableOpacity, Image}  from 'react-native';
+import { AuthContext } from '../../services/AuthContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import  axios  from 'axios';
 
@@ -8,9 +9,10 @@ const LoginScreen = ({navigation, setUserToken}) => {
   const[carregando, setCarregando] = useState(false);
   const[login, setLogin] = useState('');
   const[senha, setSenha] = useState('');
-
   const regexTelefone = /^(?:\s?)?(?:\(?\d{2}\)?\s?)?(?:9?\d{4}-?\d{4})$/;
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const { logar }= useContext(AuthContext);
+
 
   const validarDados = () => {
     if(!login || !senha) {
@@ -51,8 +53,8 @@ const LoginScreen = ({navigation, setUserToken}) => {
         return;
       }
 
-      await AsyncStorage.setItem('userToken', token);      
-      setUserToken(token);
+      await logar(token);
+      navigation.navigate('Home');     
     } catch (err) {
 
         if(err.response?.status === 401) {
