@@ -13,26 +13,33 @@ const HomeScreen = ({ navigation }) => {
   const [endereco, setEndereco] = useState('');
   const { tokenUser } = useContext(AuthContext);
   const mapaRef = useRef(null);
-  let viewModal = true;
+  const [viewModal, setViewModal] = useState(true);
 
-  useEffect(() => {
-    const verificarModal = async () => {
-      viewModal = await AsyncStorage.getItem('viewModal');
-      if(!viewModal) setWelcome(true);
-      else setWelcome(false);
+useEffect(() => {
+  const verificarModal = async () => {
+    const vizualizacao = await AsyncStorage.getItem('viewModal');
+    if (!vizualizacao) {
+      setWelcome(true);
+    }
 
-
-      const response = await AsyncStorage.getItem('Localizacao');
-      if(response === 'granted') setPermissao(false);
-      else await AsyncStorage.removeItem('Localizacao');
-    };
-    verificarModal();
-  }, []);
-
-  const pedirPermissao = async () => {
-    await LocalizacaoService();
-    await AsyncStorage.setItem('viewModal', true);
+    const response = await AsyncStorage.getItem('permissaoLocal');
+    if (response !== 'granted') {
+      setPermissao(true);
+    }
   };
+  verificarModal();
+}, []);
+
+const pedirPermissao = async (permitiu) => {
+  if (permitiu) {
+    await LocalizacaoService();
+    await AsyncStorage.setItem('permissaoLocal', 'granted');
+  } else {
+    await AsyncStorage.setItem('permissaoLocal', 'denied');
+  }
+  setPermissao(false);
+};
+
 
   const buscarEndereco = async () => {
     try {
@@ -140,33 +147,36 @@ const HomeScreen = ({ navigation }) => {
           </>
         )}
       </View>
+
       <Modal animationType="slide" transparent visible={welcome}>
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
             <Text style={styles.modalTitle}>Bem-vindo ao MondSec!</Text>
             <Text style={styles.modalText}>Seu app de rotas seguras!</Text>
-            <Pressable onPress={() => {setWelcome(false); setPermissao(true);}}>
+            <Pressable onPress={() => { setWelcome(false); setPermissao(true); }}>
               <Text style={styles.modalButton}>Ok</Text>
             </Pressable>
           </View>
         </View>
       </Modal>
+
       <Modal animationType="slide" transparent visible={permissao}>
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
             <Text style={styles.modalTitle}>Aviso!</Text>
-            <Text style={styles.modalText}>Esse aplicativo usa da sua localização do seu dispositivo!</Text>
-            <Text style={styles.modalText}>É necessario que o acesso a sua localização esteja ativo</Text>
-            <Text style={styles.modalText}>Deseja permitir o acesso a sua localização?</Text>
-            <Pressable onPress={() => {pedirPermissao(); setPermissao(false);}}>
+            <Text style={styles.modalText}>
+              Esse aplicativo precisa da sua localização!
+            </Text>
+            <Pressable onPress={() => {setPermissao(false);pedirPermissao(true);}}>
               <Text style={styles.modalButton}>Sim</Text>
             </Pressable>
-            <Pressable onPress={() => setPermissao(false)}>
+            <Pressable onPress={() => pedirPermissao(false)}>
               <Text style={styles.modalButton}>Não</Text>
             </Pressable>
           </View>
         </View>
       </Modal>
+
     </View>
   );
 };

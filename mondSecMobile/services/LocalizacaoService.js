@@ -1,19 +1,25 @@
-import React from "react";
 import * as Location from 'expo-location';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export async function LocalizacaoService() {
-  const { status } = await Location.requestForegroundPermissionsAsync();
-  await AsyncStorage.setItem('Localizacao', status);
-  if (status !== 'granted') {
-    alert('Permissão de localização negada!');
-    return;
+  try {
+    const { status } = await Location.requestForegroundPermissionsAsync();
+    await AsyncStorage.setItem('permissaoLocal', status);
+
+    if (status !== 'granted') {
+      return null;
+    }
+
+    const loc = await Location.getCurrentPositionAsync({
+      accuracy: Location.Accuracy.High,
+    });
+
+    return {
+      latitude: loc.coords.latitude,
+      longitude: loc.coords.longitude,
+    };
+  } catch (error) {
+    console.log("Erro ao obter localização:", error);
+    return null;
   }
-
-  const loc = await Location.getCurrentPositionAsync({});
-  
-  //console.log('Latitude:', loc.coords.latitude);
-  //console.log('Longitude:', loc.coords.longitude);
-
-
-};
+}
