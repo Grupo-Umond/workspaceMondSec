@@ -60,6 +60,7 @@
                             <td class="editarADM"><a href="{{ route('adm.updateAdm', $admin->id)}}">
                                     <i class="fa-solid fa-pencil"></i>
                                 </a></td>
+                                
                             <td class="excluirADM">
                                 <form action="{{ route('adm.deleteAdm', $admin->id) }}" method="POST"
                                     onsubmit="return confirm('Tem certeza que quer excluir?');">
