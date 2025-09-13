@@ -6,6 +6,8 @@ import { Picker } from '@react-native-picker/picker';
 import CheckBox from 'expo-checkbox';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { CoordenadaService } from '../../services/CoordenadaService';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import axios from 'axios';
 
 const RegistrarScreen = ({ navigation }) => {
   const [titulo, setTitulo] = useState('');
@@ -28,13 +30,20 @@ const RegistrarScreen = ({ navigation }) => {
     return true;
   };
 
+  const limparCampos = () => {
+      setTitulo('');
+      setTipo('');
+      setDescricao('');
+      setDescricaoTipo('');
+      setLatitude('');
+      setLongitude('');
+  }
+
   const enviarOcorrencia = async () => {
     if (!validarDados()) return;
-
     setCarregando(true);
-    setMensagemErro('');
-
     try {
+
       const dados = {
         titulo,
         latitude,
@@ -42,21 +51,17 @@ const RegistrarScreen = ({ navigation }) => {
         tbTipoOcorrencia: { tipo, descricao: descricaoTipo },
         descricao,
       };
-      console.log("Dados a enviar:", dados);
 
-      // Aqui você pode enviar via axios ou outra API
+      const tokenUser = await AsyncStorage('userToken');
+      const response = await axios.post('http://127.0.0.1:8000/api/...', {dados}, {
+        headers: {
+          Authorization: `Bearer ${tokenUser}`
+        }
+      })
       setVisivelSucesso(true);
 
-      // Reset campos
-      setTitulo('');
-      setTipo('');
-      setDescricao('');
-      setDescricaoTipo('');
-      setLatitude('');
-      setLongitude('');
-    } catch (err) {
-      console.log(err);
-      setMensagemErro('Erro ao enviar ocorrência');
+    } catch (erro) {
+      console.log(erro);
     } finally {
       setCarregando(false);
     }
@@ -64,7 +69,6 @@ const RegistrarScreen = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      {/* Cabeçalho */}
       <View style={styles.cabecalho}>
         <Pressable onPress={() => navigation.goBack()} style={styles.iconeCabecalho}>
           <FontAwesome name="arrow-left" size={24} color="#12577B" />
@@ -75,7 +79,6 @@ const RegistrarScreen = ({ navigation }) => {
         </Pressable>
       </View>
 
-      {/* Formulário */}
       <View style={styles.form}>
         <Text style={styles.label}>Título da Ocorrência</Text>
         <TextInput style={styles.input} placeholder="Digite o título..." value={titulo} onChangeText={setTitulo} />
@@ -107,12 +110,10 @@ const RegistrarScreen = ({ navigation }) => {
         {mensagemErro ? <Text style={styles.erro}>{mensagemErro}</Text> : null}
       </View>
 
-      {/* Botão Enviar */}
       <TouchableOpacity style={[styles.botao, carregando && styles.botaoDesabilitado]} onPress={enviarOcorrencia} disabled={carregando}>
         {carregando ? <ActivityIndicator color="#fff" /> : <Text style={styles.textoBotao}>Enviar</Text>}
       </TouchableOpacity>
 
-      {/* Modal Tutorial */}
       <Modal visible={visivelInicio} transparent animationType="slide" onRequestClose={() => setVisivelInicio(false)}>
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
@@ -134,7 +135,6 @@ const RegistrarScreen = ({ navigation }) => {
         </View>
       </Modal>
 
-      {/* Modal Sucesso */}
       <Modal visible={visivelSucesso} transparent animationType="slide">
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
