@@ -134,7 +134,7 @@ class UsuarioController extends Controller
         $usuario = Usuario::where($campo, $login)->firstOrFail();
 
         if ($request->novaSenhaConfirma) {
-            $usuario->senha = bcrypt($request->novaSenhaConfirma);
+            $usuario->senha = Hash::make($request->novaSenhaConfirma);
         }
 
         $usuario->save();
