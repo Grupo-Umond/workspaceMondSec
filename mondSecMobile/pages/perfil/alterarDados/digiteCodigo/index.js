@@ -104,7 +104,7 @@ const DigiteCodigoScreen = ({navigation}) => {
           }
           
           await AsyncStorage.setItem('tokenTemp', tokenTemp);
-            navigation.navigate('AlterarSenha', direcao);
+            navigation.navigate('AlterarSenha', {direcao});
 
         }catch(err){
           console.log(err);
