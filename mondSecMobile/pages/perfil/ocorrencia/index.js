@@ -15,7 +15,7 @@ const OcorrenciaScreen = ({navigation}) => {
         const getOcorrencias = async () => {
             try {
                 const tokenUser = await AsyncStorage.getItem('userToken');
-                const response = await axios.get('http://127.0.0.1:8000/api/procurar',{
+                const response = await axios.get('http://127.0.0.1:8000/api/ocorrencia/procurar',{
                     headers: {
                         Authorization: `Bearer ${tokenUser}`
                     }
@@ -23,28 +23,29 @@ const OcorrenciaScreen = ({navigation}) => {
                 const data = response.data;
 
                 const comEndereco = await Promise.all(
-                    data.map(async (ocorrencia) => {
-                        try{
-                            const endereco = await EnderecoService(
+                  data.map(async (ocorrencia) => {
+                      try {
+                          const endereco = await EnderecoService(
                               ocorrencia.longitude,
                               ocorrencia.latitude
-                            );
-                            return {
+                          );
+                          return {
                               ...ocorrencia,
                               rua: endereco.road || 'Rua não encontrada',
                               cidade: endereco.city || 'Cidade não encontrada',
-                            };
-                        } catch(erro) {
-                            console.log(erro);
-                        }
-
-                    })
-                )
+                          };
+                      } catch(erro) {
+                          console.log(erro);
+                          return { ...ocorrencia, rua: 'Rua não encontrada', cidade: 'Cidade não encontrada' };
+                      }
+                  })
+                );
+                setOcorrencias(comEndereco);
+                setQuantidade(comEndereco.length);
             } catch(erro) {
                   console.log('Erro interno: ', erro);
             }
-          setOcorrencias(comEndereco);
-          setQuantidade(comEndereco.length);
+          
         }
 
         getOcorrencias();
