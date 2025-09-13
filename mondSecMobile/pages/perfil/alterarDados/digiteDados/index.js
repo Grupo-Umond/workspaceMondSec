@@ -25,29 +25,7 @@ const DigiteDadosScreen = ({navigation}) => {
 
 
     useEffect(() => {
-        buscarDados();
-    },[])
-
-    const validarDados = () => {
-
-    if(email){
-        if(emailV !== email){
-            if(!regexEmail.test(email)) {
-                setErroMessage('Digite um email valido');
-                return false;
-            }
-        }
-        if(telefoneV !== telefone){
-            if(!regexTelefone.test(telefone)) {
-                setErroMessage('Digite um telefone valido');
-                return false;
-            }
-        }
-    }
-        return true;
-    }
-
-    const buscarDados = async () => {
+            const buscarDados = async () => {
         const tokenUser = await AsyncStorage.getItem('userToken');
         try{
         const response = await axios.get('http://127.0.0.1:8000/api/usuario/buscar',{
@@ -71,6 +49,29 @@ const DigiteDadosScreen = ({navigation}) => {
             console.log(erro);
         }
     }
+        buscarDados();
+    },[])
+
+    const validarDados = () => {
+
+    if(email){
+        if(emailV !== email){
+            if(!regexEmail.test(email)) {
+                setErroMessage('Digite um email valido');
+                return false;
+            }
+        }
+        if(telefoneV !== telefone){
+            if(!regexTelefone.test(telefone)) {
+                setErroMessage('Digite um telefone valido');
+                return false;
+            }
+        }
+    }
+        return true;
+    }
+
+
 
     const alterarDados = async () => {
         if(!validarDados()) return;

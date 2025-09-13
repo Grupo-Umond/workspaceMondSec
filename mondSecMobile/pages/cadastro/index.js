@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import { View, Text, TextInput, Button, Pressable, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import CheckBox from 'expo-checkbox';
 import axios from 'axios';
@@ -17,10 +17,30 @@ const CadastroScreen = ({navigation}) => {
   const [concordoTermos, setConcordoTermos] = useState(false);
   const [carregando, setCarregando] = useState(false);
   const [erroMessage, setErroMessage] = useState('');
-
+  const [erroSenha, setErroSenha] = useState('');
   const opcoesGenero = ['Masculino', 'Feminino', 'Prefiro não informar'];
 
+  useEffect(() => {
+      const validarSenha = () => {
+          if (senha.length < 8 && senha) {
+            setErroSenha('A senha precisa ter pelo menos 8 caracteres.');
+            return;
+          }
 
+          if (!/\d/.test(senha) && senha) {
+            setErroSenha('A senha precisa conter pelo menos um numero');
+            return;
+          }
+
+          if (!/[A-Z]/.test(senha) && senha) {
+            setErroSenha('Precisa conter pelo menos um caracter maiusculo');
+            return;
+          }
+
+          setErroSenha('');
+      }
+      validarSenha();
+  },[senha])
   const validarDados = () => {
     if (!nome || !genero || !email || !senha || !telefone) {
       setErroMessage('Por favor, preencha todos os campos obrigatórios.');
@@ -47,7 +67,7 @@ const CadastroScreen = ({navigation}) => {
     }
     return true;
   };
-
+  
   const enviarDados = async () => {
     if (!validarDados()) return;
 
@@ -130,6 +150,9 @@ const CadastroScreen = ({navigation}) => {
 
       <View style={styles.grupoInput}>
            <Text style={styles.rotulo}>Senha</Text>
+           {erroSenha ? (
+              <Text style={{ color: 'red', marginBottom: 10 }}>{erroSenha}</Text>
+            ) : null}
            <TextInput
              style={styles.input}
              placeholder="Digite sua senha..."

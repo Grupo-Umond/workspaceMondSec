@@ -43,15 +43,6 @@ class UsuarioController extends Controller
             'senha' => Hash::make($dados['senha']),
             'data' => now(),
         ]);
-
-        $token = $usuario->createToken('userToken')->accessToken;
-
-        
-        return response()->json([
-            'tokenUser' => $token,
-            'tokenTipo' => 'Bearer',
-            'expiraEm' => 3600,
-        ]);
     }
 
     public function login(Request $request) 
