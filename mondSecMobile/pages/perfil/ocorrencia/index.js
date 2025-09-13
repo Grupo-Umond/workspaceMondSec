@@ -1,87 +1,67 @@
-import React, { useState, useEffect } from "react";
-import { Pressable, View, Text, TextInput, Modal, StyleSheet, Button} from "react-native";
-import { EnderecoService } from "../../../services/EnderecoService";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import React, {useEffect ,useState} from "react";
+import {View, Text, Pressable, TextInput, Modal, StyleSheet} from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { EnderecoService } from '../../../services/EnderecoService';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
-import axios from "axios";
+import axios from 'axios';
 
-const OcorrenciaScreen = ({ navigation }) => {
-  const [ocorrencias, setOcorrencias] = useState([]);
-  const [lengthNumber, setLengthNumber] = useState(0);
-  const [informacao, setInformacao] = useState(false);
-  const [indice, setIndice] = useState(null);
+const OcorrenciaScreen = ({navigation}) => {
+    const [ocorrencias, setOcorrencias] = useState([]);
+    const [quantidade, setQuantidade] = useState(0);
+    const [informacao, setInformacao] = useState(false);
+    const [indice, setIndice] = useState(null);
 
-  useEffect(() => {
-    async function buscarOcorrencia() {
-      try {
-        const token = await AsyncStorage.getItem("userToken");
-        if (!token) {
-          console.log("Token não recebido.");
-          return;
-        }
-
-        const response = await axios.get(
-          "http://127.0.0.1:8000/api/ocorrencia/procurar",
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-
-        const data = response.data;
-        if (!data || data.length === 0) {
-          console.log("Nenhuma ocorrência encontrada.");
-          return;
-        }
-
-        const ocorrenciasComEndereco = await Promise.all(
-          data.map(async (ocorrencia) => {
+    useEffect(() => {
+        const getOcorrencias = async () => {
             try {
-              const endereco = await EnderecoService(
-                ocorrencia.latitude,
-                ocorrencia.longitude
-              );
-              return {
-                ...ocorrencia,
-                rua: endereco.road || "Rua não encontrada",
-                cidade: endereco.city || "Cidade não encontrada",
-              };
-            } catch (e) {
-              console.log("Erro ao buscar endereço:", e);
-              return {
-                ...ocorrencia,
-                rua: "Indefinido",
-                cidade: "Indefinido",
-              };
+                const tokenUser = await AsyncStorage.getItem('userToken');
+                const response = await axios.get('http://127.0.0.1:8000/api/procurar',{
+                    headers: {
+                        Authorization: `Bearer ${tokenUser}`
+                    }
+                });
+                const data = response.data;
+
+                const comEndereco = await Promise.all(
+                    data.map(async (ocorrencia) => {
+                        try{
+                            const endereco = await EnderecoService(
+                              ocorrencia.longitude,
+                              ocorrencia.latitude
+                            );
+                            return {
+                              ...ocorrencia,
+                              rua: endereco.road || 'Rua não encontrada',
+                              cidade: endereco.city || 'Cidade não encontrada',
+                            };
+                        } catch(erro) {
+                            console.log(erro);
+                        }
+
+                    })
+                )
+            } catch(erro) {
+                  console.log('Erro interno: ', erro);
             }
-          })
-        );
+          setOcorrencias(comEndereco);
+          setQuantidade(comEndereco.length);
+        }
 
-        setOcorrencias(ocorrenciasComEndereco);
-        setLengthNumber(ocorrenciasComEndereco.length);
-      } catch (err) {
-        console.log("Erro ao buscar ocorrências:", err);
-      }
-    }
+        getOcorrencias();
+    },[])
 
+    const mostrarModal = (index) => {
+        setIndice(index);
+        setInformacao(true);
+    };
 
-    buscarOcorrencia();
-  }, []);
-
-  const mostrarModal = (index) => {
-    setIndice(index);
-    setInformacao(true);
-  };
-
-  const desaparecer = async () => {
-    setInformacao(false);
-    navigation.navigate("Home");
-  };
+    const desaparecer = async () => {
+        setInformacao(false);
+        navigation.navigate("Home");
+    };
 
     return (
     <View style={styles.container}>
-      {/* Cabeçalho */}
       <View style={styles.cabecalho}>
         <Pressable
           onPress={() => navigation.navigate('Home')}
@@ -98,17 +78,15 @@ const OcorrenciaScreen = ({ navigation }) => {
         </Pressable>
       </View>
 
-      {/* Barra de Pesquisa */}
       <TextInput
         style={styles.searchBar}
         placeholder="Pesquisar ocorrências..."
         placeholderTextColor="#A2A2A2"
       />
 
-      {/* Total de Ocorrências e botão adicionar */}
       <View style={styles.topSection}>
         <Text style={styles.totalOcorrencias}>
-          Total de Ocorrências: {lengthNumber}
+          Total de Ocorrências: {quantidade}
         </Text>
         <Pressable
           onPress={() => navigation.navigate('Registrar')}
@@ -118,7 +96,6 @@ const OcorrenciaScreen = ({ navigation }) => {
         </Pressable>
       </View>
 
-      {/* Lista de ocorrências */}
       <View>
         {ocorrencias.map((ocorrencia, index) => (
           <View
@@ -134,7 +111,7 @@ const OcorrenciaScreen = ({ navigation }) => {
           <Text>
               Registrado em: {ocorrencia.data}
             </Text>
-            <Pressable style={styles.detailsButton}>
+            <Pressable onPress={mostrarModal}style={styles.detailsButton}>
               <Text style={styles.detailsButtonText}>Ver detalhes</Text>
             </Pressable>
           </View>
