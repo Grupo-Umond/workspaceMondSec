@@ -21,14 +21,15 @@ const OcorrenciaScreen = ({navigation}) => {
                     }
                 });
                 const data = response.data;
-
+                console.log(data);
                 const comEndereco = await Promise.all(
                   data.map(async (ocorrencia) => {
                       try {
                           const endereco = await EnderecoService(
-                              ocorrencia.longitude,
-                              ocorrencia.latitude
+                              ocorrencia.latitude,
+                              ocorrencia.longitude
                           );
+                          console.log(endereco);
                           return {
                               ...ocorrencia,
                               rua: endereco.road || 'Rua não encontrada',
@@ -104,11 +105,10 @@ const OcorrenciaScreen = ({navigation}) => {
             style={[styles.card, styles[`card${ocorrencia.tipo}`]]} 
           >
             <View style={styles.cardHeader}>
-              <Text style={styles.cardTitle}>{ocorrencia.titulo}</Text>
-              <FontAwesome name={ocorrencia.longitude} size={24} color="#FFFFFF" />
+              <Text>{ocorrencia.titulo}</Text>
             </View>
-            <Text style={styles.cardAddress}>{ocorrencia.cidade}</Text>
-            <Text style={styles.cardDate}>{ocorrencia.rua}</Text>
+            <Text >Cidade: {ocorrencia.cidade}</Text>
+            <Text >Rua: {ocorrencia.rua}</Text>
           <Text>
               Registrado em: {ocorrencia.data}
             </Text>
