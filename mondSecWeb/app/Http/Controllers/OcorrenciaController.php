@@ -34,7 +34,6 @@ class OcorrenciaController extends Controller
 
         $dados = $request->validate([
             'titulo' => 'required|string',
-            'descricao' => 'nullable|string',
             'latitude' => 'required',
             'longitude' => 'required',
             'tbTipoOcorrencia.tipo' => 'required|string',

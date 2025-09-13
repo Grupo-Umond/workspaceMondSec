@@ -10,20 +10,25 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 
 const RegistrarScreen = ({ navigation }) => {
-  const [titulo, setTitulo] = useState('');
-  const [tipo, setTipo] = useState('');
-  const [descricaoTipo, setDescricaoTipo] = useState('');
-  const [descricao, setDescricao] = useState('');
-  const [latitude, setLatitude] = useState('');
-  const [longitude, setLongitude] = useState('');
-  const [carregando, setCarregando] = useState(false);
-  const [mensagemErro, setMensagemErro] = useState('');
-  const [visivelInicio, setVisivelInicio] = useState(true);
-  const [mostrar, setMostrar] = useState(false);
-  const [visivelSucesso, setVisivelSucesso] = useState(false);
+
+    const [carregando, setCarregando] = useState(false);
+    const [visivelInicio, setVisivelInicio] = useState(true);
+    const [mostrar, setMostrar] = useState(false);
+    const [visivelSucesso, setVisivelSucesso] = useState(false);
+    
+    const [endereco, setEndereco] = useState('');
+    const [titulo, setTitulo] = useState('');
+    const [tipo, setTipo] = useState('');
+    const [descricaoTipo, setDescricaoTipo] = useState('');
+    const [descricao, setDescricao] = useState('');
+
+    const [latitude, setLatitude] = useState(0);
+    const [longitude, setLongitude] = useState(0);
+
+    const [mensagemErro, setMensagemErro] = useState('');
 
   const validarDados = () => {
-    if (!titulo || !tipo || !latitude || !longitude) {
+    if (!titulo || !tipo || !endereco) {
       setMensagemErro('Preencha todos os campos obrigatórios.');
       return false;
     }
@@ -35,14 +40,22 @@ const RegistrarScreen = ({ navigation }) => {
       setTipo('');
       setDescricao('');
       setDescricaoTipo('');
-      setLatitude('');
-      setLongitude('');
+      setLatitude(0);
+      setLongitude(0);
+      setEndereco('');
+  }
+
+  const converterEndereco = async () => {
+      const response = await CoordenadaService(endereco);
+      setLatitude(response.latitude);
+      setLongitude(response.longitude);
   }
 
   const enviarOcorrencia = async () => {
     if (!validarDados()) return;
     setCarregando(true);
     try {
+      await converterEndereco();
 
       const dados = {
         titulo,
@@ -51,13 +64,14 @@ const RegistrarScreen = ({ navigation }) => {
         tbTipoOcorrencia: { tipo, descricao: descricaoTipo },
         descricao,
       };
-
-      const tokenUser = await AsyncStorage('userToken');
-      const response = await axios.post('http://127.0.0.1:8000/api/...', {dados}, {
+      
+      const tokenUser = await AsyncStorage.getItem('userToken');
+      const response = await axios.post('http://127.0.0.1:8000/api/ocorrencia/registrar', dados, {
         headers: {
           Authorization: `Bearer ${tokenUser}`
         }
-      })
+      });
+      limparCampos();
       setVisivelSucesso(true);
 
     } catch (erro) {
@@ -97,11 +111,8 @@ const RegistrarScreen = ({ navigation }) => {
         <Text style={styles.label}>Descrição do Tipo</Text>
         <TextInput style={styles.input} placeholder="Ex: Assalto à mão armada..." value={descricaoTipo} onChangeText={setDescricaoTipo} />
 
-        <Text style={styles.label}>Latitude</Text>
-        <TextInput style={styles.input} placeholder="Digite a latitude..." value={latitude} onChangeText={setLatitude} keyboardType="numeric" />
-
-        <Text style={styles.label}>Longitude</Text>
-        <TextInput style={styles.input} placeholder="Digite a longitude..." value={longitude} onChangeText={setLongitude} keyboardType="numeric" />
+        <Text style={styles.label}>Endereço</Text>
+        <TextInput style={styles.input} placeholder="Digite o endereço..." value={endereco} onChangeText={setEndereco} keyboardType="numeric" />
 
         <Text style={styles.label}>Descrição</Text>
         <TextInput style={styles.textArea} placeholder="Descreva a ocorrência..." value={descricao} onChangeText={setDescricao} multiline maxLength={120} textAlignVertical="top" />
