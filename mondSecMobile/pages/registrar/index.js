@@ -22,9 +22,6 @@ const RegistrarScreen = ({ navigation }) => {
     const [descricaoTipo, setDescricaoTipo] = useState('');
     const [descricao, setDescricao] = useState('');
 
-    const [latitude, setLatitude] = useState(0);
-    const [longitude, setLongitude] = useState(0);
-
     const [mensagemErro, setMensagemErro] = useState('');
 
   const validarDados = () => {
@@ -40,22 +37,19 @@ const RegistrarScreen = ({ navigation }) => {
       setTipo('');
       setDescricao('');
       setDescricaoTipo('');
-      setLatitude(0);
-      setLongitude(0);
       setEndereco('');
   }
 
   const converterEndereco = async () => {
       const response = await CoordenadaService(endereco);
-      setLatitude(response.latitude);
-      setLongitude(response.longitude);
+      return {latitude: response.latitude, longitude: response.longitude}
   }
 
   const enviarOcorrencia = async () => {
     if (!validarDados()) return;
     setCarregando(true);
     try {
-      await converterEndereco();
+      const {latitude, longitude} = await converterEndereco();      
 
       const dados = {
         titulo,
