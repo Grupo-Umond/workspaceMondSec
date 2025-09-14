@@ -1,10 +1,9 @@
 import React, { useState, useEffect, useContext} from "react";
-import { View, Text, TextInput, Button, Pressable, StyleSheet, TouchableOpacity, Image}  from 'react-native';
+import { View, Text, TextInput, Pressable, StyleSheet, TouchableOpacity, Image}  from 'react-native';
 import { AuthContext } from '../../services/AuthContext';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import  axios  from 'axios';
 
-const LoginScreen = ({navigation}) => {
+const LoginScreen = ({navigation, route}) => {
   const[erroMessage, setErroMessage] = useState('');
   const[carregando, setCarregando] = useState(false);
   const[login, setLogin] = useState('');
@@ -12,6 +11,8 @@ const LoginScreen = ({navigation}) => {
   const regexTelefone = /^(?:\s?)?(?:\(?\d{2}\)?\s?)?(?:9?\d{4}-?\d{4})$/;
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   const { logar }= useContext(AuthContext);
+  const mensagem = route.params?.mensagem;
+  const [sucessMessage, setSucessMessage] = useState(mensagem);
 
 
   const validarDados = () => {
@@ -25,8 +26,8 @@ const LoginScreen = ({navigation}) => {
       return false;
     }
 
-    if(senha.length < 6) {
-      setErroMessage('Por favor, digite uma senha com mais de 6 digitos.');
+    if(senha.length < 8) {
+      setErroMessage('Por favor, digite uma senha com no minimo 6 digitos.');
       return false;
     }
     
@@ -83,6 +84,9 @@ const LoginScreen = ({navigation}) => {
                   style={styles.logo}
                 />
               </View>
+              <Pressable style={styles.backButton} onPress={() => navigation.navigate('Home')}>
+                        <Text style={styles.backArrow}>{"<"}</Text>
+                      </Pressable>
               <Text style={styles.textoBoasVindas}>Bem-vindo à MondSec!</Text>
     <Text style={styles.textoEntrar}>Entrar</Text>
 
@@ -119,6 +123,7 @@ const LoginScreen = ({navigation}) => {
          </View>
 
       {erroMessage ? <Text style={styles.error}>{erroMessage}</Text> : null}
+      {sucessMessage ? ( <Text style={styles.sucess}>{sucessMessage}</Text> ) : (null)}
 <TouchableOpacity 
   style={styles.botaoLogin} 
   onPress={validarLogin} 
@@ -244,6 +249,18 @@ const styles = StyleSheet.create({
     color: '#12577B',
     fontSize: 14,
     fontWeight: '600',
+  },
+  erro: {
+    color: '#f00',
+    marginBottom: 10,
+    textAlign: 'center',
+    fontSize: 15,
+  },
+  sucess: {
+    color: '#0f0',
+    marginBottom: 10,
+    textAlign: 'center',
+    fontSize: 15,
   },
   containerBotoes: {
     width: '100%',

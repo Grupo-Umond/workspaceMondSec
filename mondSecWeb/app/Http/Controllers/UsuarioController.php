@@ -43,6 +43,8 @@ class UsuarioController extends Controller
             'senha' => Hash::make($dados['senha']),
             'data' => now(),
         ]);
+
+        return response()->json(['mensagem' => 'Cadastro realizado com sucesso =) '], 200);
     }
 
     public function login(Request $request) 
