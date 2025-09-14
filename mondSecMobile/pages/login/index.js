@@ -117,12 +117,12 @@ const LoginScreen = ({navigation, route}) => {
 
          <View style={styles.linhaOpcoes}>
      
-           <Pressable onPress={() => navigation.navigate('DigiteCodigo')}>
+           <Pressable onPress={() => navigation.navigate('DigiteEmail')}>
              <Text style={styles.textoSenhaEsquecida}>Esqueceu a senha?</Text>
            </Pressable>
          </View>
 
-      {erroMessage ? <Text style={styles.error}>{erroMessage}</Text> : null}
+      {erroMessage ? <Text style={styles.erro}>{erroMessage}</Text> : null}
       {sucessMessage ? ( <Text style={styles.sucess}>{sucessMessage}</Text> ) : (null)}
 <TouchableOpacity 
   style={styles.botaoLogin} 
