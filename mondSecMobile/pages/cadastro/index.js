@@ -2,7 +2,6 @@ import React, {useState, useEffect} from 'react';
 import { View, Text, TextInput, Button, Pressable, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import CheckBox from 'expo-checkbox';
 import axios from 'axios';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const CadastroScreen = ({navigation}) => {
   const [nome, setNome] = useState('');
@@ -17,6 +16,7 @@ const CadastroScreen = ({navigation}) => {
   const [concordoTermos, setConcordoTermos] = useState(false);
   const [carregando, setCarregando] = useState(false);
   const [erroMessage, setErroMessage] = useState('');
+  const [sucessMessage, setSucessMessage] = useState('');
   const [erroSenha, setErroSenha] = useState('');
   const opcoesGenero = ['Masculino', 'Feminino', 'Prefiro não informar'];
 
@@ -41,13 +41,14 @@ const CadastroScreen = ({navigation}) => {
       }
       validarSenha();
   },[senha])
+
   const validarDados = () => {
     if (!nome || !genero || !email || !senha || !telefone) {
       setErroMessage('Por favor, preencha todos os campos obrigatórios.');
       return false;
     }
-    if (senha.length < 6) {
-      setErroMessage('A senha precisa ter pelo menos 6 caracteres.');
+    if (senha.length < 8) {
+      setErroMessage('A senha precisa ter no minimo 8 caracteres.');
       return false;
     }
 
@@ -80,8 +81,10 @@ const CadastroScreen = ({navigation}) => {
         telefone,
         genero,
         senha,
-      });
-      navigation.navigate('Login');
+      }); 
+      const mensagem = response.data.mensagem;
+      setSucessMessage(mensagem);
+      navigation.navigate('Login', {mensagem});
     } catch (erro) {
       console.log(erro);
       if(erro.status === 401) {
@@ -92,6 +95,8 @@ const CadastroScreen = ({navigation}) => {
         setErroMessage('Erro no servidor, tente mais tarde');
         return;
 
+      }else if(erro.status === 422){
+        setErroMessage('Erro, dados invalidos')
       }else{
         setErroMessage('Erro inesperado, tente mais tarde');
         console.log(erro);
@@ -106,6 +111,9 @@ const CadastroScreen = ({navigation}) => {
   return (
     <View style={styles.container}>
       <View style={styles.containerLogo}>
+        <Pressable style={styles.backButton} onPress={() => navigation.goBack()}>
+                  <Text style={styles.backArrow}>{"<"}</Text>
+                </Pressable>
           <Text style={styles.textoCabecalho}>Cadastre-se Agora</Text>
           <Image 
             source={require('../../assets/mondSecLogo.png')} 
@@ -151,7 +159,7 @@ const CadastroScreen = ({navigation}) => {
       <View style={styles.grupoInput}>
            <Text style={styles.rotulo}>Senha</Text>
            {erroSenha ? (
-              <Text style={{ color: 'red', marginBottom: 10 }}>{erroSenha}</Text>
+              <Text style={styles.erro}>{erroSenha}</Text>
             ) : null}
            <TextInput
              style={styles.input}
@@ -198,8 +206,12 @@ const CadastroScreen = ({navigation}) => {
          </View>
 
       {erroMessage ? (
-        <Text style={{ color: 'red', marginBottom: 10 }}>{erroMessage}</Text>
+        <Text style={styles.erro}>{erroMessage}</Text>
       ) : null}
+      {sucessMessage ? (
+          <Text style={styles.sucess}>{sucessMessage}</Text>
+      ) : null}
+
  <TouchableOpacity 
       style={[
         styles.botaoPrimario, 
@@ -317,10 +329,16 @@ const styles = StyleSheet.create({
     color: '#718096',
     marginLeft: 6,
   },
-  textoErro: {
-    color: '#E53E3E',
-    fontSize: 13,
-    marginBottom: 12,
+  erro: {
+    color: '#f00',
+    fontSize: 15,
+    marginBottom: 10,
+    textAlign: 'center',
+  },
+  sucess: {
+    color: '#0f0',
+    marginBottom: 10,
+    fontSize: 15,
     textAlign: 'center',
   },
   botaoPrimario: {
