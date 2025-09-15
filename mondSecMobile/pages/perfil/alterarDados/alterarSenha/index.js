@@ -52,6 +52,10 @@ const AlterarSenhaScreen = ({navigation, route}) => {
             });
 
             await AsyncStorage.removeItem('tokenTemp');
+            const entrada = AsyncStorage.getItem('entrada');
+            if(entrada && entrada === 'saida'){
+                navigation.navigate('Login');
+            }
             navigation.navigate('Menu');
 
         }catch(err){

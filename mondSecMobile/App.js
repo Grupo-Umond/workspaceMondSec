@@ -36,6 +36,9 @@ function AppRoutes() {
       <Stack.Screen name="Home" component={HomeScreen} />
       <Stack.Screen name="Sobre" component={SobreScreen} />
       <Stack.Screen name="Configuracao" component={ConfiguracaoScreen} />
+      <Stack.Screen name="DigiteCodigo" component={DigiteCodigoScreen} />
+      <Stack.Screen name="AlterarSenha" component={AlterarSenhaScreen} />
+
 
       {tokenUser ? (
         <>
@@ -43,8 +46,6 @@ function AppRoutes() {
           <Stack.Screen name="Ocorrencia" component={OcorrenciaScreen} />
           <Stack.Screen name="Registrar" component={RegistrarScreen} />
           <Stack.Screen name="DigiteDados" component={DigiteDadosScreen} />
-          <Stack.Screen name="DigiteCodigo" component={DigiteCodigoScreen} />
-          <Stack.Screen name="AlterarSenha" component={AlterarSenhaScreen} />
         </>
       ) : (
         <>
