@@ -1,0 +1,117 @@
+/* Apresentação__nossosParceiros */
+.apresentacao__nossosParceiros {
+    padding: 8% 5% 12% 5%;
+    background-color: #fafafa;
+}
+
+.apresentacao__nossosParceiros__conteudo {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 5%;
+}
+
+.apresentacao__nossosParceiros__subtitulo {
+    font-family: 'Inter', sans-serif;
+    font-size: 1.8rem;
+    text-align: center;
+    color: #111;
+    font-weight: 600;
+    margin-bottom: 10%;
+}
+
+.apresentacao__nossosParceiros__subtitulo span {
+    -webkit-text-fill-color: rgb(19, 19, 226);
+}
+
+.apresentacao__nossosParceiros__cards {
+    display: flex;
+    justify-content: space-between;
+    gap: 30px;
+    width: 100%;
+}
+
+.apresentacao__nossosParceiros__cards__card {
+    flex: 1;
+    min-width: 0;
+    background-color: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+    border: 1px solid #e2e8f0;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.apresentacao__nossosParceiros__cards__card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 25px rgba(1, 1, 82, 0.1);
+    border-color: rgb(1, 1, 82);
+}
+
+.card__image-container {
+    width: 100%;
+    height: 150px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.card__image {
+    width: 80%;
+    height: 80%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+    border-radius: 12px;
+}
+
+.apresentacao__nossosParceiros__cards__card:hover .card__image {
+    transform: scale(1.05);
+}
+
+.card__content {
+    padding: 1rem;
+    flex-grow: 1;
+    border-top: 1px solid #4b5563;
+}
+
+.card__content p {
+    font-family: 'Inter', sans-serif;
+    color: #4b5563;
+    line-height: 1.6;
+    font-size: 1rem;
+    margin: 0;
+}
+
+/* Responsividade */
+@media (max-width: 992px) {
+    .apresentacao__nossosParceiros__cards {
+        flex-wrap: wrap;
+    }
+    
+    .apresentacao__nossosParceiros__cards__card {
+        flex: 0 0 calc(50% - 15px);
+    }
+}
+
+@media (max-width: 768px) {
+    .apresentacao__nossosParceiros {
+        padding: 3rem 1rem;
+    }
+    
+    .apresentacao__nossosParceiros__subtitulo {
+        font-size: 2rem;
+    }
+    
+    .apresentacao__nossosParceiros__cards__card {
+        flex: 0 0 100%;
+    }
+    
+    .card__image-container {
+        height: 180px;
+    }
+}

@@ -1,0 +1,190 @@
+.nossos_projetos {
+    padding: 7% 5% 0% 5%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    background: #fafafa;
+}
+
+.container {
+    position: relative;
+    width: 1000px;
+    height: 550px;
+    overflow: hidden;
+    margin-top: 2%;
+}
+
+.nossos_projetos .titulo { 
+    font-size: 1.8rem;
+    font-weight: 600;
+}
+
+.nossos_projetos .titulo span {
+    -webkit-text-fill-color: rgb(19, 19, 226);
+}
+
+.directional {
+    position: absolute;
+    bottom: 13%;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    z-index: 3;
+}
+
+.directional button {
+    width: 45px;
+    height: 45px;
+    color: rgb(1, 1, 82);
+    background-color: white;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    border-radius: 50%;
+    border: none;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+}
+
+.directional button:hover {
+    background: rgb(1, 1, 82);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(1, 1, 82, 0.25);
+}
+
+.directional button:nth-child(1):hover {
+    transform: translateX(-3px) translateY(-2px);
+}
+
+.directional button:nth-child(2):hover {
+    transform: translateX(3px) translateY(-2px);
+}
+
+#slide {
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+#slide .item {
+    position: absolute;
+    width: 100%;
+    height: 90%;
+    top: 0;
+    left: 0;
+    z-index: 1;
+}
+
+#slide .item .image {
+    position: absolute;
+    top: 10%; 
+    left: 0;
+    width: 100%;
+    height: 80%;
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: end;
+    opacity: 0;
+    transform: scale(1.1);
+    transition: 1.2s ease;
+}
+
+#slide .item .image img {
+    width: 75%;
+    transition: 0.4s ease;
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+#slide .item .image img:hover {
+    transform: scale(1.02);
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.2);
+}
+
+#slide .item:nth-child(1) .image {
+    opacity: 0;
+    transform: scale(0) translate(-80px);
+}
+
+#slide .item:nth-child(2) .image {
+    opacity: 1;
+    transform: scale(1);
+}
+
+#slide .item:nth-child(2) {
+    z-index: 3;
+}
+
+/* Responsividade */
+@media (max-width: 1200px) {
+    .container {
+        width: 850px;
+        height: 480px;
+    }
+}
+
+@media (max-width: 992px) {
+    .container {
+        width: 700px;
+        height: 400px;
+    }
+    
+    .directional button {
+        width: 42px;
+        height: 42px;
+        font-size: 1rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .nossos_projetos {
+        padding: 15% 5% 5% 5%;
+    }
+    
+    .container {
+        width: 100%;
+        height: 350px;
+        border-radius: 12px;
+    }
+    
+    #slide .item .image img {
+        width: 85%;
+    }
+    
+    .directional {
+        bottom: 4%;
+    }
+    
+    .directional button {
+        width: 38px;
+        height: 38px;
+        font-size: 0.95rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .container {
+        height: 250px;
+    }
+    
+    #slide .item .image {
+        height: 75%;
+    }
+    
+    #slide .item .image img {
+        width: 90%;
+        border-radius: 8px;
+    }
+    
+    .directional button {
+        width: 35px;
+        height: 35px;
+        font-size: 0.9rem;
+    }
+}
