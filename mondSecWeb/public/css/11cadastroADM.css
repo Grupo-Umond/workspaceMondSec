@@ -13,23 +13,43 @@ body {
     background-color: whitesmoke;
 }
 
+header {
+    position: absolute;
+    width: 100%;
+    top: 0;
+}
+
+nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 1.5% 1.5%;
+}
+
+nav h2 {
+    /* margin-right: 1.5%; */
+    font-size: 2rem;
+    color: #0e0852;
+}
+
 .container {
     width: 40%;
-    height: 90%;
+    padding: 2% 0%;
+    /* height: 90%; */
     display: flex;
     justify-content: center;
     align-items: center;
     flex-direction: column;
     gap: 30px;
     background-color: white;
-    box-shadow: 0px 0px 5px 0px #3d9db3;
+    box-shadow: 0px 0px 5px 0px #0e0852;
     /* border: 1px solid #3d9db3; */
     border-radius: 5px;
 }
 
 .container h2 {
     text-align: center;
-    color: #3d9db3;
+    color: #0e0852;
     font-size: 2rem;
 }
 
@@ -39,9 +59,95 @@ form {
     justify-content: center;
     /* align-items: center; */
     flex-direction: column;
+    gap: 15px;
 }
 
-input, select, button {
+.input-grupo1, 
+.input-grupo2,
+.input-grupo3,
+.input-grupo4,
+.input-grupo5 {
+    position: relative;
+}
+
+.campoNome,
+.campoEmail,
+.campoTelefone,
+.campoSenha,
+.campoConfirmarSenha {
+    width: 100%;
+    border: none;
+    border-bottom: 1px solid black;
+    /* border-radius: 5px; */
+    padding: 1rem;
+    font-size: 1.1rem;
+    color: black;
+    transition: border 150ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.nomeLabel,
+.emailLabel,
+.telefoneLabel,
+.senhaLabel,
+.senhaConfirmarLabel {
+    position: absolute;
+    left: 1%;
+    color: black;
+    pointer-events: none;
+    transform: translateY(1rem);
+    transition: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.campoNome:focus, input:valid,
+.campoEmail:focus, input:valid,
+.campoTelefone:focus, input:valid,
+.campoSenha:focus, input:valid,
+.campoConfirmarSenha:focus, input:valid {
+    outline: none;
+    border-bottom: 1.5px solid blue;
+}
+
+.campoNome:focus ~ label, input:valid ~ label,
+.campoEmail:focus ~ label, input:valid ~ label,
+.campoTelefone:focus ~ label, input:valid ~ label,
+.campoSenha:focus ~ label, input:valid ~ label,
+.campoConfirmarSenha:focus ~ label, input:valid ~ label {
+    transform: translateY(-50%) scale(0.9);
+    background-color: white;
+    padding: 0 .2em;
+    color: blue;
+}
+
+/* .campoAcesso:focus, select:valid {
+    outline: none;
+    border-bottom: 1.5px solid blue;
+}
+
+.campoAcesso:focus ~ label, select:valid ~ label {
+    transform: translateY(-50%) scale(0.9);
+    background-color: white;
+    padding: 0 .2em;
+    color: blue;
+} */
+
+.select-grupo6 {
+    margin-top: 1%;
+}
+
+.campoAcesso {
+    width: 100%;
+    padding: 1rem 0rem;
+    outline: none;
+    font-size: 1.1rem;
+    border: none;
+    border-bottom: 1px solid black;
+}
+
+select {
+}
+
+
+/* input, select, button {
     font-size: 1.1rem;
     padding: 2% 3%;
     margin-bottom: 3%;
@@ -51,13 +157,15 @@ input, select, button {
 }
 
 label {
-    color: #3d9db3;
+    color: #0e0852;
     margin-bottom: 1%;
-}
+} */
 
 button {
-    /* font-size: 1rem; */
-    background-color: #3d9db3;
+    font-size: 1.1rem;
+    padding: 2% 3%;
+    background-color: #0e0852;
     color: white;
     border: none;
+    border-radius: 5px;
 }

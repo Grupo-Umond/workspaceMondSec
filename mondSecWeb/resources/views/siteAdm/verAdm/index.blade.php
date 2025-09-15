@@ -17,7 +17,7 @@
 <body class="bg-light">
     <header>
         <nav>
-            <a href=""> <i class="fa-solid fa-house"></i> DashBoard</a>
+            <a href="{{ route('adm.dashboard') }}"> <i class="fa-solid fa-house"></i> DashBoard</a>
             <a href=""> <i class="fa-solid fa-chart-simple"></i> Avaliações</a>
             <a href=""> <i class="fa-solid fa-comments"></i> Chat</a>
             <a href=""> <i class="fa-solid fa-magnifying-glass"></i> Status</a>
@@ -60,6 +60,7 @@
                             <td class="editarADM"><a href="{{ route('adm.updateAdm', $admin->id)}}">
                                     <i class="fa-solid fa-pencil"></i>
                                 </a></td>
+                                
                             <td class="excluirADM">
                                 <form action="{{ route('adm.deleteAdm', $admin->id) }}" method="POST"
                                     onsubmit="return confirm('Tem certeza que quer excluir?');">
