@@ -159,7 +159,19 @@ class UsuarioController extends Controller
         return response()->json(['mensagem' => "Usuário ({$usuario->nome}) deletado com sucesso."], 200);
     }
 
+    public function check(Request $request) {
+        $email = $request->validate(['email' => 'required|email']);
 
+        $usuario = Usuario::where('email',$email)->first();
+
+        if(!$usuario) {
+            return response()->json(['mensagem' => 'denied']);
+        }
+
+        return response()->json(['mensagem' => 'granted']);
+            
+
+    }
 }
 
     
