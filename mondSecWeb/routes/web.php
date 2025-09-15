@@ -9,7 +9,7 @@ Route::get('/', function () {
     })->name('siteEmpresa.index');
 
 Route::get('/adm', function () {
-        return view('siteAdm.login');
+        return view('siteAdm.cadastro');
     })->name('siteAdm.login');
 
 Route::prefix('siteAdm')
