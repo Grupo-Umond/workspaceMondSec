@@ -11,25 +11,42 @@
 
 <body>
 
+    <header>
+
+        <nav>
+
+            <h2> MONDSEC </h2>
+
+            <h2> ADMINISTRADOR </h2>
+
+        </nav>
+
+    </header>
+
+
     <div class="container">
         <h2>Entrar</h2>
 
         <form id="formLogin" action="{{ route('adm.login.submit') }}" method="POST">
             @csrf
 
-            <label for="email">Email:</label>
-            <input type="email" id="email" name="email" value="{{ old('email') }}" required autofocus>
-            @error('email')
-                <div class="error">{{ $message }}</div>
-            @enderror
+            <div class="input-grupo1">
+                <input required class="campoEmail" type="email" id="email" name="email" value="{{ old('email') }}">
+                <label class="emailLabel" for="email">
+                    Email:
+                </label>
+                @error('email')
+                    <div class="error">{{ $message }}</div>
+                @enderror
+            </div>
 
-
-            <label for="senha">Senha:</label>
-            <input type="password" id="senha" name="senha" required>
+            <div class="input-grupo2">
+            <input class="campoSenha" type="password" id="senha" name="senha" required>
+            <label class="senhaLabel" for="senha">Senha:</label>
             @error('senha')
                 <div class="error">{{ $message }}</div>
             @enderror
-
+            </div>
 
             <button type="submit">Entrar</button>
         </form>
