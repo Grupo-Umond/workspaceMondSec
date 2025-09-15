@@ -6,30 +6,60 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Mail;
+use App\Mail\CodigoEmail;
 use Twilio\Rest\Client;
 
 
 class CodigoController extends Controller
 {
+    // public function sendCodeEmail(Request $request)
+    // {
+    //     $tokenId = $request->bearerToken(); 
+    //     if($tokenId){
+    //         $usuario = $request->user();
+    //         $email = $usuario->email;
+    //     }else{
+    //         $email = $request->email;
+    //     }
+        
+    //     $code = rand(100000, 999999); 
+    //     Cache::put("verify_{$email}", $code, now()->addMinutes(5));
+
+    //     Mail::raw("Seu código de verificação: {$code}", function($message) use ($email) {
+    //         $message->to($email)
+    //                 ->subject('Código de Verificação');
+    //     });
+
+    //     return response()->json(['message' => 'Código enviado para seu email.']);
+    // }
+
     public function sendCodeEmail(Request $request)
     {
-        $usuario = $request->user();
-        $email = $usuario->email;
-        $code = rand(100000, 999999); 
-        Cache::put("verify_{$email}", $code, now()->addMinutes(5));
+        $request->validate([
+            'login' => 'required|email'
+        ]);
 
-        Mail::raw("Seu código de verificação: {$code}", function($message) use ($email) {
-            $message->to($email)
-                    ->subject('Código de Verificação');
-        });
+        $email = $request->input('login');
+        $codigo = rand(100000, 999999);
 
-        return response()->json(['message' => 'Código enviado para seu email.']);
+        Mail::to($email)->send(new CodigoEmail($codigo));
+
+        return response()->json([
+            'mensagem' => 'Código enviado com sucesso',
+            'codigo' => $codigo 
+        ]);
     }
+
     
     public function sendCodeSms(Request $request)
     {
-        $usuario = $request->user();
-        $telefone = $usuario->telefone;
+        $tokenId = $request->bearerToken(); 
+        if($tokenId){
+            $usuario = $request->user();
+            $telefone = $usuario->telefone;
+        }else{
+            $telefone = $request->telefone;
+        }
         $code = rand(100000, 999999); 
         Cache::put("verify_{$telefone}", $code, now()->addMinutes(5));
 

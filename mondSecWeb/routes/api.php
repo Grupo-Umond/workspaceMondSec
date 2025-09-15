@@ -14,7 +14,7 @@ Route::prefix('usuario')
     ->group(function () {
         Route::post('/cadastrar', 'store')->withoutMiddleware('auth:api')->name('cadastrar');
         Route::post('/login', 'login')->withoutMiddleware('auth:api')->name('login');
-        Route::post('/checkemail','check')->withoutMiddleware('auth:api')->name('check');
+        Route::post('/checkcampo','check')->withoutMiddleware('auth:api')->name('check');
         Route::middleware('auth:api')->group(function () {
             Route::get('/buscar', 'buscarUsuario')->name('buscar');
             Route::put('/update', 'updateUsuario')->name('update');
@@ -35,7 +35,6 @@ Route::prefix('ocorrencia')
 Route::prefix('codigo')
     ->name('codigo.')
     ->controller(CodigoController::class)
-    ->middleware('auth:api')
     ->group(function () {
         Route::post('/sendEmail', 'sendCodeEmail')->name('email');
         Route::post('/sendSms', 'sendCodeSms')->name('sms');
