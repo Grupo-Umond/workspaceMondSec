@@ -56,7 +56,10 @@ const AlterarSenhaScreen = ({navigation, route}) => {
             if(entrada && entrada === 'saida'){
                 navigation.navigate('Login');
             }
-            navigation.navigate('Menu');
+            if(tokenUser){
+                navigation.navigate('Menu');
+            }
+            navigation.navigate('Login');
 
         }catch(err){
             console.log(err);

@@ -20,15 +20,7 @@ const DigiteCodigoScreen = ({ navigation, route }) => {
         const baseURL = "http://127.0.0.1:8000";
 
         useEffect(() => {
-                const pegarLogin = () => {
-                        if(direcao){
-                                setEmail(usuario.email);
-                                return usuario.email;
-                        }else if(!direcao){
-                                setTelefone(usuario.telefone);
-                                return usuario.telefone;
-                        }
-                }
+                
 
 
                 const buscarDados = async () => {
@@ -78,6 +70,15 @@ const DigiteCodigoScreen = ({ navigation, route }) => {
                 criarCodigo();
         }, [direcao]);
 
+        const pegarLogin = () => {
+                        if(direcao){
+                                setEmail(usuario.email);
+                                return usuario.email;
+                        }else if(!direcao){
+                                setTelefone(usuario.telefone);
+                                return usuario.telefone;
+                        }
+                }
         const handleChange = (text, index) => {
                 const newDigitos = [...digitos];
                 newDigitos[index] = text;
@@ -102,7 +103,7 @@ const DigiteCodigoScreen = ({ navigation, route }) => {
                 setCarregando(true);
                 const tokenUser = await AsyncStorage.getItem('userToken');
                 try {
-                        const login = await buscarDados();
+                        const login = await pegarLogin();
                         const response = await axios.post(`${baseURL}/api/codigo/verify`,
                                 { code, direcao, login },
                                 tokenUser ? { headers: { Authorization: `Bearer ${tokenUser}` } } : {}
