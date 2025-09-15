@@ -15,6 +15,45 @@ const ConfiguracaoScreen = ({navigation, setUserToken}) => {
     const [senha, setSenha] = useState('');
     const [erroMessage, setErroMessage] = useState('');
     const { logout } = useContext(AuthContext);
+    const [modalDelete, setModalDelete] = useState(false);
+    const [modalPermissaoDelete, setModalPermissaoDelete] = useState(false);
+
+
+    const excluirConta = async () => {
+        if(senha.length < 8) {
+            setErroMessage('Digite uma senha com mais de 8 caracteres')
+            return;
+        }
+
+        const tokenUser = await AsyncStorage.getItem('userToken');
+        try {
+            const response = await axios.delete('http://127.0.0.1:8000/api/usuario/deletar', {
+                headers: {
+                    Authorization: `Bearer ${tokenUser}`,
+                    senha: senha,
+                },
+            });
+              await AsyncStorage.removeItem('userToken');
+            setModalDelete(false);
+            setUserToken(null);
+            navigation.navigate('Cadastro')
+
+        }catch(erro){
+            if(erro.response?.status) {
+                const codigo = erro.response.status;
+
+                if(codigo === 401) {
+                    setErroMessage('Não autorizado');
+                    return;
+                }else if(codigo === 505) {
+                    setErroMessage('Erro no servidor, tente novamente mais tarde');
+                }else{
+                    setErroMessage('Erro inesperado, tente novamente mais tarde');
+                }
+            }
+            console.log(erro);
+        }
+    }
 
 
 
