@@ -32,36 +32,47 @@
         <form id="formCadastro" action="{{ route('adm.store.submit') }}" method="POST">
             @csrf
 
-            <label for="nome">Nome:</label>
-            <input type="text" id="nome" name="nome" value="{{ old('nome') }}">
+            <div class="input-grupo1">
+            <input required class="campoNome" type="text" id="nome" name="nome" value="{{ old('nome') }}">
+            <label class="nomeLabel" for="nome">Nome:</label>
             @error('nome')
                 <div class="error">{{ $message }}</div>
             @enderror
+            </div>
 
-            <label for="email">Email:</label>
-            <input type="email" id="email" name="email" value="{{ old('email') }}">
+            <div class="input-grupo2">
+            <input required class="campoEmail" type="email" id="email" name="email" value="{{ old('email') }}">
+            <label class="emailLabel" for="email">Email:</label>
             @error('email')
                 <div class="error">{{ $message }}</div>
             @enderror
+            </div>
 
-            <label for="email">Telefone:</label>
-            <input type="text" id="telefone" name="telefone" value="{{ old('email') }}">
+            <div class="input-grupo3">
+            <input required class="campoTelefone" type="text" id="telefone" name="telefone" value="{{ old('email') }}">
+            <label class="telefoneLabel" for="email">Telefone:</label>
             @error('email')
                 <div class="error">{{ $message }}</div>
             @enderror
+            </div>
 
-            <label for="senha">Senha:</label>
-            <input type="password" id="senha" name="senha">
+            <div class="input-grupo4">
+            <input required class="campoSenha" type="password" id="senha" name="senha">
+            <label class="senhaLabel" for="senha">Senha:</label>
             @error('senha')
                 <div class="error">{{ $message }}</div>
             @enderror
+            </div>
 
-            <label for="senhaConfirma">Confirme a Senha:</label>
-            <input type="password" id="senhaConfirma" name="senhaConfirma">
+            <div class="input-grupo5">
+            <input required class="campoConfirmarSenha" type="password" id="senhaConfirma" name="senhaConfirma">
+            <label class="senhaConfirmarLabel" for="senhaConfirma">Confirme a Senha:</label>
+            </div>
 
-            <label for="nivelAdmin">Nível de Acesso:</label>
-            <select id="nivelAdmin" name="nivelAdmin">
-                <option value="">-- Selecione --</option>
+            <div class="select-grupo6">
+            <label class="acessoLabel" for="nivelAdmin">Nível de Acesso:</label>
+            <select required class="campoAcesso" id="nivelAdmin" name="nivelAdmin">
+                <!-- <option value="">Nível de acesso</option> -->
                 <option value="ouro" {{ old('nivel_acesso') == 'ouro' ? 'selected' : '' }}>Ouro</option>
                 <option value="prata" {{ old('nivel_acesso') == 'prata' ? 'selected' : '' }}>Prata</option>
                 <option value="bronze" {{ old('nivel_acesso') == 'bronze' ? 'selected' : '' }}>Bronze</option>
@@ -69,6 +80,7 @@
             @error('nivel_acesso')
                 <div class="error">{{ $message }}</div>
             @enderror
+            </div>
 
             <button type="submit">Cadastrar</button>
         </form>
