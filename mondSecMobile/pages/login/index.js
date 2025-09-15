@@ -117,7 +117,7 @@ const LoginScreen = ({navigation, route}) => {
 
          <View style={styles.linhaOpcoes}>
      
-           <Pressable onPress={() => navigation.navigate('DigiteEmail')}>
+           <Pressable onPress={() => navigation.navigate('DigiteCampo')}>
              <Text style={styles.textoSenhaEsquecida}>Esqueceu a senha?</Text>
            </Pressable>
          </View>

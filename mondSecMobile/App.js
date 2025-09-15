@@ -16,7 +16,7 @@ import ConfiguracaoScreen from './pages/configuracao';
 import DigiteDadosScreen from './pages/perfil/alterarDados/digiteDados';
 import DigiteCodigoScreen from './pages/perfil/alterarDados/digiteCodigo';
 import AlterarSenhaScreen from './pages/perfil/alterarDados/alterarSenha';
-import DigiteEmailScreen from './pages/perfil/alterarDados/digiteEmail';
+import DigiteCampoScreen from './pages/perfil/alterarDados/digiteCampo';
 
 const Stack = createStackNavigator();
 
@@ -49,7 +49,7 @@ function AppRoutes() {
         </>
       ) : (
         <>
-          <Stack.Screen name="DigiteEmail" component={DigiteEmailScreen} />
+          <Stack.Screen name="DigiteCampo" component={DigiteCampoScreen} />
           <Stack.Screen name="Login" component={LoginScreen} />
           <Stack.Screen name="Cadastro" component={CadastroScreen} />
         </>

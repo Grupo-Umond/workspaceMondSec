@@ -160,15 +160,21 @@ class UsuarioController extends Controller
     }
 
     public function check(Request $request) {
-        $email = $request->validate(['email' => 'required|email']);
+        $request->validate([
+            'login' => 'required|string',
+            'campo' => 'required|string'
+        ]);
 
-        $usuario = Usuario::where('email',$email)->first();
+        $login = $request->login;
+        $campo = $request->campo;
+
+        $usuario = Usuario::where($campo,$login)->first();
 
         if(!$usuario) {
             return response()->json(['mensagem' => 'denied']);
         }
 
-        return response()->json(['mensagem' => 'granted']);
+        return response()->json(['mensagem' => 'granted','usuario' => $usuario]);
             
 
     }
