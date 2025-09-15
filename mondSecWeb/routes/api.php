@@ -15,10 +15,11 @@ Route::prefix('usuario')
         Route::post('/cadastrar', 'store')->withoutMiddleware('auth:api')->name('cadastrar');
         Route::post('/login', 'login')->withoutMiddleware('auth:api')->name('login');
         Route::post('/checkcampo','check')->withoutMiddleware('auth:api')->name('check');
+        Route::put('/alterar', 'updateSenha')->withoutMiddleware('auth:api')->name('alterarSenha');
+
         Route::middleware('auth:api')->group(function () {
             Route::get('/buscar', 'buscarUsuario')->name('buscar');
             Route::put('/update', 'updateUsuario')->name('update');
-            Route::put('/alterar', 'updateSenha')->name('alterarSenha');
             Route::delete('/deletar', 'delete')->name('deletar');
         });
     });

@@ -19,6 +19,8 @@ class CodigoController extends Controller
         $email = $request->input('login');
         $codigo = rand(100000, 999999);
 
+        Cache::put("verify_{$email}", $codigo, now()->addMinutes(5));
+        
         Mail::to($email)->send(new CodigoEmail($codigo));
 
         return response()->json([
@@ -57,12 +59,16 @@ class CodigoController extends Controller
         $request->validate([
             'code' => 'required|digits:6',
         ]);
-
-        $usuario = $request->user();
-        $login = $usuario->email;
-
-        if (!$request->direcao) {
-            $login = $usuario->telefone;
+        $header = $request->header('Authorization');
+        if(!$header){
+            $login = $request->login;
+        }
+        else if($header){
+            $usuario = $request->user();
+            $login = $usuario->email;
+            if (!$request->direcao) {
+                $login = $usuario->telefone;
+        }
         }
 
         $cachedCode = Cache::get("verify_{$login}");
