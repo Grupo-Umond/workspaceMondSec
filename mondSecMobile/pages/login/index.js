@@ -16,6 +16,7 @@ const LoginScreen = ({navigation, route}) => {
 
 
   const validarDados = () => {
+    setSucessMessage('');
     if(!login || !senha) {
       setErroMessage('Por favor, preenche todos os campos.');
       return false;
@@ -37,7 +38,6 @@ const LoginScreen = ({navigation, route}) => {
 
   const validarLogin = async () => {
     if(!validarDados()) return;
-    setSucessMessage('');
     setCarregando(true);
 
     try {
