@@ -1,61 +1,23 @@
-<<<<<<< HEAD
-import React, {useState, useEffect} from 'react';
-import { View, Text, TextInput, Button, Pressable, StyleSheet, TouchableOpacity, Image } from 'react-native';
-import CheckBox from 'expo-checkbox';
-import axios from 'axios';
 
-const CadastroScreen = ({navigation}) => {
-=======
 import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, Pressable, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import CheckBox from 'expo-checkbox';
 import axios from 'axios';
 
 const CadastroScreen = ({ navigation }) => {
->>>>>>> restaurarDados
   const [nome, setNome] = useState('');
   const [genero, setGenero] = useState(null);          
   const [email, setEmail] = useState('');
   const [telefone, setTelefone] = useState('');
   const [senha, setSenha] = useState('');
   
-<<<<<<< HEAD
-  const regexTelefone = /^(\+55\s?)?(\(?[1-9]{2}\)?\s?)?(9\d{4}|\d{4})-?\d{4}$/;
-=======
   const regexTelefone = /^(?:\+55\s?)?(?:\(?\d{2}\)?\s?)?(?:9?\d{4}-?\d{4})$/;
->>>>>>> restaurarDados
   const regexEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
   const [concordoTermos, setConcordoTermos] = useState(false);
   const [carregando, setCarregando] = useState(false);
   const [erroMessage, setErroMessage] = useState('');
-<<<<<<< HEAD
-  const [sucessMessage, setSucessMessage] = useState('');
-  const [erroSenha, setErroSenha] = useState('');
-  const opcoesGenero = ['Masculino', 'Feminino', 'Prefiro não informar'];
 
-  useEffect(() => {
-      const validarSenha = () => {
-          if (senha.length < 8 && senha) {
-            setErroSenha('A senha precisa ter pelo menos 8 caracteres.');
-            return;
-          }
-
-          if (!/\d/.test(senha) && senha) {
-            setErroSenha('A senha precisa conter pelo menos um numero');
-            return;
-          }
-
-          if (!/[A-Z]/.test(senha) && senha) {
-            setErroSenha('Precisa conter pelo menos um caracter maiusculo');
-            return;
-          }
-
-          setErroSenha('');
-      }
-      validarSenha();
-  },[senha])
-=======
   const [erroSenha, setErroSenha] = useState('');
 
   const opcoesGenero = ['Masculino', 'Feminino', 'Prefiro não informar'];
@@ -67,27 +29,13 @@ const CadastroScreen = ({ navigation }) => {
     else if (!/[A-Z]/.test(senha)) setErroSenha('A senha precisa conter pelo menos uma letra maiúscula.');
     else setErroSenha('');
   }, [senha]);
->>>>>>> restaurarDados
+
 
   const validarDados = () => {
     if (!nome || !genero || !email || !senha || !telefone) {
       setErroMessage('Por favor, preencha todos os campos obrigatórios.');
       return false;
     }
-<<<<<<< HEAD
-    if (senha.length < 8) {
-      setErroMessage('A senha precisa ter no minimo 8 caracteres.');
-      return false;
-    }
-
-    if(!regexTelefone.test(telefone)){
-      setErroMessage('Telefone invalido');
-      return false;
-    }
-
-    if(!regexEmail.test(email)){
-      setErroMessage('Email invalido');
-=======
 
     if (erroSenha) {
       setErroMessage(erroSenha);
@@ -101,19 +49,10 @@ const CadastroScreen = ({ navigation }) => {
 
     if (!regexEmail.test(email)) {
       setErroMessage('Email inválido.');
->>>>>>> restaurarDados
       return false;
     }
 
     if (!concordoTermos) {
-<<<<<<< HEAD
-      setErroMessage('Concorde com nossos termos de uso');
-      return false;
-    }
-    return true;
-  };
-  
-=======
       setErroMessage('Concorde com nossos termos de uso.');
       return false;
     }
@@ -122,46 +61,19 @@ const CadastroScreen = ({ navigation }) => {
     return true;
   };
 
->>>>>>> restaurarDados
   const enviarDados = async () => {
     if (!validarDados()) return;
 
     setCarregando(true);
 
-<<<<<<< HEAD
-    try{
-=======
     try {
->>>>>>> restaurarDados
       const response = await axios.post('http://127.0.0.1:8000/api/usuario/cadastrar', {
         nome,
         email,
         telefone,
         genero,
         senha,
-<<<<<<< HEAD
-      }); 
-      const mensagem = response.data.mensagem;
-      setSucessMessage(mensagem);
-      navigation.navigate('Login', {mensagem});
-    } catch (erro) {
-      console.log(erro);
-      if(erro.status === 401) {
-        setErroMessage('Cadastro não autorizado');
-        return;
 
-      }else if(erro.status === 500) {
-        setErroMessage('Erro no servidor, tente mais tarde');
-        return;
-
-      }else if(erro.status === 422){
-        setErroMessage('Erro, dados invalidos')
-      }else{
-        setErroMessage('Erro inesperado, tente mais tarde');
-        console.log(erro);
-        return;
-      }
-=======
       });
 
       const mensagem = response.data.mensagem;
@@ -175,7 +87,6 @@ const CadastroScreen = ({ navigation }) => {
       else if (status === 500) setErroMessage('Erro no servidor, tente mais tarde.');
       else if (status === 422) setErroMessage('Erro, dados inválidos.');
       else setErroMessage('Erro inesperado, tente mais tarde.');
->>>>>>> restaurarDados
       
     } finally {
       setCarregando(false);
@@ -186,134 +97,6 @@ const CadastroScreen = ({ navigation }) => {
     <View style={styles.container}>
       <View style={styles.containerLogo}>
         <Pressable style={styles.backButton} onPress={() => navigation.goBack()}>
-<<<<<<< HEAD
-                  <Text style={styles.backArrow}>{"<"}</Text>
-                </Pressable>
-          <Text style={styles.textoCabecalho}>Cadastre-se Agora</Text>
-          <Image 
-            source={require('../../assets/mondSecLogo.png')} 
-            style={styles.imagemLogo} 
-          />
-        </View> 
-        <View style={styles.containerFormulario}>
-      <View style={styles.grupoInput}>
-           <Text style={styles.rotulo}>Nome</Text>
-           <TextInput
-             style={styles.input}
-             placeholder="Digite seu usuário..."
-             placeholderTextColor="#999"
-             value={nome}
-             onChangeText={setNome}
-           />
-             </View>
-      <View style={styles.grupoInput}>
-        <Text style={styles.rotulo}>Email</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Digite seu email..."
-          placeholderTextColor="#999"
-          value={email}
-          onChangeText={setEmail}
-          keyboardType="phone-pad"
-          autoCapitalize="none"
-        />
-      </View>
-      <View style={styles.grupoInput}>
-        <Text style={styles.rotulo}>Telefone</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Digite seu Telefone..."
-          placeholderTextColor="#999"
-          value={telefone}
-          onChangeText={setTelefone}
-          keyboardType="numeric"
-          autoCapitalize="none"
-        />
-      </View>
-
-      <View style={styles.grupoInput}>
-           <Text style={styles.rotulo}>Senha</Text>
-           {erroSenha ? (
-              <Text style={styles.erro}>{erroSenha}</Text>
-            ) : null}
-           <TextInput
-             style={styles.input}
-             placeholder="Digite sua senha..."
-             placeholderTextColor="#999"
-             value={senha}
-             onChangeText={setSenha}
-             secureTextEntry
-           />
-         </View>
-     
-
-<View style={styles.grupoInput}>
-      <Text style={styles.rotulo}>Gênero</Text>
-      <View style={styles.opcoesGenero}>
-        {opcoesGenero.map((op) => (
-          <Pressable 
-            key={op} 
-            style={styles.botaoOpcao} 
-            onPress={() => setGenero(op)}
-          >
-            <View style={[
-              styles.radioExterno,
-              genero === op && styles.radioSelecionado
-            ]}>
-              {genero === op && <View style={styles.radioInterno} />}
-            </View>
-            <Text style={styles.textoOpcao}>{op}</Text>
-          </Pressable>
-        ))}
-      </View>
-    </View>
-
-
-
-      <View style={styles.containerTermos}>
-           <CheckBox
-             value={concordoTermos}
-             onValueChange={setConcordoTermos}
-             tintColors={{ true: '#4CAF50', false: '#aaa' }}
-             style={styles.checkbox}
-           />
-           <Text style={styles.textoTermos}>Concordo com os termos de uso</Text>
-         </View>
-
-      {erroMessage ? (
-        <Text style={styles.erro}>{erroMessage}</Text>
-      ) : null}
-      {sucessMessage ? (
-          <Text style={styles.sucess}>{sucessMessage}</Text>
-      ) : null}
-
- <TouchableOpacity 
-      style={[
-        styles.botaoPrimario, 
-        carregando && styles.botaoDesativado
-      ]} 
-      onPress={enviarDados}
-      disabled={carregando}
-    >
-      <Text style={styles.textoBotao}>
-        {carregando ? 'Cadastrando...' : 'Cadastrar'}
-      </Text>
-    </TouchableOpacity>
-
-
-    <Pressable 
-         style={styles.linkLogin} 
-         onPress={() => navigation.navigate('Login')}
-       >
-         <Text style={styles.textoLinkLogin}>
-           Já tem uma conta? <Text style={styles.textoLinkLoginNegrito}>Faça login</Text>
-         </Text>
-       </Pressable>
-    </View>
-        </View>
-  );
-  };
-=======
           <Text style={styles.backArrow}>{"<"}</Text>
         </Pressable>
         <Text style={styles.textoCabecalho}>Cadastre-se Agora</Text>
@@ -422,7 +205,6 @@ const CadastroScreen = ({ navigation }) => {
     </View>
   );
 };
->>>>>>> restaurarDados
 
 const styles = StyleSheet.create({
   container: {

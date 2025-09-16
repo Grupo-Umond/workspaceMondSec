@@ -1,88 +1,10 @@
-<<<<<<< HEAD
-import React, {useEffect ,useState} from "react";
-import {View, Text, Pressable, TextInput, Modal, StyleSheet} from 'react-native';
-=======
 import React, { useEffect, useState } from 'react';
 import { View, Text, Pressable, TextInput, Modal, StyleSheet } from 'react-native';
->>>>>>> restaurarDados
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { EnderecoService } from '../../../services/EnderecoService';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import axios from 'axios';
 
-<<<<<<< HEAD
-const OcorrenciaScreen = ({navigation}) => {
-    const [ocorrencias, setOcorrencias] = useState([]);
-    const [quantidade, setQuantidade] = useState(0);
-    const [informacao, setInformacao] = useState(false);
-    const [indice, setIndice] = useState(null);
-
-    useEffect(() => {
-        const getOcorrencias = async () => {
-            try {
-                const tokenUser = await AsyncStorage.getItem('userToken');
-                const response = await axios.get('http://127.0.0.1:8000/api/ocorrencia/procurar',{
-                    headers: {
-                        Authorization: `Bearer ${tokenUser}`
-                    }
-                });
-                const data = response.data;
-                console.log(data);
-                const comEndereco = await Promise.all(
-                  data.map(async (ocorrencia) => {
-                      try {
-                          const endereco = await EnderecoService(
-                              ocorrencia.latitude,
-                              ocorrencia.longitude
-                          );
-                          console.log(endereco);
-                          return {
-                              ...ocorrencia,
-                              rua: endereco.road || 'Rua não encontrada',
-                              cidade: endereco.city || 'Cidade não encontrada',
-                          };
-                      } catch(erro) {
-                          console.log(erro);
-                          return { ...ocorrencia, rua: 'Rua não encontrada', cidade: 'Cidade não encontrada' };
-                      }
-                  })
-                );
-                setOcorrencias(comEndereco);
-                setQuantidade(comEndereco.length);
-            } catch(erro) {
-                  console.log('Erro interno: ', erro);
-            }
-          
-        }
-
-        getOcorrencias();
-    },[])
-
-    const mostrarModal = (index) => {
-        setIndice(index);
-        setInformacao(true);
-    };
-
-    const desaparecer = async () => {
-        setInformacao(false);
-        navigation.navigate("Home");
-    };
-
-    return (
-    <View style={styles.container}>
-      <View style={styles.cabecalho}>
-        <Pressable
-          onPress={() => navigation.navigate('Home')}
-          style={styles.iconeCabecalho}
-        >
-          <FontAwesome name="arrow-left" size={24} color="#12577B" />
-        </Pressable>
-        <Text style={styles.tituloCabecalho}>Seu Perfil</Text>
-        <Pressable
-          onPress={() => navigation.navigate('Configuracao')}
-          style={styles.iconeCabecalho}
-        >
-=======
 const OcorrenciaScreen = ({ navigation }) => {
   const [ocorrencias, setOcorrencias] = useState([]);
   const [quantidade, setQuantidade] = useState(0);
@@ -154,7 +76,6 @@ const OcorrenciaScreen = ({ navigation }) => {
         </Pressable>
         <Text style={styles.tituloCabecalho}>Seu Perfil</Text>
         <Pressable onPress={() => navigation.navigate('Configuracao')} style={styles.iconeCabecalho}>
->>>>>>> restaurarDados
           <FontAwesome name="cog" size={24} color="#12577B" />
         </Pressable>
       </View>
@@ -166,39 +87,14 @@ const OcorrenciaScreen = ({ navigation }) => {
       />
 
       <View style={styles.topSection}>
-<<<<<<< HEAD
-        <Text style={styles.totalOcorrencias}>
-          Total de Ocorrências: {quantidade}
-        </Text>
-        <Pressable
-          onPress={() => navigation.navigate('Registrar')}
-          style={styles.addButton}
-        >
-=======
         <Text style={styles.totalOcorrencias}>Total de Ocorrências: {quantidade}</Text>
         <Pressable onPress={() => navigation.navigate('Registrar')} style={styles.addButton}>
->>>>>>> restaurarDados
           <Text style={styles.addButtonText}>+</Text>
         </Pressable>
       </View>
 
       <View>
         {ocorrencias.map((ocorrencia, index) => (
-<<<<<<< HEAD
-          <View
-            key={index}
-            style={[styles.card, styles[`card${ocorrencia.tipo}`]]} 
-          >
-            <View style={styles.cardHeader}>
-              <Text>{ocorrencia.titulo}</Text>
-            </View>
-            <Text >Cidade: {ocorrencia.cidade}</Text>
-            <Text >Rua: {ocorrencia.rua}</Text>
-          <Text>
-              Registrado em: {ocorrencia.data}
-            </Text>
-            <Pressable onPress={mostrarModal}style={styles.detailsButton}>
-=======
           <View key={index} style={[styles.card, styles[`card${ocorrencia.tipo}`]]}>
             <View style={styles.cardHeader}>
               <Text>{ocorrencia.titulo}</Text>
@@ -207,46 +103,24 @@ const OcorrenciaScreen = ({ navigation }) => {
             <Text>Rua: {ocorrencia.rua}</Text>
             <Text>Registrado em: {ocorrencia.data}</Text>
             <Pressable onPress={() => mostrarModal(index)} style={styles.detailsButton}>
->>>>>>> restaurarDados
               <Text style={styles.detailsButtonText}>Ver detalhes</Text>
             </Pressable>
           </View>
         ))}
       </View>
-<<<<<<< HEAD
-        <Modal animationType="slide" visible={informacao} transparent>
-=======
+
 
       <Modal animationType="slide" visible={informacao} transparent>
->>>>>>> restaurarDados
         {indice != null && ocorrencias[indice] && (
           <View style={styles.modalContainer}>
             <View style={styles.modalContent}>
               <Text style={styles.modalTitle}>Detalhes</Text>
-<<<<<<< HEAD
-              <Text style={styles.modalText}>
-                {ocorrencias[indice].titulo}
-              </Text>
-              <Text style={styles.modalText}>
-                {ocorrencias[indice].rua}
-              </Text>
-              <Text style={styles.modalText}>
-                {ocorrencias[indice].cidade}
-              </Text>
-              <Text style={styles.modalText}>
-                {ocorrencias[indice].data}
-              </Text>
-              <Text style={styles.modalText}>
-                {ocorrencias[indice].descricao}
-              </Text>
-=======
               <Text style={styles.modalText}>{ocorrencias[indice].titulo}</Text>
               <Text style={styles.modalText}>{ocorrencias[indice].rua}</Text>
               <Text style={styles.modalText}>{ocorrencias[indice].cidade}</Text>
               <Text style={styles.modalText}>{ocorrencias[indice].data}</Text>
               <Text style={styles.modalText}>{ocorrencias[indice].descricao}</Text>
 
->>>>>>> restaurarDados
               <Pressable onPress={desaparecer}>
                 <Text style={styles.modalButton}>Ver no Mapa</Text>
               </Pressable>
