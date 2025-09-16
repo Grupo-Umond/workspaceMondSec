@@ -10,6 +10,7 @@ const CadastroScreen = ({ navigation }) => {
   const [email, setEmail] = useState('');
   const [telefone, setTelefone] = useState('');
   const [senha, setSenha] = useState('');
+  const [senhaConfirma, setSenhaConfirma] = useState('');
   
   const regexTelefone = /^(?:\+55\s?)?(?:\(?\d{2}\)?\s?)?(?:9?\d{4}-?\d{4})$/;
   const regexEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -155,6 +156,16 @@ const CadastroScreen = ({ navigation }) => {
             placeholderTextColor="#999"
             value={senha}
             onChangeText={setSenha}
+            secureTextEntry
+          />
+          <Text style={styles.rotulo}>Confirma Senha</Text>
+          {erroSenha ? <Text style={styles.erro}>{erroSenha}</Text> : null}
+          <TextInput
+            style={styles.input}
+            placeholder="Confirme a senha..."
+            placeholderTextColor="#999"
+            value={senhaConfirma}
+            onChangeText={setSenhaConfirma}
             secureTextEntry
           />
         </View>

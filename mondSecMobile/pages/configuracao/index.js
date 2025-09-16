@@ -91,33 +91,8 @@ const ConfiguracaoScreen = ({ navigation, setUserToken }) => {
         <Pressable>
           <Text>Fale conosco</Text>
         </Pressable>
-        <Pressable onPress={() => setModalDelete(true)}>
-          <Text>Excluir conta</Text>
-        </Pressable>
+
       </View>
-
-      <Modal animationType="fade" transparent visible={modalDelete}>
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Digite sua senha para confirmar</Text>
-            <TextInput
-              style={styles.modalInput}
-              secureTextEntry
-              value={senha}
-              onChangeText={setSenha}
-              placeholder="Senha"
-            />
-            {erroMessage ? <Text style={styles.modalError}>{erroMessage}</Text> : null}
-
-            <Pressable style={styles.modalButtonConfirm} onPress={excluirConta}>
-              <Text style={styles.modalButtonText}>Excluir</Text>
-            </Pressable>
-            <Pressable style={styles.modalButtonCancel} onPress={() => setModalDelete(false)}>
-              <Text style={styles.modalButtonText}>Voltar</Text>
-            </Pressable>
-          </View>
-        </View>
-      </Modal>
     </ScrollView>
   );
 };
