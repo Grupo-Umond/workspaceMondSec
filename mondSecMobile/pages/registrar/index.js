@@ -1,8 +1,3 @@
-<<<<<<< HEAD
-import React, { useState } from "react";
-import { 
-  View, Text, TextInput, Pressable, TouchableOpacity, Modal, ActivityIndicator, StyleSheet 
-=======
 import React, { useState, useEffect } from "react";
 import {
   View,
@@ -13,7 +8,6 @@ import {
   Modal,
   ActivityIndicator,
   StyleSheet
->>>>>>> restaurarDados
 } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import CheckBox from 'expo-checkbox';
@@ -23,21 +17,6 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 
 const RegistrarScreen = ({ navigation }) => {
-<<<<<<< HEAD
-
-    const [carregando, setCarregando] = useState(false);
-    const [visivelInicio, setVisivelInicio] = useState(true);
-    const [mostrar, setMostrar] = useState(false);
-    const [visivelSucesso, setVisivelSucesso] = useState(false);
-    
-    const [endereco, setEndereco] = useState('');
-    const [titulo, setTitulo] = useState('');
-    const [tipo, setTipo] = useState('');
-    const [descricaoTipo, setDescricaoTipo] = useState('');
-    const [descricao, setDescricao] = useState('');
-
-    const [mensagemErro, setMensagemErro] = useState('');
-=======
   const [carregando, setCarregando] = useState(false);
   const [visivelInicio, setVisivelInicio] = useState(true);
   const [mostrar, setMostrar] = useState(false);
@@ -63,7 +42,6 @@ const RegistrarScreen = ({ navigation }) => {
     setMostrar(value);
     await AsyncStorage.setItem('mostrarModalInicio', JSON.stringify(value));
   };
->>>>>>> restaurarDados
 
   const validarDados = () => {
     if (!titulo || !tipo || !endereco) {
@@ -74,19 +52,6 @@ const RegistrarScreen = ({ navigation }) => {
   };
 
   const limparCampos = () => {
-<<<<<<< HEAD
-      setTitulo('');
-      setTipo('');
-      setDescricao('');
-      setDescricaoTipo('');
-      setEndereco('');
-  }
-
-  const converterEndereco = async () => {
-      const response = await CoordenadaService(endereco);
-      return {latitude: response.latitude, longitude: response.longitude}
-  }
-=======
     setTitulo('');
     setTipo('');
     setDescricao('');
@@ -102,18 +67,12 @@ const RegistrarScreen = ({ navigation }) => {
       throw new Error('Não foi possível obter coordenadas do endereço');
     }
   };
->>>>>>> restaurarDados
 
   const enviarOcorrencia = async () => {
     if (!validarDados()) return;
     setCarregando(true);
     try {
-<<<<<<< HEAD
-      const {latitude, longitude} = await converterEndereco();      
-=======
       const { latitude, longitude } = await converterEndereco();
->>>>>>> restaurarDados
-
       const dados = {
         titulo,
         latitude,
@@ -121,20 +80,6 @@ const RegistrarScreen = ({ navigation }) => {
         tbTipoOcorrencia: { tipo, descricao: descricaoTipo },
         descricao,
       };
-<<<<<<< HEAD
-      
-      const tokenUser = await AsyncStorage.getItem('userToken');
-      const response = await axios.post('http://127.0.0.1:8000/api/ocorrencia/registrar', dados, {
-        headers: {
-          Authorization: `Bearer ${tokenUser}`
-        }
-      });
-      limparCampos();
-      setVisivelSucesso(true);
-
-    } catch (erro) {
-      console.log(erro);
-=======
 
       const tokenUser = await AsyncStorage.getItem('userToken');
       await axios.post('http://127.0.0.1:8000/api/ocorrencia/registrar', dados, {
@@ -146,7 +91,6 @@ const RegistrarScreen = ({ navigation }) => {
       setMensagemErro('');
     } catch (erro) {
       setMensagemErro('Falha ao enviar ocorrência, tente novamente.');
->>>>>>> restaurarDados
     } finally {
       setCarregando(false);
     }
@@ -166,13 +110,7 @@ const RegistrarScreen = ({ navigation }) => {
 
       <View style={styles.form}>
         <Text style={styles.label}>Título da Ocorrência</Text>
-<<<<<<< HEAD
-        <TextInput style={styles.input} placeholder="Digite o título..." value={titulo} onChangeText={setTitulo} />
 
-        <Text style={styles.label}>Tipo de Ocorrência</Text>
-        <View style={styles.pickerWrapper}>
-          <Picker selectedValue={tipo} onValueChange={(v) => setTipo(v)} style={styles.picker}>
-=======
         <TextInput
           style={styles.input}
           placeholder="Digite o título..."
@@ -183,7 +121,6 @@ const RegistrarScreen = ({ navigation }) => {
         <Text style={styles.label}>Tipo de Ocorrência</Text>
         <View style={styles.pickerWrapper}>
           <Picker selectedValue={tipo} onValueChange={setTipo} style={styles.picker}>
->>>>>>> restaurarDados
             <Picker.Item label="Selecione..." value="" />
             <Picker.Item label="Roubo" value="Roubo" />
             <Picker.Item label="Acidente" value="Acidente" />
@@ -193,15 +130,6 @@ const RegistrarScreen = ({ navigation }) => {
         </View>
 
         <Text style={styles.label}>Descrição do Tipo</Text>
-<<<<<<< HEAD
-        <TextInput style={styles.input} placeholder="Ex: Assalto à mão armada..." value={descricaoTipo} onChangeText={setDescricaoTipo} />
-
-        <Text style={styles.label}>Endereço</Text>
-        <TextInput style={styles.input} placeholder="Digite o endereço..." value={endereco} onChangeText={setEndereco} keyboardType="numeric" />
-
-        <Text style={styles.label}>Descrição</Text>
-        <TextInput style={styles.textArea} placeholder="Descreva a ocorrência..." value={descricao} onChangeText={setDescricao} multiline maxLength={120} textAlignVertical="top" />
-=======
         <TextInput
           style={styles.input}
           placeholder="Ex: Assalto à mão armada..."
@@ -228,21 +156,16 @@ const RegistrarScreen = ({ navigation }) => {
           maxLength={120}
           textAlignVertical="top"
         />
->>>>>>> restaurarDados
         <Text style={styles.contador}>{descricao.length}/120</Text>
 
         {mensagemErro ? <Text style={styles.erro}>{mensagemErro}</Text> : null}
       </View>
 
-<<<<<<< HEAD
-      <TouchableOpacity style={[styles.botao, carregando && styles.botaoDesabilitado]} onPress={enviarOcorrencia} disabled={carregando}>
-=======
       <TouchableOpacity
         style={[styles.botao, carregando && styles.botaoDesabilitado]}
         onPress={enviarOcorrencia}
         disabled={carregando}
       >
->>>>>>> restaurarDados
         {carregando ? <ActivityIndicator color="#fff" /> : <Text style={styles.textoBotao}>Enviar</Text>}
       </TouchableOpacity>
 
@@ -260,11 +183,7 @@ const RegistrarScreen = ({ navigation }) => {
             </TouchableOpacity>
 
             <View style={styles.checkboxContainer}>
-<<<<<<< HEAD
-              <CheckBox value={mostrar} onValueChange={setMostrar} tintColors={{ true: '#12577B', false: '#64748B' }} />
-=======
               <CheckBox value={mostrar} onValueChange={toggleMostrar} tintColors={{ true: '#12577B', false: '#64748B' }} />
->>>>>>> restaurarDados
               <Text style={styles.checkboxLabel}>Não mostrar novamente</Text>
             </View>
           </View>
@@ -286,34 +205,6 @@ const RegistrarScreen = ({ navigation }) => {
 };
 
 const styles = StyleSheet.create({
-<<<<<<< HEAD
-  container: { flex: 1, padding: 20, backgroundColor: '#FFFFFF' },
-  cabecalho: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 30, paddingHorizontal: 10 },
-  tituloCabecalho: { fontSize: 20, fontWeight: '600', color: '#12577B' },
-  iconeCabecalho: { padding: 5 },
-  form: { marginBottom: 20, backgroundColor: '#FFFFFF', padding: 16, borderRadius: 12, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 4, elevation: 5 },
-  label: { fontSize: 14, fontWeight: '600', color: '#1D3557', marginBottom: 8 },
-  input: { borderWidth: 1, borderColor: '#ccc', borderRadius: 6, padding: 12, marginBottom: 12, fontSize: 14, color: '#334155' },
-  textArea: { borderWidth: 1, borderColor: '#cbd5e1', borderRadius: 6, padding: 8, minHeight: 80, marginBottom: 4, fontSize: 14, color: '#334155' },
-  contador: { fontSize: 12, color: "#94a3b8", textAlign: "right", marginBottom: 12 },
-  pickerWrapper: { borderWidth: 1, borderColor: '#ccc', borderRadius: 6, marginBottom: 12 },
-  picker: { height: 50, color: '#334155' },
-  botao: { backgroundColor: '#12577B', padding: 15, borderRadius: 8, alignItems: 'center', marginBottom: 20 },
-  botaoDesabilitado: { opacity: 0.6 },
-  textoBotao: { color: '#fff', fontSize: 16, fontWeight: '600' },
-  erro: { color: '#E63946', fontSize: 13, marginBottom: 10 },
-  modalContainer: { flex: 1, backgroundColor: 'rgba(0,0,0,0.6)', justifyContent: 'center', alignItems: 'center', padding: 16 },
-  modalContent: { backgroundColor: '#FFF', borderRadius: 20, width: '100%', maxWidth: 400, padding: 24, alignItems: 'center', shadowColor: '#000', shadowOffset: { width: 0, height: 10 }, shadowOpacity: 0.1, shadowRadius: 20, elevation: 10 },
-  modalTitle: { fontSize: 20, fontWeight: '700', color: '#1E293B', marginBottom: 16 },
-  modalText: { fontSize: 14, color: '#334155', textAlign: 'center', marginBottom: 12 },
-  primaryButton: { backgroundColor: '#12577B', borderRadius: 12, paddingVertical: 12, paddingHorizontal: 24, alignItems: 'center', marginTop: 16 },
-  primaryButtonText: { color: '#FFFFFF', fontWeight: '600', fontSize: 16 },
-  checkboxContainer: { flexDirection: 'row', alignItems: 'center', marginTop: 12 },
-  checkboxLabel: { marginLeft: 8, fontSize: 14, color: '#64748B' },
-});
-
-=======
-
   container: { 
     flex: 1, 
     padding: 20, 
@@ -486,6 +377,4 @@ const styles = StyleSheet.create({
 
 });
 
-
->>>>>>> restaurarDados
 export default RegistrarScreen;
