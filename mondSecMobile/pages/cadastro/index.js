@@ -24,17 +24,41 @@ const CadastroScreen = ({ navigation }) => {
   const opcoesGenero = ['Masculino', 'Feminino', 'Prefiro não informar'];
 
   useEffect(() => {
-    if (!senha) return;
-    if (senha.length < 8) setErroSenha('A senha precisa ter pelo menos 8 caracteres.');
-    else if (!/\d/.test(senha)) setErroSenha('A senha precisa conter pelo menos um número.');
-    else if (!/[A-Z]/.test(senha)) setErroSenha('A senha precisa conter pelo menos uma letra maiúscula.');
-    else setErroSenha('');
+    const validarSenha = () => {
+        if (!senha) return;
+
+        if (senha.length < 8){
+          setErroSenha('A senha precisa ter pelo menos 8 caracteres.');
+          return false;
+        }
+    
+        if (!/\d/.test(senha)){ 
+          setErroSenha('A senha precisa conter pelo menos um número.');
+          return false;
+        }
+    
+        if (!/[A-Z]/.test(senha)){
+          setErroSenha('A senha precisa conter pelo menos uma letra maiúscula.');
+          return false;
+        }
+        setErroSenha('');
+        return true;
+      }    
   }, [senha]);
 
 
   const validarDados = () => {
+    if (!validarSenha){
+      setErroMessage('Senha invalida');
+      return false;
+    }
     if (!nome || !genero || !email || !senha || !telefone) {
       setErroMessage('Por favor, preencha todos os campos obrigatórios.');
+      return false;
+    }
+
+    if(!senha === senhaConfirma){
+      setErroMessage('As senhas devem ser iguais');
       return false;
     }
 
