@@ -8,26 +8,54 @@ use Illuminate\Support\Facades\Mail;
 use App\Mail\CodigoEmail;
 use Twilio\Rest\Client;
 
+
 class CodigoController extends Controller
 {
     public function sendCodeEmail(Request $request)
-    {
-        $request->validate([
-            'login' => 'required|email'
-        ]);
+{
+    $request->validate([
+        'login' => 'nullable|email'
+    ]);
 
-        $email = $request->input('login');
-        $codigo = rand(100000, 999999);
+    $header = $request->header('Authorization');
 
-        Cache::put("verify_{$email}", $codigo, now()->addMinutes(5));
-        
-        Mail::to($email)->send(new CodigoEmail($codigo));
+    if (!$header) {
+        $email = $request->login;
+    } else {
+        $usuario = $request->user();
 
-        return response()->json([
-            'mensagem' => 'Código enviado com sucesso',
-            'codigo' => $codigo
-        ]);
+        if (!$usuario || !$usuario->email) {
+            return response()->json([
+                'erro' => 'Usuário não autenticado ou e-mail não disponível.'
+            ], 401);
+        }
+
+        $email = $usuario->email;
     }
+
+    if (empty($email)) {
+        return response()->json([
+            'erro' => 'E-mail não fornecido.'
+        ], 400);
+    }
+
+    $codigo = rand(100000, 999999);
+    Cache::put("verify_{$email}", $codigo, now()->addMinutes(5));
+
+    try {
+        Mail::to($email)->send(new CodigoEmail($codigo));
+    } catch (\Exception $e) {
+        return response()->json([
+            'erro' => 'Erro ao enviar e-mail: ' . $e->getMessage()
+        ], 500);
+    }
+
+    return response()->json([
+        'mensagem' => 'Código enviado com sucesso',
+        'codigo' => $codigo 
+    ]);
+}
+
 
     public function sendCodeSms(Request $request)
     {
