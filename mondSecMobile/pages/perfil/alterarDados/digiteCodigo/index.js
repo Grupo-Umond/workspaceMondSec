@@ -24,9 +24,6 @@ const DigiteCodigoScreen = ({ navigation, route }) => {
   const baseURL = "http://127.0.0.1:8000";
   const code = digitos.join("");
 
-  // -------------------------------
-  // useEffect - Buscar dados e criar código
-  // -------------------------------
   useEffect(() => {
     const buscarDados = async () => {
       const tokenUser = await AsyncStorage.getItem("userToken");
@@ -52,7 +49,7 @@ const DigiteCodigoScreen = ({ navigation, route }) => {
       try {
         if (direcao) {
           if (tokenUser) {
-            await axios.post(`${baseURL}/api/codigo/sendEmail`, {}, {
+            await axios.post(`${baseURL}/api/codigo/sendEmail`, {
               headers: { Authorization: `Bearer ${tokenUser}` },
             });
           } else {
@@ -76,9 +73,7 @@ const DigiteCodigoScreen = ({ navigation, route }) => {
     criarCodigo();
   }, [direcao]);
 
-  // -------------------------------
-  // Funções auxiliares
-  // -------------------------------
+ 
   const pegarLogin = () => {
     if (direcao) {
       setEmail(usuario.email);

@@ -16,6 +16,7 @@ const LoginScreen = ({navigation, route}) => {
 
 
   const validarDados = () => {
+    setSucessMessage('');
     if(!login || !senha) {
       setErroMessage('Por favor, preenche todos os campos.');
       return false;
@@ -27,7 +28,7 @@ const LoginScreen = ({navigation, route}) => {
     }
 
     if(senha.length < 8) {
-      setErroMessage('Por favor, digite uma senha com no minimo 6 digitos.');
+      setErroMessage('Por favor, digite uma senha com no minimo 8 digitos.');
       return false;
     }
     
@@ -37,7 +38,6 @@ const LoginScreen = ({navigation, route}) => {
 
   const validarLogin = async () => {
     if(!validarDados()) return;
-
     setCarregando(true);
 
     try {
@@ -257,7 +257,7 @@ const styles = StyleSheet.create({
     fontSize: 15,
   },
   sucess: {
-    color: '#0f0',
+    color: '#008000',
     marginBottom: 10,
     textAlign: 'center',
     fontSize: 15,

@@ -38,4 +38,12 @@ class Usuario extends Authenticatable
         return $this->hasMany(Ocorrencia::class, 'idUsuario', 'id'); // chave estrangeira
     }
 
+    // app/Models/User.php
+
+    public function getAuthPassword()
+    {
+        return $this->senha; // ou o nome real do campo da sua tabela
+    }
+
+
 }
