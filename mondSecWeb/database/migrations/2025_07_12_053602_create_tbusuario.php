@@ -15,6 +15,7 @@ return new class extends Migration {
             $table->string('email')->unique(); 
             $table->string('telefone')->unique();
             $table->string('senha');
+            $table->string('status');
             $table->timestamp('data')->useCurrent();
         });
     }
