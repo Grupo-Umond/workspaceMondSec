@@ -20,7 +20,7 @@ Route::prefix('usuario')
         Route::middleware('auth:api')->group(function () {
             Route::get('/buscar', 'buscarUsuario')->name('buscar');
             Route::put('/update', 'updateUsuario')->name('update');
-            Route::delete('/deletar', 'delete')->name('deletar');
+            Route::put('/deletar', 'delete')->name('deletar');
         });
     });
 

@@ -44,14 +44,11 @@ const CadastroScreen = ({ navigation }) => {
         setErroSenha('');
         return true;
       }    
+      validarSenha();
   }, [senha]);
 
 
   const validarDados = () => {
-    if (!validarSenha){
-      setErroMessage('Senha invalida');
-      return false;
-    }
     if (!nome || !genero || !email || !senha || !telefone) {
       setErroMessage('Por favor, preencha todos os campos obrigatórios.');
       return false;

@@ -139,13 +139,13 @@ class UsuarioController extends Controller
     
     public function delete(Request $request)
     {
-        $senha = $request->header('senha');
+        $senha = $request->senha;
         if(!$senha) {
             return response()->json(['message' => 'Senha não recebida']);
         }
 
         $usuario = $request->user();
-
+            
         if (!$usuario ) {
             return response()->json(['mensagem' => 'Usuário não encontrado.'], 404);
         }
@@ -154,7 +154,8 @@ class UsuarioController extends Controller
             return response()->json(['mensagem' => 'Senha Incorreta'], 401);
         }
 
-        $usuario->delete();
+        $usuario->status = 'Inativo';
+        $usuario->save();
 
         return response()->json(['mensagem' => "Usuário ({$usuario->nome}) deletado com sucesso."], 200);
     }
