@@ -44,7 +44,7 @@ class UsuarioController extends Controller
             'data' => now(),
         ]);
 
-        return response()->json(['mensagem' => 'Cadastro realizado com sucesso =) '], 200);
+        return response()->json(['mensagem' => 'Cadastro realizado com sucesso'], 200);
     }
 
     public function login(Request $request) 
@@ -71,6 +71,7 @@ class UsuarioController extends Controller
             'tokenUser' => $token,
             'tokenTipo' => 'Bearer',
             'expiraEm' => 3600,
+            'mensagem' => 'Usuario logado com sucesso',
         ]);
     }
 
@@ -102,7 +103,7 @@ class UsuarioController extends Controller
 
         $usuario->save();
 
-        return response()->json(['message' => 'Dados atualizados com sucesso']);
+        return response()->json(['mensagem' => 'Dados atualizados com sucesso']);
     }
 
     public function updateSenha(Request $request)
@@ -115,7 +116,7 @@ class UsuarioController extends Controller
         $login = Cache::get("token_{$request->tokenTemp}");
         
         if (!$login) {
-            return response()->json(['message' => 'Token inválido ou expirado'], 400);
+            return response()->json(['mensagem' => 'Token inválido ou expirado'], 400);
         }
 
         $campo = 'email';
