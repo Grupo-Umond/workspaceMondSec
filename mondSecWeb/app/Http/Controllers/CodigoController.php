@@ -51,7 +51,7 @@ class CodigoController extends Controller
     }
 
     return response()->json([
-        'mensagem' => 'Código enviado com sucesso',
+        'mensagem' => 'Código enviado com sucesso por email',
     ]);
 }
 
@@ -107,6 +107,6 @@ class CodigoController extends Controller
         $tempToken = bin2hex(random_bytes(16));
         Cache::put("token_{$tempToken}", $login, now()->addMinutes(10));
 
-        return response()->json(['token' => $tempToken]);
+        return response()->json(['token' => $tempToken, 'mensagem' => 'Codigo valido, verificado com sucesso']);
     }
 }

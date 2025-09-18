@@ -25,7 +25,7 @@ class OcorrenciaController extends Controller
                     'descricao' => $ocorrencias->tipoOcorrencia->descricao ?? 'Sem descrição',
                 ];
             });
-            return response()->json($ocorrencias);
+            return response()->json(['ocorrencias' => $ocorrencias, 'mensagem' => 'Ocorrencias encontradas com sucesso']);
 
     }
 
