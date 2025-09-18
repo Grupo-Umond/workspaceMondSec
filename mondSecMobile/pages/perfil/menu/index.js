@@ -5,7 +5,7 @@ import FontAwesome from '@expo/vector-icons/FontAwesome';
 import axios from 'axios';
 import { AuthContext } from '../../../services/AuthContext';
 
-const MenuScreen = ({ navigation }) => {
+const MenuScreen = ({ navigation, route }) => {
   const [nome, setNome] = useState('');
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
@@ -13,6 +13,7 @@ const MenuScreen = ({ navigation }) => {
   const [erroMessage, setErroMessage] = useState('');
   const [modalDelete, setModalDelete] = useState(false);
   const [modalPermissaoDelete, setModalPermissaoDelete] = useState(false);
+  const mensagem = route.params?.mensagem;
 
   useEffect(() => {
     async function puxarInfos() {
@@ -93,6 +94,7 @@ const MenuScreen = ({ navigation }) => {
           <FontAwesome name="cog" size={24} color="#12577B" />
         </Pressable>
       </View>
+      <Text>{mensagem}</Text>
 
       <View style={styles.perfilContainer}>
         <Image style={styles.avatar} source={require('../../../assets/avatar-placeholder.png')} />

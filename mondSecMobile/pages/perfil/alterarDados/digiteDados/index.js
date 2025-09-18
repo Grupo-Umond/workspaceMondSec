@@ -34,16 +34,13 @@ const DigiteDadosScreen = ({ navigation }) => {
     const buscarDados = async () => {
       const tokenUser = await AsyncStorage.getItem("userToken");
       try {
-        const response = await axios.get(
-          "http://127.0.0.1:8000/api/usuario/buscar",
+        const response = await axios.get("http://127.0.0.1:8000/api/usuario/buscar",
           {
             headers: {
               authorization: `Bearer ${tokenUser}`,
             },
           }
         );
-
-        console.log(response);
 
         const usuario = response.data.usuario;
         console.log(usuario);
@@ -83,8 +80,7 @@ const DigiteDadosScreen = ({ navigation }) => {
 
     const tokenUser = await AsyncStorage.getItem("userToken");
 
-    const response = await axios.put(
-      "http://127.0.0.1:8000/api/usuario/update",
+    const response = await axios.put("http://127.0.0.1:8000/api/usuario/update",
       {
         nome,
         email,
@@ -97,8 +93,8 @@ const DigiteDadosScreen = ({ navigation }) => {
         },
       }
     );
-
-    navigation.navigate("Menu");
+    const mensagem = response.data.mensagem;
+    navigation.navigate("Menu", {mensagem});
   };
 
   return (

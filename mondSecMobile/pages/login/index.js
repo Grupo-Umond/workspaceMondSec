@@ -53,9 +53,9 @@ const LoginScreen = ({navigation, route}) => {
         setErroMessage("Erro ao autenticar. Token não recebido.");
         return;
       }
-
+      const mensagem = response.data.mensagem;
       await logar(token);
-      navigation.navigate('Home');     
+      navigation.navigate('Home',{mensagem});     
     } catch (err) {
 
         if(err.response?.status === 401) {
