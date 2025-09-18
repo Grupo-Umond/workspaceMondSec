@@ -21,8 +21,7 @@ const OcorrenciaScreen = ({ navigation }) => {
           },
         });
 
-        const data = response.data;
-        console.log(data);
+        const data = response.data.ocorrencias;
 
         const comEndereco = await Promise.all(
           data.map(async (ocorrencia) => {
