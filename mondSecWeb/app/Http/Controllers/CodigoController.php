@@ -52,7 +52,6 @@ class CodigoController extends Controller
 
     return response()->json([
         'mensagem' => 'Código enviado com sucesso',
-        'codigo' => $codigo 
     ]);
 }
 
