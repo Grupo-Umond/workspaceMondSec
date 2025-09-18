@@ -42,8 +42,7 @@ const AlterarSenhaScreen = ({ navigation, route }) => {
 
     const tokenUser = await AsyncStorage.getItem('userToken');
     try {
-      const response = await axios.put(
-        'http://127.0.0.1:8000/api/usuario/alterar',
+      const response = await axios.put('http://127.0.0.1:8000/api/usuario/alterar',
         {
           tokenTemp,
           novaSenhaConfirma,
@@ -56,15 +55,16 @@ const AlterarSenhaScreen = ({ navigation, route }) => {
         }
       );
 
+      const mensagem = response.data.mensagem;
       await AsyncStorage.removeItem('tokenTemp');
       const entrada = AsyncStorage.getItem('entrada');
       if (entrada && entrada === 'saida') {
-        navigation.navigate('Login');
+        navigation.navigate('Login',{mensagem});
       }
       if (tokenUser) {
-        navigation.navigate('Menu');
+        navigation.navigate('Menu',{mensagem});
       }
-      navigation.navigate('Login');
+      navigation.navigate('Login',{mensagem});
     } catch (err) {
       console.log(err);
     } finally {
