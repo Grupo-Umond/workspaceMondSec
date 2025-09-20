@@ -196,7 +196,7 @@ const RegistrarScreen = ({ navigation }) => {
             <TouchableOpacity style={styles.primaryButton} onPress={() => setVisivelSucesso(false)}>
               <Text style={styles.primaryButtonText}>Fazer mais uma</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.primaryButton} onPress={() => navigation.navigate('Ocorrencia')}>
+            <TouchableOpacity style={styles.primaryButton} onPress={() => {setVisivelSucesso(false); navigation.navigate('Ocorrencia');}}>
               <Text style={styles.primaryButtonText}>Ver minhas ocorrencias</Text>
             </TouchableOpacity>
           </View>

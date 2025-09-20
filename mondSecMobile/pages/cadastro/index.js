@@ -48,6 +48,30 @@ const CadastroScreen = ({ navigation }) => {
       validarSenha();
   }, [senha]);
 
+    useEffect(() => {
+    const validarSenhaConfirma = () => {
+        if (!senhaConfirma) return;
+
+        if (senhaConfirma.length < 8){
+          setErroSenhaConfirma('A senha precisa ter pelo menos 8 caracteres.');
+          return false;
+        }
+    
+        if (!/\d/.test(senhaConfirma)){ 
+          setErroSenhaConfirma('A senha precisa conter pelo menos um número.');
+          return false;
+        }
+    
+        if (!/[A-Z]/.test(senhaConfirma)){
+          setErroSenhaConfirma('A senha precisa conter pelo menos uma letra maiúscula.');
+          return false;
+        }
+        setErroSenhaConfirma('');
+        return true;
+      }    
+      validarSenhaConfirma();
+  }, [senhaConfirma]);
+
 
   const validarDados = () => {
     if (!nome || !genero || !email || !senha || !telefone) {
@@ -181,7 +205,7 @@ const CadastroScreen = ({ navigation }) => {
             secureTextEntry
           />
           <Text style={styles.rotulo}>Confirma Senha</Text>
-          {erroSenha ? <Text style={styles.erro}>{erroSenha}</Text> : null}
+          {erroSenhaConfirma ? <Text style={styles.erro}>{erroSenhaConfirma}</Text> : null}
           <TextInput
             style={styles.input}
             placeholder="Confirme a senha..."
