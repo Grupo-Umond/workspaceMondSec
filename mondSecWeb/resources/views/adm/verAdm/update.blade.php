@@ -1,13 +1,8 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-    <meta charset="UTF-8">
-    <title>Cadastro</title>
+@extends(adm.layouts.admin)
 
-    <link rel="stylesheet" href="{{ asset('css/12UptadeADM.css') }}">
+@section('title','Update')
 
-</head>
-<body>
+@section('content')
     <div class="container">
         <h2>Alterar Dados do Administrador</h2>
 
@@ -52,20 +47,4 @@
             <button type="submit">Alterar</button>
         </form>
     </div>
-    <script>
-        const form = document.getElementById('formUpdate');
-
-        form.addEventListener('submit', function(event) {
-            const nome = document.getElementById('nome').value;
-            const email = document.getElementById('email').value;
-            const nivelAdmin = document.getElementById('nivelAdmin').value;
-            const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-
-            if(!regex.test(email)) {
-                event.preventDefault();
-                alert('Email invalido');
-            }
-        });
-    </script>
-</body>
-</html>
+@endsection

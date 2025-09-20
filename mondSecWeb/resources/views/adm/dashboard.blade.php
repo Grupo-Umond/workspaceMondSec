@@ -9,10 +9,10 @@
 
 <main class="container">
 
-    <!-- Gráficos -->
     <section class="graficos">
         <canvas id="lineChart" class="chart-fixed line-size" width="520" height="320"></canvas>
         <canvas id="barChart"  class="chart-fixed bar-size"  width="420" height="320"></canvas>
+        <canvas id="pieChart"  class="chart-fixed bar-size"  width="420" height="320"></canvas>
 
        </section>
 
@@ -47,7 +47,6 @@
     const ctxLine = document.getElementById('lineChart');
     const ctxBar = document.getElementById('barChart');
 
-    // Pie Chart
     new Chart(ctxPie, {
         type: 'pie',
         data: {
@@ -76,7 +75,6 @@
         }
     });
 
-    // Line Chart
     new Chart(ctxLine, {
         type: 'line',
         data: {
@@ -93,7 +91,6 @@
         options: { responsive: false, maintainAspectRatio: false, scales: { y: { beginAtZero: true } } }
     });
 
-    // Bar Chart
     new Chart(ctxBar, {
         type: 'bar',
         data: {
