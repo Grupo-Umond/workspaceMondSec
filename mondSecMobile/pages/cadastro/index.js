@@ -17,9 +17,10 @@ const CadastroScreen = ({ navigation }) => {
 
   const [concordoTermos, setConcordoTermos] = useState(false);
   const [carregando, setCarregando] = useState(false);
-  const [erroMessage, setErroMessage] = useState('');
 
+  const [erroMessage, setErroMessage] = useState('');
   const [erroSenha, setErroSenha] = useState('');
+  const [erroSenhaConfirma, setErroSenhaConfirma] = useState('');
 
   const opcoesGenero = ['Masculino', 'Feminino', 'Prefiro não informar'];
 
