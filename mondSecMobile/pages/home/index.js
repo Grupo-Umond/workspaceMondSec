@@ -48,7 +48,7 @@ const HomeScreen = ({ navigation }) => {
   const buscarEndereco = async () => {
     try {
       const coords = await CoordenadaService(endereco);
-      mapaRef.current.centralizarNoEndereco(coords.latitude, coords.longitude);
+
     } catch (e) {
       alert('Endereço não encontrado');
     }
@@ -78,6 +78,8 @@ const HomeScreen = ({ navigation }) => {
             style={styles.searchInput}
             placeholder="Pesquise um local..."
             placeholderTextColor="#888"
+            value={endereco}
+            onChangeText={setEndereco}
           />
           <Pressable style={styles.searchButton} onPress={() => buscarEndereco()}>
             <Icon name="search" size={24} color="#003366" />
