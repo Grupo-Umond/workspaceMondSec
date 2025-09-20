@@ -1,9 +1,7 @@
 import React, { useContext, useState } from "react";
-import { View, Text, Pressable, Switch, Linking, StyleSheet, ScrollView, Modal, TextInput } from 'react-native';
+import { View, Text, Pressable, Switch, Linking, StyleSheet, ScrollView} from 'react-native';
 import { AuthContext } from "../../services/AuthContext";
 import Slider from '@react-native-community/slider';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import axios from 'axios';
 import CheckBox from 'expo-checkbox';
 
 const ConfiguracaoScreen = ({ navigation, setUserToken }) => {
@@ -12,8 +10,6 @@ const ConfiguracaoScreen = ({ navigation, setUserToken }) => {
   const [volumeEfeito, setVolumeEfeito] = useState(100);
   const [volumeNotificacao, setVolumeNotificacao] = useState(100);
   const [temaSelecionado, setTemaSelecionado] = useState('claro');
-  const [senha, setSenha] = useState('');
-  const [erroMessage, setErroMessage] = useState('');
   const { logout } = useContext(AuthContext);
 
   return (
