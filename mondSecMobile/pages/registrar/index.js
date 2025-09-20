@@ -110,7 +110,6 @@ const RegistrarScreen = ({ navigation }) => {
 
       <View style={styles.form}>
         <Text style={styles.label}>Título da Ocorrência</Text>
-
         <TextInput
           style={styles.input}
           placeholder="Digite o título..."
@@ -213,7 +212,6 @@ const styles = StyleSheet.create({
     padding: 20, 
     backgroundColor: '#FFFFFF' 
   },
-
   cabecalho: { 
     flexDirection: 'row', 
     justifyContent: 'space-between', 
@@ -221,17 +219,14 @@ const styles = StyleSheet.create({
     marginBottom: 30, 
     paddingHorizontal: 10 
   },
-
   tituloCabecalho: { 
     fontSize: 20, 
     fontWeight: '600', 
     color: '#12577B' 
   },
-
   iconeCabecalho: { 
     padding: 5 
   },
-
   form: { 
     marginBottom: 20, 
     backgroundColor: '#FFFFFF', 
@@ -243,14 +238,12 @@ const styles = StyleSheet.create({
     shadowRadius: 4, 
     elevation: 5 
   },
-
   label: { 
     fontSize: 14, 
     fontWeight: '600', 
     color: '#1D3557', 
     marginBottom: 8 
   },
-
   input: { 
     borderWidth: 1, 
     borderColor: '#ccc', 
@@ -260,7 +253,6 @@ const styles = StyleSheet.create({
     fontSize: 14, 
     color: '#334155' 
   },
-
   textArea: { 
     borderWidth: 1, 
     borderColor: '#cbd5e1', 
@@ -271,26 +263,22 @@ const styles = StyleSheet.create({
     fontSize: 14, 
     color: '#334155' 
   },
-
   contador: { 
     fontSize: 12, 
     color: "#94a3b8", 
     textAlign: "right", 
     marginBottom: 12 
   },
-
   pickerWrapper: { 
     borderWidth: 1, 
     borderColor: '#ccc', 
     borderRadius: 6, 
     marginBottom: 12 
   },
-
   picker: { 
     height: 50, 
     color: '#334155' 
   },
-
   botao: { 
     backgroundColor: '#12577B', 
     padding: 15, 
@@ -298,23 +286,19 @@ const styles = StyleSheet.create({
     alignItems: 'center', 
     marginBottom: 20 
   },
-
   botaoDesabilitado: { 
     opacity: 0.6 
   },
-
   textoBotao: { 
     color: '#fff', 
     fontSize: 16, 
     fontWeight: '600' 
   },
-
   erro: { 
     color: '#E63946', 
     fontSize: 13, 
     marginBottom: 10 
   },
-
   modalContainer: { 
     flex: 1, 
     backgroundColor: 'rgba(0,0,0,0.6)', 
@@ -322,7 +306,6 @@ const styles = StyleSheet.create({
     alignItems: 'center', 
     padding: 16 
   },
-
   modalContent: { 
     backgroundColor: '#FFF', 
     borderRadius: 20, 
@@ -336,21 +319,18 @@ const styles = StyleSheet.create({
     shadowRadius: 20, 
     elevation: 10 
   },
-
   modalTitle: { 
     fontSize: 20, 
     fontWeight: '700', 
     color: '#1E293B', 
     marginBottom: 16 
   },
-
   modalText: { 
     fontSize: 14, 
     color: '#334155', 
     textAlign: 'center', 
     marginBottom: 12 
   },
-
   primaryButton: { 
     backgroundColor: '#12577B', 
     borderRadius: 12, 
@@ -359,25 +339,21 @@ const styles = StyleSheet.create({
     alignItems: 'center', 
     marginTop: 16 
   },
-
   primaryButtonText: { 
     color: '#FFFFFF', 
     fontWeight: '600', 
     fontSize: 16 
   },
-
   checkboxContainer: { 
     flexDirection: 'row', 
     alignItems: 'center', 
     marginTop: 12 
   },
-
   checkboxLabel: { 
     marginLeft: 8, 
     fontSize: 14, 
     color: '#64748B' 
   }
-
 });
 
 export default RegistrarScreen;
