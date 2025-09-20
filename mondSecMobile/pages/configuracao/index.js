@@ -6,7 +6,6 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import CheckBox from 'expo-checkbox';
 
-
 const ConfiguracaoScreen = ({ navigation, setUserToken }) => {
   const [notificacao, setNotificacao] = useState(true);
   const [oculto, setOculto] = useState(true);
