@@ -5,38 +5,37 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\DashboardController;
 
 Route::get('/', function () {
-        return view('siteEmpresa.index');
-    })->name('siteEmpresa.index');
+    return view('siteEmpresa.index');
+})->name('site.index');
 
-Route::get('/adm', function () {
-        return view('admin.layouts.app');
-    })->name('siteAdm.login');
-
-Route::prefix('siteAdm')
+Route::prefix('adm')
     ->name('adm.')
     ->controller(AdminController::class)
     ->group(function () {
 
-        Route::get('/login', 'loginScreen')->name('login');
-        Route::post('/login', 'login')->name('login.submit');
-        Route::get('/cadastro', 'storeScreen')->name('store');
-        Route::post('/cadastro', 'store')->name('store.submit');
+        // Auth
+        Route::get('/login', 'loginScreen')->name('auth.login');
+        Route::post('/login', 'login')->name('auth.login.store');
+        Route::get('/cadastro', 'storeScreen')->name('auth.register');
+        Route::post('/cadastro', 'store')->name('auth.register.store');
+        Route::get('/logout', 'logout')->name('auth.logout');
 
         Route::middleware('admin.auth')->group(function () {
-            Route::get('/home', 'homeScreen')->name('home');
-            Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-            Route::get('/admlist', 'showAdmScreen')->name('showadm');
-            Route::get('/userlist', 'showUserScreen')->name('showuser');
 
-            Route::get('/adm/{id}', 'updateAdmScreen')->name('updateAdm');
-            Route::put('/adm/{id}', 'updateAdm')->name('updateAdm.submit');
+            // Dashboard
+            Route::get('/home', 'homeScreen')->name('dashboard.home');
+            Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard.index');
 
-            Route::get('/user/{id}', 'updateUserScreen')->name('updateUser');
-            Route::put('/user/{id}', 'updateUser')->name('updateUser.submit');
+            // Admins
+            Route::get('/admins', 'showAdmScreen')->name('admins.index');
+            Route::get('/admins/{id}', 'updateAdmScreen')->name('admins.edit');
+            Route::put('/admins/{id}', 'updateAdm')->name('admins.update');
+            Route::delete('/admins/{id}', 'deleteAdm')->name('admins.destroy');
 
-            Route::delete('/excluir/{id}', 'deleteAdm')->name('deleteAdm');
-            Route::delete('/exclui/{id}', 'deleteUser')->name('deleteUser');
-
-            Route::get('/logout', 'logout')->name('logout');
+            // Users
+            Route::get('/users', 'showUserScreen')->name('users.index');
+            Route::get('/users/{id}', 'updateUserScreen')->name('users.edit');
+            Route::put('/users/{id}', 'updateUser')->name('users.update');
+            Route::delete('/users/{id}', 'deleteUser')->name('users.destroy');
         });
     });
