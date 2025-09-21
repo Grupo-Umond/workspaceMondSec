@@ -27,7 +27,7 @@
     <div class="container">
         <h2>Entrar</h2>
 
-        <form id="formLogin" action="{{ route('adm.login.submit') }}" method="POST">
+        <form id="formLogin" action="{{ route('adm.auth.login.store') }}" method="POST">
             @csrf
 
             <div class="input-grupo1">
@@ -51,9 +51,7 @@
             <button type="submit">Entrar</button>
         </form>
 
-        <!-- <div class="link-cadastro">
-            Ainda não tem uma conta? <a href="{{ route('adm.store') }}">Cadastre-se aqui</a>
-        </div> -->
+
     </div>
     <script>
         const form = document.getElementById('formLogin');

@@ -8,6 +8,10 @@ Route::get('/', function () {
     return view('siteEmpresa.index');
 })->name('site.index');
 
+Route::get('/adm', function () {
+    return view('adm.auth.login');
+})->name('site.adm');
+
 Route::prefix('adm')
     ->name('adm.')
     ->controller(AdminController::class)

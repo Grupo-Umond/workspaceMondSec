@@ -12,7 +12,7 @@
             <div class="success">{{ session('success') }}</div>
         @endif
 
-        <form id="formUpdate" action="{{ route('adm.updateUser.submit', $usuario->id) }}" method="POST">
+        <form id="formUpdate" action="{{ route('adm.users.update', $usuario->id) }}" method="POST">
             @csrf
             @method('PUT')
 

@@ -31,12 +31,12 @@
                             <td>{{ $admin->telefone }}</td>
                             <td>{{ $admin->nivelAdmin }}</td>
                             <td>{{ $admin->created_at->format('d/m/Y H:i') }}</td>
-                            <td class="editarADM"><a href="{{ route('adm.updateAdm', $admin->id)}}">
+                            <td class="editarADM"><a href="{{ route('adm.admins.edit', $admin->id)}}">
                                     <i class="fa-solid fa-pencil"></i>
                                 </a></td>
                                 
                             <td class="excluirADM">
-                                <form action="{{ route('adm.deleteAdm', $admin->id) }}" method="POST"
+                                <form action="{{ route('adm.admins.destroy', $admin->id) }}" method="POST"
                                     onsubmit="return confirm('Tem certeza que quer excluir?');">
                                     @csrf
                                     @method('DELETE')
