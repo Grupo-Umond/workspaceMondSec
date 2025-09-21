@@ -11,34 +11,18 @@ use App\Models\Usuario;
 
 class AdminController extends Controller
 {
-
+    // =======================
+    //  AUTH
+    // =======================
 
     public function loginScreen()
     {
-        return view('siteAdm.login');
-    }
-
-    public function homeScreen() {
-        return view('siteAdm.home');
+        return view('adm.auth.login');
     }
 
     public function storeScreen()
     {
-        return view('siteAdm.cadastro');
-    }
-
-    public function showAdmScreen()
-    {
-       
-        $admins = Admin::all();
-        return view('siteAdm.verAdm.index', compact('admins'));
-
-    }
-
-    public function showUserScreen()
-    {
-        $usuario = Usuario::all();
-        return view('siteAdm.verUser.index', compact('usuario'));
+        return view('adm.auth.cadastro');
     }
 
     public function login(Request $request)
@@ -50,11 +34,11 @@ class AdminController extends Controller
 
         $admin = Admin::where('email', $credentials['email'])->first();
 
-        if($admin && Hash::check($credentials['senha'], $admin['senha'])) {
+        if ($admin && Hash::check($credentials['senha'], $admin['senha'])) {
             Auth::guard('admin')->login($admin);
             $request->session()->regenerate();
 
-            return redirect()->route('adm.dashboard');
+            return redirect()->route('adm.dashboard.index');
         }
 
         return back()->withErrors([
@@ -62,18 +46,17 @@ class AdminController extends Controller
         ]);
     }
 
-
-
     public function logout(Request $request)
     {
         Auth::guard('admin')->logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
-        return redirect()->route('siteAdm.login');
+
+        return redirect()->route('adm.auth.login');
     }
 
-    public function store(Request $request) {
-
+    public function store(Request $request)
+    {
         $dados = $request->validate([
             'nome' => 'required|max:225|string',
             'email' => 'required|max:225|string',
@@ -82,8 +65,7 @@ class AdminController extends Controller
             'nivelAdmin' => 'required|string',
         ]);
 
-
-        $usuario = Admin::create([
+        Admin::create([
             'nome' => $dados['nome'],
             'email' => $dados['email'],
             'telefone' => $dados['telefone'],
@@ -91,15 +73,36 @@ class AdminController extends Controller
             'nivelAdmin' => $dados['nivelAdmin'],
         ]);
 
-        return redirect()->route('adm.store')->with('success', 'Adm cadastrado com sucesso!');
-    }
-    
-    public function updateAdmScreen($id) {
-        $admin = Admin::findOrFail($id);
-        return view('siteAdm.verAdm.update', compact('admin'));
+        return redirect()->route('adm.auth.register')->with('success', 'Adm cadastrado com sucesso!');
     }
 
-    public function updateAdm(Request $request, $id) {
+    // =======================
+    //  DASHBOARD
+    // =======================
+
+    public function homeScreen()
+    {
+        return view('adm.home');
+    }
+
+    // =======================
+    //  ADMINS
+    // =======================
+
+    public function showAdmScreen()
+    {
+        $admins = Admin::all();
+        return view('adm.verAdm.index', compact('admins'));
+    }
+
+    public function updateAdmScreen($id)
+    {
+        $admin = Admin::findOrFail($id);
+        return view('adm.verAdm.update', compact('admin'));
+    }
+
+    public function updateAdm(Request $request, $id)
+    {
         $dados = $request->validate([
             'nome' => 'nullable|max:225|string',
             'email' => 'nullable|max:225|string',
@@ -108,37 +111,50 @@ class AdminController extends Controller
         ]);
 
         $admin = Admin::findOrFail($id);
-        if($request->nome) {
-            $admin->nome = $request->nome;
-        }
 
-        if($request->email) {
-            $admin->email = $request->email;
-        }
-        
-        if($request->telefone) {
+        if ($request->nome) $admin->nome = $request->nome;
+        if ($request->email) $admin->email = $request->email;
+
+        if ($request->telefone) {
             $telefone = preg_replace('/\D/', '', $request->telefone);
-
-            if (!str_starts_with($telefone, '55')) {
-                $telefone = '55' . $telefone;
-            }
-
-            $telefone = '+' . $telefone;
-
-            $admin->telefone = $telefone;
+            if (!str_starts_with($telefone, '55')) $telefone = '55' . $telefone;
+            $admin->telefone = '+' . $telefone;
         }
 
         $admin->save();
 
-        return redirect()->route('adm.showadm')->with('success','Adm alterado com sucesso');
+        return redirect()->route('adm.admins.index')->with('success', 'Adm alterado com sucesso');
     }
 
-    public function updateUserScreen($id) {
+    public function deleteAdm($id)
+    {
+        $admin = Admin::find($id);
+        if (!$admin) {
+            return redirect()->back()->with('Error', 'O adm não foi encontrado');
+        }
+        $admin->delete();
+
+        return redirect()->route('adm.admins.index')->with('success', 'Adm deletado com sucesso');
+    }
+
+    // =======================
+    //  USERS
+    // =======================
+
+    public function showUserScreen()
+    {
+        $usuario = Usuario::all();
+        return view('adm.verUser.index', compact('usuario'));
+    }
+
+    public function updateUserScreen($id)
+    {
         $usuario = Usuario::findOrFail($id);
-        return view('siteAdm.verUser.update', compact('usuario'));
+        return view('adm.verUser.update', compact('usuario'));
     }
 
-    public function updateUser(Request $request, $id) {
+    public function updateUser(Request $request, $id)
+    {
         $dados = $request->validate([
             'nome' => 'nullable|max:225|string',
             'email' => 'nullable|max:225|string',
@@ -147,54 +163,31 @@ class AdminController extends Controller
         ]);
 
         $usuario = Usuario::findOrFail($id);
-        if($request->nome) {
-            $usuario->nome = $request->nome;
-        }
 
-        if($request->email) {
-            $usuario->email = $request->email;
-        }
+        if ($request->nome) $usuario->nome = $request->nome;
+        if ($request->email) $usuario->email = $request->email;
 
-        if($request->telefone) {
+        if ($request->telefone) {
             $telefone = preg_replace('/\D/', '', $request->telefone);
-
-            if (!str_starts_with($telefone, '55')) {
-                $telefone = '55' . $telefone;
-            }
-
-            $telefone = '+' . $telefone;
-
-            $usuario->telefone = $telefone;
+            if (!str_starts_with($telefone, '55')) $telefone = '55' . $telefone;
+            $usuario->telefone = '+' . $telefone;
         }
 
-        if($request->genero) {
-            $usuario->genero = $request->genero;
-        }
+        if ($request->genero) $usuario->genero = $request->genero;
 
         $usuario->save();
 
-        return redirect()->route('adm.showuser')->with('success','Usuario alterado com sucesso');
+        return redirect()->route('adm.users.index')->with('success', 'Usuário alterado com sucesso');
     }
 
-    public function deleteAdm($id) {
-        $admin = Admin::find($id);
-        if(!$admin) {
-            return redirect()->back()->with('Error','O adm não encontrado');
-        }
-        $admin->delete();
-
-        return redirect()->route('adm.showadm')->with('success','Adm deletado com sucesso');
-    }
-
-    public function deleteUser($id) {
+    public function deleteUser($id)
+    {
         $usuario = Usuario::find($id);
-        if(!$usuario) {
-            return redirect()->back()->with('Error','O usuario não encontrado');
+        if (!$usuario) {
+            return redirect()->back()->with('Error', 'O usuário não foi encontrado');
         }
         $usuario->delete();
 
-        return redirect()->route('adm.showuser')->with('success','Usuario deletado com sucesso');
+        return redirect()->route('adm.users.index')->with('success', 'Usuário deletado com sucesso');
     }
-
 }
-
