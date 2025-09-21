@@ -51,7 +51,6 @@
             <button type="submit">Entrar</button>
         </form>
 
-
     </div>
     <script>
         const form = document.getElementById('formLogin');

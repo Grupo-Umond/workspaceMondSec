@@ -41,7 +41,7 @@ class DashboardController extends Controller
 
         $usuariosSemOcorrencia = Usuario::doesntHave('ocorrencia')->count();
 
-        return view('siteAdm.home', compact(
+        return view('adm.dashboard.index', compact(
             'usuariosHomem',
             'usuariosMulher',
             'usuariosNaoInformar',
