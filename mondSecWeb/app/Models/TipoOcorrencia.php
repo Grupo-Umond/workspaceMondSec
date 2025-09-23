@@ -14,10 +14,17 @@ class TipoOcorrencia extends Model
     protected $table = 'tbTipoOcorrencia';
     protected $primaryKey = 'id';
     
-    public $timestamps = false;
+    public $timestamps = true;
 
     protected $fillable = [
         'categoria',
         'descricao',
     ];
+
+    public function ocorrencia()
+    {
+        return $this->hasMany(Ocorrencia::class, 'idTipoOcorrencia', 'id'); 
+    }
 }
+
+
