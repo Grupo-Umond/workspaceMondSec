@@ -27,7 +27,6 @@ Route::prefix('adm')
         Route::middleware('admin.auth')->group(function () {
 
             // Dashboard
-            Route::get('/home', 'homeScreen')->name('dashboard.home');
             Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard.index');
 
             // Admins
@@ -41,5 +40,8 @@ Route::prefix('adm')
             Route::get('/users/{id}', 'updateUserScreen')->name('users.edit');
             Route::put('/users/{id}', 'updateUser')->name('users.update');
             Route::delete('/users/{id}', 'deleteUser')->name('users.destroy');
+
+            //Ocorrencia
+            Route::get('/ocorrencias','showOcorrenciaScreen')->name('ocorrencia.index');
         });
     });

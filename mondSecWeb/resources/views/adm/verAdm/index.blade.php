@@ -1,4 +1,4 @@
-@extends(adm.layouts.admin)
+@extends('adm.layouts.admin')
 
 @section('title','View')
 
@@ -54,9 +54,10 @@
             </table>
         @endif
 
-        <a href="{{ route('adm.dashboard') }}" class="link-btn">
+        <a href="{{ route('adm.dashboard.index') }}" class="link-btn">
             <div class="botao">Voltar ao Painel</div>
         </a>
     </div>
-@endsection
 </body>
+@endsection
+

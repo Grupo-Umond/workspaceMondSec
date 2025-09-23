@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use App\Models\Admin;
+use App\Models\Ocorrencia;
+use App\Models\TipoOcorrencia;
 use App\Models\Usuario;
 
 class AdminController extends Controller
@@ -144,7 +146,7 @@ class AdminController extends Controller
     public function showUserScreen()
     {
         $usuario = Usuario::all();
-        return view('adm.verUser.index', compact('usuario'));
+        return view('adm.verUsuario.index', compact('usuario'));
     }
 
     public function updateUserScreen($id)
@@ -189,5 +191,17 @@ class AdminController extends Controller
         $usuario->delete();
 
         return redirect()->route('adm.users.index')->with('success', 'Usuário deletado com sucesso');
+    }
+
+    // =======================
+    //  OCORRENCIAS
+    // =======================
+
+    public function showOcorrenciaScreen() {
+        $ocorrencia = Ocorrencia::all();
+        $tipoocorrencia = TipoOcorrencia::all();
+
+        
+        return redirect()->view('adm.verOcorrencia.index',compact('tipocorrencia','ocorrencia'));
     }
 }
