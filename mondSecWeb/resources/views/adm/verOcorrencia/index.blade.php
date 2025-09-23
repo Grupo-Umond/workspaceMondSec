@@ -6,12 +6,8 @@
 <div class="container py-5">
         <h1 class="mb-4">Ocorrencias Cadastrados</h1>
         @method(`DELETE`)
-        @if($ocorrencia->isEmpty())
-            <div class="alert alert-warning">Nenhuma ocorrencia cadastrada.</div>
-        @else
-        @if($tipoocorrencia->isEmpty())
-            <div class="alert alert-warning">Nenhuma ocorrencia cadastrado.</div>
-        @else
+        
+        
             <table class="table table-striped table-bordered">
                 <thead class="table-dark">
                     <tr>
@@ -22,6 +18,8 @@
                         <th>USUARIO</th>
                         <th>TIPO OCORRENCIA</th>
                         <th>DATA OCORRENCIA</th>
+                        <th>ID USUARIO</th>
+                        <th>ID TIPO DA OCORRENCIA</th>
                         <th class="as1"></th>
                         <th class="as"></th>
                     </tr>
@@ -29,16 +27,14 @@
                 <tbody>
                     @foreach($ocorrencia as $ocorrencias)
                         <tr>
-                            <td>{{ $ocorrencias->id }}</td>
-                            <td>{{ $ocorrencias->titulo }}</td>
-                            <td>{{ $ocorrencias->latitude }}</td>
-                            <td>{{ $ocorrencias->longitude }}</td>
-                            <td>{{ $ocorrencias->data }}</td>
-                            <td>{{ $ocorrencias->idUsuario }}</td>
-                            <td>{{ $ocorrencias->idTipoOcorrencia }}</td>
-                            @foreach($tipocorrencia as $tipocorrencias)
-                                <td>{{ $tipocorrencia->descricao }}</td>
-                            @endforeach
+                            <td>{{ $ocorrencias->ocorrencias->id }}</td>
+                            <td>{{ $ocorrencias->ocorrencias->titulo }}</td>
+                            <td>{{ $ocorrencias->ocorrencias->latitude }}</td>
+                            <td>{{ $ocorrencias->ocorrencias->longitude }}</td>
+                            <td>{{ $ocorrencias->ocorrencias->data }}</td>
+                            <td>{{ $ocorrencias->ocorrencias->idUsuario }}</td>
+                            <td>{{ $ocorrencias->ocorrencias->idTipoOcorrencia }}</td>
+                            
                             <td class="editarADM"><a href="{{ route('adm.ocorrencia.edit', $ocorrencia->id)}}">
                                     <i class="fa-solid fa-pencil"></i>
                                 </a></td>
@@ -60,7 +56,7 @@
                     @endforeach
                 </tbody>
             </table>
-        @endif
+        
 
         <a href="{{ route('adm.dashboard.index') }}" class="link-btn">
             <div class="botao">Voltar ao Painel</div>
