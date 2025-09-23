@@ -197,9 +197,9 @@ class AdminController extends Controller
     // =======================
 
     public function showOcorrenciaScreen() {
-        $ocorrencia = Ocorrencia::all();
-        
-        return view('adm.verOcorrencia.index',compact('ocorrencia'));
+        $ocorrencia = Ocorrencia::with(['tipoOcorrencia','usuario'])->get();
+
+        return view('adm.verOcorrencia.index',['ocorrencia' => $ocorrencia]);
     }
 
      public function updateOcorrenciaScreen($id)
