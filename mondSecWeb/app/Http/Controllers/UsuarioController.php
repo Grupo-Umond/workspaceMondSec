@@ -41,6 +41,7 @@ class UsuarioController extends Controller
             'email' => $dados['email'],
             'telefone' => $telefone,
             'senha' => Hash::make($dados['senha']),
+            'status' => 'ativo',
             'data' => now(),
         ]);
 
