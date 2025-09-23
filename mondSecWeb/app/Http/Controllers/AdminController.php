@@ -8,7 +8,6 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use App\Models\Admin;
 use App\Models\Ocorrencia;
-use App\Models\TipoOcorrencia;
 use App\Models\Usuario;
 
 class AdminController extends Controller
@@ -199,9 +198,45 @@ class AdminController extends Controller
 
     public function showOcorrenciaScreen() {
         $ocorrencia = Ocorrencia::all();
-        $tipoocorrencia = TipoOcorrencia::all();
-
         
-        return redirect()->view('adm.verOcorrencia.index',compact('tipocorrencia','ocorrencia'));
+        return view('adm.verOcorrencia.index',compact('ocorrencia'));
     }
+
+     public function updateOcorrenciaScreen($id)
+    {
+        $ocorrencia = Ocorrencia::findOrFail($id);
+        return view('adm.verOcrrencia.update', compact('ocorrencia'));
+    }
+
+    public function updateOcorrencia(Request $request, $id)
+    {
+        $dados = $request->validate([
+            'titulo' => 'nullable|max:225|string',
+            'latitude' => 'nullable|max:225|string',
+            'longitude' => 'nullable|string',
+            'data' => 'nullable',
+        ]);
+
+        $ocorrencia = Ocorrencia::findOrFail($id);
+
+        if ($request->titulo) $ocorrencia->titulo = $request->titulo;
+        if ($request->latitude) $ocorrencia->latitude = $request->latitude;
+        if ($request->longitude) $ocorrencia->longitude = $request->longitude;
+        if ($request->data) $ocorrencia->data = $request->data;
+
+        $ocorrencia->save();
+
+        return redirect()->route('adm.ocorrencia.index')->with('success', 'Usuário alterado com sucesso');
+    }
+
+    public function deleteOcorrencia($id) {
+        $ocorrencia = Usuario::find($id);
+        if (!$ocorrencia) {
+            return redirect()->back()->with('Error', 'O usuário não foi encontrado');
+        }
+        $ocorrencia->delete();
+
+        return redirect()->route('adm.ocorrencia.index')->with('success', 'Usuário deletado com sucesso');
+    }
+
 }

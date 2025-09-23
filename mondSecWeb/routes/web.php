@@ -43,5 +43,8 @@ Route::prefix('adm')
 
             //Ocorrencia
             Route::get('/ocorrencias','showOcorrenciaScreen')->name('ocorrencia.index');
+            Route::get('/ocorrencias/{id}', 'updateOcorrenciaScreen')->name('ocorrencia.edit');
+            Route::put('/ocorrencias/{id}', 'updateOcorrencia')->name('ocorrencia.update');
+            Route::delete('/ocorrencias/{id}', 'deleteOcorrencia')->name('ocorrencia.destroy');
         });
     });
