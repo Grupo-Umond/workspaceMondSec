@@ -22,6 +22,6 @@ class AuthAdmin
             return $next($request);
         }
 
-        return redirect()->route('adm.login');
+        return redirect()->route('adm.auth.login');
     }
 }

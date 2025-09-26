@@ -77,8 +77,7 @@ const RegistrarScreen = ({ navigation }) => {
         titulo,
         latitude,
         longitude,
-        tbTipoOcorrencia: { tipo, descricao: descricaoTipo },
-        descricao,
+        tbTipoOcorrencia: { tipo, descricao },
       };
 
       const tokenUser = await AsyncStorage.getItem('userToken');
