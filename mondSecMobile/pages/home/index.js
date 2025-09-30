@@ -48,11 +48,12 @@ const HomeScreen = ({ navigation }) => {
   const buscarEndereco = async () => {
     try {
       const coords = await CoordenadaService(endereco);
-
+      mapaRef.current?.centralizarNoEndereco(coords.lat, coords.lng);
     } catch (e) {
       alert('Endereço não encontrado');
     }
   };
+  
 
 
   return (
