@@ -14,6 +14,7 @@ import CheckBox from 'expo-checkbox';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { CoordenadaService } from '../../services/CoordenadaService';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import DateTimePicker from '@react-native-community/datetimepicker';
 import axios from 'axios';
 
 const RegistrarScreen = ({ navigation }) => {
@@ -24,6 +25,7 @@ const RegistrarScreen = ({ navigation }) => {
 
   const [endereco, setEndereco] = useState('');
   const [titulo, setTitulo] = useState('');
+  const [data, setData] = useState('');
   const [tipo, setTipo] = useState('');
   const [descricaoTipo, setDescricaoTipo] = useState('');
   const [descricao, setDescricao] = useState('');
@@ -38,6 +40,11 @@ const RegistrarScreen = ({ navigation }) => {
     checarModal();
   }, []);
 
+  const onChange = () => {
+    const currentDtae = selectedDate || Date;
+    setShow(false);
+    setData(currentDate);
+  }
   const toggleMostrar = async (value) => {
     setMostrar(value);
     await AsyncStorage.setItem('mostrarModalInicio', JSON.stringify(value));
@@ -54,8 +61,8 @@ const RegistrarScreen = ({ navigation }) => {
   const limparCampos = () => {
     setTitulo('');
     setTipo('');
+    setData('');
     setDescricao('');
-    setDescricaoTipo('');
     setEndereco('');
   };
 
@@ -127,14 +134,6 @@ const RegistrarScreen = ({ navigation }) => {
           </Picker>
         </View>
 
-        <Text style={styles.label}>Descrição do Tipo</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Ex: Assalto à mão armada..."
-          value={descricaoTipo}
-          onChangeText={setDescricaoTipo}
-        />
-
         <Text style={styles.label}>Endereço</Text>
         <TextInput
           style={styles.input}
@@ -154,6 +153,16 @@ const RegistrarScreen = ({ navigation }) => {
           maxLength={120}
           textAlignVertical="top"
         />
+
+        <Button onPress={() => setShow(true)} title='Selecionar Data'/>
+        {show && (
+          <DateTimePicker
+          value={data}
+          mode='date'
+          display='default'
+          onChange={onChange}
+          />
+        )}
         <Text style={styles.contador}>{descricao.length}/120</Text>
 
         {mensagemErro ? <Text style={styles.erro}>{mensagemErro}</Text> : null}
