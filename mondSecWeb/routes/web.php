@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\ContatoController;
 
 Route::get('/', function () {
         return view('siteEmpresa.index');
@@ -40,3 +41,11 @@ Route::prefix('siteAdm')
             Route::get('/logout', 'logout')->name('logout');
         });
     });
+
+
+    //faleconosco
+    Route::get('/contato', function () {
+    return view('contato'); // aqui é a view onde está seu formulário
+    });
+
+    Route::post('/contato', [ContatoController::class, 'enviar'])->name('contato.enviar');
