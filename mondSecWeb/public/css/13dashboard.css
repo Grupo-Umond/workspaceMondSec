@@ -18,6 +18,7 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   background: var(--bg);
+  /* background-color: red; */
   color: var(--text);
   line-height: 1.35;
 }
@@ -74,7 +75,7 @@ main.container {
 }
 
 .graficos {
-  display: flex;
+  /* display: flex;
   gap: 16px;
   align-items: flex-start;
   justify-content: flex-start;
@@ -83,7 +84,16 @@ main.container {
   -webkit-overflow-scrolling: touch;
   padding-bottom: 8px;
   margin-bottom: 20px;
-  width: 100%;
+  width: 100%; */
+  display: flex;
+}
+
+.graficosEsquerda {
+  width: 50%;
+}
+
+.graficosDireita {
+ width: 50%;
 }
 
 canvas.chart-fixed {
@@ -99,7 +109,7 @@ canvas.chart-fixed {
 }
 
 canvas.pie-size  { width: 360px !important;  height: 320px !important; }
-canvas.line-size { width: 520px !important;  height: 320px !important; }
+canvas.line-size { width: 100% !important;  height: 320px !important; }
 canvas.bar-size  { width: 420px !important;  height: 320px !important; }
 
 .cards {

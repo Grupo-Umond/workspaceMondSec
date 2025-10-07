@@ -185,7 +185,7 @@ td, th {
 
 th {
     text-align: left;
-    background-color: #04aa3D;
+    background-color: #0B0D25;
     color: white;
 }
 
@@ -203,7 +203,7 @@ tr:hover {
     justify-content: center;
     align-items: center;
     padding: 1% 0%;
-    background-color: #04aa3D;
+    background-color: #0B0D25;
     border-radius: 5px;
     cursor: pointer;
     text-decoration: none;
@@ -219,7 +219,7 @@ tr:hover {
 }
 
 .as {
-    background-color: #04aa3D;
+    background-color: #0B0D25;
     border-left: none;
 }
 
@@ -240,4 +240,8 @@ tbody i {
 
 .editarADM, .excluirADM {
     text-align: center;
+}
+
+.parteCima {
+  height: 40vh;
 }
