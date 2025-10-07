@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useContext } from 'react';
 import { View, Text, Pressable, TextInput, Modal, StyleSheet, ActivityIndicator } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import Icon from 'react-native-vector-icons/MaterialIcons'; 
+import { MaterialIcons as Icon } from '@expo/vector-icons';
 import Mapa from "../../services/MapaService";
 import { AuthContext } from '../../services/AuthContext';
 import { CoordenadaService } from '../../services/CoordenadaService';
