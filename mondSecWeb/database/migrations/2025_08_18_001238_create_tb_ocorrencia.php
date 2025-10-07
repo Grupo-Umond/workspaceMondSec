@@ -18,12 +18,12 @@ return new class extends Migration
             $table->string('titulo');
             $table->string('latitude');
             $table->string('longitude');
+            $table->string('categoria');
+            $table->string('descricao');
             $table->timestamp('data')->useCurrent();
             $table->unsignedBigInteger('idUsuario');
-            $table->unsignedBigInteger('idTipoOcorrencia');
 
             $table->foreign('idUsuario')->references('id')->on('tbUsuario')->onDelete('cascade');
-            $table->foreign('idTipoOcorrencia')->references('id')->on('tbTipoOcorrencia')->onDelete('cascade');
         });
     }
 
