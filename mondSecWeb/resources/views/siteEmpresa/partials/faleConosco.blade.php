@@ -35,23 +35,24 @@
         </div>
 
         <div class="form_faleConosco">
-            <form action="">
+            <form action="{{ route('contato.enviar') }}" method="POST">
+                @csrf
                 <h3>Contato</h3>
                 <div class="input-group">
                     <label>Nome</label>
-                    <input type="text" placeholder="Nome">
+                    <input type="text" name="nome" placeholder="Nome" required>
                 </div>
                 <div class="input-group">
                     <label>E-mail</label>
-                    <input type="email" placeholder="E-mail">
+                    <input type="email" name="email" placeholder="E-mail" required>
                 </div>
                 <div class="input-group">
                     <label>Assunto</label>
-                    <input type="text" placeholder="Assunto">
+                    <input type="text" name="assunto" placeholder="Assunto" required>
                 </div>
                 <div class="input-group">
                     <label>Mensagem</label>
-                    <textarea placeholder="Mensagem"></textarea>
+                    <textarea name="mensagem" placeholder="Mensagem" required></textarea>
                 </div>
                 <input type="submit" value="Enviar" id="enviar">
             </form>
