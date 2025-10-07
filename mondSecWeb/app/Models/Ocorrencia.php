@@ -22,16 +22,11 @@ class Ocorrencia extends Model
         'titulo',
         'latitude',
         'longitude',
+        'descricao',
+        'categoria',
         'data',
         'idUsuario',
-        'idTipoOcorrencia',
     ];
-
-    public function tipoOcorrencia()
-    {
-        return $this->belongsTo(TipoOcorrencia::class, 'idTipoOcorrencia', 'id');
-        
-    }
     public function usuario()
     {
         return $this->belongsTo(Usuario::class, 'idUsuario', 'id');
