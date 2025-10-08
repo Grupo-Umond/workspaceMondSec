@@ -3,6 +3,7 @@ import { Pressable, View, TextInput, Text, StyleSheet, TouchableOpacity, Image }
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Icon from 'react-native-vector-icons/FontAwesome';
+import UrlService from '../../../../services/UrlService';
 
 const AlterarSenhaScreen = ({ navigation, route }) => {
   const [novaSenha, setNovaSenha] = useState('');
@@ -42,7 +43,7 @@ const AlterarSenhaScreen = ({ navigation, route }) => {
 
     const tokenUser = await AsyncStorage.getItem('userToken');
     try {
-      const response = await axios.put('http://127.0.0.1:8000/api/usuario/alterar',
+      const response = await UrlService.put('/usuario/alterar',
         {
           tokenTemp,
           novaSenhaConfirma,

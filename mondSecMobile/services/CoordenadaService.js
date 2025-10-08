@@ -1,10 +1,13 @@
 import axios from "axios";
 
 export async function CoordenadaService(address) {
+  const api = axios.create({
+    baseURL: 'http://192.168.15.116:3000',
+  });
   try {
     if (!address) throw new Error("Endereço vazio");
 
-    const response = await axios.get("http://localhost:3000/geocode", {
+    const response = await axios.get("/geocode", {
       params: { address }
     });
 

@@ -9,10 +9,10 @@ import {
   Image,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import UrlService from "../../../../services/UrlService";
 import axios from "axios";
 
 const DigiteCodigoScreen = ({ navigation, route }) => {
-
   const [digitos, setDigitos] = useState(["", "", "", "", "", ""]);
   const [direcao, setDirecao] = useState(true);
   const [email, setEmail] = useState("");
@@ -21,7 +21,6 @@ const DigiteCodigoScreen = ({ navigation, route }) => {
   const [erroMessage, setErroMessage] = useState("");
 
   const usuario = route.params?.usuario;
-  const baseURL = "http://127.0.0.1:8000";
   const code = digitos.join("");
 
   useEffect(() => {
@@ -29,7 +28,7 @@ const DigiteCodigoScreen = ({ navigation, route }) => {
       const tokenUser = await AsyncStorage.getItem("userToken");
       try {
         if (tokenUser) {
-          const response = await axios.get(`${baseURL}/api/usuario/buscar`, {
+          const response = await UrlService.get('/usuario/buscar', {
             headers: { Authorization: `Bearer ${tokenUser}` },
           });
           setEmail(response.data.usuario.email);
@@ -49,19 +48,19 @@ const DigiteCodigoScreen = ({ navigation, route }) => {
       try {
         if (direcao) {
           if (tokenUser) {
-            await axios.post(`${baseURL}/api/codigo/sendEmail`, {
+          await UrlService.post('/codigo/sendEmail', {
               headers: { Authorization: `Bearer ${tokenUser}` },
             });
           } else {
-            await axios.post(`${baseURL}/api/codigo/sendEmail`, { login });
+            await UrlService.post('/codigo/sendEmail', { login });
           }
         } else {
           if (tokenUser) {
-            await axios.post(`${baseURL}/api/codigo/sendSms`, {}, {
+            await UrlService.post('/codigo/sendSms', {}, {
               headers: { Authorization: `Bearer ${tokenUser}` },
             });
           } else {
-            await axios.post(`${baseURL}/api/codigo/sendSms`, { telefone });
+            await UrlService.post('/codigo/sendSms', { telefone });
           }
         }
       } catch (erro) {
@@ -115,8 +114,8 @@ const DigiteCodigoScreen = ({ navigation, route }) => {
     try {
       const login = await pegarLogin();
 
-      const response = await axios.post(
-        `${baseURL}/api/codigo/verify`,
+      const response = await UrlService.post(
+        '/codigo/verify',
         { code, direcao, login },
         tokenUser ? { headers: { Authorization: `Bearer ${tokenUser}` } } : {}
       );

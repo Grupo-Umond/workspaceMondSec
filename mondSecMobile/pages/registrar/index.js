@@ -15,7 +15,9 @@ import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { CoordenadaService } from '../../services/CoordenadaService';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import UrlService from '../../services/UrlService';
 import axios from 'axios';
+
 
 const RegistrarScreen = ({ navigation }) => {
   const [carregando, setCarregando] = useState(false);
@@ -41,7 +43,7 @@ const RegistrarScreen = ({ navigation }) => {
   }, []);
 
   const onChange = () => {
-    const currentDtae = selectedDate || Date;
+    const currentDate = selectedDate || Date;
     setShow(false);
     setData(currentDate);
   }
@@ -88,7 +90,7 @@ const RegistrarScreen = ({ navigation }) => {
       };
 
       const tokenUser = await AsyncStorage.getItem('userToken');
-      await axios.post('http://127.0.0.1:8000/api/ocorrencia/registrar', dados, {
+      await UrlService.post('/ocorrencia/registrar', dados, {
         headers: { Authorization: `Bearer ${tokenUser}` }
       });
 

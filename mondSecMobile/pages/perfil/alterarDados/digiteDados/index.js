@@ -12,6 +12,8 @@ import {
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 import Icon from "react-native-vector-icons/FontAwesome";
+import UrlService from '../../../../services/UrlService';
+
 
 const DigiteDadosScreen = ({ navigation }) => {
   const [nome, setNome] = useState("");
@@ -34,7 +36,7 @@ const DigiteDadosScreen = ({ navigation }) => {
     const buscarDados = async () => {
       const tokenUser = await AsyncStorage.getItem("userToken");
       try {
-        const response = await axios.get("http://127.0.0.1:8000/api/usuario/buscar",
+        const response = await UrlService.get("/usuario/buscar",
           {
             headers: {
               authorization: `Bearer ${tokenUser}`,
@@ -80,7 +82,7 @@ const DigiteDadosScreen = ({ navigation }) => {
 
     const tokenUser = await AsyncStorage.getItem("userToken");
 
-    const response = await axios.put("http://127.0.0.1:8000/api/usuario/update",
+    const response = await UrlService.put("usuario/update",
       {
         nome,
         email,

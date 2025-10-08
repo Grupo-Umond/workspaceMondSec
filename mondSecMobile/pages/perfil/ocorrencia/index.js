@@ -3,6 +3,8 @@ import { View, Text, Pressable, TextInput, Modal, StyleSheet } from 'react-nativ
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { EnderecoService } from '../../../services/EnderecoService';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
+import  UrlService  from '../../../services/UrlService';
+
 import axios from 'axios';
 
 const OcorrenciaScreen = ({ navigation }) => {
@@ -16,7 +18,7 @@ const OcorrenciaScreen = ({ navigation }) => {
     const getOcorrencias = async () => {
       try {
         const tokenUser = await AsyncStorage.getItem('userToken');
-        const response = await axios.get('http://127.0.0.1:8000/api/ocorrencia/procurar', {
+        const response = await UrlService.get('/ocorrencia/procurar', {
           headers: { Authorization: `Bearer ${tokenUser}` },
         });
 
@@ -51,7 +53,6 @@ const OcorrenciaScreen = ({ navigation }) => {
     getOcorrencias();
   }, []);
 
-  // lista filtrada conforme o texto digitado
   const ocorrenciasFiltradas = useMemo(() => {
     return ocorrencias.filter((ocorrencia) => {
       const textoBusca = busca.toLowerCase();
