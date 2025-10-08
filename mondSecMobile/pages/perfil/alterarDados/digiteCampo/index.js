@@ -2,6 +2,7 @@ import React, {useState} from "react";
 import {View, Text, TextInput, Pressable, StyleSheet, Image} from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
+import UrlService from '../../../../services/UrlService';
 
 const DigiteCampoScreen = ({navigation}) => {
         const [ login , setLogin ] = useState('');
@@ -22,7 +23,7 @@ const DigiteCampoScreen = ({navigation}) => {
         }
         const verificarExistenciaDoCampo = async () => {
                 const campo = determinarCampo();
-                const response = await axios.post('http://127.0.0.1:8000/api/usuario/checkcampo', {
+                const response = await UrlService.post('/usuario/checkcampo', {
                         login,
                         campo
                 });

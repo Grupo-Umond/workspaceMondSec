@@ -2,9 +2,10 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, Pressable, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import CheckBox from 'expo-checkbox';
-import axios from 'axios';
+import UrlService from '../../services/UrlService'; 
 
 const CadastroScreen = ({ navigation }) => {
+  
   const [nome, setNome] = useState('');
   const [genero, setGenero] = useState(null);          
   const [email, setEmail] = useState('');
@@ -114,7 +115,7 @@ const CadastroScreen = ({ navigation }) => {
     setCarregando(true);
 
     try {
-      const response = await axios.post('http://127.0.0.1:8000/api/usuario/cadastrar', {
+      const response = await UrlService.post('/usuario/cadastrar', {
         nome,
         email,
         telefone,

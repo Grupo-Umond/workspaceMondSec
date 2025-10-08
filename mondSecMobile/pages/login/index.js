@@ -1,9 +1,11 @@
 import React, { useState, useEffect, useContext} from "react";
 import { View, Text, TextInput, Pressable, StyleSheet, TouchableOpacity, Image}  from 'react-native';
 import { AuthContext } from '../../services/AuthContext';
+import UrlService from '../../services/UrlService';
 import  axios  from 'axios';
 
 const LoginScreen = ({navigation, route}) => {
+
   const[erroMessage, setErroMessage] = useState('');
   const[carregando, setCarregando] = useState(false);
   const[login, setLogin] = useState('');
@@ -42,7 +44,7 @@ const LoginScreen = ({navigation, route}) => {
 
     try {
 
-      const response = await axios.post('http://127.0.0.1:8000/api/usuario/login', {
+      const response = await UrlService.post('/usuario/login', {
         login,
         senha,
       });

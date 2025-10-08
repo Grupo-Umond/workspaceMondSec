@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useState } from 'react';
 import { View, Text, Pressable, Image, StyleSheet, Modal, TextInput } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
-import axios from 'axios';
+import UrlService from '../../../services/UrlService';
 import { AuthContext } from '../../../services/AuthContext';
 
 const MenuScreen = ({ navigation, route }) => {
@@ -24,7 +24,7 @@ const MenuScreen = ({ navigation, route }) => {
           console.log('Token não recebido');
         }
 
-        const response = await axios.get('http://127.0.0.1:8000/api/usuario/buscar', {
+        const response = await UrlService.get('/usuario/buscar', {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -55,7 +55,7 @@ const MenuScreen = ({ navigation, route }) => {
 
     const tokenUser = await AsyncStorage.getItem('userToken');
     try {
-      const response = await axios.delete('http://127.0.0.1:8000/api/usuario/deletar', {
+      const response = await UrlService.delete('/usuario/deletar', {
         headers: {
           Authorization: `Bearer ${tokenUser}`,
           senha: senha,
