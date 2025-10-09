@@ -20,6 +20,7 @@ class Usuario extends Authenticatable
         'telefone',
         'senha',
         'genero',
+        'foto',
         'dataCadastro',
         'expoToken', 
     ];
@@ -35,14 +36,12 @@ class Usuario extends Authenticatable
 
     public function ocorrencia()
     {
-        return $this->hasMany(Ocorrencia::class, 'idUsuario', 'id'); // chave estrangeira
+        return $this->hasMany(Ocorrencia::class, 'idUsuario', 'id');
     }
-
-    // app/Models/User.php
 
     public function getAuthPassword()
     {
-        return $this->senha; // ou o nome real do campo da sua tabela
+        return $this->senha;
     }
 
 
