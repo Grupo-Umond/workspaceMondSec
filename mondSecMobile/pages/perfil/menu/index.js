@@ -117,7 +117,8 @@ const MenuScreen = ({ navigation, route }) => {
   }
 
   const pickImage = async () => {
-    if(!pedirPermissao())return;
+    const permitir = await pedirPermissao();
+    if(!permitir)return;
     let result = await ImagePicker.launchCameraAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
@@ -145,7 +146,7 @@ const MenuScreen = ({ navigation, route }) => {
       <Text>{mensagem}</Text>
 
       <View style={styles.perfilContainer}>
-        <Image style={styles.avatar} source={imageUri} />
+        <Image style={styles.avatar} source={{uri:imageUri}} />
         <Pressable onPress={() => pickImage()}>
           <Text>Editar</Text>
         </Pressable>
