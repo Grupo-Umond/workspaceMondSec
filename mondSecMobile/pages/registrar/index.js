@@ -16,7 +16,6 @@ import { CoordenadaService } from '../../services/CoordenadaService';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import UrlService from '../../services/UrlService';
-import axios from 'axios';
 
 
 const RegistrarScreen = ({ navigation }) => {
@@ -29,7 +28,6 @@ const RegistrarScreen = ({ navigation }) => {
   const [titulo, setTitulo] = useState('');
   const [data, setData] = useState('');
   const [tipo, setTipo] = useState('');
-  const [descricaoTipo, setDescricaoTipo] = useState('');
   const [descricao, setDescricao] = useState('');
 
   const [mensagemErro, setMensagemErro] = useState('');
@@ -86,7 +84,8 @@ const RegistrarScreen = ({ navigation }) => {
         titulo,
         latitude,
         longitude,
-        tbTipoOcorrencia: { tipo, descricao },
+        tipo,
+         descricao
       };
 
       const tokenUser = await AsyncStorage.getItem('userToken');

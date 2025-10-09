@@ -7,7 +7,6 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Passport\HasApiTokens;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use App\Models\tbTipoOcorrencia;
 
 class Ocorrencia extends Model
 
@@ -23,7 +22,7 @@ class Ocorrencia extends Model
         'latitude',
         'longitude',
         'descricao',
-        'categoria',
+        'tipo',
         'data',
         'idUsuario',
     ];

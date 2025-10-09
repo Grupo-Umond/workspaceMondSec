@@ -13,8 +13,7 @@ class OcorrenciaController extends Controller
     public function index(Request $request) {
         $usuario = auth()->user();
 
-        $ocorrencias = Ocorrencia::with('tipoOcorrencia')
-            ->where('idUsuario', $usuario->id)
+        $ocorrencias = Ocorrencia::where('idUsuario', $usuario->id)
             ->get()
             ->map(function ($ocorrencias) {
                 return [
@@ -22,7 +21,8 @@ class OcorrenciaController extends Controller
                     'longitude' => $ocorrencias->longitude,
                     'latitude' => $ocorrencias->latitude,
                     'data' => $ocorrencias->data,
-                    'descricao' => $ocorrencias->tipoOcorrencia->descricao ?? 'Sem descrição',
+                    'tipo' => $ocorrencias->tipo,
+                    'descricao' => $ocorrencias->descricao,
                 ];
             });
             return response()->json(['ocorrencias' => $ocorrencias, 'mensagem' => 'Ocorrencias encontradas com sucesso']);
@@ -36,20 +36,17 @@ class OcorrenciaController extends Controller
             'titulo' => 'required|string',
             'latitude' => 'required',
             'longitude' => 'required',
-            'tbTipoOcorrencia.tipo' => 'required|string',
-            'tbTipoOcorrencia.descricao' => 'nullable|string',
+            'tipo' => 'required|string',
+            'descricao' => 'nullable|string',
         ]);
 
-        $tipo = TipoOcorrencia::firstOrCreate(
-            ['categoria' => $dados['tbTipoOcorrencia']['tipo']],
-            ['descricao' => $dados['tbTipoOcorrencia']['descricao'] ?? null]
-        );
 
-        $ocorrencia = Ocorrencia::create([
+        Ocorrencia::create([
             'titulo' => $dados['titulo'],
             'latitude' => $dados['latitude'],
             'longitude' => $dados['longitude'],
-            'idTipoOcorrencia' => $tipo->id,
+            'descricao' => $dados['descricao'],
+            'tipo' => $dados['tipo'],
             'idUsuario' => $usuario->id,
         ]);
 
