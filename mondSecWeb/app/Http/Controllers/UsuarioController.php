@@ -181,6 +181,27 @@ class UsuarioController extends Controller
             
 
     }
+
+    public function upload(Request $request)
+    {
+        $request->validate([
+            'foto' => 'required|image|max:2048',
+        ]);
+
+        if ($request->hasFile('foto')) {
+            $path = $request->file('foto')->store('public/fotos');
+            $url = Storage::url($path);
+
+            
+            $foto = Usuario::save([
+                'foto' => $url,
+            ]);
+
+            return response()->json(['success' => true, 'foto' => $foto]);
+        }
+
+        return response()->json(['success' => false, 'message' => 'Nenhuma foto enviada']);
+    }
 }
 
     

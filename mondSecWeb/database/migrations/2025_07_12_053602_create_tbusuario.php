@@ -14,6 +14,7 @@ return new class extends Migration {
             $table->string('genero'); 
             $table->string('email')->unique(); 
             $table->string('telefone')->unique();
+            $table->string('foto')->default('storage/fotos/default.png');
             $table->string('senha');
             $table->string('status')->default('ativo');
             $table->timestamp('data')->useCurrent();

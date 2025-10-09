@@ -1,8 +1,10 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { View, Text, Pressable, Image, StyleSheet, Modal, TextInput } from 'react-native';
+import * as ImagePicker from 'expo-image-picker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import UrlService from '../../../services/UrlService';
+import * as MediaLibrary from 'expo-media-library';
 import { AuthContext } from '../../../services/AuthContext';
 
 const MenuScreen = ({ navigation, route }) => {
@@ -11,6 +13,7 @@ const MenuScreen = ({ navigation, route }) => {
   const [senha, setSenha] = useState('');
   const { logout } = useContext(AuthContext);
   const [erroMessage, setErroMessage] = useState('');
+  const [imageUri, setImageUri] = useState(null);
   const [modalDelete, setModalDelete] = useState(false);
   const [modalPermissaoDelete, setModalPermissaoDelete] = useState(false);
   const mensagem = route.params?.mensagem;
@@ -34,6 +37,7 @@ const MenuScreen = ({ navigation, route }) => {
 
         setNome(response.data.usuario.nome);
         setEmail(response.data.usuario.email);
+        setImageUri(response.data.foto);
       } catch (err) {
         if (err.response?.status === 401) {
           setErroMessage('Acesso negado', 'Credenciais incorretas');
@@ -46,6 +50,27 @@ const MenuScreen = ({ navigation, route }) => {
     }
     puxarInfos();
   }, []);
+
+  
+  const enviarFoto = async (uri) => {
+    const formData = new FormData();
+    formData.append('foto', {
+      uri,
+      name: 'foto.jpg',
+      type: 'image/jpeg',
+    });
+
+    try {
+      const response = await UrlService.put('upload', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      console.log('Upload feito com sucesso:', response.data);
+    } catch (error) {
+      console.log('Erro ao enviar foto:', error);
+    }
+  };
 
   const excluirConta = async () => {
     if (senha.length < 8) {
@@ -82,6 +107,29 @@ const MenuScreen = ({ navigation, route }) => {
   const sairConta = async () => {
     await logout();
   };
+  const pedirPermissao = async () => {
+    const { status } = await ImagePicker.requestCameraPermissionsAsync();
+      if (status !== 'granted') {
+        Alert.alert('Permissão necessária', 'Precisamos da permissão para acessar a câmera!');
+        return false;
+      }
+    return true;
+  }
+
+  const pickImage = async () => {
+    if(!pedirPermissao())return;
+    let result = await ImagePicker.launchCameraAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      quality: 0.7,
+    });
+
+    if (!result.canceled) {
+      await MediaLibrary.saveToLibraryAsync(result.assets[0].uri);
+      setImageUri(result.assets[0].uri);
+      enviarFoto(result.assets[0].uri);
+    }
+  }
 
   return (
     <View style={styles.container}>
@@ -97,7 +145,10 @@ const MenuScreen = ({ navigation, route }) => {
       <Text>{mensagem}</Text>
 
       <View style={styles.perfilContainer}>
-        <Image style={styles.avatar} source={require('../../../assets/avatar-placeholder.png')} />
+        <Image style={styles.avatar} source={imageUri} />
+        <Pressable onPress={() => pickImage()}>
+          <Text>Editar</Text>
+        </Pressable>
         <Text style={styles.nomePerfil}>{nome}</Text>
         <Text style={styles.emailPerfil}>{email}</Text>
       </View>
