@@ -197,7 +197,7 @@ class AdminController extends Controller
     // =======================
 
     public function showOcorrenciaScreen() {
-        $ocorrencia = Ocorrencia::with(['tipoOcorrencia','usuario'])->get();
+        $ocorrencia = Ocorrencia::with(['usuario'])->get();
 
         return view('adm.verOcorrencia.index',['ocorrencia' => $ocorrencia]);
     }
@@ -215,6 +215,8 @@ class AdminController extends Controller
             'latitude' => 'nullable|max:225|string',
             'longitude' => 'nullable|string',
             'data' => 'nullable',
+            'descricao' => 'nullable|string',
+            'tipo' => 'nullable|string',
         ]);
 
         $ocorrencia = Ocorrencia::findOrFail($id);
@@ -222,6 +224,8 @@ class AdminController extends Controller
         if ($request->titulo) $ocorrencia->titulo = $request->titulo;
         if ($request->latitude) $ocorrencia->latitude = $request->latitude;
         if ($request->longitude) $ocorrencia->longitude = $request->longitude;
+        if ($request->descricao) $ocorrencia->descricao = $request->descricao;
+        if ($request->tipo) $ocorrencia->tipo = $request->tipo;
         if ($request->data) $ocorrencia->data = $request->data;
 
         $ocorrencia->save();
