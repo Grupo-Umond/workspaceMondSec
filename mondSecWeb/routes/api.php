@@ -21,7 +21,7 @@ Route::prefix('usuario')
             Route::get('/buscar', 'buscarUsuario')->name('buscar');
             Route::put('/update', 'updateUsuario')->name('update');
             Route::put('/deletar', 'delete')->name('deletar');
-            Route::put('/upload', 'upload')->name('upload');
+            Route::post('/upload', 'upload')->name('upload');
         });
     });
 

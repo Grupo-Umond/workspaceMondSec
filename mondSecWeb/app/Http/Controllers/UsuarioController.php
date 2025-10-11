@@ -1,4 +1,4 @@
-.<?php
+<?php
 
 namespace App\Http\Controllers;
 
@@ -6,16 +6,26 @@ use App\Models\Usuario;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Storage;
+
 
 class UsuarioController extends Controller
 {
     
-    public function buscarUsuario(Request $request)
-    {
-        return response()->json([
-            'usuario' => $request->user()
-        ]);
+public function buscarUsuario(Request $request)
+{
+    $usuario = $request->user();
+
+    // se tiver foto, transforma em URL completa
+    if ($usuario->foto) {
+        $usuario->foto = config('app.url') . $usuario->foto;
     }
+
+    return response()->json([
+        'usuario' => $usuario
+    ]);
+}
+
 
     public function store(Request $request)
     {
@@ -183,24 +193,32 @@ class UsuarioController extends Controller
     }
 
     public function upload(Request $request)
-    {
-        $request->validate([
-            'foto' => 'required|image|max:2048',
+{
+    $request->validate([
+        'foto' => 'required|image|max:2048',
+    ]);
+
+    $usuario = $request->user();
+
+    if ($request->hasFile('foto')) {
+        $path = $request->file('foto')->store('public/fotos');
+        $url = Storage::url($path);
+
+        $usuario->foto = $url;
+        $usuario->save();
+
+        return response()->json([
+            'success' => true,
+            'foto' => $url,
         ]);
-        $usuario = $request->user();
-
-        if ($request->hasFile('foto')) {
-            $path = $request->file('foto')->store('public/fotos');
-            $url = Storage::url($path);
-
-            $usuario->foto = $url;
-            $usuario->save($usuario);
-
-            return response()->json(['success' => true, 'foto' => $url]);
-        }
-
-        return response()->json(['success' => false, 'message' => 'Nenhuma foto enviada']);
     }
+
+    return response()->json([
+        'success' => false,
+        'message' => 'Nenhuma foto enviada',
+    ]);
+}
+
 }
 
     

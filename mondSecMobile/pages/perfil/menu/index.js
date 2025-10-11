@@ -37,7 +37,7 @@ const MenuScreen = ({ navigation, route }) => {
 
         setNome(response.data.usuario.nome);
         setEmail(response.data.usuario.email);
-        setImageUri(response.data.foto);
+        setImageUri(response.data.usuario.foto);
       } catch (err) {
         if (err.response?.status === 401) {
           setErroMessage('Acesso negado', 'Credenciais incorretas');
@@ -49,28 +49,45 @@ const MenuScreen = ({ navigation, route }) => {
       }
     }
     puxarInfos();
-  }, []);
+  }, [imageUri]);
 
   
-  const enviarFoto = async (uri) => {
+const enviarFoto = async (uri) => {
+  try {
+    const token = await AsyncStorage.getItem('userToken');
+
+    // converte a imagem local para blob
+    const response = await fetch(uri);
+    const blob = await response.blob();
+
     const formData = new FormData();
     formData.append('foto', {
       uri,
       name: 'foto.jpg',
-      type: 'image/jpeg',
+      type: blob.type || 'image/jpeg',
     });
 
-    try {
-      const response = await UrlService.put('upload', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      });
-      console.log('Upload feito com sucesso:', response.data);
-    } catch (error) {
-      console.log('Erro ao enviar foto:', error);
+    const uploadResponse = await fetch(`${UrlService.defaults.baseURL}/usuario/upload`, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${token}`,
+    },
+    body: formData,
+  });
+
+    const data = await uploadResponse.json();
+    console.log('Upload feito com sucesso:', data);
+
+    if (data.foto) {
+      setImageUri(data.foto);
     }
-  };
+
+  } catch (error) {
+    console.log('Erro ao enviar foto:', error);
+    setErroMessage('Erro ao enviar a foto.');
+  }
+};
+
 
   const excluirConta = async () => {
     if (senha.length < 8) {
@@ -80,7 +97,7 @@ const MenuScreen = ({ navigation, route }) => {
 
     const tokenUser = await AsyncStorage.getItem('userToken');
     try {
-      const response = await UrlService.delete('/usuario/deletar', {
+      const response = await UrlService.put('/usuario/deletar', {
         headers: {
           Authorization: `Bearer ${tokenUser}`,
           senha: senha,
@@ -116,21 +133,40 @@ const MenuScreen = ({ navigation, route }) => {
     return true;
   }
 
-  const pickImage = async () => {
-    const permitir = await pedirPermissao();
-    if(!permitir)return;
-    let result = await ImagePicker.launchCameraAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
-      quality: 0.7,
-    });
-
-    if (!result.canceled) {
-      await MediaLibrary.saveToLibraryAsync(result.assets[0].uri);
-      setImageUri(result.assets[0].uri);
-      enviarFoto(result.assets[0].uri);
-    }
+  const tirarFoto = async () => {
+  const { status } = await ImagePicker.requestCameraPermissionsAsync();
+  if (status !== 'granted') {
+    alert('Permissão para usar a câmera é necessária.');
+    return;
   }
+
+  const result = await ImagePicker.launchCameraAsync({
+    allowsEditing: true,
+    aspect: [1, 1],
+    quality: 0.8,
+  });
+
+  if (!result.canceled) {
+    const uri = result.assets[0].uri;
+    setImageUri(uri);
+    await enviarFoto(uri);
+  }
+};
+
+const pickImage = async () => {
+  const result = await ImagePicker.launchImageLibraryAsync({
+    mediaTypes: ImagePicker.MediaTypeOptions.Images,
+    allowsEditing: true,
+    aspect: [1, 1],
+    quality: 0.8,
+  });
+
+  if (!result.canceled) {
+    const uri = result.assets[0].uri;
+    setImageUri(uri);
+    await enviarFoto(uri);
+  }
+};
 
   return (
     <View style={styles.container}>
