@@ -27,12 +27,11 @@ const RegistrarScreen = ({ navigation }) => {
 
   const [endereco, setEndereco] = useState('');
   const [titulo, setTitulo] = useState('');
-  const [data, setData] = useState('');
+  const [dataAcontecimento, setDataAcontecimento] = useState('');
   const [tipo, setTipo] = useState('');
   const [descricao, setDescricao] = useState('');
   const [mensagemErro, setMensagemErro] = useState('');
 
-  // Estados do DateTimePicker
   const [show, setShow] = useState(false);
   const [selectedDate, setSelectedDate] = useState(new Date());
 
@@ -50,7 +49,7 @@ const RegistrarScreen = ({ navigation }) => {
     setShow(false);
     if (selectedDateValue) {
       setSelectedDate(selectedDateValue);
-      setData(selectedDateValue.toISOString().split('T')[0]); // formato AAAA-MM-DD
+      setDataAcontecimento(selectedDateValue.toISOString().split('T')[0]); 
     }
   };
 
@@ -70,7 +69,7 @@ const RegistrarScreen = ({ navigation }) => {
   const limparCampos = () => {
     setTitulo('');
     setTipo('');
-    setData('');
+    setDataAcontecimento('');
     setDescricao('');
     setEndereco('');
   };
@@ -95,7 +94,7 @@ const RegistrarScreen = ({ navigation }) => {
         longitude,
         tipo,
         descricao,
-        data
+        dataAcontecimento
       };
 
       const tokenUser = await AsyncStorage.getItem('userToken');

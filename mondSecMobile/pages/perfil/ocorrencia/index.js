@@ -126,6 +126,8 @@ const OcorrenciaScreen = ({ navigation }) => {
               <Text style={styles.modalText}>{selecionada.cidade}</Text>
               <Text style={styles.modalText}>{selecionada.data}</Text>
               <Text style={styles.modalText}>{selecionada.descricao}</Text>
+              <Text>{selecionada.dataAcontecimento}</Text>
+              <Text>{selecionada.dataPostagem}</Text>
 
               <Pressable onPress={desaparecer}>
                 <Text style={styles.modalButton}>Ver no Mapa</Text>

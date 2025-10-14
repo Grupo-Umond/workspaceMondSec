@@ -20,7 +20,9 @@ class OcorrenciaController extends Controller
                     'titulo' => $ocorrencias->titulo,
                     'longitude' => $ocorrencias->longitude,
                     'latitude' => $ocorrencias->latitude,
-                    'data' => $ocorrencias->data,
+                    'dataPostagem' => $ocorrencias->dataPostagem,
+                    'dataAcontecimento' => $ocorrencias->dataAcontecimento,
+
                     'tipo' => $ocorrencias->tipo,
                     'descricao' => $ocorrencias->descricao,
                 ];
@@ -38,6 +40,7 @@ class OcorrenciaController extends Controller
             'longitude' => 'required',
             'tipo' => 'required|string',
             'descricao' => 'nullable|string',
+            'dataAcontecimento' => 'nullable',
         ]);
 
 
@@ -46,6 +49,7 @@ class OcorrenciaController extends Controller
             'latitude' => $dados['latitude'],
             'longitude' => $dados['longitude'],
             'descricao' => $dados['descricao'],
+            'dataAcontecimento' => $dados['dataAcontecimento'],
             'tipo' => $dados['tipo'],
             'idUsuario' => $usuario->id,
         ]);
@@ -53,7 +57,6 @@ class OcorrenciaController extends Controller
 
         return response()->json([
             'mensagem' => 'Ocorrência registrada com sucesso!',
-            'ocorrencia' => $ocorrencia
         ]);
     }
 

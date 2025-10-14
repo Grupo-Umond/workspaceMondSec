@@ -23,7 +23,8 @@ class Ocorrencia extends Model
         'longitude',
         'descricao',
         'tipo',
-        'data',
+        'dataAcontecimento',
+        'dataPostagem',
         'idUsuario',
     ];
     public function usuario()

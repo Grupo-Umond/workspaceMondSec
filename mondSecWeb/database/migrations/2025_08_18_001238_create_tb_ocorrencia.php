@@ -20,7 +20,8 @@ return new class extends Migration
             $table->string('longitude');
             $table->string('tipo');
             $table->string('descricao');
-            $table->timestamp('data')->useCurrent();
+            $table->timestamp('dataPostagem')->useCurrent();
+            $table->string('dataAcontecimento');
             $table->unsignedBigInteger('idUsuario');
 
             $table->foreign('idUsuario')->references('id')->on('tbUsuario')->onDelete('cascade');
