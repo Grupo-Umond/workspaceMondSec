@@ -18,7 +18,7 @@ return new class extends Migration
             $table->string('titulo');
             $table->string('latitude');
             $table->string('longitude');
-            $table->string('categoria');
+            $table->string('tipo');
             $table->string('descricao');
             $table->timestamp('data')->useCurrent();
             $table->unsignedBigInteger('idUsuario');

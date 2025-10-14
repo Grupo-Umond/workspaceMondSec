@@ -7,7 +7,8 @@ import {
   TouchableOpacity,
   Modal,
   ActivityIndicator,
-  StyleSheet
+  StyleSheet,
+  Button
 } from 'react-native';
 import { Picker } from '@react-native-picker/picker';
 import CheckBox from 'expo-checkbox';
@@ -29,25 +30,33 @@ const RegistrarScreen = ({ navigation }) => {
   const [data, setData] = useState('');
   const [tipo, setTipo] = useState('');
   const [descricao, setDescricao] = useState('');
-
   const [mensagemErro, setMensagemErro] = useState('');
+
+  // Estados do DateTimePicker
+  const [show, setShow] = useState(false);
+  const [selectedDate, setSelectedDate] = useState(new Date());
 
   useEffect(() => {
     const checarModal = async () => {
       const mostrarSalvo = await AsyncStorage.getItem('mostrarModalInicio');
-      if (mostrarSalvo === 'true') setVisivelInicio(false);
+      if (mostrarSalvo === 'true') {
+        setVisivelInicio(false);
+      }
     };
     checarModal();
   }, []);
 
-  const onChange = () => {
-    const currentDate = selectedDate || Date;
+  const onChange = (event, selectedDateValue) => {
     setShow(false);
-    setData(currentDate);
-  }
+    if (selectedDateValue) {
+      setSelectedDate(selectedDateValue);
+      setData(selectedDateValue.toISOString().split('T')[0]); // formato AAAA-MM-DD
+    }
+  };
+
   const toggleMostrar = async (value) => {
     setMostrar(value);
-    await AsyncStorage.setItem('mostrarModalInicio', JSON.stringify(value));
+    await AsyncStorage.setItem('mostrarModalInicio', value ? 'true' : 'false');
   };
 
   const validarDados = () => {
@@ -85,7 +94,8 @@ const RegistrarScreen = ({ navigation }) => {
         latitude,
         longitude,
         tipo,
-         descricao
+        descricao,
+        data
       };
 
       const tokenUser = await AsyncStorage.getItem('userToken');
@@ -158,12 +168,13 @@ const RegistrarScreen = ({ navigation }) => {
         <Button onPress={() => setShow(true)} title='Selecionar Data'/>
         {show && (
           <DateTimePicker
-          value={data}
-          mode='date'
-          display='default'
-          onChange={onChange}
+            value={selectedDate}
+            mode='date'
+            display='default'
+            onChange={onChange}
           />
         )}
+
         <Text style={styles.contador}>{descricao.length}/120</Text>
 
         {mensagemErro ? <Text style={styles.erro}>{mensagemErro}</Text> : null}
@@ -206,7 +217,7 @@ const RegistrarScreen = ({ navigation }) => {
               <Text style={styles.primaryButtonText}>Fazer mais uma</Text>
             </TouchableOpacity>
             <TouchableOpacity style={styles.primaryButton} onPress={() => {setVisivelSucesso(false); navigation.navigate('Ocorrencia');}}>
-              <Text style={styles.primaryButtonText}>Ver minhas ocorrencias</Text>
+              <Text style={styles.primaryButtonText}>Ver minhas ocorrências</Text>
             </TouchableOpacity>
           </View>
         </View>
