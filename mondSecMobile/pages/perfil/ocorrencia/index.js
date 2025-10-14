@@ -122,12 +122,11 @@ const OcorrenciaScreen = ({ navigation }) => {
             <View style={styles.modalContent}>
               <Text style={styles.modalTitle}>Detalhes</Text>
               <Text style={styles.modalText}>{selecionada.titulo}</Text>
-              <Text style={styles.modalText}>{selecionada.rua}</Text>
-              <Text style={styles.modalText}>{selecionada.cidade}</Text>
-              <Text style={styles.modalText}>{selecionada.data}</Text>
-              <Text style={styles.modalText}>{selecionada.descricao}</Text>
-              <Text>{selecionada.dataAcontecimento}</Text>
-              <Text>{selecionada.dataPostagem}</Text>
+              <Text style={styles.modalText}>Titulo: {selecionada.rua}</Text>
+              <Text style={styles.modalText}>Cidade: {selecionada.cidade}</Text>
+              <Text style={styles.modalText}>Descrição: {selecionada.descricao}</Text>
+              <Text>Data do Acontecimento: {selecionada.dataAcontecimento}</Text>
+              <Text>Data de Postagem: {selecionada.dataPostagem}</Text>
 
               <Pressable onPress={desaparecer}>
                 <Text style={styles.modalButton}>Ver no Mapa</Text>

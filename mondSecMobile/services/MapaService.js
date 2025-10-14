@@ -1,18 +1,15 @@
-
 import React, { useRef, useState, useEffect, forwardRef, useImperativeHandle } from 'react';
 import { StyleSheet, Dimensions, Alert } from 'react-native';
 import MapView, { Marker, Polygon } from 'react-native-maps';
 import * as Location from 'expo-location';
 
+const local = require('./GeoJson/zonaLeste_convertido.json');
 const { width, height } = Dimensions.get('window');
-
-const GEOJSON_URL =
-  'https://raw.githubusercontent.com/codigourbano/subprefeituras-sp/master/subprefeituras-sp.geojson';
 
 const MapaZonaLesteGeojson = forwardRef((props, ref) => {
   const mapRef = useRef(null);
   const [region, setRegion] = useState(null);
-  const [polygons, setPolygons] = useState([]); 
+  const [polygons, setPolygons] = useState([]);
   const [centroids, setCentroids] = useState([]);
 
   useEffect(() => {
@@ -33,21 +30,10 @@ const MapaZonaLesteGeojson = forwardRef((props, ref) => {
       setRegion(userRegion);
 
       try {
-        const resp = await fetch(GEOJSON_URL);
-        if (!resp.ok) throw new Error('Falha ao baixar GeoJSON remoto');
-        const geo = await resp.json();
-        parseGeoJSON(geo);
+        parseGeoJSON(local);
       } catch (err) {
-        console.warn('Erro ao buscar GeoJSON remoto:', err.message);
-        try {
-          const local = require('./assets/subprefeituras-sp.geojson');
-          parseGeoJSON(local);
-        } catch (e) {
-          Alert.alert(
-            'GeoJSON não disponível',
-            'Não foi possível baixar o GeoJSON remoto nem encontrar o arquivo local. Baixe o GeoJSON oficial (GeoSampa / repositório mirror) e coloque em ./assets/subprefeituras-sp.geojson'
-          );
-        }
+        console.error('Erro ao carregar GeoJSON local:', err);
+        Alert.alert('Erro', 'Falha ao carregar o arquivo local zonaLesteSubPrefeitura.json');
       }
     })();
   }, []);
@@ -59,7 +45,7 @@ const MapaZonaLesteGeojson = forwardRef((props, ref) => {
     const cents = [];
 
     feats.forEach((f, idx) => {
-      const name = (f.properties && (f.properties.name || f.properties.nome || f.properties.NAME)) || `feat-${idx}`;
+      const name = (f.properties && (f.properties.name || f.properties.nome || f.properties.NAME)) || `Área ${idx + 1}`;
       const geom = f.geometry;
       if (!geom) return;
 
@@ -92,62 +78,6 @@ const MapaZonaLesteGeojson = forwardRef((props, ref) => {
     return { latitude: x / ring.length, longitude: y / ring.length };
   }
 
-  function pointInRing(point, ring) {
-    const x = point.longitude;
-    const y = point.latitude;
-    let inside = false;
-    for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
-      const xi = ring[i].longitude,
-        yi = ring[i].latitude;
-      const xj = ring[j].longitude,
-        yj = ring[j].latitude;
-
-      const intersect = yi > y !== yj > y && x < ((xj - xi) * (y - yi)) / (yj - yi + 0.0) + xi;
-      if (intersect) inside = !inside;
-    }
-    return inside;
-  }
-
-  function isInsideAnyPolygons(lat, lng) {
-    if (!polygons || polygons.length === 0) return true;
-    const pt = { latitude: lat, longitude: lng };
-    for (const poly of polygons) {
-      const exterior = poly.rings[0];
-      if (pointInRing(pt, exterior)) {
-        let inHole = false;
-        for (let h = 1; h < poly.rings.length; h++) {
-          if (pointInRing(pt, poly.rings[h])) {
-            inHole = true;
-            break;
-          }
-        }
-        if (!inHole) return true;
-      }
-    }
-    return false;
-  }
-
-  useImperativeHandle(ref, () => ({
-    centralizarNoEndereco(lat, lng, zoomDelta = 0.01) {
-      if (!lat || !lng) return;
-      if (!isInsideAnyPolygons(lat, lng)) {
-        Alert.alert('Fora da área definida', 'O ponto informado não está dentro das subprefeituras carregadas.');
-        return;
-      }
-      const nova = { latitude: lat, longitude: lng, latitudeDelta: zoomDelta, longitudeDelta: zoomDelta };
-      mapRef.current?.animateToRegion(nova, 800);
-    },
-  }));
-
-  function onRegionChangeComplete(r) {
-    const centerInside = isInsideAnyPolygons(r.latitude, r.longitude);
-    if (!centerInside && region) {
-      mapRef.current?.animateToRegion(region, 600);
-    } else {
-      setRegion(r);
-    }
-  }
-
   if (!region) return null;
 
   return (
@@ -162,7 +92,6 @@ const MapaZonaLesteGeojson = forwardRef((props, ref) => {
       zoomControlEnabled
       minZoomLevel={10}
       maxZoomLevel={19}
-      onRegionChangeComplete={onRegionChangeComplete}
     >
       {polygons.map((poly) => {
         const outer = poly.rings[0];
@@ -181,9 +110,6 @@ const MapaZonaLesteGeojson = forwardRef((props, ref) => {
         );
       })}
 
-      {centroids.map((c, i) => (
-        <Marker key={`c-${i}`} coordinate={c} title={`centro-${i}`} />
-      ))}
     </MapView>
   );
 });
