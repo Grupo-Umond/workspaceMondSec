@@ -7,7 +7,7 @@ export async function CoordenadaService(address) {
   try {
     if (!address) throw new Error("Endereço vazio");
 
-    const response = await axios.get("/geocode", {
+    const response = await api.get("/geocode", {
       params: { address }
     });
 

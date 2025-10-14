@@ -7,7 +7,7 @@ export async function EnderecoService(lat, lon) {
   try {
     if (!lat || !lon) throw new Error("Latitude ou longitude inválida");
 
-    const response = await axios.get("/reverse-geocode", {
+    const response = await api.get("/reverse-geocode", {
       params: { lat, lon }
     });
 
