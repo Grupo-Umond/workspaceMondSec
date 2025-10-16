@@ -6,6 +6,7 @@ import Mapa from "../../services/MapaService";
 import { AuthContext } from '../../services/AuthContext';
 import { CoordenadaService } from '../../services/CoordenadaService';
 import { LocalizacaoService } from '../../services/LocalizacaoService';
+import { NotificacaoService } from '../../services/NotificacaoService';
 
 const HomeScreen = ({ navigation }) => {
   const [permissao, setPermissao] = useState(false);
@@ -33,9 +34,12 @@ const HomeScreen = ({ navigation }) => {
     if (permitiu) {
       await LocalizacaoService();
       await AsyncStorage.setItem('permissaoLocal', 'granted');
+      await NotificacaoService();
+
     } else {
       await AsyncStorage.setItem('permissaoLocal', 'denied');
     }
+     
     setPermissao(false);
   };
 
