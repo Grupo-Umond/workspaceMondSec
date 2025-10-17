@@ -241,3 +241,7 @@ tbody i {
 .editarADM, .excluirADM {
     text-align: center;
 }
+
+.parteCima {
+  height: 40vh;
+}
