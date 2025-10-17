@@ -153,7 +153,7 @@ const HomeScreen = ({ navigation }) => {
               onPress={() => navigation.navigate('Login')}
               >
               <Icon name="person" size={26} color="#FFFFFF" />
-              <Text style={styles.navButtonText}>Entrar/Cadastrar</Text>
+              <Text style={styles.navButtonText}>Entrar</Text>
             </Pressable>
           </>
         )}

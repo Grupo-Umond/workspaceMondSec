@@ -203,8 +203,8 @@ const pickImage = async () => {
           <FontAwesome name="chevron-right" size={16} color="#999" />
         </Pressable>
 
-        <Pressable style={styles.botaoOpcao}>
-          <Text style={styles.textoOpcao}>Termos e Privacidade</Text>
+        <Pressable style={styles.botaoOpcao}  onPress={() => navigation.navigate('Politica')}>
+          <Text style={styles.textoOpcao}>Termos e Política</Text>
           <FontAwesome name="chevron-right" size={16} color="#999" />
         </Pressable>
 
