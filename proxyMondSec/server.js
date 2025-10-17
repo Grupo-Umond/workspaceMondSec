@@ -8,16 +8,31 @@ const PORT = 3000;
 
 app.get("/geocode", async (req, res) => {
   const address = req.query.address;
+
+  if (!address) {
+    return res.status(400).json({ error: "Endereço vazio" });
+  }
+
   try {
     const response = await axios.get("https://nominatim.openstreetmap.org/search", {
-      params: { q: address, format: "json", limit: 1 }
+      params: {
+        q: address,
+        format: "json",
+        addressdetails: 1,
+        countrycodes: "br",
+        limit: 5
+      },
+      headers: {
+        "User-Agent": "SeuAppDeCoordenadas/1.0 (andreaccioly@exemplo.com)"
+      }
     });
+
     res.json(response.data);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error("Erro no geocode:", err.message);
+    res.status(500).json({ error: "Erro ao buscar coordenadas" });
   }
 });
-
 app.get('/reverse-geocode', async (req, res) => {
   const { lat, lon } = req.query;
 
@@ -33,3 +48,4 @@ app.get('/reverse-geocode', async (req, res) => {
 });
 
 app.listen(PORT, () => console.log(`Servidor rodando na porta ${PORT}`));
+proxy-google.js
