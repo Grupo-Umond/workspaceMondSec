@@ -1,11 +1,9 @@
 import React, { useEffect, useState, useMemo } from 'react';
-import { View, Text, Pressable, TextInput, Modal, StyleSheet } from 'react-native';
+import { View, Text, Pressable, TextInput, Modal, StyleSheet, ScrollView, StatusBar } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { EnderecoService } from '../../../services/EnderecoService';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
-import  UrlService  from '../../../services/UrlService';
-
-import axios from 'axios';
+import UrlService from '../../../services/UrlService';
 
 const OcorrenciaScreen = ({ navigation }) => {
   const [ocorrencias, setOcorrencias] = useState([]);
@@ -68,72 +66,193 @@ const OcorrenciaScreen = ({ navigation }) => {
     setInformacao(true);
   };
 
-  const desaparecer = () => {
-    setInformacao(false);
-    navigation.navigate('Home');
+  const getIconeTipo = (tipo) => {
+    switch(tipo) {
+      case 'Roubo':
+        return 'tint';
+      case 'Acidente':
+        return 'shield';
+      case 'Incêndio':
+        return 'exclamation-triangle';
+      default:
+        return 'map-marker';
+    }
+  };
+
+  const getCorTipo = (tipo) => {
+    switch(tipo) {
+      case 'Roubo':
+        return '#12577B';
+      case 'Acidente':
+        return '#FF9800';
+      case 'Incêndio':
+        return '#F44336';
+      default:
+        return '#757575';
+    }
   };
 
   return (
     <View style={styles.container}>
+      <StatusBar backgroundColor="#12577B" barStyle="light-content" />
+      
       <View style={styles.cabecalho}>
-        <Pressable onPress={() => navigation.navigate('Home')} style={styles.iconeCabecalho}>
-          <FontAwesome name="arrow-left" size={24} color="#12577B" />
+        <Pressable onPress={() => navigation.navigate('Home')} style={styles.botaoCabecalho}>
+          <FontAwesome name="arrow-left" size={20} color="#FFFFFF" />
         </Pressable>
-        <Text style={styles.tituloCabecalho}>Seu Perfil</Text>
-        <Pressable onPress={() => navigation.navigate('Configuracao')} style={styles.iconeCabecalho}>
-          <FontAwesome name="cog" size={24} color="#12577B" />
-        </Pressable>
-      </View>
-
-      <TextInput
-        style={styles.searchBar}
-        placeholder="Pesquisar ocorrências..."
-        placeholderTextColor="#A2A2A2"
-        value={busca}
-        onChangeText={setBusca}
-      />
-
-      <View style={styles.topSection}>
-        <Text style={styles.totalOcorrencias}>Total de Ocorrências: {quantidade}</Text>
-        <Pressable onPress={() => navigation.navigate('Registrar')} style={styles.addButton}>
-          <Text style={styles.addButtonText}>+</Text>
+        <Text style={styles.tituloCabecalho}>Minhas Ocorrências</Text>
+        <Pressable onPress={() => navigation.navigate('Configuracao')} style={styles.botaoCabecalho}>
+          <FontAwesome name="cog" size={20} color="#FFFFFF" />
         </Pressable>
       </View>
 
-      <View>
-        {ocorrenciasFiltradas.map((ocorrencia) => (
-          <View key={ocorrencia.id || `${ocorrencia.latitude}-${ocorrencia.longitude}`} style={[styles.card, styles[`card${ocorrencia.tipo}`]]}>
-            <View style={styles.cardHeader}>
-              <Text>{ocorrencia.titulo}</Text>
-            </View>
-            <Text>Cidade: {ocorrencia.cidade}</Text>
-            <Text>Rua: {ocorrencia.rua}</Text>
-            <Text>Registrado em: {ocorrencia.data}</Text>
-            <Pressable onPress={() => mostrarModal(ocorrencia)} style={styles.detailsButton}>
-              <Text style={styles.detailsButtonText}>Ver detalhes</Text>
-            </Pressable>
+      <ScrollView style={styles.conteudo} showsVerticalScrollIndicator={false}>
+       
+        <View style={styles.containerPesquisa}>
+          <FontAwesome name="search" size={16} color="#666" style={styles.iconePesquisa} />
+          <TextInput
+            style={styles.inputPesquisa}
+            placeholder="Pesquisar ocorrências..."
+            placeholderTextColor="#999"
+            value={busca}
+            onChangeText={setBusca}
+          />
+        </View>
+
+        <View style={styles.secaoEstatisticas}>
+          <View style={styles.cartaoEstatistica}>
+            <Text style={styles.numeroEstatistica}>{quantidade}</Text>
+            <Text style={styles.rotuloEstatistica}>Total de Ocorrências</Text>
           </View>
-        ))}
-      </View>
+          <Pressable 
+            onPress={() => navigation.navigate('Registrar')} 
+            style={styles.botaoAdicionar}
+          >
+            <FontAwesome name="plus" size={20} color="#FFFFFF" />
+            <Text style={styles.textoBotaoAdicionar}>Nova</Text>
+          </Pressable>
+        </View>
 
-      <Modal animationType="slide" visible={informacao} transparent>
+    
+        <View style={styles.secaoLista}>
+          <Text style={styles.tituloSecao}>Suas Ocorrências</Text>
+          {ocorrenciasFiltradas.map((ocorrencia) => (
+            <Pressable 
+              key={ocorrencia.id || `${ocorrencia.latitude}-${ocorrencia.longitude}`} 
+              style={[styles.cartaoOcorrencia, { borderLeftColor: getCorTipo(ocorrencia.tipo) }]}
+              onPress={() => mostrarModal(ocorrencia)}
+            >
+              <View style={styles.cabecalhoCartao}>
+                <View style={styles.containerTitulo}>
+                  <FontAwesome 
+                    name={getIconeTipo(ocorrencia.tipo)} 
+                    size={16} 
+                    color={getCorTipo(ocorrencia.tipo)} 
+                    style={styles.iconeTipo}
+                  />
+                  <Text style={styles.tituloOcorrencia} numberOfLines={1}>
+                    {ocorrencia.titulo}
+                  </Text>
+                </View>
+                <View style={[styles.etiquetaTipo, { backgroundColor: getCorTipo(ocorrencia.tipo) }]}>
+                  <Text style={styles.textoTipo}>{ocorrencia.tipo}</Text>
+                </View>
+              </View>
+              
+              <View style={styles.conteudoCartao}>
+                <View style={styles.linhaInfo}>
+                  <FontAwesome name="map-marker" size={12} color="#666" />
+                  <Text style={styles.textoInfo}>
+                    {ocorrencia.rua}, {ocorrencia.cidade}
+                  </Text>
+                </View>
+                
+                <View style={styles.linhaInfo}>
+                  <FontAwesome name="calendar" size={12} color="#666" />
+                  <Text style={styles.textoInfo}>
+                    Registrado em: {ocorrencia.data}
+                  </Text>
+                </View>
+              </View>
+              
+              <View style={styles.rodapeCartao}>
+                <Pressable 
+                  onPress={() => mostrarModal(ocorrencia)} 
+                  style={styles.botaoDetalhes}
+                >
+                  <Text style={styles.textoBotaoDetalhes}>Ver detalhes</Text>
+                  <FontAwesome name="chevron-right" size={12} color="#12577B" />
+                </Pressable>
+              </View>
+            </Pressable>
+          ))}
+        </View>
+      </ScrollView>
+
+
+      <Modal 
+        animationType="fade" 
+        visible={informacao} 
+        transparent
+      >
         {selecionada && (
-          <View style={styles.modalContainer}>
-            <View style={styles.modalContent}>
-              <Text style={styles.modalTitle}>Detalhes</Text>
-              <Text style={styles.modalText}>{selecionada.titulo}</Text>
-              <Text style={styles.modalText}>Titulo: {selecionada.rua}</Text>
-              <Text style={styles.modalText}>Cidade: {selecionada.cidade}</Text>
-              <Text style={styles.modalText}>Descrição: {selecionada.descricao}</Text>
-              <Text>Data do Acontecimento: {selecionada.dataAcontecimento}</Text>
-              <Text>Data de Postagem: {selecionada.dataPostagem}</Text>
+          <View style={styles.fundoModal}>
+            <View style={styles.containerModal}>
+              <View style={styles.cabecalhoModal}>
+                <View style={styles.containerTituloModal}>
+                  <Text style={styles.tituloModal}>{selecionada.titulo}</Text>
+                  <View style={[styles.etiquetaTipoModal, { backgroundColor: getCorTipo(selecionada.tipo) }]}>
+                    <Text style={styles.textoTipoModal}>{selecionada.tipo}</Text>
+                  </View>
+                </View>
+                <Pressable 
+                  onPress={() => setInformacao(false)}
+                  style={styles.botaoFechar}
+                >
+                  <FontAwesome name="times" size={20} color="#666" />
+                </Pressable>
+              </View>
+              
+              <ScrollView style={styles.conteudoModal}>
+        
+                {selecionada.descricao && (
+                  <View style={styles.secaoDescricao}>
+                    <Text style={styles.rotuloDescricao}>Descrição</Text>
+                    <Text style={styles.textoDescricao}>{selecionada.descricao}</Text>
+                  </View>
+                )}
+              
+                <View style={styles.secaoInfoBasica}>
+                  <View style={styles.linhaInfoBasica}>
+                    <FontAwesome name="map-marker" size={14} color="#12577B" />
+                    <Text style={styles.textoInfoBasica}>
+                      {selecionada.rua}, {selecionada.cidade}
+                    </Text>
+                  </View>
+                  
+                  <View style={styles.linhaInfoBasica}>
+                    <FontAwesome name="calendar" size={14} color="#12577B" />
+                    <Text style={styles.textoInfoBasica}>
+                      Registrado em: {selecionada.data}
+                    </Text>
+                  </View>
 
-              <Pressable onPress={desaparecer}>
-                <Text style={styles.modalButton}>Ver no Mapa</Text>
-              </Pressable>
-              <Pressable onPress={() => setInformacao(false)}>
-                <Text style={styles.modalButton}>Favoritar</Text>
-              </Pressable>
+                  {selecionada.dataAcontecimento && (
+                    <View style={styles.linhaInfoBasica}>
+                      <FontAwesome name="clock-o" size={14} color="#12577B" />
+                      <Text style={styles.textoInfoBasica}>
+                        Ocorrido em: {selecionada.dataAcontecimento}
+                      </Text>
+                    </View>
+                  )}
+                </View>
+              </ScrollView>
+              
+              <View style={styles.acoesModal}>
+                <Pressable onPress={() => setInformacao(false)} style={styles.botaoPrincipal}>
+                  <Text style={styles.textoBotaoPrincipal}>Fechar</Text>
+                </Pressable>
+              </View>
             </View>
           </View>
         )}
@@ -143,27 +262,290 @@ const OcorrenciaScreen = ({ navigation }) => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#FFFFFF', paddingHorizontal: 20, paddingTop: 40 },
-  cabecalho: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20, paddingHorizontal: 10 },
-  tituloCabecalho: { fontSize: 20, fontWeight: '600', color: '#12577B' },
-  iconeCabecalho: { padding: 5 },
-  searchBar: { height: 40, backgroundColor: '#F2F2F2', borderRadius: 10, paddingHorizontal: 15, marginBottom: 20, fontSize: 14, color: '#333333' },
-  topSection: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 },
-  totalOcorrencias: { fontSize: 16, fontWeight: '600' },
-  addButton: { backgroundColor: '#12577B', borderRadius: 50, width: 40, height: 40, justifyContent: 'center', alignItems: 'center' },
-  addButtonText: { color: '#FFFFFF', fontSize: 24, lineHeight: 24 },
-  card: { padding: 15, borderRadius: 10, marginBottom: 15, shadowColor: '#000', shadowOffset: { width: 0, height: 1 }, shadowOpacity: 0.2, shadowRadius: 1.41, elevation: 2 },
-  cardHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 },
-  detailsButton: { alignSelf: 'flex-start', backgroundColor: '#FFFFFF', borderRadius: 5, paddingVertical: 5, paddingHorizontal: 10 },
-  detailsButtonText: { color: '#12577B', fontSize: 14, fontWeight: '600' },
-  cardAlagamento: { backgroundColor: '#B3E5FC' },
-  cardAssalto: { backgroundColor: '#FF8A80' },
-  cardHomicidio: { backgroundColor: '#E57373' },
-  modalContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.5)' },
-  modalContent: { backgroundColor: '#fff', padding: 20, borderRadius: 10, width: '80%' },
-  modalTitle: { fontSize: 18, fontWeight: '700', marginBottom: 10 },
-  modalText: { fontSize: 16, marginBottom: 5 },
-  modalButton: { color: '#12577B', marginTop: 10, fontWeight: '600' },
+  container: {
+    flex: 1,
+    backgroundColor: '#F8F9FA',
+  },
+  cabecalho: {
+    backgroundColor: '#12577B',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingVertical: 16,
+    paddingTop: 30,
+  },
+  botaoCabecalho: {
+    padding: 8,
+    borderRadius: 8,
+  },
+  tituloCabecalho: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#FFFFFF',
+  },
+  conteudo: {
+    flex: 1,
+    paddingHorizontal: 20,
+  },
+  containerPesquisa: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
+    paddingHorizontal: 16,
+    marginVertical: 20,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 3,
+  },
+  iconePesquisa: {
+    marginRight: 12,
+  },
+  inputPesquisa: {
+    flex: 1,
+    height: 50,
+    fontSize: 16,
+    color: '#333',
+  },
+  secaoEstatisticas: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  cartaoEstatistica: {
+    backgroundColor: '#FFFFFF',
+    padding: 20,
+    borderRadius: 12,
+    flex: 1,
+    marginRight: 12,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 3,
+  },
+  numeroEstatistica: {
+    fontSize: 28,
+    fontWeight: '800',
+    color: '#12577B',
+    textAlign: 'center',
+  },
+  rotuloEstatistica: {
+    fontSize: 12,
+    color: '#666',
+    fontWeight: '600',
+    textAlign: 'center',
+    marginTop: 4,
+  },
+  botaoAdicionar: {
+    backgroundColor: '#12577B',
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderRadius: 12,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 4,
+  },
+  textoBotaoAdicionar: {
+    color: '#FFFFFF',
+    fontSize: 14,
+    fontWeight: '600',
+    marginLeft: 8,
+  },
+  secaoLista: {
+    marginBottom: 30,
+  },
+  tituloSecao: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#333',
+    marginBottom: 16,
+  },
+  cartaoOcorrencia: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
+    padding: 16,
+    marginBottom: 12,
+    borderLeftWidth: 4,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 2,
+  },
+  cabecalhoCartao: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    marginBottom: 12,
+  },
+  containerTitulo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+    marginRight: 8,
+  },
+  iconeTipo: {
+    marginRight: 8,
+  },
+  tituloOcorrencia: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#333',
+    flex: 1,
+  },
+  etiquetaTipo: {
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 6,
+  },
+  textoTipo: {
+    color: '#FFFFFF',
+    fontSize: 10,
+    fontWeight: '700',
+  },
+  conteudoCartao: {
+    marginBottom: 12,
+  },
+  linhaInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 6,
+  },
+  textoInfo: {
+    fontSize: 14,
+    color: '#666',
+    marginLeft: 8,
+  },
+  rodapeCartao: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+  },
+  botaoDetalhes: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+  },
+  textoBotaoDetalhes: {
+    color: '#12577B',
+    fontSize: 14,
+    fontWeight: '600',
+    marginRight: 4,
+  },
+  fundoModal: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  containerModal: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 12,
+    width: '90%',
+    maxHeight: '80%',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 10,
+  },
+  cabecalhoModal: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
+    padding: 20,
+    borderBottomWidth: 1,
+    borderBottomColor: '#F0F0F0',
+  },
+  containerTituloModal: {
+    flex: 1,
+    marginRight: 12,
+  },
+  tituloModal: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#333',
+    marginBottom: 8,
+  },
+  etiquetaTipoModal: {
+    alignSelf: 'flex-start',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 6,
+  },
+  textoTipoModal: {
+    color: '#FFFFFF',
+    fontSize: 12,
+    fontWeight: '700',
+  },
+  botaoFechar: {
+    padding: 4,
+  },
+  conteudoModal: {
+    padding: 20,
+  },
+  secaoDescricao: {
+    marginBottom: 20,
+  },
+  rotuloDescricao: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#333',
+    marginBottom: 8,
+  },
+  textoDescricao: {
+    fontSize: 14,
+    color: '#666',
+    lineHeight: 20,
+    backgroundColor: '#F8F9FA',
+    padding: 12,
+    borderRadius: 8,
+  },
+  secaoInfoBasica: {
+    borderTopWidth: 1,
+    borderTopColor: '#F0F0F0',
+    paddingTop: 16,
+  },
+  linhaInfoBasica: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  textoInfoBasica: {
+    fontSize: 14,
+    color: '#666',
+    marginLeft: 8,
+    flex: 1,
+  },
+  acoesModal: {
+    flexDirection: 'row',
+    padding: 16,
+    borderTopWidth: 1,
+    borderTopColor: '#F0F0F0',
+  },
+  botaoPrincipal: {
+    flex: 1,
+    backgroundColor: '#12577B',
+    paddingVertical: 12,
+    borderRadius: 8,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  textoBotaoPrincipal: {
+    color: '#FFFFFF',
+    fontSize: 14,
+    fontWeight: '600',
+  },
 });
 
 export default OcorrenciaScreen;

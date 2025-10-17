@@ -10,6 +10,7 @@ import LoginScreen from './pages/login';
 import CadastroScreen from './pages/cadastro';
 import MenuScreen from './pages/perfil/menu';
 import OcorrenciaScreen from './pages/perfil/ocorrencia';
+import PoliticaScreen from './pages/perfil/politica';
 import SobreScreen from './pages/sobre';
 import RegistrarScreen from './pages/registrar';
 import ConfiguracaoScreen from './pages/configuracao';
@@ -38,6 +39,7 @@ function AppRoutes() {
       <Stack.Screen name="Configuracao" component={ConfiguracaoScreen} />
       <Stack.Screen name="DigiteCodigo" component={DigiteCodigoScreen} />
       <Stack.Screen name="AlterarSenha" component={AlterarSenhaScreen} />
+      <Stack.Screen name="Politica" component={PoliticaScreen} />
 
 
       {tokenUser ? (

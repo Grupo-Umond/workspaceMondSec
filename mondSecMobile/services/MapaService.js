@@ -86,10 +86,10 @@ const MapaZonaLesteGeojson = forwardRef((props, ref) => {
       style={styles.map}
       initialRegion={region}
       showsUserLocation
-      showsMyLocationButton
+      showsMyLocationButton={false}
       loadingEnabled
       toolbarEnabled
-      zoomControlEnabled
+      zoomControlEnabled={false}
       minZoomLevel={10}
       maxZoomLevel={19}
     >
