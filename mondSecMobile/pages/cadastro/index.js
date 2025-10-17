@@ -238,7 +238,11 @@ const CadastroScreen = ({ navigation }) => {
             tintColors={{ true: '#4CAF50', false: '#aaa' }}
             style={styles.checkbox}
           />
-          <Text style={styles.textoTermos}>Concordo com os termos de uso</Text>
+         <Text style={styles.textoTermos}>
+      Concordo com os
+  <Text style={styles.termosLink} onPress={() => navigation.navigate('Politica')}> termos de uso</Text>
+</Text>
+
         </View>
 
         {erroMessage ? <Text style={styles.erro}>{erroMessage}</Text> : null}
@@ -348,11 +352,17 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 16,
     marginTop: 8,
+    gap: 5, 
   },
-  textoTermos: {
-    fontSize: 13,
-    color: '#718096',
-    marginLeft: 6,
+ textoTermos: {
+    fontSize: 14,
+    color: '#000', 
+    maeginLeft: 4,
+  },
+  termosLink: {
+    color: '#12577B', 
+    textDecorationLine: 'underline',
+    fontWeight: 'bold', 
   },
   erro: {
     color: '#f00',

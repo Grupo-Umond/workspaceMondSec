@@ -76,8 +76,8 @@ const ConfiguracaoScreen = ({ navigation, setUserToken }) => {
           value={oculto}
           onValueChange={setOculto}
         />
-        <Pressable onPress={() => Linking.openURL('https://example.com/termos')}>
-          <Text style={styles.linkText}>Ler nossos termos</Text>
+        <Pressable onPress={() => navigation.navigate('Sobre')}>
+          <Text style={styles.linkText}>Ler sobre nós </Text>
         </Pressable>
       </View>
 
@@ -99,11 +99,12 @@ const styles = StyleSheet.create({
   },
   header: {
     marginBottom: 20,
+      marginTop: -20,
     flexDirection: 'row',
-    gap: 40
+    gap: 60
   },
   backArrow: {
-    fontSize: 70,
+    fontSize: 60,
     color: "#12577B"
   },
   backText: {
