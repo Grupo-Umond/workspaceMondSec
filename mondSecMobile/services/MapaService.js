@@ -1,6 +1,6 @@
-import React, { useRef, useState, useEffect, forwardRef, useImperativeHandle } from 'react';
+import React, { useRef, useState, useEffect, forwardRef } from 'react';
 import { StyleSheet, Dimensions, Alert } from 'react-native';
-import MapView, { Marker, Polygon } from 'react-native-maps';
+import MapView, { Polygon } from 'react-native-maps';
 import * as Location from 'expo-location';
 
 const local = require('./GeoJson/zonaLeste_convertido.json');
@@ -10,7 +10,7 @@ const MapaZonaLesteGeojson = forwardRef((props, ref) => {
   const mapRef = useRef(null);
   const [region, setRegion] = useState(null);
   const [polygons, setPolygons] = useState([]);
-  const [centroids, setCentroids] = useState([]);
+  const [bounds, setBounds] = useState(null);
 
   useEffect(() => {
     (async () => {
@@ -24,59 +24,80 @@ const MapaZonaLesteGeojson = forwardRef((props, ref) => {
       const userRegion = {
         latitude: location.coords.latitude,
         longitude: location.coords.longitude,
-        latitudeDelta: 0.06,
-        longitudeDelta: 0.06,
+        latitudeDelta: 0.08,
+        longitudeDelta: 0.08,
       };
       setRegion(userRegion);
 
-      try {
-        parseGeoJSON(local);
-      } catch (err) {
-        console.error('Erro ao carregar GeoJSON local:', err);
-        Alert.alert('Erro', 'Falha ao carregar o arquivo local zonaLesteSubPrefeitura.json');
-      }
+      const parsed = parseGeoJSON(local);
+      setPolygons(parsed);
+
+      // Calcula limites da Zona Leste (bounding box)
+      const allCoords = parsed.flatMap(p => p.rings[0]);
+      const latitudes = allCoords.map(c => c.latitude);
+      const longitudes = allCoords.map(c => c.longitude);
+
+      setBounds({
+        minLat: Math.min(...latitudes),
+        maxLat: Math.max(...latitudes),
+        minLng: Math.min(...longitudes),
+        maxLng: Math.max(...longitudes),
+      });
     })();
   }, []);
 
   function parseGeoJSON(geojson) {
-    if (!geojson || !geojson.type) return;
     const feats = geojson.type === 'FeatureCollection' ? geojson.features : [geojson];
     const out = [];
-    const cents = [];
 
     feats.forEach((f, idx) => {
-      const name = (f.properties && (f.properties.name || f.properties.nome || f.properties.NAME)) || `Área ${idx + 1}`;
+      const name = f.properties?.name || f.properties?.nome || `Área ${idx + 1}`;
       const geom = f.geometry;
       if (!geom) return;
 
       if (geom.type === 'Polygon') {
-        const rings = geom.coordinates.map((ring) =>
+        const rings = geom.coordinates.map(ring =>
           ring.map(([lng, lat]) => ({ latitude: lat, longitude: lng }))
         );
         out.push({ id: `${idx}`, name, rings });
-        cents.push(centroidOfRings(rings[0]));
       } else if (geom.type === 'MultiPolygon') {
         geom.coordinates.forEach((poly, pidx) => {
-          const rings = poly.map((ring) => ring.map(([lng, lat]) => ({ latitude: lat, longitude: lng })));
+          const rings = poly.map(ring =>
+            ring.map(([lng, lat]) => ({ latitude: lat, longitude: lng }))
+          );
           out.push({ id: `${idx}-${pidx}`, name, rings });
-          cents.push(centroidOfRings(rings[0]));
         });
       }
     });
 
-    setPolygons(out);
-    setCentroids(cents);
+    return out;
   }
 
-  function centroidOfRings(ring) {
-    let x = 0;
-    let y = 0;
-    ring.forEach((p) => {
-      x += p.latitude;
-      y += p.longitude;
-    });
-    return { latitude: x / ring.length, longitude: y / ring.length };
-  }
+  // Impede o usuário de ver fora da Zona Leste
+  const handleRegionChangeComplete = (rgn) => {
+    if (!bounds || !mapRef.current) return;
+
+    const { minLat, maxLat, minLng, maxLng } = bounds;
+    let { latitude, longitude, latitudeDelta, longitudeDelta } = rgn;
+
+    const latOut = latitude < minLat || latitude > maxLat;
+    const lngOut = longitude < minLng || longitude > maxLng;
+
+    if (latOut || lngOut || latitudeDelta > 0.25 || longitudeDelta > 0.25) {
+      // 🔒 Reposiciona automaticamente para dentro da Zona Leste
+      const centerLat = (minLat + maxLat) / 2;
+      const centerLng = (minLng + maxLng) / 2;
+
+      mapRef.current.animateToRegion({
+        latitude: centerLat,
+        longitude: centerLng,
+        latitudeDelta: 0.1,
+        longitudeDelta: 0.1,
+      });
+
+      Alert.alert('Zona restrita', 'Você não pode sair da Zona Leste!');
+    }
+  };
 
   if (!region) return null;
 
@@ -92,24 +113,17 @@ const MapaZonaLesteGeojson = forwardRef((props, ref) => {
       zoomControlEnabled={false}
       minZoomLevel={10}
       maxZoomLevel={19}
+      onRegionChangeComplete={handleRegionChangeComplete} // 👈 trava de área
     >
-      {polygons.map((poly) => {
-        const outer = poly.rings[0];
-        const holes = poly.rings.length > 1 ? poly.rings.slice(1) : undefined;
-        return (
-          <Polygon
-            key={poly.id}
-            coordinates={outer}
-            holes={holes}
-            tappable
-            onPress={() => Alert.alert(poly.name || 'Área', `Subprefeitura / feature: ${poly.name}`)}
-            strokeColor={'#0A84FF'}
-            fillColor={'rgba(10,132,255,0.12)'}
-            strokeWidth={2}
-          />
-        );
-      })}
-
+      {polygons.map((poly) => (
+        <Polygon
+          key={poly.id}
+          coordinates={poly.rings[0]}
+          strokeColor={'#0A84FF'}
+          fillColor={'rgba(10,132,255,0.12)'}
+          strokeWidth={2}
+        />
+      ))}
     </MapView>
   );
 });
