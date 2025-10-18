@@ -8,16 +8,15 @@ import {
   Modal,
   ActivityIndicator,
   StyleSheet,
-  Button
+  Button,
+  FlatList,
 } from 'react-native';
-import { Picker } from '@react-native-picker/picker';
 import CheckBox from 'expo-checkbox';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { CoordenadaService } from '../../services/CoordenadaService';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import UrlService from '../../services/UrlService';
-
 
 const RegistrarScreen = ({ navigation }) => {
   const [carregando, setCarregando] = useState(false);
@@ -35,12 +34,58 @@ const RegistrarScreen = ({ navigation }) => {
   const [show, setShow] = useState(false);
   const [selectedDate, setSelectedDate] = useState(new Date());
 
+  const [buscaTipo, setBuscaTipo] = useState('');
+  const [dropdownAberto, setDropdownAberto] = useState(false);
+
+  const tiposOcorrencia = [
+    "Assalto em via pública", "Tentativa de assalto", "Roubo de veículo", "Furto de peças de veículo",
+    "Agressão em via pública", "Briga de rua", "Troca de tiros", "Disparo de arma de fogo", "Ação criminosa em andamento",
+    "Carro suspeito parado na via", "Sequestro relâmpago", "Latrocínio em via", "Vandalismo em via pública",
+    "Furto de cabos elétricos", "Bloqueio policial", "Perseguição policial", "Área isolada por investigação",
+    "Helicóptero sobrevoando área policial", "Colisão entre carros", "Colisão entre carro e moto",
+    "Colisão entre carro e caminhão", "Atropelamento de pedestre", "Atropelamento de ciclista",
+    "Engavetamento múltiplo", "Capotamento", "Tombamento de caminhão", "Caminhão com carga espalhada na pista",
+    "Moto caída na pista", "Veículo incendiado", "Explosão veicular", "Pane elétrica no veículo parado",
+    "Pane mecânica em via", "Veículo abandonado na pista", "Pneu estourado bloqueando faixa",
+    "Veículo atravessado em via", "Carro na contramão", "Comboio lento de caminhões",
+    "Ônibus quebrado bloqueando faixa", "Cancelas travadas em ferrovia", "Trilhos bloqueando travessia",
+    "Tempestade forte", "Chuva intensa com visibilidade reduzida", "Granizo na pista", "Vendaval derrubando objetos",
+    "Nevoeiro intenso", "Fumaça na pista", "Neve acumulada em via", "Nevasca", "Gelo na pista",
+    "Tornado atingindo estrada", "Furacão atingindo região", "Ciclone com interdição de vias",
+    "Tsunami atingindo área costeira", "Terremoto afetando rodovia", "Tremor de terra com rachaduras",
+    "Onda de calor afetando pavimento", "Areia ou poeira reduzindo visibilidade", "Incêndio em via pública",
+    "Incêndio em veículo", "Incêndio sob viaduto", "Incêndio em poste elétrico", "Explosão de transformador",
+    "Curto-circuito em fiação", "Vazamento de gás em rua", "Vazamento químico", "Vazamento de óleo na pista",
+    "Vazamento de água com risco de buraco", "Fios caídos na via", "Poste caído", "Buraco em via",
+    "Afundamento de asfalto", "Erosão em calçada ou pista", "Deslizamento de terra em estrada",
+    "Desabamento parcial de muro em calçada", "Desabamento de ponte ou viaduto",
+    "Rachadura estrutural em via", "Cratera aberta na pista", "Trecho interditado por obras",
+    "Bloqueio parcial por manutenção", "Sinalização danificada", "Semáforo apagado", "Semáforo piscando",
+    "Falta de energia afetando cruzamento", "Falha de iluminação pública", "Via sem luz à noite",
+    "Lâmpadas queimadas em cruzamento", "Região com baixa visibilidade", "Queda de árvore bloqueando pista",
+    "Galho grande na pista", "Entulho ou lixo bloqueando faixa", "Materiais de construção na via",
+    "Painel publicitário caído", "Telhado ou estrutura metálica na rua", "Vidros espalhados na pista",
+    "Animal de grande porte na pista", "Rebanho cruzando estrada", "Animal silvestre na via",
+    "Insetos em enxame na rodovia", "Protesto bloqueando via", "Manifestação com interdição parcial",
+    "Tumulto em evento próximo à via", "Rota bloqueada por evento esportivo",
+    "Fechamento de rua para show ou feira", "Marcha, carreata ou desfile bloqueando tráfego",
+    "Trânsito desviado por evento público", "Fiscalização eletrônica em operação", "Blitz policial",
+    "Controle de velocidade temporário", "Pedestre desmaiado na calçada", "Pessoa caída na rua",
+    "Crise médica em via pública", "Ciclista ferido na via", "Afogamento em passagem alagada",
+    "Presença de equipe de resgate", "Ambulância parada na via", "Corpo de bombeiros atendendo ocorrência",
+    "Polícia técnica interditando local", "Falha em radar ou câmera de trânsito",
+    "Pane em semáforo inteligente", "Falha de energia em cruzamentos", "Cancelas travadas em ferrovia",
+    "Trilhos bloqueando travessia"
+  ];
+
+  const tiposFiltrados = tiposOcorrencia.filter(item =>
+    item.toLowerCase().includes(buscaTipo.toLowerCase())
+  );
+
   useEffect(() => {
     const checarModal = async () => {
       const mostrarSalvo = await AsyncStorage.getItem('mostrarModalInicio');
-      if (mostrarSalvo === 'true') {
-        setVisivelInicio(false);
-      }
+      if (mostrarSalvo === 'true') setVisivelInicio(false);
     };
     checarModal();
   }, []);
@@ -49,7 +94,7 @@ const RegistrarScreen = ({ navigation }) => {
     setShow(false);
     if (selectedDateValue) {
       setSelectedDate(selectedDateValue);
-      setDataAcontecimento(selectedDateValue.toISOString().split('T')[0]); 
+      setDataAcontecimento(selectedDateValue.toISOString().split('T')[0]);
     }
   };
 
@@ -72,6 +117,7 @@ const RegistrarScreen = ({ navigation }) => {
     setDataAcontecimento('');
     setDescricao('');
     setEndereco('');
+    setBuscaTipo('');
   };
 
   const converterEndereco = async () => {
@@ -88,20 +134,9 @@ const RegistrarScreen = ({ navigation }) => {
     setCarregando(true);
     try {
       const { latitude, longitude } = await converterEndereco();
-      const dados = {
-        titulo,
-        latitude,
-        longitude,
-        tipo,
-        descricao,
-        dataAcontecimento
-      };
-
+      const dados = { titulo, latitude, longitude, tipo, descricao, dataAcontecimento };
       const tokenUser = await AsyncStorage.getItem('userToken');
-      await UrlService.post('/ocorrencia/registrar', dados, {
-        headers: { Authorization: `Bearer ${tokenUser}` }
-      });
-
+      await UrlService.post('/ocorrencia/registrar', dados, { headers: { Authorization: `Bearer ${tokenUser}` } });
       limparCampos();
       setVisivelSucesso(true);
       setMensagemErro('');
@@ -134,153 +169,32 @@ const RegistrarScreen = ({ navigation }) => {
         />
 
         <Text style={styles.label}>Tipo de Ocorrência</Text>
-        <View style={styles.pickerWrapper}>
-          <Picker selectedValue={tipo} onValueChange={setTipo} style={styles.picker}>
-            <Picker.Item label="Selecione..." value="" />
+        <TextInput
+          style={styles.input}
+          placeholder="Pesquisar tipo..."
+          value={buscaTipo}
+          onChangeText={(texto) => {
+            setBuscaTipo(texto);
+            setDropdownAberto(true);
+          }}
+        />
 
-            {/* Ocorrências criminais e de segurança */}
-            <Picker.Item label="Assalto em via pública" value="Assalto em via pública" />
-            <Picker.Item label="Tentativa de assalto" value="Tentativa de assalto" />
-            <Picker.Item label="Roubo de veículo" value="Roubo de veículo" />
-            <Picker.Item label="Furto de peças de veículo" value="Furto de peças de veículo" />
-            <Picker.Item label="Agressão em via pública" value="Agressão em via pública" />
-            <Picker.Item label="Briga de rua" value="Briga de rua" />
-            <Picker.Item label="Troca de tiros" value="Troca de tiros" />
-            <Picker.Item label="Disparo de arma de fogo" value="Disparo de arma de fogo" />
-            <Picker.Item label="Ação criminosa em andamento" value="Ação criminosa em andamento" />
-            <Picker.Item label="Carro suspeito parado na via" value="Carro suspeito parado na via" />
-            <Picker.Item label="Sequestro relâmpago" value="Sequestro relâmpago" />
-            <Picker.Item label="Latrocínio em via" value="Latrocínio em via" />
-            <Picker.Item label="Vandalismo em via pública" value="Vandalismo em via pública" />
-            <Picker.Item label="Furto de cabos elétricos" value="Furto de cabos elétricos" />
-            <Picker.Item label="Bloqueio policial" value="Bloqueio policial" />
-            <Picker.Item label="Perseguição policial" value="Perseguição policial" />
-            <Picker.Item label="Área isolada por investigação" value="Área isolada por investigação" />
-            <Picker.Item label="Helicóptero sobrevoando área policial" value="Helicóptero sobrevoando área policial" />
-
-            {/* Acidentes de trânsito */}
-            <Picker.Item label="Colisão entre carros" value="Colisão entre carros" />
-            <Picker.Item label="Colisão entre carro e moto" value="Colisão entre carro e moto" />
-            <Picker.Item label="Colisão entre carro e caminhão" value="Colisão entre carro e caminhão" />
-            <Picker.Item label="Atropelamento de pedestre" value="Atropelamento de pedestre" />
-            <Picker.Item label="Atropelamento de ciclista" value="Atropelamento de ciclista" />
-            <Picker.Item label="Engavetamento múltiplo" value="Engavetamento múltiplo" />
-            <Picker.Item label="Capotamento" value="Capotamento" />
-            <Picker.Item label="Tombamento de caminhão" value="Tombamento de caminhão" />
-            <Picker.Item label="Caminhão com carga espalhada na pista" value="Caminhão com carga espalhada na pista" />
-            <Picker.Item label="Moto caída na pista" value="Moto caída na pista" />
-            <Picker.Item label="Veículo incendiado" value="Veículo incendiado" />
-            <Picker.Item label="Explosão veicular" value="Explosão veicular" />
-
-            {/* Problemas mecânicos e obstruções */}
-            <Picker.Item label="Pane elétrica no veículo parado" value="Pane elétrica no veículo parado" />
-            <Picker.Item label="Pane mecânica em via" value="Pane mecânica em via" />
-            <Picker.Item label="Veículo abandonado na pista" value="Veículo abandonado na pista" />
-            <Picker.Item label="Pneu estourado bloqueando faixa" value="Pneu estourado bloqueando faixa" />
-            <Picker.Item label="Veículo atravessado em via" value="Veículo atravessado em via" />
-            <Picker.Item label="Carro na contramão" value="Carro na contramão" />
-            <Picker.Item label="Comboio lento de caminhões" value="Comboio lento de caminhões" />
-            <Picker.Item label="Ônibus quebrado bloqueando faixa" value="Ônibus quebrado bloqueando faixa" />
-            <Picker.Item label="Cancelas travadas em ferrovia" value="Cancelas travadas em ferrovia" />
-            <Picker.Item label="Trilhos bloqueando travessia" value="Trilhos bloqueando travessia" />
-
-            {/* Condições climáticas e ambientais */}
-            <Picker.Item label="Tempestade forte" value="Tempestade forte" />
-            <Picker.Item label="Chuva intensa com visibilidade reduzida" value="Chuva intensa com visibilidade reduzida" />
-            <Picker.Item label="Granizo na pista" value="Granizo na pista" />
-            <Picker.Item label="Vendaval derrubando objetos" value="Vendaval derrubando objetos" />
-            <Picker.Item label="Nevoeiro intenso" value="Nevoeiro intenso" />
-            <Picker.Item label="Fumaça na pista" value="Fumaça na pista" />
-            <Picker.Item label="Neve acumulada em via" value="Neve acumulada em via" />
-            <Picker.Item label="Nevasca" value="Nevasca" />
-            <Picker.Item label="Gelo na pista" value="Gelo na pista" />
-            <Picker.Item label="Tornado atingindo estrada" value="Tornado atingindo estrada" />
-            <Picker.Item label="Furacão atingindo região" value="Furacão atingindo região" />
-            <Picker.Item label="Ciclone com interdição de vias" value="Ciclone com interdição de vias" />
-            <Picker.Item label="Tsunami atingindo área costeira" value="Tsunami atingindo área costeira" />
-            <Picker.Item label="Terremoto afetando rodovia" value="Terremoto afetando rodovia" />
-            <Picker.Item label="Tremor de terra com rachaduras" value="Tremor de terra com rachaduras" />
-            <Picker.Item label="Onda de calor afetando pavimento" value="Onda de calor afetando pavimento" />
-            <Picker.Item label="Areia ou poeira reduzindo visibilidade" value="Areia ou poeira reduzindo visibilidade" />
-
-            {/* Riscos urbanos e ambientais */}
-            <Picker.Item label="Incêndio em via pública" value="Incêndio em via pública" />
-            <Picker.Item label="Incêndio em veículo" value="Incêndio em veículo" />
-            <Picker.Item label="Incêndio sob viaduto" value="Incêndio sob viaduto" />
-            <Picker.Item label="Incêndio em poste elétrico" value="Incêndio em poste elétrico" />
-            <Picker.Item label="Explosão de transformador" value="Explosão de transformador" />
-            <Picker.Item label="Curto-circuito em fiação" value="Curto-circuito em fiação" />
-            <Picker.Item label="Vazamento de gás em rua" value="Vazamento de gás em rua" />
-            <Picker.Item label="Vazamento químico" value="Vazamento químico" />
-            <Picker.Item label="Vazamento de óleo na pista" value="Vazamento de óleo na pista" />
-            <Picker.Item label="Vazamento de água com risco de buraco" value="Vazamento de água com risco de buraco" />
-            <Picker.Item label="Fios caídos na via" value="Fios caídos na via" />
-            <Picker.Item label="Poste caído" value="Poste caído" />
-
-            {/* Estrutura e infraestrutura */}
-            <Picker.Item label="Buraco em via" value="Buraco em via" />
-            <Picker.Item label="Afundamento de asfalto" value="Afundamento de asfalto" />
-            <Picker.Item label="Erosão em calçada ou pista" value="Erosão em calçada ou pista" />
-            <Picker.Item label="Deslizamento de terra em estrada" value="Deslizamento de terra em estrada" />
-            <Picker.Item label="Desabamento parcial de muro em calçada" value="Desabamento parcial de muro em calçada" />
-            <Picker.Item label="Desabamento de ponte ou viaduto" value="Desabamento de ponte ou viaduto" />
-            <Picker.Item label="Rachadura estrutural em via" value="Rachadura estrutural em via" />
-            <Picker.Item label="Cratera aberta na pista" value="Cratera aberta na pista" />
-            <Picker.Item label="Trecho interditado por obras" value="Trecho interditado por obras" />
-            <Picker.Item label="Bloqueio parcial por manutenção" value="Bloqueio parcial por manutenção" />
-            <Picker.Item label="Sinalização danificada" value="Sinalização danificada" />
-            <Picker.Item label="Semáforo apagado" value="Semáforo apagado" />
-            <Picker.Item label="Semáforo piscando" value="Semáforo piscando" />
-            <Picker.Item label="Falta de energia afetando cruzamento" value="Falta de energia afetando cruzamento" />
-            <Picker.Item label="Falha de iluminação pública" value="Falha de iluminação pública" />
-            <Picker.Item label="Via sem luz à noite" value="Via sem luz à noite" />
-            <Picker.Item label="Lâmpadas queimadas em cruzamento" value="Lâmpadas queimadas em cruzamento" />
-            <Picker.Item label="Região com baixa visibilidade" value="Região com baixa visibilidade" />
-
-            {/* Obstáculos e interferências */}
-            <Picker.Item label="Queda de árvore bloqueando pista" value="Queda de árvore bloqueando pista" />
-            <Picker.Item label="Galho grande na pista" value="Galho grande na pista" />
-            <Picker.Item label="Entulho ou lixo bloqueando faixa" value="Entulho ou lixo bloqueando faixa" />
-            <Picker.Item label="Materiais de construção na via" value="Materiais de construção na via" />
-            <Picker.Item label="Painel publicitário caído" value="Painel publicitário caído" />
-            <Picker.Item label="Telhado ou estrutura metálica na rua" value="Telhado ou estrutura metálica na rua" />
-            <Picker.Item label="Vidros espalhados na pista" value="Vidros espalhados na pista" />
-            <Picker.Item label="Animal de grande porte na pista" value="Animal de grande porte na pista" />
-            <Picker.Item label="Rebanho cruzando estrada" value="Rebanho cruzando estrada" />
-            <Picker.Item label="Animal silvestre na via" value="Animal silvestre na via" />
-            <Picker.Item label="Insetos em enxame na rodovia" value="Insetos em enxame na rodovia" />
-
-            {/* Eventos e bloqueios programados */}
-            <Picker.Item label="Protesto bloqueando via" value="Protesto bloqueando via" />
-            <Picker.Item label="Manifestação com interdição parcial" value="Manifestação com interdição parcial" />
-            <Picker.Item label="Tumulto em evento próximo à via" value="Tumulto em evento próximo à via" />
-            <Picker.Item label="Rota bloqueada por evento esportivo" value="Rota bloqueada por evento esportivo" />
-            <Picker.Item label="Fechamento de rua para show ou feira" value="Fechamento de rua para show ou feira" />
-            <Picker.Item label="Marcha, carreata ou desfile bloqueando tráfego" value="Marcha, carreata ou desfile bloqueando tráfego" />
-            <Picker.Item label="Trânsito desviado por evento público" value="Trânsito desviado por evento público" />
-            <Picker.Item label="Fiscalização eletrônica em operação" value="Fiscalização eletrônica em operação" />
-            <Picker.Item label="Blitz policial" value="Blitz policial" />
-            <Picker.Item label="Controle de velocidade temporário" value="Controle de velocidade temporário" />
-
-            {/* Ocorrências médicas e emergenciais */}
-            <Picker.Item label="Pedestre desmaiado na calçada" value="Pedestre desmaiado na calçada" />
-            <Picker.Item label="Pessoa caída na rua" value="Pessoa caída na rua" />
-            <Picker.Item label="Crise médica em via pública" value="Crise médica em via pública" />
-            <Picker.Item label="Ciclista ferido na via" value="Ciclista ferido na via" />
-            <Picker.Item label="Afogamento em passagem alagada" value="Afogamento em passagem alagada" />
-            <Picker.Item label="Presença de equipe de resgate" value="Presença de equipe de resgate" />
-            <Picker.Item label="Ambulância parada na via" value="Ambulância parada na via" />
-            <Picker.Item label="Corpo de bombeiros atendendo ocorrência" value="Corpo de bombeiros atendendo ocorrência" />
-            <Picker.Item label="Polícia técnica interditando local" value="Polícia técnica interditando local" />
-
-            {/* Falhas e panes em sistemas urbanos */}
-            <Picker.Item label="Falha em radar ou câmera de trânsito" value="Falha em radar ou câmera de trânsito" />
-            <Picker.Item label="Pane em semáforo inteligente" value="Pane em semáforo inteligente" />
-            <Picker.Item label="Falha de energia em cruzamentos" value="Falha de energia em cruzamentos" />
-            <Picker.Item label="Cancelas travadas em ferrovia" value="Cancelas travadas em ferrovia" />
-            <Picker.Item label="Trilhos bloqueando travessia" value="Trilhos bloqueando travessia" />
-          </Picker>
-        </View>
+        {dropdownAberto && (
+          <View style={styles.dropdown}>
+            <FlatList
+              data={tiposFiltrados}
+              keyExtractor={(item, index) => index.toString()}
+              renderItem={({ item }) => (
+                <TouchableOpacity
+                  style={[styles.item, item === tipo && styles.itemSelecionado]}
+                  onPress={() => { setTipo(item); setBuscaTipo(item); setDropdownAberto(false); }}
+                >
+                  <Text style={[styles.itemTexto, item === tipo && styles.itemTextoSelecionado]}>{item}</Text>
+                </TouchableOpacity>
+              )}
+            />
+          </View>
+        )}
 
         <Text style={styles.label}>Endereço</Text>
         <TextInput
@@ -288,7 +202,6 @@ const RegistrarScreen = ({ navigation }) => {
           placeholder="Digite o endereço..."
           value={endereco}
           onChangeText={setEndereco}
-          keyboardType="default"
         />
 
         <Text style={styles.label}>Descrição</Text>
@@ -301,6 +214,7 @@ const RegistrarScreen = ({ navigation }) => {
           maxLength={120}
           textAlignVertical="top"
         />
+
         <Text>{dataAcontecimento}</Text>
         <Button onPress={() => setShow(true)} title='Selecionar Data'/>
         {show && (
@@ -313,7 +227,6 @@ const RegistrarScreen = ({ navigation }) => {
         )}
 
         <Text style={styles.contador}>{descricao.length}/120</Text>
-
         {mensagemErro ? <Text style={styles.erro}>{mensagemErro}</Text> : null}
       </View>
 
@@ -324,41 +237,6 @@ const RegistrarScreen = ({ navigation }) => {
       >
         {carregando ? <ActivityIndicator color="#fff" /> : <Text style={styles.textoBotao}>Enviar</Text>}
       </TouchableOpacity>
-
-      <Modal visible={visivelInicio} transparent animationType="slide" onRequestClose={() => setVisivelInicio(false)}>
-        <View style={styles.modalContainer}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Como Funciona</Text>
-            <Text style={styles.modalText}>1. Escolha o tipo de ocorrência (Ex: Assalto, Alagamento)</Text>
-            <Text style={styles.modalText}>2. Informe o local</Text>
-            <Text style={styles.modalText}>3. Descreva o que aconteceu</Text>
-            <Text style={styles.modalText}>4. Envie sua ocorrência</Text>
-
-            <TouchableOpacity style={styles.primaryButton} onPress={() => setVisivelInicio(false)}>
-              <Text style={styles.primaryButtonText}>Fazer Agora</Text>
-            </TouchableOpacity>
-
-            <View style={styles.checkboxContainer}>
-              <CheckBox value={mostrar} onValueChange={toggleMostrar} tintColors={{ true: '#12577B', false: '#64748B' }} />
-              <Text style={styles.checkboxLabel}>Não mostrar novamente</Text>
-            </View>
-          </View>
-        </View>
-      </Modal>
-
-      <Modal visible={visivelSucesso} transparent animationType="slide">
-        <View style={styles.modalContainer}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Ocorrência enviada com sucesso!</Text>
-            <TouchableOpacity style={styles.primaryButton} onPress={() => setVisivelSucesso(false)}>
-              <Text style={styles.primaryButtonText}>Fazer mais uma</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.primaryButton} onPress={() => {setVisivelSucesso(false); navigation.navigate('Ocorrencia');}}>
-              <Text style={styles.primaryButtonText}>Ver minhas ocorrências</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </Modal>
     </View>
   );
 };
