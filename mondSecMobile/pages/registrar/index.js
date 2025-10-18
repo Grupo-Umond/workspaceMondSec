@@ -31,7 +31,7 @@ const RegistrarScreen = ({ navigation }) => {
   const [tipo, setTipo] = useState('');
   const [descricao, setDescricao] = useState('');
   const [mensagemErro, setMensagemErro] = useState('');
-
+  const [dataTemp, setDataTemp] = useState('');
   const [show, setShow] = useState(false);
   const [selectedDate, setSelectedDate] = useState(new Date());
 
@@ -163,7 +163,7 @@ const RegistrarScreen = ({ navigation }) => {
           maxLength={120}
           textAlignVertical="top"
         />
-
+        <Text>{dataAcontecimento}</Text>
         <Button onPress={() => setShow(true)} title='Selecionar Data'/>
         {show && (
           <DateTimePicker
