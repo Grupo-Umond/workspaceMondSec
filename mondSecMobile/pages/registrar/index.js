@@ -137,10 +137,148 @@ const RegistrarScreen = ({ navigation }) => {
         <View style={styles.pickerWrapper}>
           <Picker selectedValue={tipo} onValueChange={setTipo} style={styles.picker}>
             <Picker.Item label="Selecione..." value="" />
-            <Picker.Item label="Roubo" value="Roubo" />
-            <Picker.Item label="Acidente" value="Acidente" />
-            <Picker.Item label="Incêndio" value="Incêndio" />
-            <Picker.Item label="Outro" value="Outro" />
+
+            {/* Ocorrências criminais e de segurança */}
+            <Picker.Item label="Assalto em via pública" value="Assalto em via pública" />
+            <Picker.Item label="Tentativa de assalto" value="Tentativa de assalto" />
+            <Picker.Item label="Roubo de veículo" value="Roubo de veículo" />
+            <Picker.Item label="Furto de peças de veículo" value="Furto de peças de veículo" />
+            <Picker.Item label="Agressão em via pública" value="Agressão em via pública" />
+            <Picker.Item label="Briga de rua" value="Briga de rua" />
+            <Picker.Item label="Troca de tiros" value="Troca de tiros" />
+            <Picker.Item label="Disparo de arma de fogo" value="Disparo de arma de fogo" />
+            <Picker.Item label="Ação criminosa em andamento" value="Ação criminosa em andamento" />
+            <Picker.Item label="Carro suspeito parado na via" value="Carro suspeito parado na via" />
+            <Picker.Item label="Sequestro relâmpago" value="Sequestro relâmpago" />
+            <Picker.Item label="Latrocínio em via" value="Latrocínio em via" />
+            <Picker.Item label="Vandalismo em via pública" value="Vandalismo em via pública" />
+            <Picker.Item label="Furto de cabos elétricos" value="Furto de cabos elétricos" />
+            <Picker.Item label="Bloqueio policial" value="Bloqueio policial" />
+            <Picker.Item label="Perseguição policial" value="Perseguição policial" />
+            <Picker.Item label="Área isolada por investigação" value="Área isolada por investigação" />
+            <Picker.Item label="Helicóptero sobrevoando área policial" value="Helicóptero sobrevoando área policial" />
+
+            {/* Acidentes de trânsito */}
+            <Picker.Item label="Colisão entre carros" value="Colisão entre carros" />
+            <Picker.Item label="Colisão entre carro e moto" value="Colisão entre carro e moto" />
+            <Picker.Item label="Colisão entre carro e caminhão" value="Colisão entre carro e caminhão" />
+            <Picker.Item label="Atropelamento de pedestre" value="Atropelamento de pedestre" />
+            <Picker.Item label="Atropelamento de ciclista" value="Atropelamento de ciclista" />
+            <Picker.Item label="Engavetamento múltiplo" value="Engavetamento múltiplo" />
+            <Picker.Item label="Capotamento" value="Capotamento" />
+            <Picker.Item label="Tombamento de caminhão" value="Tombamento de caminhão" />
+            <Picker.Item label="Caminhão com carga espalhada na pista" value="Caminhão com carga espalhada na pista" />
+            <Picker.Item label="Moto caída na pista" value="Moto caída na pista" />
+            <Picker.Item label="Veículo incendiado" value="Veículo incendiado" />
+            <Picker.Item label="Explosão veicular" value="Explosão veicular" />
+
+            {/* Problemas mecânicos e obstruções */}
+            <Picker.Item label="Pane elétrica no veículo parado" value="Pane elétrica no veículo parado" />
+            <Picker.Item label="Pane mecânica em via" value="Pane mecânica em via" />
+            <Picker.Item label="Veículo abandonado na pista" value="Veículo abandonado na pista" />
+            <Picker.Item label="Pneu estourado bloqueando faixa" value="Pneu estourado bloqueando faixa" />
+            <Picker.Item label="Veículo atravessado em via" value="Veículo atravessado em via" />
+            <Picker.Item label="Carro na contramão" value="Carro na contramão" />
+            <Picker.Item label="Comboio lento de caminhões" value="Comboio lento de caminhões" />
+            <Picker.Item label="Ônibus quebrado bloqueando faixa" value="Ônibus quebrado bloqueando faixa" />
+            <Picker.Item label="Cancelas travadas em ferrovia" value="Cancelas travadas em ferrovia" />
+            <Picker.Item label="Trilhos bloqueando travessia" value="Trilhos bloqueando travessia" />
+
+            {/* Condições climáticas e ambientais */}
+            <Picker.Item label="Tempestade forte" value="Tempestade forte" />
+            <Picker.Item label="Chuva intensa com visibilidade reduzida" value="Chuva intensa com visibilidade reduzida" />
+            <Picker.Item label="Granizo na pista" value="Granizo na pista" />
+            <Picker.Item label="Vendaval derrubando objetos" value="Vendaval derrubando objetos" />
+            <Picker.Item label="Nevoeiro intenso" value="Nevoeiro intenso" />
+            <Picker.Item label="Fumaça na pista" value="Fumaça na pista" />
+            <Picker.Item label="Neve acumulada em via" value="Neve acumulada em via" />
+            <Picker.Item label="Nevasca" value="Nevasca" />
+            <Picker.Item label="Gelo na pista" value="Gelo na pista" />
+            <Picker.Item label="Tornado atingindo estrada" value="Tornado atingindo estrada" />
+            <Picker.Item label="Furacão atingindo região" value="Furacão atingindo região" />
+            <Picker.Item label="Ciclone com interdição de vias" value="Ciclone com interdição de vias" />
+            <Picker.Item label="Tsunami atingindo área costeira" value="Tsunami atingindo área costeira" />
+            <Picker.Item label="Terremoto afetando rodovia" value="Terremoto afetando rodovia" />
+            <Picker.Item label="Tremor de terra com rachaduras" value="Tremor de terra com rachaduras" />
+            <Picker.Item label="Onda de calor afetando pavimento" value="Onda de calor afetando pavimento" />
+            <Picker.Item label="Areia ou poeira reduzindo visibilidade" value="Areia ou poeira reduzindo visibilidade" />
+
+            {/* Riscos urbanos e ambientais */}
+            <Picker.Item label="Incêndio em via pública" value="Incêndio em via pública" />
+            <Picker.Item label="Incêndio em veículo" value="Incêndio em veículo" />
+            <Picker.Item label="Incêndio sob viaduto" value="Incêndio sob viaduto" />
+            <Picker.Item label="Incêndio em poste elétrico" value="Incêndio em poste elétrico" />
+            <Picker.Item label="Explosão de transformador" value="Explosão de transformador" />
+            <Picker.Item label="Curto-circuito em fiação" value="Curto-circuito em fiação" />
+            <Picker.Item label="Vazamento de gás em rua" value="Vazamento de gás em rua" />
+            <Picker.Item label="Vazamento químico" value="Vazamento químico" />
+            <Picker.Item label="Vazamento de óleo na pista" value="Vazamento de óleo na pista" />
+            <Picker.Item label="Vazamento de água com risco de buraco" value="Vazamento de água com risco de buraco" />
+            <Picker.Item label="Fios caídos na via" value="Fios caídos na via" />
+            <Picker.Item label="Poste caído" value="Poste caído" />
+
+            {/* Estrutura e infraestrutura */}
+            <Picker.Item label="Buraco em via" value="Buraco em via" />
+            <Picker.Item label="Afundamento de asfalto" value="Afundamento de asfalto" />
+            <Picker.Item label="Erosão em calçada ou pista" value="Erosão em calçada ou pista" />
+            <Picker.Item label="Deslizamento de terra em estrada" value="Deslizamento de terra em estrada" />
+            <Picker.Item label="Desabamento parcial de muro em calçada" value="Desabamento parcial de muro em calçada" />
+            <Picker.Item label="Desabamento de ponte ou viaduto" value="Desabamento de ponte ou viaduto" />
+            <Picker.Item label="Rachadura estrutural em via" value="Rachadura estrutural em via" />
+            <Picker.Item label="Cratera aberta na pista" value="Cratera aberta na pista" />
+            <Picker.Item label="Trecho interditado por obras" value="Trecho interditado por obras" />
+            <Picker.Item label="Bloqueio parcial por manutenção" value="Bloqueio parcial por manutenção" />
+            <Picker.Item label="Sinalização danificada" value="Sinalização danificada" />
+            <Picker.Item label="Semáforo apagado" value="Semáforo apagado" />
+            <Picker.Item label="Semáforo piscando" value="Semáforo piscando" />
+            <Picker.Item label="Falta de energia afetando cruzamento" value="Falta de energia afetando cruzamento" />
+            <Picker.Item label="Falha de iluminação pública" value="Falha de iluminação pública" />
+            <Picker.Item label="Via sem luz à noite" value="Via sem luz à noite" />
+            <Picker.Item label="Lâmpadas queimadas em cruzamento" value="Lâmpadas queimadas em cruzamento" />
+            <Picker.Item label="Região com baixa visibilidade" value="Região com baixa visibilidade" />
+
+            {/* Obstáculos e interferências */}
+            <Picker.Item label="Queda de árvore bloqueando pista" value="Queda de árvore bloqueando pista" />
+            <Picker.Item label="Galho grande na pista" value="Galho grande na pista" />
+            <Picker.Item label="Entulho ou lixo bloqueando faixa" value="Entulho ou lixo bloqueando faixa" />
+            <Picker.Item label="Materiais de construção na via" value="Materiais de construção na via" />
+            <Picker.Item label="Painel publicitário caído" value="Painel publicitário caído" />
+            <Picker.Item label="Telhado ou estrutura metálica na rua" value="Telhado ou estrutura metálica na rua" />
+            <Picker.Item label="Vidros espalhados na pista" value="Vidros espalhados na pista" />
+            <Picker.Item label="Animal de grande porte na pista" value="Animal de grande porte na pista" />
+            <Picker.Item label="Rebanho cruzando estrada" value="Rebanho cruzando estrada" />
+            <Picker.Item label="Animal silvestre na via" value="Animal silvestre na via" />
+            <Picker.Item label="Insetos em enxame na rodovia" value="Insetos em enxame na rodovia" />
+
+            {/* Eventos e bloqueios programados */}
+            <Picker.Item label="Protesto bloqueando via" value="Protesto bloqueando via" />
+            <Picker.Item label="Manifestação com interdição parcial" value="Manifestação com interdição parcial" />
+            <Picker.Item label="Tumulto em evento próximo à via" value="Tumulto em evento próximo à via" />
+            <Picker.Item label="Rota bloqueada por evento esportivo" value="Rota bloqueada por evento esportivo" />
+            <Picker.Item label="Fechamento de rua para show ou feira" value="Fechamento de rua para show ou feira" />
+            <Picker.Item label="Marcha, carreata ou desfile bloqueando tráfego" value="Marcha, carreata ou desfile bloqueando tráfego" />
+            <Picker.Item label="Trânsito desviado por evento público" value="Trânsito desviado por evento público" />
+            <Picker.Item label="Fiscalização eletrônica em operação" value="Fiscalização eletrônica em operação" />
+            <Picker.Item label="Blitz policial" value="Blitz policial" />
+            <Picker.Item label="Controle de velocidade temporário" value="Controle de velocidade temporário" />
+
+            {/* Ocorrências médicas e emergenciais */}
+            <Picker.Item label="Pedestre desmaiado na calçada" value="Pedestre desmaiado na calçada" />
+            <Picker.Item label="Pessoa caída na rua" value="Pessoa caída na rua" />
+            <Picker.Item label="Crise médica em via pública" value="Crise médica em via pública" />
+            <Picker.Item label="Ciclista ferido na via" value="Ciclista ferido na via" />
+            <Picker.Item label="Afogamento em passagem alagada" value="Afogamento em passagem alagada" />
+            <Picker.Item label="Presença de equipe de resgate" value="Presença de equipe de resgate" />
+            <Picker.Item label="Ambulância parada na via" value="Ambulância parada na via" />
+            <Picker.Item label="Corpo de bombeiros atendendo ocorrência" value="Corpo de bombeiros atendendo ocorrência" />
+            <Picker.Item label="Polícia técnica interditando local" value="Polícia técnica interditando local" />
+
+            {/* Falhas e panes em sistemas urbanos */}
+            <Picker.Item label="Falha em radar ou câmera de trânsito" value="Falha em radar ou câmera de trânsito" />
+            <Picker.Item label="Pane em semáforo inteligente" value="Pane em semáforo inteligente" />
+            <Picker.Item label="Falha de energia em cruzamentos" value="Falha de energia em cruzamentos" />
+            <Picker.Item label="Cancelas travadas em ferrovia" value="Cancelas travadas em ferrovia" />
+            <Picker.Item label="Trilhos bloqueando travessia" value="Trilhos bloqueando travessia" />
           </Picker>
         </View>
 
