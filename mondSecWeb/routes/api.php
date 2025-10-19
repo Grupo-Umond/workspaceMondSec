@@ -32,6 +32,7 @@ Route::prefix('ocorrencia')
     ->group(function () {
         Route::get('/procurar', 'index')->name('listar');
         Route::post('/registrar', 'store')->name('registrar');
+        Route::get('/pegar', 'allOcorrencias')->name('getall');
     });
 
 Route::prefix('codigo')

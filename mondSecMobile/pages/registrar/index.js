@@ -237,10 +237,45 @@ const RegistrarScreen = ({ navigation }) => {
       >
         {carregando ? <ActivityIndicator color="#fff" /> : <Text style={styles.textoBotao}>Enviar</Text>}
       </TouchableOpacity>
+
+            <Modal visible={visivelInicio} transparent animationType="slide" onRequestClose={() => setVisivelInicio(false)}>
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Como Funciona</Text>
+            <Text style={styles.modalText}>1. Escolha o tipo de ocorrência (Ex: Assalto, Alagamento)</Text>
+            <Text style={styles.modalText}>2. Informe o local</Text>
+            <Text style={styles.modalText}>3. Descreva o que aconteceu</Text>
+            <Text style={styles.modalText}>4. Envie sua ocorrência</Text>
+
+            <TouchableOpacity style={styles.primaryButton} onPress={() => setVisivelInicio(false)}>
+              <Text style={styles.primaryButtonText}>Fazer Agora</Text>
+            </TouchableOpacity>
+
+            <View style={styles.checkboxContainer}>
+              <CheckBox value={mostrar} onValueChange={toggleMostrar} tintColors={{ true: '#12577B', false: '#64748B' }} />
+              <Text style={styles.checkboxLabel}>Não mostrar novamente</Text>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
+      <Modal visible={visivelSucesso} transparent animationType="slide">
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <Text style={styles.modalTitle}>Ocorrência enviada com sucesso!</Text>
+            <TouchableOpacity style={styles.primaryButton} onPress={() => setVisivelSucesso(false)}>
+              <Text style={styles.primaryButtonText}>Fazer mais uma</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.primaryButton} onPress={() => {setVisivelSucesso(false); navigation.navigate('Ocorrencia');}}>
+              <Text style={styles.primaryButtonText}>Ver minhas ocorrências</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </View>
+
   );
 };
-
 const styles = StyleSheet.create({
   container: { 
     flex: 1, 
