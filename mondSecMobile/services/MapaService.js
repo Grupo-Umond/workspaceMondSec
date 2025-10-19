@@ -1,16 +1,19 @@
 import React, { useRef, useState, useEffect, forwardRef } from 'react';
-import { StyleSheet, Dimensions, Alert } from 'react-native';
-import MapView, { Polygon } from 'react-native-maps';
+import { StyleSheet, Dimensions, Alert, Image } from 'react-native';
+import MapView, { Polygon, Marker } from 'react-native-maps';
 import * as Location from 'expo-location';
+import UrlService from './UrlService';
+import { IconService } from '../services/IconService';
 
 const local = require('./GeoJson/zonaLeste_convertido.json');
 const { width, height } = Dimensions.get('window');
 
-const MapaZonaLesteGeojson = forwardRef((props, ref) => {
+const MapaZonaLesteGeojson = forwardRef(({ ocorrencias = [] }, ref) => {
   const mapRef = useRef(null);
   const [region, setRegion] = useState(null);
   const [polygons, setPolygons] = useState([]);
   const [bounds, setBounds] = useState(null);
+  const [ocorrenciasState, setOcorrencias] = useState(ocorrencias);
 
   useEffect(() => {
     (async () => {
@@ -29,10 +32,10 @@ const MapaZonaLesteGeojson = forwardRef((props, ref) => {
       };
       setRegion(userRegion);
 
+      // Parse GeoJSON
       const parsed = parseGeoJSON(local);
       setPolygons(parsed);
 
-      // Calcula limites da Zona Leste (bounding box)
       const allCoords = parsed.flatMap(p => p.rings[0]);
       const latitudes = allCoords.map(c => c.latitude);
       const longitudes = allCoords.map(c => c.longitude);
@@ -44,6 +47,14 @@ const MapaZonaLesteGeojson = forwardRef((props, ref) => {
         maxLng: Math.max(...longitudes),
       });
     })();
+  }, []);
+
+  useEffect(() => {
+    const puxarOcorrencias = async () => {
+      const response = await UrlService.get('/ocorrencia/getall');
+      setOcorrencias(response.data.ocorrencias);
+    };
+    puxarOcorrencias();
   }, []);
 
   function parseGeoJSON(geojson) {
@@ -73,7 +84,6 @@ const MapaZonaLesteGeojson = forwardRef((props, ref) => {
     return out;
   }
 
-  // Impede o usuário de ver fora da Zona Leste
   const handleRegionChangeComplete = (rgn) => {
     if (!bounds || !mapRef.current) return;
 
@@ -84,7 +94,6 @@ const MapaZonaLesteGeojson = forwardRef((props, ref) => {
     const lngOut = longitude < minLng || longitude > maxLng;
 
     if (latOut || lngOut || latitudeDelta > 0.25 || longitudeDelta > 0.25) {
-      // 🔒 Reposiciona automaticamente para dentro da Zona Leste
       const centerLat = (minLat + maxLat) / 2;
       const centerLng = (minLng + maxLng) / 2;
 
@@ -113,7 +122,7 @@ const MapaZonaLesteGeojson = forwardRef((props, ref) => {
       zoomControlEnabled={false}
       minZoomLevel={10}
       maxZoomLevel={19}
-      onRegionChangeComplete={handleRegionChangeComplete} // 👈 trava de área
+      onRegionChangeComplete={handleRegionChangeComplete}
     >
       {polygons.map((poly) => (
         <Polygon
@@ -124,6 +133,23 @@ const MapaZonaLesteGeojson = forwardRef((props, ref) => {
           strokeWidth={2}
         />
       ))}
+
+      {ocorrenciasState.map((oc, index) => {
+        const icone = IconService[oc.tipo] || IconService.default;
+        return (
+          <Marker
+            key={index}
+            coordinate={{
+              latitude: parseFloat(oc.latitude),
+              longitude: parseFloat(oc.longitude),
+            }}
+            title={oc.tipo}
+            description={oc.descricao}
+          >
+            <Image source={icone} style={{ width: 40, height: 40 }} />
+          </Marker>
+        );
+      })}
     </MapView>
   );
 });
