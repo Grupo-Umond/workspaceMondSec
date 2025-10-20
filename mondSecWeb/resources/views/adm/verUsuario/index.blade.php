@@ -56,7 +56,7 @@
             @endif
         </div>
 
-        <div class="graficos">
+        <div class="graficosUsuarios">
 
             <style>
                 .graficos {
@@ -64,20 +64,19 @@
                 }
             </style>
 
-            <div id="chart-container1"></div>
+            <div id="chart-container1Usuarios"></div>
             <script src="https://echarts.apache.org/en/js/vendors/echarts/dist/echarts.min.js"></script>
 
             <style>
-                #chart-container1 {
+                #chart-container1Usuarios {
                     position: relative;
                     height: 45vh;
-                    width: 50%;
                     overflow: hidden;
                 }
             </style>
 
             <script>
-                var dom = document.getElementById('chart-container1');
+                var dom = document.getElementById('chart-container1Usuarios');
                 var myChart = echarts.init(dom, null, {
                     renderer: 'canvas',
                     useDirtyRect: false
@@ -110,20 +109,19 @@
                 window.addEventListener('resize', myChart.resize);
             </script>
 
-            <div id="chart-container2"></div>
+            <div id="chart-container2Usuarios"></div>
             <script src="https://echarts.apache.org/en/js/vendors/echarts/dist/echarts.min.js"></script>
 
             <style>
-                #chart-container2 {
+                #chart-container2Usuarios {
                     position: relative;
                     height: 45vh;
-                    width: 50%;
                     overflow: hidden;
                 }
             </style>
 
             <script>
-                var dom = document.getElementById('chart-container2');
+                var dom = document.getElementById('chart-container2Usuarios');
                 var myChart = echarts.init(dom, null, {
                     renderer: 'canvas',
                     useDirtyRect: false

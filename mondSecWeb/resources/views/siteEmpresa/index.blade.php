@@ -129,7 +129,7 @@
 <script>
     window.addEventListener("scroll", function () {
         const navbar = document.querySelector(".cabecalho__menu");
-        const triggerPoint = window.innerHeight / 1;
+        const triggerPoint = window.innerHeight - 100;
         if (window.scrollY >= triggerPoint) {
             navbar.style.backgroundColor = "#040439";
         } else {
