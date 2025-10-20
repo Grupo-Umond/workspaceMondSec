@@ -19,12 +19,19 @@ const DigiteCodigoScreen = ({ navigation, route }) => {
   const [telefone, setTelefone] = useState("");
   const [carregando, setCarregando] = useState(false);
   const [erroMessage, setErroMessage] = useState("");
+  const [tempoRestante, setTempoRestante] = useState(0); // ⏱ Contagem regressiva
 
   const usuario = route.params?.usuario;
   const code = digitos.join("");
 
   useEffect(() => {
-    const buscarDados = async () => {
+    
+
+    buscarDados();
+    criarCodigo();
+  }, [direcao]);
+
+  const buscarDados = async () => {
       const tokenUser = await AsyncStorage.getItem("userToken");
       try {
         if (tokenUser) {
@@ -42,37 +49,43 @@ const DigiteCodigoScreen = ({ navigation, route }) => {
     };
 
     const criarCodigo = async () => {
-      const login = await buscarDados();
+      const login = await pegarLogin();
       const tokenUser = await AsyncStorage.getItem("userToken");
 
       try {
+        let response;
         if (direcao) {
-          if (tokenUser) {
-          await UrlService.post('/codigo/sendEmail', {
-              headers: { Authorization: `Bearer ${tokenUser}` },
-            });
-          } else {
-            await UrlService.post('/codigo/sendEmail', { login });
-          }
+          response = tokenUser
+            ? await UrlService.post('/codigo/sendEmail', {}, { headers: { Authorization: `Bearer ${tokenUser}` } })
+            : await UrlService.post('/codigo/sendEmail', { login });
         } else {
-          if (tokenUser) {
-            await UrlService.post('/codigo/sendSms', {}, {
-              headers: { Authorization: `Bearer ${tokenUser}` },
-            });
-          } else {
-            await UrlService.post('/codigo/sendSms', { telefone });
-          }
+          response = tokenUser
+            ? await UrlService.post('/codigo/sendSms', {}, { headers: { Authorization: `Bearer ${tokenUser}` } })
+            : await UrlService.post('/codigo/sendSms', { telefone });
         }
+
+        setTempoRestante(30); // ⏳ inicia contagem de 30s após envio
+
       } catch (erro) {
+        if (erro.response?.status === 429) {
+          setTempoRestante(erro.response.data.tempoRestante || 30);
+        }
         console.log("Erro ao criar código:", erro.response?.data || erro.message);
       }
     };
+  // ⏱ Atualiza contagem regressiva
+  useEffect(() => {
+    if (tempoRestante <= 0) return;
+    const timer = setInterval(() => {
+      setTempoRestante(prev => {
+        if (prev <= 1) clearInterval(timer);
+        return prev - 1;
+      });
+    }, 1000);
 
-    buscarDados();
-    criarCodigo();
-  }, [direcao]);
+    return () => clearInterval(timer);
+  }, [tempoRestante]);
 
- 
   const pegarLogin = () => {
     if (direcao) {
       setEmail(usuario.email);
@@ -145,6 +158,7 @@ const DigiteCodigoScreen = ({ navigation, route }) => {
           <Text style={styles.headerTitle}>Verificação de Conta</Text>
         </View>
       </View>
+
       <View style={styles.avatarContainer}>
         <View style={styles.logoContainer}>
           <Image
@@ -153,11 +167,13 @@ const DigiteCodigoScreen = ({ navigation, route }) => {
           />
         </View>
       </View>
+
       <Text style={styles.title}>
         {direcao
           ? `Digite o código que enviamos para o email ${email}`
           : `Digite o código que enviamos para o número ${telefone}`}
       </Text>
+
       {direcao ? (
         <Pressable onPress={() => setDirecao(false)}>
           <Text style={styles.linkText}>
@@ -173,6 +189,7 @@ const DigiteCodigoScreen = ({ navigation, route }) => {
           </Text>
         </Pressable>
       )}
+
       <View style={styles.inputContainer}>
         {digitos.map((d, index) => (
           <TextInput
@@ -186,14 +203,21 @@ const DigiteCodigoScreen = ({ navigation, route }) => {
         ))}
       </View>
 
-
       {erroMessage ? (
         <Text style={styles.errorMessage}>{erroMessage}</Text>
       ) : null}
 
-      <TouchableOpacity>
-        <Text style={styles.resendLink}>Não recebeu o código? Reenviar</Text>
+      <TouchableOpacity
+        onPress={() => setTempoRestante(tempoRestante > 0 ? tempoRestante : 30) || criarCodigo()}
+        disabled={tempoRestante > 0}
+      >
+        <Text style={[styles.resendLink, tempoRestante > 0 && { opacity: 0.5 }]}>
+          {tempoRestante > 0
+            ? `Reenviar em ${tempoRestante}s`
+            : "Não recebeu o código? Reenviar"}
+        </Text>
       </TouchableOpacity>
+
       <TouchableOpacity
         style={[styles.confirmButton, carregando && styles.disabledButton]}
         onPress={enviarCodigo}
@@ -211,7 +235,6 @@ const styles = StyleSheet.create({
   container: { flex: 1, padding: 20, backgroundColor: "#fff", alignItems: "center" },
   header: { flexDirection: "row", alignItems: "center" },
   backButton: { marginRight: 90, marginBottom: 10 },
-
   nav: { flexDirection: "row" },
   backArrow: { fontSize: 70, color: "#12577B" },
   headerTitle: { fontSize: 22, fontWeight: "600", color: "#000", marginLeft: -50 },
@@ -234,10 +257,6 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     backgroundColor: "#fff",
     elevation: 2,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
   },
   errorMessage: { color: "red", marginBottom: 10, textAlign: "center" },
   resendLink: { color: "#007AFF", fontSize: 14, textAlign: "center", marginBottom: 20 },
