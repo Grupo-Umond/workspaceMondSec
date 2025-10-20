@@ -96,16 +96,23 @@ const HomeScreen = ({ navigation }) => {
         <Mapa style={styles.mapImage} />
       </View>
 
-      <Pressable 
-        style={({ pressed }) => [
-          styles.ocorrenciaButton,
-          { opacity: pressed ? 0.6 : 1 }
-        ]} 
-        onPress={() => navigation.navigate('Registrar')}
-      >
-        <Icon name="warning" size={28} color="#FFFFFF" />
-      </Pressable>
-
+      
+        {tokenUser ?  (
+          <>
+            <Pressable 
+              style={({ pressed }) => [
+                styles.ocorrenciaButton,
+                { opacity: pressed ? 0.6 : 1 }
+              ]} 
+              onPress={() => navigation.navigate('Registrar')}
+            >
+              <Icon name="warning" size={28} color="#FFFFFF" />
+            </Pressable>
+          </>
+        ):(
+          <>
+          </>
+        )}
 
       <View style={styles.navigationContainer}>
         <Pressable 
