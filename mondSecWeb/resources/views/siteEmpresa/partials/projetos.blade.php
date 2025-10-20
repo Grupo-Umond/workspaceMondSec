@@ -1,4 +1,4 @@
-<div class="nossos_projetos" id="apresentacao4">
+<section class="nossos_projetos" id="apresentacao4">
     <div class="inicio_texto">
         <h2 class="titulo"> Nossos <span>Projetos </span> </h2>
     </div>
@@ -30,4 +30,4 @@
             <button id="next"><i class="fa-solid fa-arrow-right"></i></button>
         </div>
     </div>
-</div>
+</section>

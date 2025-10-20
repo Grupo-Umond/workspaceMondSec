@@ -255,8 +255,7 @@
             <style>
                 #chart-container4 {
                     position: relative;
-                    width: 420px;
-                    height: 320px;
+                    height: 40vh;
                     overflow: hidden;
                     /* flex: 0 0 auto;
                         display: block;
