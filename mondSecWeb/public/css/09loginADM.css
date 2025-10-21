@@ -127,7 +127,7 @@ button {
 }
 
 .logo {
-    width: 100%;
+    width: 65%;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -184,4 +184,38 @@ video {
 video::-webkit-media-controls-panel {
 display: none !important;
 opacity: 1 !important;
+}
+
+.videoBody {
+    display: none;
+}
+
+@media (max-width: 1000px) {
+    body {
+        background-color: black;
+    }
+
+    .videoBody {
+        display: flex;
+        position: fixed;
+        top: 0;
+    }
+
+    .parteDireita {
+        display: none;
+    }
+
+    .parteEsquerda {
+        width: 50%;
+        height: 90%;
+        border-radius: 10px;
+        z-index: 1;
+        background-color: whitesmoke;
+    }
+}
+
+@media (max-width: 650px) {
+    .parteEsquerda {
+        width: 80%;
+    }
 }

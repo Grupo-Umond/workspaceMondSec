@@ -6,22 +6,22 @@
 
     <div id="lista-ocorrencias"></div>
 
-    <div class="graficos">
+    <div class="graficosOcorrencia">
 
-                <div id="chart-container2"></div>
+                <div id="chart-container2Ocorrencia"></div>
                 <script src="https://echarts.apache.org/en/js/vendors/echarts/dist/echarts.min.js"></script>
                 
                 <style>
-                    #chart-container2 {
+                    #chart-container2Ocorrencia {
                         /* position: relative; */
                         height: 43vh;
-                        width: 50%;
+                        /* width: 50%; */
                         overflow: hidden;
                     }
                 </style>
                 
                 <script>
-                    var dom = document.getElementById('chart-container2');
+                    var dom = document.getElementById('chart-container2Ocorrencia');
                     var myChart = echarts.init(dom, null, {
                         renderer: 'canvas',
                         useDirtyRect: false
@@ -74,20 +74,20 @@
                 
                     window.addEventListener('resize', myChart.resize);
                 </script>
-        <div id="chart-container1"></div>
+        <div id="chart-container1Ocorrencia"></div>
         <script src="https://echarts.apache.org/en/js/vendors/echarts/dist/echarts.min.js"></script>
 
         <style>
-            #chart-container1 {
+            #chart-container1Ocorrencia {
                 position: relative;
                 height: 43vh;
-                width: 50%;
+                /* width: 50%; */
                 overflow: hidden;
             }
         </style>
 
         <script>
-            var dom = document.getElementById('chart-container1');
+            var dom = document.getElementById('chart-container1Ocorrencia');
             var myChart = echarts.init(dom, null, {
                 renderer: 'canvas',
                 useDirtyRect: false

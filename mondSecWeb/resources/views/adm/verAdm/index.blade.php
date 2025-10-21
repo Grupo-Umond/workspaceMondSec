@@ -6,16 +6,10 @@
     <div class="container py-5">
         <div class="parteCima">
             <h1 class="mb-4">Admins Cadastrados</h1>
-            <div class="graficos">
-            
-                <style>
-                    .graficos {
-                        display: flex;
-                    }
-                </style>
+            <div class="graficosAdministradores">
                 <!-- <h2>ADM´s cadastrados</h2> -->
             
-                    <div id="chart-container1"></div>
+                    <div id="chart-container1Administradores"></div>
                     <script src="https://echarts.apache.org/en/js/vendors/echarts/dist/echarts.min.js"></script>
             
                 <style>
@@ -24,16 +18,15 @@
                         padding: 0;
                     }
             
-                    #chart-container1 {
+                    #chart-container1Administradores {
                         /* position: relative; */
                         height: 45vh;
-                        width: 50%;
                         overflow: hidden;
                     }
                 </style>
             
                 <script>
-                    var dom = document.getElementById('chart-container1');
+                    var dom = document.getElementById('chart-container1Administradores');
                     var myChart = echarts.init(dom, null, {
                         renderer: 'canvas',
                         useDirtyRect: false
@@ -88,19 +81,18 @@
                 </script>
             
             
-                <div id="chart-container2"></div>
+                <div id="chart-container2Administradores"></div>
                 <script src="https://echarts.apache.org/en/js/vendors/echarts/dist/echarts.min.js"></script>
             
                 <style>
-                    #chart-container2 {
+                    #chart-container2Administradores {
                         /* position: relative; */
                         height: 45vh;
-                        width: 50%;
                         overflow: hidden;
                     }
                 </style>
                 <script>
-                    var dom = document.getElementById('chart-container2');
+                    var dom = document.getElementById('chart-container2Administradores');
                     var myChart = echarts.init(dom, null, {
                         renderer: 'canvas',
                         useDirtyRect: false

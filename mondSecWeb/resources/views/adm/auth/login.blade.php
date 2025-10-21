@@ -12,10 +12,15 @@
 
 <body>
 
+        <video class="videoBody" controls autoplay muted loop>
+            <source src="{{ asset('Videos/video3.mp4') }}" type="video/mp4">
+        </video>
+
     <div class="parteEsquerda">
 
         <div class="logo">
-                <img src="{{ asset('Imagens/Logos/umondlogoazul.png') }}" class="logo" alt="Logo">
+                <!-- <img src="{{ asset('Imagens/Logos/umondlogoazul.png') }}" class="logo" alt="Logo"> -->
+                <img src="{{ asset('Imagens/Logos/mondseclogo.png') }}" class="logo" alt="Logo">
         </div>
 
         <div class="container">
