@@ -19,14 +19,21 @@ const DigiteCodigoScreen = ({ navigation, route }) => {
   const [telefone, setTelefone] = useState("");
   const [carregando, setCarregando] = useState(false);
   const [erroMessage, setErroMessage] = useState("");
-  const [tempoRestante, setTempoRestante] = useState(0); // ⏱ Contagem regressiva
+  const [tempoRestante, setTempoRestante] = useState(0);
 
   const usuario = route.params?.usuario;
+  const campo = route.params?.campo;
   const code = digitos.join("");
 
   useEffect(() => {
-    
+    const poronde = () => {
+      if(campo === 'telefone'){
+        setDirecao(false);
+      }
 
+
+    }
+    poronde();
     buscarDados();
     criarCodigo();
   }, [direcao]);

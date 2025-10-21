@@ -29,6 +29,9 @@ Route::prefix('adm')
 
             // Dashboard
             Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard.index');
+            Route::get('/adm/chart-admin', [DashboardController::class, 'viewAdmins'])->name('chart.admin');
+            Route::get('/usuario/chart-usuario', [DashboardCOntroller::class, 'viewUsuarios'])->name('chart.usuario');
+            Route::get('/usuario/chart-ocorrencia', [DashboardCOntroller::class, 'viewOcorrencias'])->name('chart.ocorrencia');
 
             // Admins
             Route::get('/admins', 'showAdmScreen')->name('admins.index');

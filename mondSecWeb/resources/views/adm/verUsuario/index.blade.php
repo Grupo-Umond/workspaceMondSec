@@ -56,148 +56,80 @@
             @endif
         </div>
 
-        <div class="graficosUsuarios">
+       <div class="graficosUsuarios">
 
-            <style>
-                .graficos {
-                    display: flex;
+    <div id="chart-container1Usuarios" style="height:45vh;"></div>
+    <div id="chart-container2Usuarios" style="height:45vh; margin-top: 40px;"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/echarts/dist/echarts.min.js"></script>
+    <script>
+        // ======== 1º GRÁFICO: Usuários por mês ========
+        var meses = @json(collect($dadosPorMes)->pluck('mes'));
+        var totais = @json(collect($dadosPorMes)->pluck('total'));
+
+        var chart1 = echarts.init(document.getElementById('chart-container1Usuarios'));
+        var option1 = {
+            title: {
+                text: 'Usuários cadastrados nos últimos 12 meses',
+                left: 'center'
+            },
+            tooltip: {
+                trigger: 'axis'
+            },
+            xAxis: {
+                type: 'category',
+                data: meses
+            },
+            yAxis: {
+                type: 'value'
+            },
+            series: [{
+                data: totais,
+                type: 'line',
+                smooth: true,
+                itemStyle: { color: '#4B91F1' }
+            }]
+        };
+        chart1.setOption(option1);
+        window.addEventListener('resize', chart1.resize);
+
+        // ======== 2º GRÁFICO: Distribuição por gênero ========
+        var generos = @json(collect($dadosGenero)->pluck('genero'));
+        var totaisGenero = @json(collect($dadosGenero)->pluck('total'));
+
+        var chart2 = echarts.init(document.getElementById('chart-container2Usuarios'));
+        var option2 = {
+            title: {
+                text: 'Distribuição por Gênero',
+                left: 'center'
+            },
+            tooltip: {
+                trigger: 'item'
+            },
+            legend: {
+                orient: 'horizontal',
+                bottom: 0
+            },
+            series: [{
+                name: 'Usuários',
+                type: 'pie',
+                radius: '60%',
+                data: generos.map((g, i) => ({ name: g, value: totaisGenero[i] })),
+                emphasis: {
+                    itemStyle: {
+                        shadowBlur: 10,
+                        shadowOffsetX: 0,
+                        shadowColor: 'rgba(0, 0, 0, 0.5)'
+                    }
                 }
-            </style>
+            }]
+        };
+        chart2.setOption(option2);
+        window.addEventListener('resize', chart2.resize);
+    </script>
 
-            <div id="chart-container1Usuarios"></div>
-            <script src="https://echarts.apache.org/en/js/vendors/echarts/dist/echarts.min.js"></script>
+</div>
 
-            <style>
-                #chart-container1Usuarios {
-                    position: relative;
-                    height: 45vh;
-                    overflow: hidden;
-                }
-            </style>
-
-            <script>
-                var dom = document.getElementById('chart-container1Usuarios');
-                var myChart = echarts.init(dom, null, {
-                    renderer: 'canvas',
-                    useDirtyRect: false
-                });
-                var app = {};
-
-
-                var option;
-
-                option = {
-                    xAxis: {
-                        type: 'category',
-                        data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
-                    },
-                    yAxis: {
-                        type: 'value'
-                    },
-                    series: [
-                        {
-                            data: [150, 230, 224, 218, 135, 147, 260],
-                            type: 'line'
-                        }
-                    ]
-                };
-
-                if (option && typeof option === 'object') {
-                    myChart.setOption(option);
-                }
-
-                window.addEventListener('resize', myChart.resize);
-            </script>
-
-            <div id="chart-container2Usuarios"></div>
-            <script src="https://echarts.apache.org/en/js/vendors/echarts/dist/echarts.min.js"></script>
-
-            <style>
-                #chart-container2Usuarios {
-                    position: relative;
-                    height: 45vh;
-                    overflow: hidden;
-                }
-            </style>
-
-            <script>
-                var dom = document.getElementById('chart-container2Usuarios');
-                var myChart = echarts.init(dom, null, {
-                    renderer: 'canvas',
-                    useDirtyRect: false
-                });
-                var app = {};
-
-
-                var option;
-
-                option = {
-                    title: {
-                        text: '',
-                        left: 'center',
-                        top: 20,
-                        textStyle: {
-                            color: '#000'
-                        }
-                    },
-                    tooltip: {
-                        trigger: 'item'
-                    },
-                    visualMap: {
-                        show: false,
-                        min: 80,
-                        max: 600,
-                        inRange: {
-                            colorLightness: [0, 1]
-                        }
-                    },
-                    series: [
-                        {
-                            name: 'Access From',
-                            type: 'pie',
-                            radius: '60%',
-                            center: ['50%', '50%'],
-                            data: [
-                                { value: 335, name: 'Direct' },
-                                { value: 310, name: 'Email' },
-                                { value: 274, name: 'Union Ads' },
-                                { value: 235, name: 'Video Ads' },
-                                { value: 400, name: 'Search Engine' }
-                            ].sort(function (a, b) {
-                                return a.value - b.value;
-                            }),
-                            roseType: 'radius',
-                            label: {
-                                color: '#000'
-                            },
-                            labelLine: {
-                                lineStyle: {
-                                    color: '#000'
-                                },
-                                smooth: 0.2,
-                                length: 10,
-                                length2: 20
-                            },
-                            itemStyle: {
-                                color: '#c23531',
-                                shadowColor: 'rgba(0, 0, 0, 0.5)'
-                            },
-                            animationType: 'scale',
-                            animationEasing: 'elasticOut',
-                            animationDelay: function (idx) {
-                                return Math.random() * 200;
-                            }
-                        }
-                    ]
-                };
-
-                if (option && typeof option === 'object') {
-                    myChart.setOption(option);
-                }
-
-                window.addEventListener('resize', myChart.resize);
-            </script>
-        </div>
 
 
         <a href="{{ route('adm.dashboard.index') }}" class="link-btn">
