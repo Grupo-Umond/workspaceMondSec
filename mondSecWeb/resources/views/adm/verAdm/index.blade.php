@@ -25,60 +25,43 @@
                     }
                 </style>
             
+                <!-- <script src="https://cdn.jsdelivr.net/npm/echarts/dist/echarts.min.js"></script> -->
                 <script>
-                    var dom = document.getElementById('chart-container1Administradores');
-                    var myChart = echarts.init(dom, null, {
-                        renderer: 'canvas',
-                        useDirtyRect: false
-                    });
-                    var app = {};
-            
-            
-                    var option;
-            
-                    option = {
+                    var dom1 = document.getElementById('chart-container1Administradores');
+                    var chart1 = echarts.init(dom1);
+
+                    var meses = @json(collect($dadosPorMes)->pluck('mes'));
+                    var totais = @json(collect($dadosPorMes)->pluck('total'));
+
+                    var option1 = {
+                        title: {
+                            text: 'Admins cadastrados nos últimos 12 meses',
+                            left: 'center'
+                        },
                         tooltip: {
-                            trigger: 'axis',
-                            axisPointer: {
-                                type: 'shadow'
-                            }
+                            trigger: 'axis'
                         },
-                        grid: {
-                            left: '3%',
-                            right: '4%',
-                            bottom: '3%',
-                            containLabel: true
+                        xAxis: {
+                            type: 'category',
+                            data: meses
                         },
-                        xAxis: [
-                            {
-                                type: 'category',
-                                data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-                                axisTick: {
-                                    alignWithLabel: true
-                                }
+                        yAxis: {
+                            type: 'value'
+                        },
+                        series: [{
+                            data: totais,
+                            type: 'bar',
+                            barWidth: '50%',
+                            itemStyle: {
+                                color: '#4B91F1'
                             }
-                        ],
-                        yAxis: [
-                            {
-                                type: 'value'
-                            }
-                        ],
-                        series: [
-                            {
-                                name: 'Direct',
-                                type: 'bar',
-                                barWidth: '60%',
-                                data: [10, 52, 200, 334, 390, 330, 220]
-                            }
-                        ]
+                        }]
                     };
-            
-                    if (option && typeof option === 'object') {
-                        myChart.setOption(option);
-                    }
-            
-                    window.addEventListener('resize', myChart.resize);
+
+                    chart1.setOption(option1);
+                    window.addEventListener('resize', chart1.resize);
                 </script>
+
             
             
                 <div id="chart-container2Administradores"></div>
@@ -92,41 +75,32 @@
                     }
                 </style>
                 <script>
-                    var dom = document.getElementById('chart-container2Administradores');
-                    var myChart = echarts.init(dom, null, {
-                        renderer: 'canvas',
-                        useDirtyRect: false
+                    var dom2 = document.getElementById('chart-container2Administradores');
+                    var chart2 = echarts.init(dom2);
+
+                    var distribuicao = @json($distribuicaoNivel);
+
+                    var dadosPizza = Object.keys(distribuicao).map(function(nivel) {
+                        return { value: distribuicao[nivel], name: nivel };
                     });
-                    var app = {};
-            
-            
-                    var option;
-            
-                    option = {
+
+                    var option2 = {
                         title: {
-                            text: '',
-                            subtext: '',
+                            text: 'Distribuição de níveis de acesso',
                             left: 'center'
                         },
                         tooltip: {
                             trigger: 'item'
                         },
                         legend: {
-                            orient: 'horizontal',
-                            left: 'center'
+                            bottom: 0
                         },
                         series: [
                             {
-                                name: 'Access From',
+                                name: 'Nível',
                                 type: 'pie',
                                 radius: '50%',
-                                data: [
-                                    { value: 1048, name: 'Search Engine' },
-                                    { value: 735, name: 'Direct' },
-                                    { value: 580, name: 'Email' },
-                                    { value: 484, name: 'Union Ads' },
-                                    { value: 300, name: 'Video Ads' }
-                                ],
+                                data: dadosPizza,
                                 emphasis: {
                                     itemStyle: {
                                         shadowBlur: 10,
@@ -137,14 +111,11 @@
                             }
                         ]
                     };
-            
-            
-                    if (option && typeof option === 'object') {
-                        myChart.setOption(option);
-                    }
-            
-                    window.addEventListener('resize', myChart.resize);
+
+                    chart2.setOption(option2);
+                    window.addEventListener('resize', chart2.resize);
                 </script>
+
             </div>
             
             @method(`DELETE`)

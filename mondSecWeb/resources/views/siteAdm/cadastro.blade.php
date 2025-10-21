@@ -16,7 +16,7 @@
             <div class="success">{{ session('success') }}</div>
         @endif
 
-        <form id="formCadastro" action="{{ route('adm.store.submit') }}" method="POST">
+        <form id="formCadastro" action="{{ route('adm.auth.register.store') }}" method="POST">
             @csrf
 
             <label for="nome">Nome:</label>

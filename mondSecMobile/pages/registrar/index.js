@@ -24,13 +24,17 @@ const RegistrarScreen = ({ navigation }) => {
   const [mostrar, setMostrar] = useState(false);
   const [visivelSucesso, setVisivelSucesso] = useState(false);
 
-  const [endereco, setEndereco] = useState('');
+  // 🔹 Campos do endereço divididos
+  const [rua, setRua] = useState('');
+  const [numero, setNumero] = useState('');
+  const [bairro, setBairro] = useState('');
+  const [cidade, setCidade] = useState('');
+
   const [titulo, setTitulo] = useState('');
   const [dataAcontecimento, setDataAcontecimento] = useState('');
   const [tipo, setTipo] = useState('');
   const [descricao, setDescricao] = useState('');
   const [mensagemErro, setMensagemErro] = useState('');
-  const [dataTemp, setDataTemp] = useState('');
   const [show, setShow] = useState(false);
   const [selectedDate, setSelectedDate] = useState(new Date());
 
@@ -103,8 +107,13 @@ const RegistrarScreen = ({ navigation }) => {
     await AsyncStorage.setItem('mostrarModalInicio', value ? 'true' : 'false');
   };
 
+  // 🔹 Monta o endereço completo
+  const montarEnderecoCompleto = () => {
+    return `${rua}, ${numero}, ${bairro}, ${cidade}`;
+  };
+
   const validarDados = () => {
-    if (!titulo || !tipo || !endereco) {
+    if (!titulo || !tipo || !rua || !numero || !bairro || !cidade) {
       setMensagemErro('Preencha todos os campos obrigatórios.');
       return false;
     }
@@ -116,13 +125,17 @@ const RegistrarScreen = ({ navigation }) => {
     setTipo('');
     setDataAcontecimento('');
     setDescricao('');
-    setEndereco('');
+    setRua('');
+    setNumero('');
+    setBairro('');
+    setCidade('');
     setBuscaTipo('');
   };
 
   const converterEndereco = async () => {
     try {
-      const response = await CoordenadaService(endereco);
+      const enderecoCompleto = montarEnderecoCompleto();
+      const response = await CoordenadaService(enderecoCompleto);
       return { latitude: response.latitude, longitude: response.longitude };
     } catch (erro) {
       throw new Error('Não foi possível obter coordenadas do endereço');
@@ -134,7 +147,14 @@ const RegistrarScreen = ({ navigation }) => {
     setCarregando(true);
     try {
       const { latitude, longitude } = await converterEndereco();
-      const dados = { titulo, latitude, longitude, tipo, descricao, dataAcontecimento };
+      const dados = { 
+        titulo, 
+        latitude, 
+        longitude, 
+        tipo, 
+        descricao, 
+        dataAcontecimento 
+      };
       const tokenUser = await AsyncStorage.getItem('userToken');
       await UrlService.post('/ocorrencia/registrar', dados, { headers: { Authorization: `Bearer ${tokenUser}` } });
       limparCampos();
@@ -196,12 +216,38 @@ const RegistrarScreen = ({ navigation }) => {
           </View>
         )}
 
-        <Text style={styles.label}>Endereço</Text>
+        {/* 🔹 Campos de endereço separados */}
+        <Text style={styles.label}>Rua</Text>
         <TextInput
           style={styles.input}
-          placeholder="Digite o endereço..."
-          value={endereco}
-          onChangeText={setEndereco}
+          placeholder="Ex: Avenida Nordestina"
+          value={rua}
+          onChangeText={setRua}
+        />
+
+        <Text style={styles.label}>Número</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="Ex: 320"
+          keyboardType="numeric"
+          value={numero}
+          onChangeText={setNumero}
+        />
+
+        <Text style={styles.label}>Bairro / Distrito</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="Ex: Guaianases"
+          value={bairro}
+          onChangeText={setBairro}
+        />
+
+        <Text style={styles.label}>Cidade</Text>
+        <TextInput
+          style={styles.input}
+          placeholder="Ex: São Paulo"
+          value={cidade}
+          onChangeText={setCidade}
         />
 
         <Text style={styles.label}>Descrição</Text>
@@ -238,11 +284,12 @@ const RegistrarScreen = ({ navigation }) => {
         {carregando ? <ActivityIndicator color="#fff" /> : <Text style={styles.textoBotao}>Enviar</Text>}
       </TouchableOpacity>
 
-            <Modal visible={visivelInicio} transparent animationType="slide" onRequestClose={() => setVisivelInicio(false)}>
+      {/* 🔹 Modais iguais */}
+      <Modal visible={visivelInicio} transparent animationType="slide" onRequestClose={() => setVisivelInicio(false)}>
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
             <Text style={styles.modalTitle}>Como Funciona</Text>
-            <Text style={styles.modalText}>1. Escolha o tipo de ocorrência (Ex: Assalto, Alagamento)</Text>
+            <Text style={styles.modalText}>1. Escolha o tipo de ocorrência</Text>
             <Text style={styles.modalText}>2. Informe o local</Text>
             <Text style={styles.modalText}>3. Descreva o que aconteceu</Text>
             <Text style={styles.modalText}>4. Envie sua ocorrência</Text>
@@ -273,157 +320,36 @@ const RegistrarScreen = ({ navigation }) => {
         </View>
       </Modal>
     </View>
-
   );
 };
+
 const styles = StyleSheet.create({
-  container: { 
-    flex: 1, 
-    padding: 20, 
-    backgroundColor: '#FFFFFF' 
-  },
-  cabecalho: { 
-    flexDirection: 'row', 
-    justifyContent: 'space-between', 
-    alignItems: 'center', 
-    marginBottom: 30, 
-    paddingHorizontal: 10 
-  },
-  tituloCabecalho: { 
-    fontSize: 20, 
-    fontWeight: '600', 
-    color: '#12577B' 
-  },
-  iconeCabecalho: { 
-    padding: 5 
-  },
-  form: { 
-    marginBottom: 20, 
-    backgroundColor: '#FFFFFF', 
-    padding: 16, 
-    borderRadius: 12, 
-    shadowColor: '#000', 
-    shadowOffset: { width: 0, height: 2 }, 
-    shadowOpacity: 0.1, 
-    shadowRadius: 4, 
-    elevation: 5 
-  },
-  label: { 
-    fontSize: 14, 
-    fontWeight: '600', 
-    color: '#1D3557', 
-    marginBottom: 8 
-  },
-  input: { 
-    borderWidth: 1, 
-    borderColor: '#ccc', 
-    borderRadius: 6, 
-    padding: 12, 
-    marginBottom: 12, 
-    fontSize: 14, 
-    color: '#334155' 
-  },
-  textArea: { 
-    borderWidth: 1, 
-    borderColor: '#cbd5e1', 
-    borderRadius: 6, 
-    padding: 8, 
-    minHeight: 80, 
-    marginBottom: 4, 
-    fontSize: 14, 
-    color: '#334155' 
-  },
-  contador: { 
-    fontSize: 12, 
-    color: "#94a3b8", 
-    textAlign: "right", 
-    marginBottom: 12 
-  },
-  pickerWrapper: { 
-    borderWidth: 1, 
-    borderColor: '#ccc', 
-    borderRadius: 6, 
-    marginBottom: 12 
-  },
-  picker: { 
-    height: 50, 
-    color: '#334155' 
-  },
-  botao: { 
-    backgroundColor: '#12577B', 
-    padding: 15, 
-    borderRadius: 8, 
-    alignItems: 'center', 
-    marginBottom: 20 
-  },
-  botaoDesabilitado: { 
-    opacity: 0.6 
-  },
-  textoBotao: { 
-    color: '#fff', 
-    fontSize: 16, 
-    fontWeight: '600' 
-  },
-  erro: { 
-    color: '#E63946', 
-    fontSize: 13, 
-    marginBottom: 10 
-  },
-  modalContainer: { 
-    flex: 1, 
-    backgroundColor: 'rgba(0,0,0,0.6)', 
-    justifyContent: 'center', 
-    alignItems: 'center', 
-    padding: 16 
-  },
-  modalContent: { 
-    backgroundColor: '#FFF', 
-    borderRadius: 20, 
-    width: '100%', 
-    maxWidth: 400, 
-    padding: 24, 
-    alignItems: 'center', 
-    shadowColor: '#000', 
-    shadowOffset: { width: 0, height: 10 }, 
-    shadowOpacity: 0.1, 
-    shadowRadius: 20, 
-    elevation: 10 
-  },
-  modalTitle: { 
-    fontSize: 20, 
-    fontWeight: '700', 
-    color: '#1E293B', 
-    marginBottom: 16 
-  },
-  modalText: { 
-    fontSize: 14, 
-    color: '#334155', 
-    textAlign: 'center', 
-    marginBottom: 12 
-  },
-  primaryButton: { 
-    backgroundColor: '#12577B', 
-    borderRadius: 12, 
-    paddingVertical: 12, 
-    paddingHorizontal: 24, 
-    alignItems: 'center', 
-    marginTop: 16 
-  },
-  primaryButtonText: { 
-    color: '#FFFFFF', 
-    fontWeight: '600', 
-    fontSize: 16 
-  },
-  checkboxContainer: { 
-    flexDirection: 'row', 
-    alignItems: 'center', 
-    marginTop: 12 
-  },
-  checkboxLabel: { 
-    marginLeft: 8, 
-    fontSize: 14, 
-    color: '#64748B' 
-  }
+  container: { flex: 1, padding: 20, backgroundColor: '#FFFFFF' },
+  cabecalho: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 30, paddingHorizontal: 10 },
+  tituloCabecalho: { fontSize: 20, fontWeight: '600', color: '#12577B' },
+  iconeCabecalho: { padding: 5 },
+  form: { marginBottom: 20, backgroundColor: '#FFFFFF', padding: 16, borderRadius: 12, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 4, elevation: 5 },
+  label: { fontSize: 14, fontWeight: '600', color: '#1D3557', marginBottom: 8 },
+  input: { borderWidth: 1, borderColor: '#ccc', borderRadius: 6, padding: 12, marginBottom: 12, fontSize: 14, color: '#334155' },
+  textArea: { borderWidth: 1, borderColor: '#cbd5e1', borderRadius: 6, padding: 8, minHeight: 80, marginBottom: 4, fontSize: 14, color: '#334155' },
+  contador: { fontSize: 12, color: "#94a3b8", textAlign: "right", marginBottom: 12 },
+  botao: { backgroundColor: '#12577B', padding: 15, borderRadius: 8, alignItems: 'center', marginBottom: 20 },
+  botaoDesabilitado: { opacity: 0.6 },
+  textoBotao: { color: '#fff', fontSize: 16, fontWeight: '600' },
+  erro: { color: '#E63946', fontSize: 13, marginBottom: 10 },
+  modalContainer: { flex: 1, backgroundColor: 'rgba(0,0,0,0.6)', justifyContent: 'center', alignItems: 'center', padding: 16 },
+  modalContent: { backgroundColor: '#FFF', borderRadius: 20, width: '100%', maxWidth: 400, padding: 24, alignItems: 'center', shadowColor: '#000', shadowOffset: { width: 0, height: 10 }, shadowOpacity: 0.1, shadowRadius: 20, elevation: 10 },
+  modalTitle: { fontSize: 20, fontWeight: '700', color: '#1E293B', marginBottom: 16 },
+  modalText: { fontSize: 14, color: '#334155', textAlign: 'center', marginBottom: 12 },
+  primaryButton: { backgroundColor: '#12577B', borderRadius: 12, paddingVertical: 12, paddingHorizontal: 24, alignItems: 'center', marginTop: 16 },
+  primaryButtonText: { color: '#FFFFFF', fontWeight: '600', fontSize: 16 },
+  checkboxContainer: { flexDirection: 'row', alignItems: 'center', marginTop: 12 },
+  checkboxLabel: { fontSize: 14, color: '#334155', marginLeft: 8 },
+  dropdown: { borderWidth: 1, borderColor: '#ccc', borderRadius: 6, backgroundColor: '#fff', maxHeight: 150, marginBottom: 12 },
+  item: { padding: 10 },
+  itemSelecionado: { backgroundColor: '#12577B' },
+  itemTexto: { fontSize: 14, color: '#333' },
+  itemTextoSelecionado: { color: '#fff' },
 });
 
 export default RegistrarScreen;

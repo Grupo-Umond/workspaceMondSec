@@ -16,7 +16,6 @@ public function buscarUsuario(Request $request)
 {
     $usuario = $request->user();
 
-    // se tiver foto, transforma em URL completa
     if ($usuario->foto) {
         $usuario->foto = config('app.url') . $usuario->foto;
     }
@@ -172,7 +171,8 @@ public function buscarUsuario(Request $request)
         return response()->json(['mensagem' => "Usuário ({$usuario->nome}) deletado com sucesso."], 200);
     }
 
-    public function check(Request $request) {
+    public function check(Request $request)
+    {
         $request->validate([
             'login' => 'required|string',
             'campo' => 'required|string'
@@ -181,16 +181,19 @@ public function buscarUsuario(Request $request)
         $login = $request->login;
         $campo = $request->campo;
 
-        $usuario = Usuario::where($campo,$login)->first();
+        $usuario = Usuario::where($campo, $login)->first();
 
-        if(!$usuario) {
+        if (!$usuario) {
             return response()->json(['mensagem' => 'denied']);
         }
 
-        return response()->json(['mensagem' => 'granted','usuario' => $usuario]);
-            
-
+        return response()->json([
+            'mensagem' => 'granted',
+            'usuario' => $usuario
+        ]);
     }
+
+
 
     public function upload(Request $request)
 {
