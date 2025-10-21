@@ -1,6 +1,6 @@
-<div class="body" id="apresentacao3">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <div class="inicio_texto">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<section class="body">
+    <div class="inicio_texto" id="apresentacao3">
         <h2 class="titulo"> Nossa <span> Equipe </span> </h2>
     </div>
     <div class="wrapper">
@@ -171,4 +171,4 @@
         </ul>
         <i id="right" class="fa-solid fa-arrow-right"></i>
     </div>
-</div>
+</section>

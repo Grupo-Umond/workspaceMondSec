@@ -277,20 +277,20 @@ canvas.bar-size {
     --sidebar-width: 200px;
   }
 
-  main.container {
+  /* main.container {
     margin-left: var(--sidebar-width);
     width: calc(100% - var(--sidebar-width) - 56px);
-  }
+  } */
 }
 
 @media (max-width: 640px) {
   :root {
-    --sidebar-width: 72px;
+    /* --sidebar-width: 72px; */
   }
 
   main.container {
-    margin-left: var(--sidebar-width);
-    width: calc(100% - var(--sidebar-width) - 28px);
+    /* margin-left: var(--sidebar-width);
+    width: calc(100% - var(--sidebar-width) - 28px); */
     padding: 14px;
   }
 
@@ -401,4 +401,61 @@ tbody i {
 
 .parteCima {
   height: 40vh;
+}
+
+.graficosOcorrencia {
+  display: flex;
+}
+
+#chart-container1Ocorrencia, #chart-container2Ocorrencia {
+  width: 50%;
+}
+
+@media (max-width: 1085px) {
+  .graficosOcorrencia {
+    width: 100%;
+    flex-direction: column;
+  }
+
+  #chart-container1Ocorrencia, #chart-container2Ocorrencia {
+    width: 100%;
+  }
+}
+
+.graficosAdministradores {
+  display: flex;
+}
+
+#chart-container1Administradores, #chart-container2Administradores {
+  width: 50%;
+}
+
+@media (max-width: 1085px) {
+  .graficosAdministradores {
+    width: 100%;
+    flex-direction: column;
+  }
+
+  #chart-container1Administradores, #chart-container2Administradores {
+    width: 100%;
+  }
+}
+
+.graficosUsuarios {
+  display: flex;
+}
+
+#chart-container1Usuarios, #chart-container2Usuarios {
+  width: 50%;
+}
+
+@media (max-width: 1085px) {
+  .graficosUsuarios {
+    width: 100%;
+    flex-direction: column;
+  }
+
+  #chart-container1Usuarios, #chart-container2Usuarios {
+    width: 100%;
+  }
 }

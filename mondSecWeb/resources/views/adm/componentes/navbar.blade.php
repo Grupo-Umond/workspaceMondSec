@@ -1,15 +1,25 @@
+<link rel="stylesheet" href="{{ asset('css/13dashboard.css') }}">
+
 <body class="bg-light">
     <header>
         <nav>
-            <a href="{{ route('adm.dashboard.index') }}"> <i class="fa-solid fa-house"></i> DashBoard</a>
-            <a href=""> <i class="fa-solid fa-chart-simple"></i> Avaliações</a>
-            <a href=""> <i class="fa-solid fa-comments"></i> Chat</a>
-            <a href=""> <i class="fa-solid fa-magnifying-glass"></i> Status</a>
-            <a href=""> <i class="fa-solid fa-magnifying-glass"></i> Views</a>
-            <a href="{{ route('adm.ocorrencia.index') }}" class="btn btn-primary btn-lg flex-fill">Ocorrencias</a>
-            <a href="{{ route('adm.admins.index') }}" class="btn btn-primary btn-lg flex-fill">Adiministradores</a>
-            <a href="{{ route('adm.users.index') }}" class="btn btn-secondary btn-lg flex-fill">Usuários</a>
-            <a href=""> <i class="fa-solid fa-gear"></i> Configurações</a>
+            <div class="itens_nav">
+
+                <div class="itens_nav_logo">
+                    <img src="{{ asset('Imagens/Logos/mondseclogoBranca.png') }}" class="logo" alt="Logo">
+                </div>
+
+                <div class="itens_nav_btns">
+                    <a href="{{ route('adm.dashboard.index') }}" class="btn btn-primary btn-lg flex-fill active"> <i class="fa-solid fa-house"></i> DashBoard </a>
+                    <a href="{{ route('adm.ocorrencia.index') }}" class="btn btn-primary btn-lg flex-fill"> <i class="fa-solid fa-circle-exclamation"></i> Ocorrencias </a>
+                    <a href="{{ route('adm.admins.index') }}" class="btn btn-primary btn-lg flex-fill"> <i class="fa-solid fa-user-tie"></i> Adiministradores </a>
+                    <a href="{{ route('adm.users.index') }}" class="btn btn-secondary btn-lg flex-fill"> <i class="fa-solid fa-user"></i> Usuários </a>
+                </div>
+
+            </div>
+            <div class="itens_nav_sair">
+                <a href="{{ route('adm.auth.login') }}" class="btn btn-secondary btn-lg flex-fill btn-sair"> <i class="fa-solid fa-right-from-bracket"></i> Sair </a>
+            </div>
         </nav>
     </header>
 </body>
