@@ -27,35 +27,41 @@
 
 {{-- HEADER --}}
 <header class="cabecalho" data-aos="fade">
-    <nav class="cabecalho__menu">
-        <div class="cabecalho__menu__logo">
-            <a href="#apresentacao1">
-                <img src="{{ asset('Imagens/Logos/umondlogobranco.png') }}" class="logo" alt="Logo">
-            </a>
-        </div>
-        <div class="cabecalho__menu__itens">
-            <a href="#apresentacao1">Início</a>
-            <a href="#apresentacao2">Quem Somos</a>
-            <a href="#apresentacao3">Nossa Equipe</a>
-            <a href="#apresentacao4">Nossos Projetos</a>
-            <a href="#apresentacao5">Parceiros</a>
-            <a href="#apresentacao6">Fale Conosco</a>
-        </div>
-        <div class="icons__menu">
-            <div class="botao" id="botaoMenu" onclick="animacaoMenu()">
-                <i class="fa-solid fa-bars"></i>
-            </div>
-        </div>
-        <div class="cabecalho__menu__itens__mobile" id="cabecalho__menu__itens__mobile">
-            <a href="#apresentacao1" onclick="animacaoMenuAbrir()">Home</a>
-            <a href="#apresentacao2">Quem Somos</a>
-            <a href="#apresentacao3">Nossa Equipe</a>
-            <a href="#apresentacao4">Nossos Projetos</a>
-            <a href="#apresentacao5">Parceiros</a>
-            <a href="#apresentacao6">Fale Conosco</a>
-        </div>
-    </nav>
+  <nav class="cabecalho__menu">
+    <div class="cabecalho__menu__logo">
+      <a href="#apresentacao1">
+        <img src="{{ asset('Imagens/Logos/umondlogobranco.png') }}" class="logo" alt="Logo">
+      </a>
+    </div>
+
+    <!-- Links desktop -->
+    <div class="cabecalho__menu__itens">
+      <a href="#apresentacao1">Início</a>
+      <a href="#apresentacao2">Quem Somos</a>
+      <a href="#apresentacao3">Nossa Equipe</a>
+      <a href="#apresentacao4">Nossos Projetos</a>
+      <a href="#apresentacao5">Parceiros</a>
+      <a href="#apresentacao6">Fale Conosco</a>
+    </div>
+
+    <!-- Botão hamburguer / fechar -->
+    <div class="icons__menu" id="botaoMenu">
+      <i class="fa-solid fa-bars" id="iconAbrir"></i>
+      <i class="fa-solid fa-xmark" id="iconFechar"></i>
+    </div>
+
+    <!-- Menu mobile -->
+    <div class="cabecalho__menu__itens__mobile" id="menuMobile">
+      <a href="#apresentacao1">Início</a>
+      <a href="#apresentacao2">Quem Somos</a>
+      <a href="#apresentacao3">Nossa Equipe</a>
+      <a href="#apresentacao4">Nossos Projetos</a>
+      <a href="#apresentacao5">Parceiros</a>
+      <a href="#apresentacao6">Fale Conosco</a>
+    </div>
+  </nav>
 </header>
+
 
 {{-- INÍCIO --}}
 <section class="inicio" id="apresentacao1">
@@ -125,18 +131,47 @@
 
 @include('siteEmpresa.partials.footer')
 
-<script src="{{ asset('js/script.js') }}"></script>
 <script>
-    window.addEventListener("scroll", function () {
-        const navbar = document.querySelector(".cabecalho__menu");
-        const triggerPoint = window.innerHeight - 100;
-        if (window.scrollY >= triggerPoint) {
-            navbar.style.backgroundColor = "#040439";
-        } else {
-            navbar.style.backgroundColor = "transparent";
-        }
+
+  const botaoMenu = document.getElementById("botaoMenu");
+  const menuMobile = document.getElementById("menuMobile");
+  const iconAbrir = document.getElementById("iconAbrir");
+  const iconFechar = document.getElementById("iconFechar");
+  const cabecalho = document.querySelector(".cabecalho");
+const secaoInicio = document.getElementById("apresentacao1"); // sua seção inicial
+
+  botaoMenu.addEventListener("click", () => {
+    const isOpen = menuMobile.classList.toggle("abrir");
+
+    if (isOpen) {
+      iconAbrir.style.display = "none";
+      iconFechar.style.display = "inline-block";
+    } else {
+      iconAbrir.style.display = "inline-block";
+      iconFechar.style.display = "none";
+    }
+  });
+
+  // Fecha o menu quando clica em algum link
+  document.querySelectorAll("#menuMobile a").forEach(link => {
+    link.addEventListener("click", () => {
+      menuMobile.classList.remove("abrir");
+      iconAbrir.style.display = "inline-block";
+      iconFechar.style.display = "none";
     });
+
+    window.addEventListener("scroll", () => {
+    const alturaSecao = secaoInicio.offsetHeight;
+    
+    if (window.scrollY >= alturaSecao) {
+        cabecalho.classList.add("scrolled");
+    } else {
+        cabecalho.classList.remove("scrolled");
+    }
+    });
+  });
 </script>
+
 
 </body>
 </html>
