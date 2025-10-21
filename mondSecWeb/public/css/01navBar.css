@@ -84,6 +84,21 @@ body {
 }
 
 /* Botão mobile */
+
+/* Esconde o X por padrão */
+#iconFechar {
+  display: none;
+}
+
+/* Quando o menu abre, some o hamburguer e aparece o X */
+.cabecalho__menu__itens__mobile.abrir ~ .icons__menu #iconAbrir {
+  display: none;
+}
+
+.cabecalho__menu__itens__mobile.abrir ~ .icons__menu #iconFechar {
+  display: inline-block;
+}
+
 .icons__menu {
     display: none;
     background: none;
@@ -107,12 +122,13 @@ body {
 .cabecalho__menu__itens__mobile {
     position: fixed;
     top: 0;
-    left: -100%;
+    left: 0;
     width: 100%;
     height: 100vh;
     background: linear-gradient(135deg, #0e0852 0%, #08043a 100%);
     z-index: 999;
-    transition: left 0.35s ease-in-out;
+    transform: translateX(-100%);
+    transition: transform 0.35s ease-in-out;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -121,7 +137,7 @@ body {
 }
 
 .cabecalho__menu__itens__mobile.abrir {
-    left: 0;
+    transform: translateX(0);
 }
 
 .cabecalho__menu__itens__mobile a {
