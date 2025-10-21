@@ -8,53 +8,61 @@ use Illuminate\Support\Facades\Mail;
 use App\Mail\CodigoEmail;
 use Twilio\Rest\Client;
 
-
 class CodigoController extends Controller
 {
     public function sendCodeEmail(Request $request)
-{
-    $request->validate([
-        'login' => 'nullable|email'
-    ]);
+    {
+        $request->validate([
+            'login' => 'nullable|email'
+        ]);
 
-    $header = $request->header('Authorization');
+        $header = $request->header('Authorization');
 
-    if (!$header) {
-        $email = $request->login;
-    } else {
-        $usuario = $request->user();
+        if (!$header) {
+            $email = $request->login;
+        } else {
+            $usuario = $request->user();
 
-        if (!$usuario || !$usuario->email) {
-            return response()->json([
-                'erro' => 'Usuário não autenticado ou e-mail não disponível.'
-            ], 401);
+            if (!$usuario || !$usuario->email) {
+                return response()->json([
+                    'erro' => 'Usuário não autenticado ou e-mail não disponível.'
+                ], 401);
+            }
+
+            $email = $usuario->email;
         }
 
-        $email = $usuario->email;
-    }
+        if (empty($email)) {
+            return response()->json([
+                'erro' => 'E-mail não fornecido.'
+            ], 400);
+        }
 
-    if (empty($email)) {
+        // 🔒 Limite de 30 segundos entre envios
+        $ultimoEnvio = Cache::get("last_send_{$email}");
+        if ($ultimoEnvio && now()->diffInSeconds($ultimoEnvio) < 30) {
+            return response()->json([
+                'erro' => 'Aguarde 30 segundos antes de solicitar outro código.',
+                'tempoRestante' => 30 - now()->diffInSeconds($ultimoEnvio)
+            ], 429);
+        }
+
+        $codigo = rand(100000, 999999);
+        Cache::put("verify_{$email}", $codigo, now()->addMinutes(5));
+        Cache::put("last_send_{$email}", now(), now()->addMinutes(5));
+
+        try {
+            Mail::to($email)->send(new CodigoEmail($codigo));
+        } catch (\Exception $e) {
+            return response()->json([
+                'erro' => 'Erro ao enviar e-mail: ' . $e->getMessage()
+            ], 500);
+        }
+
         return response()->json([
-            'erro' => 'E-mail não fornecido.'
-        ], 400);
+            'mensagem' => 'Código enviado com sucesso por email',
+        ]);
     }
-
-    $codigo = rand(100000, 999999);
-    Cache::put("verify_{$email}", $codigo, now()->addMinutes(5));
-
-    try {
-        Mail::to($email)->send(new CodigoEmail($codigo));
-    } catch (\Exception $e) {
-        return response()->json([
-            'erro' => 'Erro ao enviar e-mail: ' . $e->getMessage()
-        ], 500);
-    }
-
-    return response()->json([
-        'mensagem' => 'Código enviado com sucesso por email',
-    ]);
-}
-
 
     public function sendCodeSms(Request $request)
     {
@@ -66,8 +74,18 @@ class CodigoController extends Controller
             $telefone = $request->telefone;
         }
 
+        // 🔒 Limite de 30 segundos entre envios
+        $ultimoEnvio = Cache::get("last_send_{$telefone}");
+        if ($ultimoEnvio && now()->diffInSeconds($ultimoEnvio) < 30) {
+            return response()->json([
+                'erro' => 'Aguarde 30 segundos antes de solicitar outro código.',
+                'tempoRestante' => 30 - now()->diffInSeconds($ultimoEnvio)
+            ], 429);
+        }
+
         $code = rand(100000, 999999);
         Cache::put("verify_{$telefone}", $code, now()->addMinutes(5));
+        Cache::put("last_send_{$telefone}", now(), now()->addMinutes(5));
 
         $sid = env('TWILIO_SID');
         $token = env('TWILIO_TOKEN');
@@ -95,7 +113,7 @@ class CodigoController extends Controller
             $login = $usuario->email;
             if (!$request->direcao) {
                 $login = $usuario->telefone;
-        }
+            }
         }
 
         $cachedCode = Cache::get("verify_{$login}");

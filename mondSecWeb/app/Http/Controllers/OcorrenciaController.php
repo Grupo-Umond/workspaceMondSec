@@ -9,7 +9,11 @@ use Illuminate\Http\Request;
 
 class OcorrenciaController extends Controller
 {
+    public function allOcorencias(Request $request) {
+        $ocorrencias = Ocorrencia::all();
 
+        return response()->json(['ocorrencias' => $ocorrencias]);
+    }
     public function index(Request $request) {
         $usuario = auth()->user();
 
