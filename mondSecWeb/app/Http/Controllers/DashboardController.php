@@ -12,45 +12,44 @@ use Illuminate\Support\Facades\DB;
 
 class DashboardController extends Controller
 {
-    public function index()
-    {
-        $usuariosHomem = Usuario::where('genero', 'Masculino')->count();
-        $usuariosMulher = Usuario::where('genero', 'Feminino')->count();
-        $usuariosNaoInformar = Usuario::where('genero', 'Prefiro não informar')->count();
+  public function index()
+{
+    $usuariosHomem = Usuario::where('genero', 'Masculino')->count();
+    $usuariosMulher = Usuario::where('genero', 'Feminino')->count();
+    $usuariosNaoInformar = Usuario::where('genero', 'Prefiro não informar')->count();
 
-        $dados = Usuario::select(
-                DB::raw('MONTH(data) as mes'),
-                DB::raw('COUNT(*) as total')
-            )
-            ->whereYear('data', now()->year)
-            ->groupBy(DB::raw('MONTH(data)'))
-            ->orderBy('mes')
-            ->pluck('total', 'mes');
+    $dados = Usuario::select(
+        DB::raw('MONTH(data) as mes'),
+        DB::raw('COUNT(*) as total')
+    )
+    ->whereYear('data', now()->year)
+    ->groupBy(DB::raw('MONTH(data)'))
+    ->orderBy('mes')
+    ->pluck('total', 'mes');
 
-        $usuariosPorMes = [
-            'labels' => [],
-            'data'   => []
-        ];
+    $usuariosPorMes = [
+        'labels' => [],
+        'data'   => []
+    ];
 
-        setlocale(LC_TIME, 'pt_BR');
-        for ($i = 1; $i <= 12; $i++) {
-            $usuariosPorMes['labels'][] = ucfirst(strftime('%B', mktime(0,0,0,$i,1)));
-            $usuariosPorMes['data'][] = $dados[$i] ?? 0;
-        }
-
-        $usuariosComOcorrencia = Usuario::has('ocorrencia')->count();
-
-        $usuariosSemOcorrencia = Usuario::doesntHave('ocorrencia')->count();
-
-        return view('adm.dashboard.index', compact(
-            'usuariosHomem',
-            'usuariosMulher',
-            'usuariosNaoInformar',
-            'usuariosPorMes',
-            'usuariosComOcorrencia',
-            'usuariosSemOcorrencia'
-        ));
+    setlocale(LC_TIME, 'pt_BR');
+    for ($i = 1; $i <= 12; $i++) {
+        $usuariosPorMes['labels'][] = ucfirst(strftime('%B', mktime(0,0,0,$i,1)));
+        $usuariosPorMes['data'][] = $dados[$i] ?? 0;
     }
+
+    $usuariosComOcorrencia = Usuario::has('ocorrencia')->count();
+    $usuariosSemOcorrencia = Usuario::doesntHave('ocorrencia')->count();
+
+    return view('adm.dashboard.index', compact(
+        'usuariosHomem',
+        'usuariosMulher',
+        'usuariosNaoInformar',
+        'usuariosPorMes',
+        'usuariosComOcorrencia',
+        'usuariosSemOcorrencia'
+    ));
+}
 
     public function viewAdmins()
 {

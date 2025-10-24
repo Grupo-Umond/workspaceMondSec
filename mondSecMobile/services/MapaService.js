@@ -1,9 +1,10 @@
+// src/services/MapaService.js
 import React, { useRef, useState, useEffect, forwardRef } from 'react';
-import { StyleSheet, Dimensions, Alert, Image } from 'react-native';
+import { StyleSheet, Dimensions, Alert } from 'react-native';
 import MapView, { Polygon, Marker } from 'react-native-maps';
 import * as Location from 'expo-location';
 import UrlService from './UrlService';
-import { IconService } from '../services/IconService';
+import { IconService } from './IconService';
 
 const local = require('./GeoJson/zonaLeste_convertido.json');
 const { width, height } = Dimensions.get('window');
@@ -32,7 +33,6 @@ const MapaZonaLesteGeojson = forwardRef(({ ocorrencias = [] }, ref) => {
       };
       setRegion(userRegion);
 
-      // Parse GeoJSON
       const parsed = parseGeoJSON(local);
       setPolygons(parsed);
 
@@ -135,7 +135,7 @@ const MapaZonaLesteGeojson = forwardRef(({ ocorrencias = [] }, ref) => {
       ))}
 
       {ocorrenciasState.map((oc, index) => {
-        const icone = IconService[oc.tipo] || IconService.default;
+        const IconeComponente = IconService[oc.tipo] || IconService.default;
         return (
           <Marker
             key={index}
@@ -146,7 +146,7 @@ const MapaZonaLesteGeojson = forwardRef(({ ocorrencias = [] }, ref) => {
             title={oc.tipo}
             description={oc.descricao}
           >
-            <Image source={icone} style={{ width: 40, height: 40 }} />
+            <IconeComponente width={40} height={40} />
           </Marker>
         );
       })}
