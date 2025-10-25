@@ -65,7 +65,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const input = document.getElementById('pesquisaUsuario');
     const filtroGenero = document.getElementById('filtroGenero');
 
-    // Preencher select de gêneros
     const generosUnicos = [...new Set(usuarios.map(u => u.genero || 'Não informado'))];
     generosUnicos.forEach(g => {
         const opt = document.createElement('option');
@@ -101,7 +100,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         const thead = document.createElement('thead');
         thead.innerHTML = `<tr>
-            <th>ID</th><th>Nome</th><th>Email</th><th>Telefone</th><th>Gênero</th><th>Data de Criação</th><th></th><th></th>
+            <th>ID</th><th>Nome</th><th>Email</th><th>Telefone</th><th>Token Expo</th><th>Gênero</th><th>Data de Criação</th><th>Status</th><th></th><th></th>
         </tr>`;
         table.appendChild(thead);
 
@@ -113,21 +112,19 @@ document.addEventListener('DOMContentLoaded', function() {
                 <td>${u.nome}</td>
                 <td>${u.email}</td>
                 <td>${u.telefone || '-'}</td>
+                <td>${u.tokenExpo}</td>
                 <td>${u.genero || '-'}</td>
                 <td>${u.data || '-'}</td>
+                <td>${u.status || '-'}</td>
                 <td>
-                    <a href="/adm/users/${u.id}/edit">
+                    <a href="/adm/users/${u.id}">
                         <i class="fa-solid fa-pencil"></i>
                     </a>
                 </td>
                 <td>
-                    <form action="/adm/users/${u.id}" method="POST" onsubmit="return confirm('Tem certeza que quer excluir?');">
-                        @csrf
-                        @method('DELETE')
-                        <button type="submit" class="btn btn-danger btn-sm">
-                            <i class="fa-solid fa-trash-can"></i>
-                        </button>
-                    </form>
+                        <a href="" class="btn btn-danger btn-sm">
+                        <i class="fa-solid fa-trash-can"></i>
+                    </a>
                 </td>
             `;
             tbody.appendChild(tr);

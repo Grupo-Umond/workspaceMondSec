@@ -150,7 +150,7 @@ class AdminController extends Controller
     public function updateUserScreen($id)
     {
         $usuario = Usuario::findOrFail($id);
-        return view('adm.verUser.update', compact('usuario'));
+        return view('adm.verUsuario.update', compact('usuario'));
     }
 
     public function updateUser(Request $request, $id)
