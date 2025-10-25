@@ -35,6 +35,8 @@
             <option value="12">Dezembro</option>
         </select>
     </div>
+    <button type="submit" class="btn btn-primary px-4">Filtrar</button>
+                <a href="{{ route('adm.ocorrencia.index') }}" class="btn btn-secondary px-4">Limpar</a>
 
     <div id="lista-ocorrencias" class="mb-5"></div>
 

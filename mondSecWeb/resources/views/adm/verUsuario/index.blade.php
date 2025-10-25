@@ -15,59 +15,10 @@
         <input id="pesquisaUsuario" type="text" class="form-control w-auto" placeholder="Pesquisar por nome, e-mail ou ID">
         <select id="filtroGenero" class="form-select w-auto">
             <option value="">Todos os Gêneros</option>
-            <option value="Masculino">Masculino</option>
-            <option value="Feminino">Feminino</option>
-            <option value="Não informado">Não informado</option>
         </select>
     </div>
 
-    @if($usuario->isEmpty())
-        <div class="alert alert-warning">Nenhum usuário cadastrado.</div>
-    @else
-        <div id="tabelaUsuariosContainer">
-            <table id="tabelaUsuarios" class="table table-striped table-bordered text-center align-middle">
-                <thead class="table-dark">
-                    <tr>
-                        <th>ID</th>
-                        <th>Nome</th>
-                        <th>Email</th>
-                        <th>Telefone</th>
-                        <th>Gênero</th>
-                        <th>Data de Criação</th>
-                        <th></th>
-                        <th></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach($usuario as $usuarios)
-                    <tr>
-                        <td>{{ $usuarios->id }}</td>
-                        <td>{{ $usuarios->nome }}</td>
-                        <td>{{ $usuarios->email }}</td>
-                        <td>{{ $usuarios->telefone }}</td>
-                        <td>{{ $usuarios->genero }}</td>
-                        <td>{{ $usuarios->data }}</td>
-                        <td>
-                            <a href="{{ route('adm.users.edit', $usuarios->id) }}">
-                                <i class="fa-solid fa-pencil"></i>
-                            </a>
-                        </td>
-                        <td>
-                            <form action="{{ route('adm.users.destroy', $usuarios->id) }}" method="POST"
-                                onsubmit="return confirm('Tem certeza que quer excluir?');">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="btn btn-danger btn-sm">
-                                    <i class="fa-solid fa-trash-can"></i>
-                                </button>
-                            </form>
-                        </td>
-                    </tr>
-                    @endforeach
-                </tbody>
-            </table>
-        </div>
-    @endif
+    <div id="lista-usuarios"></div>
 
     <a href="{{ route('adm.dashboard.index') }}" class="link-btn">
         <div class="botao mt-4">Voltar ao Painel</div>
@@ -86,12 +37,7 @@ chart1.setOption({
     tooltip: { trigger: 'axis' },
     xAxis: { type: 'category', data: meses },
     yAxis: { type: 'value' },
-    series: [{
-        data: totais,
-        type: 'line',
-        smooth: true,
-        itemStyle: { color: '#4B91F1' }
-    }]
+    series: [{ data: totais, type: 'line', smooth: true, itemStyle: { color: '#4B91F1' } }]
 });
 window.addEventListener('resize', chart1.resize);
 
@@ -108,42 +54,91 @@ chart2.setOption({
         type: 'pie',
         radius: '60%',
         data: generos.map((g, i) => ({ name: g, value: totaisGenero[i] })),
-        emphasis: {
-            itemStyle: {
-                shadowBlur: 10,
-                shadowOffsetX: 0,
-                shadowColor: 'rgba(0, 0, 0, 0.5)'
-            }
-        }
+        emphasis: { itemStyle: { shadowBlur: 10, shadowOffsetX: 0, shadowColor: 'rgba(0,0,0,0.5)' } }
     }]
 });
 window.addEventListener('resize', chart2.resize);
 
 document.addEventListener('DOMContentLoaded', function() {
+    const usuarios = @json($usuario);
+    const container = document.getElementById('lista-usuarios');
     const input = document.getElementById('pesquisaUsuario');
     const filtroGenero = document.getElementById('filtroGenero');
-    const linhas = document.querySelectorAll('#tabelaUsuarios tbody tr');
 
-    function filtrar() {
+    // Preencher select de gêneros
+    const generosUnicos = [...new Set(usuarios.map(u => u.genero || 'Não informado'))];
+    generosUnicos.forEach(g => {
+        const opt = document.createElement('option');
+        opt.value = g;
+        opt.textContent = g;
+        filtroGenero.appendChild(opt);
+    });
+
+    function renderTabela() {
         const termo = input.value.toLowerCase();
         const generoSelecionado = filtroGenero.value;
 
-        linhas.forEach(linha => {
-            const colunas = linha.querySelectorAll('td');
-            const id = colunas[0]?.textContent.toLowerCase() || '';
-            const nome = colunas[1]?.textContent.toLowerCase() || '';
-            const email = colunas[2]?.textContent.toLowerCase() || '';
-            const genero = colunas[4]?.textContent || '';
+        const filtrados = usuarios.filter(u => {
+            const id = String(u.id).toLowerCase();
+            const nome = (u.nome || '').toLowerCase();
+            const email = (u.email || '').toLowerCase();
+            const genero = u.genero || 'Não informado';
 
-            const correspondePesquisa = id.includes(termo) || nome.includes(termo) || email.includes(termo);
-            const correspondeGenero = generoSelecionado === '' || genero === generoSelecionado;
+            const matchTexto = id.includes(termo) || nome.includes(termo) || email.includes(termo);
+            const matchGenero = !generoSelecionado || genero === generoSelecionado;
 
-            linha.style.display = (correspondePesquisa && correspondeGenero) ? '' : 'none';
+            return matchTexto && matchGenero;
         });
+
+        container.innerHTML = '';
+        if(filtrados.length === 0){
+            container.innerHTML = '<div class="alert alert-warning">Nenhum usuário encontrado.</div>';
+            return;
+        }
+
+        const table = document.createElement('table');
+        table.classList.add('table','table-striped','table-bordered','text-center','align-middle');
+
+        const thead = document.createElement('thead');
+        thead.innerHTML = `<tr>
+            <th>ID</th><th>Nome</th><th>Email</th><th>Telefone</th><th>Gênero</th><th>Data de Criação</th><th></th><th></th>
+        </tr>`;
+        table.appendChild(thead);
+
+        const tbody = document.createElement('tbody');
+        filtrados.forEach(u => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${u.id}</td>
+                <td>${u.nome}</td>
+                <td>${u.email}</td>
+                <td>${u.telefone || '-'}</td>
+                <td>${u.genero || '-'}</td>
+                <td>${u.data || '-'}</td>
+                <td>
+                    <a href="/adm/users/${u.id}/edit">
+                        <i class="fa-solid fa-pencil"></i>
+                    </a>
+                </td>
+                <td>
+                    <form action="/adm/users/${u.id}" method="POST" onsubmit="return confirm('Tem certeza que quer excluir?');">
+                        @csrf
+                        @method('DELETE')
+                        <button type="submit" class="btn btn-danger btn-sm">
+                            <i class="fa-solid fa-trash-can"></i>
+                        </button>
+                    </form>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+        table.appendChild(tbody);
+        container.appendChild(table);
     }
 
-    input.addEventListener('input', filtrar);
-    filtroGenero.addEventListener('change', filtrar);
+    input.addEventListener('input', renderTabela);
+    filtroGenero.addEventListener('change', renderTabela);
+    renderTabela();
 });
 </script>
 @endsection
