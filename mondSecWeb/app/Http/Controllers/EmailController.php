@@ -3,13 +3,28 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Mail;
-use App\Mail\CodigoEmail;
 use Twilio\Rest\Client;
+use Illuminate\Support\Facades\Cache;
+use App\Mail\ContatoMail;
+use App\Mail\CodigoMail;
 
-class CodigoController extends Controller
+class EmailController extends Controller
 {
+    public function enviar(Request $request)
+    {
+        $request->validate([
+            'nome' => 'required|string|max:255',
+            'email' => 'required|email',
+            'assunto' => 'required|string|max:255',
+            'mensagem' => 'required|string',
+        ]);
+
+        Mail::to(env('MAIL_USERNAME'))->send(new ContatoMail($request->all()));
+
+        return back()->with('success', 'Mensagem enviada com sucesso!');
+    }
+
     public function sendCodeEmail(Request $request)
     {
         $request->validate([
@@ -125,4 +140,5 @@ class CodigoController extends Controller
 
         return response()->json(['token' => $tempToken, 'mensagem' => 'Codigo valido, verificado com sucesso']);
     }
+
 }

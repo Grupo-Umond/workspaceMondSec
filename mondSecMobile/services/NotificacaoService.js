@@ -1,7 +1,6 @@
 import * as Notifications from 'expo-notifications';
 import { Platform } from 'react-native';
 import UrlService from './UrlService';
-import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export async function NotificacaoService() {
