@@ -1,4 +1,4 @@
-@extends(adm.layouts.admin)
+@extends('adm.layouts.admin')
 
 @section('title','Update')
 
