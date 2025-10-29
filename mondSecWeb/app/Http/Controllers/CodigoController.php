@@ -38,7 +38,6 @@ class CodigoController extends Controller
             ], 400);
         }
 
-        // 🔒 Limite de 30 segundos entre envios
         $ultimoEnvio = Cache::get("last_send_{$email}");
         if ($ultimoEnvio && now()->diffInSeconds($ultimoEnvio) < 30) {
             return response()->json([
@@ -74,7 +73,6 @@ class CodigoController extends Controller
             $telefone = $request->telefone;
         }
 
-        // 🔒 Limite de 30 segundos entre envios
         $ultimoEnvio = Cache::get("last_send_{$telefone}");
         if ($ultimoEnvio && now()->diffInSeconds($ultimoEnvio) < 30) {
             return response()->json([
