@@ -10,7 +10,7 @@ Route::get('/', function () {
 })->name('site.index');
 
 Route::get('/adm', function () {
-    return view('adm.auth.login');
+    return view('adm.auth.cadastro');
 })->name('site.adm');
 
 Route::prefix('adm')
