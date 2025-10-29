@@ -212,7 +212,8 @@ class AdminController extends Controller
             'titulo' => 'nullable|max:225|string',
             'latitude' => 'nullable|max:225|string',
             'longitude' => 'nullable|string',
-            'data' => 'nullable',
+            'dataPostagem' => 'nullable',
+            'dataAcontecimento' => 'nullable',
             'descricao' => 'nullable|string',
             'tipo' => 'nullable|string',
         ]);
@@ -224,7 +225,8 @@ class AdminController extends Controller
         if ($request->longitude) $ocorrencia->longitude = $request->longitude;
         if ($request->descricao) $ocorrencia->descricao = $request->descricao;
         if ($request->tipo) $ocorrencia->tipo = $request->tipo;
-        if ($request->data) $ocorrencia->data = $request->data;
+        if ($request->dataPostagem) $ocorrencia->dataPostagem = $request->data;
+        if ($request->dataAcontecimento) $ocorrencia->dataAcontecimento = $request->data;
 
         $ocorrencia->save();
 
