@@ -37,7 +37,7 @@ Route::prefix('ocorrencia')
 
 Route::prefix('codigo')
     ->name('codigo.')
-    ->controller(CodigoController::class)
+    ->controller(EmailController::class)
     ->group(function () {
         Route::post('/sendEmail', 'sendCodeEmail')->name('email');
         Route::post('/sendSms', 'sendCodeSms')->name('sms');
