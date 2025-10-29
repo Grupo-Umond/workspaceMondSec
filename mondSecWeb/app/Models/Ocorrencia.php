@@ -14,7 +14,7 @@ class Ocorrencia extends Model
     use HasApiTokens, HasFactory, Notifiable;
 
     protected $table = 'tbOcorrencia';
-    protected $primaryKey = 'idOcorrencia';
+    protected $primaryKey = 'id';
     public $timestamps = false;
 
     protected $fillable = [
