@@ -10,7 +10,7 @@ Route::get('/', function () {
 })->name('site.index');
 
 Route::get('/adm', function () {
-    return view('adm.auth.login');
+    return view('adm.auth.cadastro');
 })->name('site.adm');
 
 Route::prefix('adm')
@@ -27,6 +27,7 @@ Route::prefix('adm')
 
         Route::middleware('admin.auth')->group(function () {
 
+
             // Dashboard
             Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard.index');
             Route::get('/adm/chart-admin', [DashboardController::class, 'viewAdmins'])->name('chart.admin');
@@ -39,6 +40,9 @@ Route::prefix('adm')
             Route::put('/admins/{id}', 'updateAdm')->name('admins.update');
             Route::delete('/admins/{id}', 'deleteAdm')->name('admins.destroy');
 
+            //Contato
+            Route::post('/contato', [EmailController::class, 'enviar'])->name('email.enviar');
+            
             // Users
             Route::get('/users', 'showUserScreen')->name('users.index');
             Route::get('/users/{id}', 'updateUserScreen')->name('users.edit');
@@ -54,9 +58,3 @@ Route::prefix('adm')
     });
 
 
-    //faleconosco
-    Route::get('/contato', function () {
-    return view('contato'); // aqui é a view onde está seu formulário
-    });
-
-    Route::post('/contato', [ContatoController::class, 'enviar'])->name('contato.enviar');

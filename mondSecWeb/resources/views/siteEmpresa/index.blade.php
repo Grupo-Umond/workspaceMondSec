@@ -1,4 +1,3 @@
-{{-- resources/views/home.blade.php --}}
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -6,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Umond</title>
 
-    {{-- CSS --}}
     <link rel="stylesheet" href="{{ asset('css/00style.css') }}">
     <link rel="stylesheet" href="{{ asset('css/01navBar.css') }}">
     <link rel="stylesheet" href="{{ asset('css/02inicio.css') }}">
@@ -17,7 +15,6 @@
     <link rel="stylesheet" href="{{ asset('css/07faleConosco.css') }}">
     <link rel="stylesheet" href="{{ asset('css/08footer.css') }}">
 
-    {{-- Font Awesome --}}
     <link rel="stylesheet" 
         href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
         integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
@@ -25,7 +22,6 @@
 </head>
 <body>
 
-{{-- HEADER --}}
 <header class="cabecalho" data-aos="fade">
   <nav class="cabecalho__menu">
     <div class="cabecalho__menu__logo">
@@ -34,7 +30,6 @@
       </a>
     </div>
 
-    <!-- Links desktop -->
     <div class="cabecalho__menu__itens">
       <a href="#apresentacao1">Início</a>
       <a href="#apresentacao2">Quem Somos</a>
@@ -44,13 +39,11 @@
       <a href="#apresentacao6">Fale Conosco</a>
     </div>
 
-    <!-- Botão hamburguer / fechar -->
     <div class="icons__menu" id="botaoMenu">
       <i class="fa-solid fa-bars" id="iconAbrir"></i>
       <i class="fa-solid fa-xmark" id="iconFechar"></i>
     </div>
 
-    <!-- Menu mobile -->
     <div class="cabecalho__menu__itens__mobile" id="menuMobile">
       <a href="#apresentacao1">Início</a>
       <a href="#apresentacao2">Quem Somos</a>
@@ -62,8 +55,6 @@
   </nav>
 </header>
 
-
-{{-- INÍCIO --}}
 <section class="inicio" id="apresentacao1">
     <video controls autoplay muted loop>
         <source src="{{ asset('Videos/video3.mp4') }}" type="video/mp4">
@@ -78,7 +69,6 @@
     </div>
 </section>
 
-{{-- QUEM SOMOS --}}
 <section id="apresentacao2" class="quemSomos">
     <div class="inicio_texto">
         <h2 class="titulo"> Quem <span class="span">Somos </span> </h2>
@@ -138,7 +128,7 @@
   const iconAbrir = document.getElementById("iconAbrir");
   const iconFechar = document.getElementById("iconFechar");
   const cabecalho = document.querySelector(".cabecalho");
-const secaoInicio = document.getElementById("apresentacao1"); // sua seção inicial
+const secaoInicio = document.getElementById("apresentacao1"); 
 
   botaoMenu.addEventListener("click", () => {
     const isOpen = menuMobile.classList.toggle("abrir");
@@ -152,7 +142,6 @@ const secaoInicio = document.getElementById("apresentacao1"); // sua seção ini
     }
   });
 
-  // Fecha o menu quando clica em algum link
   document.querySelectorAll("#menuMobile a").forEach(link => {
     link.addEventListener("click", () => {
       menuMobile.classList.remove("abrir");
