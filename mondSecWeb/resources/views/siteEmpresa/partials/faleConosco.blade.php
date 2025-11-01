@@ -35,7 +35,7 @@
         </div>
 
         <div class="form_faleConosco">
-            <form action="{{ route('contato.enviar') }}" method="POST">
+            <form action="{{ route('adm.email.enviar') }}" method="POST">
                 @csrf
                 <h3>Contato</h3>
                 <div class="input-group">
