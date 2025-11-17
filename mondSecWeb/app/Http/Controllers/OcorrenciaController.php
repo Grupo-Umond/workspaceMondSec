@@ -9,7 +9,7 @@ use Illuminate\Http\Request;
 
 class OcorrenciaController extends Controller
 {
-    public function allOcorencias(Request $request) {
+    public function allOcorrencias(Request $request) {
         $ocorrencias = Ocorrencia::all();
 
         return response()->json(['ocorrencias' => $ocorrencias]);
