@@ -35,8 +35,8 @@ body {
   /* background: var(--bg); */
   background-color: white;
   color: var(--text);
-  overflow-x: hidden;
-  overflow-y: hidden;
+  /* overflow-x: hidden;
+  overflow-y: hidden; */
   line-height: 1.35;
 }
 
@@ -390,6 +390,14 @@ form button {
   color: red;
 }
 
+.btn-excluirUsuario {
+  color: red;
+}
+
+.btn-alterar {
+  color: blue;
+}
+
 tbody i {
   font-size: 16px;
 }
@@ -400,7 +408,7 @@ tbody i {
 }
 
 .parteCima {
-  height: 40vh;
+  padding: 0% 0% 30% 0%;
 }
 
 .graficosOcorrencia {
@@ -409,6 +417,43 @@ tbody i {
 
 #chart-container1Ocorrencia, #chart-container2Ocorrencia {
   width: 50%;
+}
+
+#conteudo-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+#formUpdate {
+  width: 60%;
+  display: flex;
+  flex-direction: column;
+  margin-top: 2%;
+  gap: 30px;
+  background-color: whitesmoke;
+  border-radius: 10px;
+  padding: 3% 2%;
+}
+
+#formUpdate input, #formUpdate select {
+  width: 100%;
+  padding: 1.5% 2% 1.5% 1%;
+  border: 1px solid black;
+  border-radius: 5px;                                       
+}
+
+#conteudo-alterar {
+  display: flex;
+  justify-content: center;
+}
+
+#btn-alterar {
+  width: 15%;
+  padding: 1.5% 0%;
+  border-radius: 5px;
+  color: white;
+  background-color: rgb(234, 26, 26);
 }
 
 @media (max-width: 1085px) {
@@ -447,6 +492,31 @@ tbody i {
 
 #chart-container1Usuarios, #chart-container2Usuarios {
   width: 50%;
+}
+
+#pesquisas {
+  margin-bottom: 1%;
+}
+
+#pesquisaAdmin, #filtroNivel,
+#pesquisaUsuario, #filtroGenero,
+#pesquisado, #filtroTipo {
+  padding: 1% 2% 1% 1%;
+  border: 1px solid black;
+  border-radius: 5px;
+}
+
+#btnVoltar {
+  width: 15%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 1% 0%;
+  background-color: #0B0D25;
+  border-radius: 5px;
+  cursor: pointer;
+  text-decoration: none;
+  color: white;
 }
 
 @media (max-width: 1085px) {

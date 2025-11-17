@@ -11,7 +11,7 @@
 
     <h1 class="mb-4 text-center">Usuários Cadastrados</h1>
 
-    <div class="d-flex flex-wrap gap-3 mb-4 justify-content-center">
+    <div id="pesquisas" class="d-flex flex-wrap gap-3 mb-4 justify-content-center">
         <input id="pesquisaUsuario" type="text" class="form-control w-auto" placeholder="Pesquisar por nome, e-mail ou ID">
         <select id="filtroGenero" class="form-select w-auto">
             <option value="">Todos os Gêneros</option>
@@ -21,7 +21,7 @@
     <div id="lista-usuarios"></div>
 
     <a href="{{ route('adm.dashboard.index') }}" class="link-btn">
-        <div class="botao mt-4">Voltar ao Painel</div>
+        <div id="btnVoltar" class="botao mt-4">Voltar ao Painel</div>
     </a>
 </div>
 
@@ -118,12 +118,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 <td>${u.status || '-'}</td>
                 <td>
                     <a href="/adm/users/${u.id}">
-                        <i class="fa-solid fa-pencil"></i>
+                        <i class="fa-solid fa-pencil btn-alterar"></i>
                     </a>
                 </td>
                 <td>
-                        <a href="" class="btn btn-danger btn-sm">
-                        <i class="fa-solid fa-trash-can"></i>
+                    <a href="#"">
+                        <i class="fa-solid fa-trash-can btn-excluirUsuario"></i>
                     </a>
                 </td>
             `;
