@@ -30,9 +30,9 @@ Route::prefix('ocorrencia')
     ->controller(OcorrenciaController::class)
     ->middleware('auth:api')
     ->group(function () {
-        Route::get('/procurar', 'index')->name('listar');
+        Route::get('/listar', 'index')->name('listar');
         Route::post('/registrar', 'store')->name('registrar');
-        Route::get('/pegar', 'allOcorrencias')->name('getall');
+        Route::get('/getall', 'allOcorrencias')->name('getall');
     });
 
 Route::prefix('codigo')

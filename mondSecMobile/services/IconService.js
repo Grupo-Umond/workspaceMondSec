@@ -1,12 +1,9 @@
-// IconService.js
-// Converte tipos de ocorrência em imagens PNG
-
 const icons = {
-  // --- CRIMES ---
-  "Assalto": require("../assets/icones/Ladrao.png"),
-  "Tentativa de assalto": require("../assets/icones/Ladrao.png"),
+   
+  "Assalto": require("../assets/icones/default.png"),
+  "Tentativa de assalto": require("../assets/icones/default.png"),
 
-  "Roubo de veículo": require("../assets/icones/RouboDeCarro.png"),
+  /**"Roubo de veículo": require("../assets/icones/RouboDeCarro.png"),
   "Furto de peças de veículo": require("../assets/icones/RouboDeCarro.png"),
 
   "Agressão": require("../assets/icones/Briga.png"),
@@ -123,12 +120,11 @@ const icons = {
   "Trilhos bloqueando travessia": require("../assets/icones/default.png"),
 
   // Default para qualquer tipo não mapeado
-  default: require("../assets/icones/default.png"),
+  default: require("../assets/icones/default.png"),*/
 };
 
-// Função principal usada no mapa
 export function getIconForTipo(tipo) {
   if (!tipo) return icons.default;
   const key = String(tipo).trim();
   return icons[key] || icons.default;
-}
+}  
