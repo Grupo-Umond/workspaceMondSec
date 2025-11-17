@@ -1,4 +1,3 @@
-// MapaZonaLesteGeojson.js
 import React, { useRef, useState, useEffect, forwardRef } from 'react';
 import {
   StyleSheet,
@@ -17,8 +16,7 @@ import {
 import MapView, { Polygon, Marker } from 'react-native-maps';
 import * as Location from 'expo-location';
 import UrlService from './UrlService';
-import * as IconServiceModule from './IconService'; // carregamos tudo para ser robusto com exports
-
+import * as IconServiceModule from './IconService'; 
 const local = require('./GeoJson/zonaLeste_convertido.json');
 const { width, height } = Dimensions.get('window');
 
@@ -31,18 +29,16 @@ const MapaZonaLesteGeojson = forwardRef(({ ocorrencias = [], currentUserId = nul
   const [bounds, setBounds] = useState(null);
   const [ocorrenciasState, setOcorrencias] = useState([]);
 
-  // Modal & ocorrência selecionada
+ 
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedOcorrencia, setSelectedOcorrencia] = useState(null);
 
-  // Comentários
   const [comentarios, setComentarios] = useState([]);
   const [mensagemComentario, setMensagemComentario] = useState('');
   const [loadingComentarios, setLoadingComentarios] = useState(false);
   const [sendingComentario, setSendingComentario] = useState(false);
-  const [loggedUserId, setLoggedUserId] = useState(currentUserId); // pode vir via props
+  const [loggedUserId, setLoggedUserId] = useState(currentUserId); 
 
-  // resolve um "serviço" de ícones de forma tolerante
   const resolveIconFromService = (tipo) => {
     const svc = IconServiceModule.default || IconServiceModule.IconService || IconServiceModule;
     if (!svc) {
@@ -67,9 +63,7 @@ const MapaZonaLesteGeojson = forwardRef(({ ocorrencias = [], currentUserId = nul
     return icon;
   };
 
-  // -----------------------------------------------------
-  // 1) PERMISSÃO + POSIÇÃO DO USUÁRIO + CARREGAR GEOJSON
-  // -----------------------------------------------------
+
   useEffect(() => {
     (async () => {
       try {
@@ -111,9 +105,7 @@ const MapaZonaLesteGeojson = forwardRef(({ ocorrencias = [], currentUserId = nul
     })();
   }, []);
 
-  // ---------------------------------------
-  // 2) BUSCAR OCORRÊNCIAS DO BACKEND (REAL)
-  // ---------------------------------------
+
   useEffect(() => {
     const puxarOcorrencias = async () => {
       try {
@@ -134,9 +126,7 @@ const MapaZonaLesteGeojson = forwardRef(({ ocorrencias = [], currentUserId = nul
     puxarOcorrencias();
   }, []);
 
-  // ------------------------
-  // 3) PARSE GEOJSON
-  // ------------------------
+
   function parseGeoJSON(geojson) {
     const feats = geojson.type === 'FeatureCollection' ? geojson.features : [geojson];
     const out = [];
@@ -165,9 +155,6 @@ const MapaZonaLesteGeojson = forwardRef(({ ocorrencias = [], currentUserId = nul
     return out;
   }
 
-  // ---------------------------------------------------------
-  // 4) IMPEDIR O USUÁRIO DE SAIR DA ZONA LESTE
-  // ---------------------------------------------------------
   const handleRegionChangeComplete = (rgn) => {
     if (!bounds || !mapRef.current) return;
 

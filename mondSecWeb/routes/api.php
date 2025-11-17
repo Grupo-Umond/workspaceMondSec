@@ -52,3 +52,11 @@ Route::prefix('notificacao')
         Route::post('/enviar', 'enviarNotificacao')->name('enviar');
         Route::post('/token', 'salvar')->name('token');
     });
+
+Route::prefix('comentario')
+    ->name('notificacao')
+    ->controller(ComentarioController:class)->middleware('auth:api')
+    ->group(function (){
+        Route::get('/comentarios/{idOcorrencia}', 'getByOcorrencia');
+        Route::post('/comentarios', 'store');
+});
