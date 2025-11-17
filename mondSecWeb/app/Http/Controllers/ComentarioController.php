@@ -53,7 +53,7 @@ class ComentarioController extends Controller
             'idOcorrencia' => $idOcorrencia,
             'idUsuario' => $idUsuario,
         ]);
-
+u
         $comentario->load('usuario:id,name');
 
         return response()->json($comentario, 201);
