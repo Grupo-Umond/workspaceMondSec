@@ -12,7 +12,7 @@
 
     <h1 class="mb-4 text-center">Ocorrências Cadastradas</h1>
 
-    <div class="d-flex flex-wrap gap-3 mb-4 justify-content-center">
+    <div id="pesquisas" class="d-flex flex-wrap gap-3 mb-4 justify-content-center">
         <input id="pesquisado" type="text" class="form-control w-auto" placeholder="Pesquisar por ID, título ou usuário">
 
         <select id="filtroTipo" class="form-select w-auto">
@@ -39,7 +39,7 @@
     <div id="lista-ocorrencias"></div>
 
     <a href="{{ route('adm.dashboard.index') }}" class="link-btn">
-        <div class="botao mt-4">Voltar ao Painel</div>
+        <div id="btnVoltar" class="botao mt-4">Voltar ao Painel</div>
     </a>
 </div>
 
