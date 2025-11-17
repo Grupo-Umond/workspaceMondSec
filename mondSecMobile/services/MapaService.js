@@ -1,3 +1,4 @@
+// MapaZonaLesteGeojson.js
 import React, { useRef, useState, useEffect, forwardRef } from 'react';
 import {
   StyleSheet,
@@ -9,6 +10,9 @@ import {
   TouchableOpacity,
   Image,
   Platform,
+  TextInput,
+  ScrollView,
+  ActivityIndicator,
 } from 'react-native';
 import MapView, { Polygon, Marker } from 'react-native-maps';
 import * as Location from 'expo-location';
@@ -18,22 +22,28 @@ import * as IconServiceModule from './IconService'; // carregamos tudo para ser 
 const local = require('./GeoJson/zonaLeste_convertido.json');
 const { width, height } = Dimensions.get('window');
 
-// fallback local (garanta que esse arquivo exista)
-const DEFAULT_ICON = require('../assets/icones/default.png'); // ajuste caminho relativo se necessário
+const DEFAULT_ICON = require('../assets/icones/default.png');
 
-const MapaZonaLesteGeojson = forwardRef(({ ocorrencias = [] }, ref) => {
+const MapaZonaLesteGeojson = forwardRef(({ ocorrencias = [], currentUserId = null }, ref) => {
   const mapRef = useRef(null);
   const [region, setRegion] = useState(null);
   const [polygons, setPolygons] = useState([]);
   const [bounds, setBounds] = useState(null);
   const [ocorrenciasState, setOcorrencias] = useState([]);
 
+  // Modal & ocorrência selecionada
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedOcorrencia, setSelectedOcorrencia] = useState(null);
 
-  // resolve um "serviço" de ícones de forma tolerante a diferentes exports
+  // Comentários
+  const [comentarios, setComentarios] = useState([]);
+  const [mensagemComentario, setMensagemComentario] = useState('');
+  const [loadingComentarios, setLoadingComentarios] = useState(false);
+  const [sendingComentario, setSendingComentario] = useState(false);
+  const [loggedUserId, setLoggedUserId] = useState(currentUserId); // pode vir via props
+
+  // resolve um "serviço" de ícones de forma tolerante
   const resolveIconFromService = (tipo) => {
-    // IconServiceModule pode ter: default, IconService, ou ser o próprio objeto
     const svc = IconServiceModule.default || IconServiceModule.IconService || IconServiceModule;
     if (!svc) {
       console.warn('[IconService] nenhum serviço de ícone disponível, usando default.');
@@ -43,18 +53,13 @@ const MapaZonaLesteGeojson = forwardRef(({ ocorrencias = [] }, ref) => {
     if (!tipo) return svc.default || DEFAULT_ICON;
 
     const key = String(tipo).trim();
-
-    // tenta várias formas: exata, lowercase, sem acentos (simples), fallback
     let icon = svc[key] || svc[key.toLowerCase()];
-
-    // se ainda não achou, tenta buscar por chaves também sem espaços repetidos
     if (!icon) {
       const compactKey = key.replace(/\s+/g, ' ').trim();
       icon = svc[compactKey] || svc[compactKey.toLowerCase()];
     }
 
     if (!icon) {
-      // possível que o serviço tenha chaves em outras formas; log útil pra debug
       console.warn(`[IconService] ícone não encontrado para tipo="${tipo}". Usando fallback.`);
       return svc.default || DEFAULT_ICON;
     }
@@ -113,7 +118,6 @@ const MapaZonaLesteGeojson = forwardRef(({ ocorrencias = [] }, ref) => {
     const puxarOcorrencias = async () => {
       try {
         const response = await UrlService.get('/ocorrencia/getall');
-        // suporte a duas formas: {ocorrencias: [...]} ou array direto
         const list = response?.data?.ocorrencias ?? response?.data ?? [];
         if (!Array.isArray(list)) {
           console.warn('[Mapa] resposta de ocorrências inesperada:', response?.data);
@@ -188,17 +192,87 @@ const MapaZonaLesteGeojson = forwardRef(({ ocorrencias = [] }, ref) => {
     }
   };
 
-  // ------------------------
-  // 5) MODAL
-  // ------------------------
-  const abrirModal = (ocorrencia) => {
+
+  const ensureLoggedUser = async () => {
+    if (loggedUserId) return loggedUserId;
+    try {
+      const resp = await UrlService.get('/usuario/buscar');
+      const id = resp?.data?.id ?? resp?.data?.usuario?.id ?? null;
+      if (id) setLoggedUserId(id);
+      return id;
+    } catch (err) {
+      console.warn('[Auth] não foi possível obter usuário logado via /auth/me', err);
+      return null;
+    }
+  };
+
+  const carregarComentarios = async (idOcorrencia) => {
+    if (!idOcorrencia) return setComentarios([]);
+    setLoadingComentarios(true);
+    try {
+      const resp = await UrlService.get(`/comentarios/${idOcorrencia}`);
+      setComentarios(Array.isArray(resp.data) ? resp.data : []);
+    } catch (err) {
+      console.warn('[Mapa] Erro ao carregar comentários:', err);
+      setComentarios([]);
+    } finally {
+      setLoadingComentarios(false);
+    }
+  };
+
+  const abrirModal = async (ocorrencia) => {
     setSelectedOcorrencia(ocorrencia);
     setModalVisible(true);
+
+    const idOc = ocorrencia?.id ?? ocorrencia?._id ?? null;
+    await carregarComentarios(idOc);
+
+    ensureLoggedUser().catch(() => {});
   };
 
   const fecharModal = () => {
     setModalVisible(false);
     setSelectedOcorrencia(null);
+    setComentarios([]);
+    setMensagemComentario('');
+  };
+
+  const enviarComentario = async () => {
+    const texto = (mensagemComentario || '').trim();
+    if (!texto) return;
+
+    const idOc = selectedOcorrencia?.id ?? selectedOcorrencia?._id ?? null;
+    if (!idOc) {
+      Alert.alert('Erro', 'Ocorrência inválida.');
+      return;
+    }
+
+    setSendingComentario(true);
+    try {
+      const idUsuario = await ensureLoggedUser();
+
+      const finalUserId = idUsuario ?? currentUserId ?? loggedUserId;
+      if (!finalUserId) {
+        Alert.alert('Autenticação', 'Usuário não identificado. Faça login.');
+        setSendingComentario(false);
+        return;
+      }
+
+      await UrlService.post('/comentarios', {
+        mensagem: texto,
+        data: new Date().toISOString(),
+        idOcorrencia: idOc,
+        idUsuario: finalUserId,
+      });
+
+      setMensagemComentario('');
+      await carregarComentarios(idOc);
+    } catch (err) {
+      console.warn('[Mapa] erro ao enviar comentário:', err);
+      Alert.alert('Erro', 'Não foi possível enviar o comentário.');
+    } finally {
+      setSendingComentario(false);
+    }
   };
 
   if (!region) return null;
@@ -218,7 +292,6 @@ const MapaZonaLesteGeojson = forwardRef(({ ocorrencias = [] }, ref) => {
         maxZoomLevel={19}
         onRegionChangeComplete={handleRegionChangeComplete}
       >
-        {/* POLÍGONOS DA ZONA LESTE */}
         {polygons.map((poly) => (
           <Polygon
             key={poly.id}
@@ -229,37 +302,26 @@ const MapaZonaLesteGeojson = forwardRef(({ ocorrencias = [] }, ref) => {
           />
         ))}
 
-        {/* MARCADORES DAS OCORRÊNCIAS */}
         {ocorrenciasState.map((oc, index) => {
-          // tenta várias propriedades possíveis para lat/lng
           const lat = Number(oc.latitude ?? oc.lat ?? oc.latitud ?? NaN);
           const lng = Number(oc.longitude ?? oc.lng ?? oc.long ?? NaN);
 
           if (!isFinite(lat) || !isFinite(lng)) {
-            console.warn(`[Mapa] Ocorrência sem coord válida (index ${index}, id:${oc.id ?? oc._id ?? '??'})`, {
-              latitude: oc.latitude,
-              longitude: oc.longitude,
-              raw: oc,
-            });
+            console.warn(`[Mapa] Ocorrência sem coord válida (index ${index}, id:${oc.id ?? oc._id ?? '??'})`, { oc });
             return null;
           }
 
-          // resolve o ícone de forma tolerante e garante fallback
           const icone = resolveIconFromService(oc.tipo);
-
-          // debug: se quiser ver o tipo e o ícone resolvido, descomente:
-          // console.log('[Mapa] tipo:', oc.tipo, 'icone resolvido:', icone);
 
           return (
             <Marker
-              key={oc.id ?? index}
+              key={oc.id ?? oc._id ?? index}
               coordinate={{ latitude: lat, longitude: lng }}
               title={oc.tipo}
               description={oc.descricao}
               onPress={() => abrirModal(oc)}
               anchor={{ x: 0.5, y: 0.5 }}
             >
-              {/* Image sempre recebe algo válido (require ou objeto uri) */}
               <Image
                 source={icone || DEFAULT_ICON}
                 style={{ width: 40, height: 40 }}
@@ -270,7 +332,6 @@ const MapaZonaLesteGeojson = forwardRef(({ ocorrencias = [] }, ref) => {
         })}
       </MapView>
 
-      {/* MODAL */}
       <Modal
         visible={modalVisible}
         transparent
@@ -308,8 +369,51 @@ const MapaZonaLesteGeojson = forwardRef(({ ocorrencias = [] }, ref) => {
                 </>
               )}
 
-              <View style={{ marginTop: 18, alignItems: 'flex-end' }}>
-                <TouchableOpacity onPress={fecharModal} style={styles.btn}>
+              <Text style={[styles.modalLabel, { marginTop: 14 }]}>Comentários:</Text>
+
+              {loadingComentarios ? (
+                <ActivityIndicator style={{ marginVertical: 12 }} />
+              ) : (
+                <ScrollView style={{ maxHeight: 180, marginTop: 8 }}>
+                  {comentarios.length === 0 ? (
+                    <Text style={{ color: '#666' }}>Nenhum comentário ainda.</Text>
+                  ) : (
+                    comentarios.map((c, i) => (
+                      <View key={c.id ?? i} style={styles.commentItem}>
+                        <Text style={styles.commentAuthor}>
+                          {c.usuario?.name || c.usuario?.nome || 'Usuário'}
+                        </Text>
+                        <Text style={styles.commentText}>{c.mensagem}</Text>
+                        <Text style={styles.commentDate}>{c.data ?? c.created_at}</Text>
+                      </View>
+                    ))
+                  )}
+                </ScrollView>
+              )}
+
+              <TextInput
+                placeholder="Escreva um comentário..."
+                value={mensagemComentario}
+                onChangeText={setMensagemComentario}
+                style={styles.commentInput}
+                multiline
+                numberOfLines={2}
+              />
+
+              <View style={{ flexDirection: 'row', justifyContent: 'flex-end', marginTop: 8 }}>
+                <TouchableOpacity
+                  onPress={enviarComentario}
+                  style={[styles.btn, { opacity: sendingComentario ? 0.7 : 1 }]}
+                  disabled={sendingComentario}
+                >
+                  <Text style={styles.btnText}>
+                    {sendingComentario ? 'Enviando...' : 'Enviar Comentário'}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+
+              <View style={{ marginTop: 14, alignItems: 'flex-end' }}>
+                <TouchableOpacity onPress={fecharModal} style={[styles.btn, { marginTop: 6 }]}>
                   <Text style={styles.btnText}>OK</Text>
                 </TouchableOpacity>
               </View>
@@ -364,6 +468,25 @@ const styles = StyleSheet.create({
     borderRadius: 8,
   },
   btnText: { color: '#fff', fontWeight: '700' },
+
+  commentItem: {
+    marginBottom: 12,
+    paddingBottom: 8,
+    borderBottomWidth: 0.5,
+    borderBottomColor: '#eee',
+  },
+  commentAuthor: { fontWeight: '700', fontSize: 13 },
+  commentText: { marginTop: 4, fontSize: 14 },
+  commentDate: { marginTop: 4, fontSize: 11, color: '#666' },
+  commentInput: {
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 8,
+    padding: 8,
+    marginTop: 8,
+    minHeight: 42,
+    maxHeight: 120,
+  },
 });
 
 export default MapaZonaLesteGeojson;
