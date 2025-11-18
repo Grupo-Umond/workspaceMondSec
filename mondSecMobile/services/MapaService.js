@@ -318,161 +318,349 @@ const MapaZonaLesteGeojson = forwardRef(({ ocorrencias = [], currentUserId = nul
           );
         })}
       </MapView>
+jsx
 
-      <Modal
-        visible={modalVisible}
-        transparent
-        animationType="slide"
-        onRequestClose={fecharModal}
-      >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalCard}>
-            <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>
-                {selectedOcorrencia?.tipo || 'Detalhes'}
-              </Text>
-              <TouchableOpacity onPress={fecharModal}>
-                <Text style={styles.modalClose}>Fechar</Text>
-              </TouchableOpacity>
+<Modal
+  visible={modalVisible}
+  transparent
+  animationType="slide"
+  onRequestClose={fecharModal}
+>
+  <View style={styles.modalOverlay}>
+    <View style={styles.modalCard}>
+   {/* HEADER DO MODAL PABLO  */}
+      <View style={styles.modalHeader}>
+        <Text style={styles.modalTitle}>
+          {selectedOcorrencia?.tipo || 'Detalhes da Ocorrência'}
+        </Text>
+        <TouchableOpacity 
+          style={styles.closeButton}
+          onPress={fecharModal}
+        >
+          <Text style={styles.closeButtonText}>×</Text>
+        </TouchableOpacity>
+      </View>
+
+     {/* CORPO DO MODAL  */}
+      <ScrollView style={styles.modalBody} showsVerticalScrollIndicator={false}>
+        <View style={styles.infoSection}>
+          <Text style={styles.sectionTitle}>Informações</Text>
+          
+          <View style={styles.infoItem}>
+            <Text style={styles.infoLabel}>Descrição:</Text>
+            <Text style={styles.infoText}>
+              {selectedOcorrencia?.descricao || 'Sem descrição'}
+            </Text>
+          </View>
+
+
+          {selectedOcorrencia?.dataAcontecimento && (
+            <View style={styles.infoItem}>
+              <Text style={styles.infoData}>Data:</Text>
+              <Text style={styles.infoText}>{selectedOcorrencia.dataAcontecimento}</Text>
             </View>
+          )}
+        </View>
 
-            <View style={styles.modalBody}>
-              <Text style={styles.modalLabel}>Descrição:</Text>
-              <Text style={styles.modalText}>
-                {selectedOcorrencia?.descricao || 'Sem descrição'}
-              </Text>
+        {/* Seção de Comentários */}
+        <View style={styles.commentsSection}>
+          <Text style={styles.sectionTitle}>Comentários</Text>
 
-              {selectedOcorrencia?.endereco && (
-                <>
-                  <Text style={[styles.modalLabel, { marginTop: 12 }]}>Endereço:</Text>
-                  <Text style={styles.modalText}>{selectedOcorrencia.endereco}</Text>
-                </>
-              )}
-
-              {selectedOcorrencia?.data && (
-                <>
-                  <Text style={[styles.modalLabel, { marginTop: 12 }]}>Data:</Text>
-                  <Text style={styles.modalText}>{selectedOcorrencia.data}</Text>
-                </>
-              )}
-
-              <Text style={[styles.modalLabel, { marginTop: 14 }]}>Comentários:</Text>
-
-              {loadingComentarios ? (
-                <ActivityIndicator style={{ marginVertical: 12 }} />
+          {loadingComentarios ? (
+            <View style={styles.loadingContainer}>
+              <ActivityIndicator size="small" color="#003366" />
+              <Text style={styles.loadingText}>Carregando comentários...</Text>
+            </View>
+          ) : (
+            <View style={styles.commentsList}>
+              {comentarios.length === 0 ? (
+                <Text style={styles.emptyComments}>Nenhum comentário ainda.</Text>
               ) : (
-                <ScrollView style={{ maxHeight: 180, marginTop: 8 }}>
-                  {comentarios.length === 0 ? (
-                    <Text style={{ color: '#666' }}>Nenhum comentário ainda.</Text>
-                  ) : (
-                    comentarios.map((c, i) => (
-                      <View key={c.id ?? i} style={styles.commentItem}>
-                        <Text style={styles.commentAuthor}>
-                          {c.usuario?.name || c.usuario?.nome || 'Usuário'}
-                        </Text>
-                        <Text style={styles.commentText}>{c.mensagem}</Text>
-                        <Text style={styles.commentDate}>{c.data ?? c.created_at}</Text>
-                      </View>
-                    ))
-                  )}
-                </ScrollView>
+                comentarios.map((c, i) => (
+                  <View key={c.id ?? i} style={styles.commentItem}>
+                    <View style={styles.commentHeader}>
+                      <Text style={styles.commentAuthor}>
+                        {c.usuario?.name || c.usuario?.nome || 'Usuário'}
+                      </Text>
+                      <Text style={styles.commentDate}>{c.data ?? c.created_at}</Text>
+                    </View>
+                    <Text style={styles.commentText}>{c.mensagem}</Text>
+                  </View>
+                ))
               )}
-
-              <TextInput
-                placeholder="Escreva um comentário..."
-                value={mensagemComentario}
-                onChangeText={setMensagemComentario}
-                style={styles.commentInput}
-                multiline
-                numberOfLines={2}
-              />
-
-              <View style={{ flexDirection: 'row', justifyContent: 'flex-end', marginTop: 8 }}>
-                <TouchableOpacity
-                  onPress={enviarComentario}
-                  style={[styles.btn, { opacity: sendingComentario ? 0.7 : 1 }]}
-                  disabled={sendingComentario}
-                >
-                  <Text style={styles.btnText}>
-                    {sendingComentario ? 'Enviando...' : 'Enviar Comentário'}
-                  </Text>
-                </TouchableOpacity>
-              </View>
-
-              <View style={{ marginTop: 14, alignItems: 'flex-end' }}>
-                <TouchableOpacity onPress={fecharModal} style={[styles.btn, { marginTop: 6 }]}>
-                  <Text style={styles.btnText}>OK</Text>
-                </TouchableOpacity>
-              </View>
             </View>
+          )}
+
+          {/* Input de Comentário */}
+          <View style={styles.commentInputContainer}>
+            <TextInput
+              placeholder="Escreva um comentário..."
+              placeholderTextColor="#888"
+              value={mensagemComentario}
+              onChangeText={setMensagemComentario}
+              style={styles.commentInput}
+              multiline
+              numberOfLines={3}
+            />
+            
+            <TouchableOpacity
+              onPress={enviarComentario}
+              style={[
+                styles.sendButton,
+                sendingComentario && styles.sendButtonDisabled
+              ]}
+              disabled={sendingComentario}
+            >
+              {sendingComentario ? (
+                <ActivityIndicator size="small" color="#FFFFFF" />
+              ) : (
+                <Text style={styles.sendButtonText}>Enviar</Text>
+              )}
+            </TouchableOpacity>
           </View>
         </View>
-      </Modal>
+      </ScrollView>
+
+      {/* Footer do Modal */}
+      <View style={styles.modalFooter}>
+        <TouchableOpacity 
+          style={styles.okButton}
+          onPress={fecharModal}
+        >
+          <Text style={styles.okButtonText}>Fechar</Text>
+        </TouchableOpacity>
+      </View>
+    </View>
+  </View>
+</Modal>
     </>
   );
 });
 
 const styles = StyleSheet.create({
-  map: { width, height },
+  map: { 
+    width, 
+    height 
+  },
+
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.45)',
+    backgroundColor: 'rgba(0, 34, 68, 0.6)',
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 20,
   },
+
   modalCard: {
-    width: '100%',
-    maxWidth: 520,
-    backgroundColor: '#fff',
-    borderRadius: 12,
-    padding: 16,
+    width: '85%',
+    maxWidth: 420,
+    height: '85%',      
+    maxHeight: 620,    
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16, 
+    overflow: 'hidden',
     ...Platform.select({
       ios: {
-        shadowColor: '#000',
-        shadowOpacity: 0.12,
-        shadowOffset: { width: 0, height: 6 },
+        shadowColor: '#001A33',
+        shadowOpacity: 0.3,
+        shadowOffset: { width: 0, height: 8 },
         shadowRadius: 12,
       },
-      android: { elevation: 8 },
+      android: { elevation: 10 },
     }),
   },
+
   modalHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 8,
+    backgroundColor: '#012E61',
+    paddingHorizontal: 20,
+    paddingVertical: 14,
   },
-  modalTitle: { fontSize: 18, fontWeight: '700' },
-  modalClose: { color: '#0A84FF', fontWeight: '600' },
-  modalBody: { marginTop: 6 },
-  modalLabel: { fontSize: 13, fontWeight: '600', color: '#333' },
-  modalText: { fontSize: 14, color: '#222', marginTop: 4 },
-  btn: {
-    backgroundColor: '#0A84FF',
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    borderRadius: 8,
+
+  modalTitle: { 
+    fontSize: 19, 
+    fontWeight: '700',
+    color: '#FFFFFF',
+    flex: 1,
   },
-  btnText: { color: '#fff', fontWeight: '700' },
+
+  closeButton: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: 'rgba(255, 255, 255, 0.15)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+
+  closeButtonText: { 
+    color: '#FFFFFF', 
+    fontSize: 22,
+    lineHeight: 24,
+    fontWeight: 'bold',
+  },
+
+  modalBody: {
+    flex: 1,
+    paddingHorizontal: 20,
+    paddingVertical: 16, 
+    backgroundColor: '#FAFBFD',
+  },
+
+  infoSection: {
+    marginBottom: 24,
+    backgroundColor: '#FFFFFF',
+    padding: 14,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#E5E8ED',
+  },
+
+  sectionTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#012E61',
+    marginBottom: 10,
+  },
+
+  infoItem: { 
+    marginBottom: 10,
+  },
+
+  infoLabel: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: '#012E61',
+    marginBottom: 3,
+    textTransform: 'uppercase',
+    letterSpacing: 0.3,
+  },
+
+  infoData: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: '#012E61',
+    marginBottom: 3,
+    textTransform: 'uppercase',
+    letterSpacing: 0.3,
+  },
+
+  infoText: {
+    fontSize: 14,
+    color: '#333333',
+    lineHeight: 20,
+  },
+
+
+
+  commentsSection: {
+    flex: 1,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 10,
+    padding: 14,
+    borderWidth: 1,
+    borderColor: '#E5E8ED',
+  },
+
+  commentsList: {
+    marginBottom: 16,
+  },
 
   commentItem: {
-    marginBottom: 12,
-    paddingBottom: 8,
-    borderBottomWidth: 0.5,
-    borderBottomColor: '#eee',
+    backgroundColor: '#F3F6FA',
+    padding: 12,
+    borderRadius: 8,
+    marginBottom: 8,
+    borderLeftWidth: 3,
+    borderLeftColor: '#012E61',
   },
-  commentAuthor: { fontWeight: '700', fontSize: 13 },
-  commentText: { marginTop: 4, fontSize: 14 },
-  commentDate: { marginTop: 4, fontSize: 11, color: '#666' },
+
+  commentHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 4,
+  },
+
+  commentAuthor: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: '#012E61',
+  },
+
+  commentDate: {
+    fontSize: 11,
+    color: '#808080',
+  },
+
+  commentText: {
+    fontSize: 14,
+    color: '#333333',
+    lineHeight: 20,
+  },
+
+  emptyComments: {
+    textAlign: 'center',
+    color: '#666666',
+    fontStyle: 'italic',
+    paddingVertical: 20,
+  },
+
+  commentInputContainer: { marginTop: 10 },
+
   commentInput: {
     borderWidth: 1,
-    borderColor: '#ddd',
-    borderRadius: 8,
-    padding: 8,
-    marginTop: 8,
-    minHeight: 42,
-    maxHeight: 120,
+    borderColor: '#D0D7E0',
+    borderRadius: 10,
+    padding: 12,
+    fontSize: 14,
+    backgroundColor: '#FFFFFF',
+    color: '#333333',
+    minHeight: 80,
+    textAlignVertical: 'top',
+  },
+
+  sendButton: {
+    backgroundColor: '#012E61',
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 10,
+    alignSelf: 'flex-end',
+    minWidth: 110,
+  },
+
+  sendButtonDisabled: {
+    opacity: 0.6,
+  },
+
+  sendButtonText: {
+    color: '#FFFFFF',
+    fontSize: 14,
+    fontWeight: '600',
+  },
+
+  modalFooter: {
+    padding: 18,
+    borderTopWidth: 1,
+    borderTopColor: '#E5E8ED',
+    backgroundColor: '#F8FAFC',
+  },
+
+  okButton: {
+    backgroundColor: '#012E61',
+    paddingVertical: 12,
+    paddingHorizontal: 32,
+    borderRadius: 10,
+    alignItems: 'center',
+  },
+
+  okButtonText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: '600',
   },
 });
 

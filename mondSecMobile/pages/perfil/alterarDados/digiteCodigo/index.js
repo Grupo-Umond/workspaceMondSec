@@ -9,6 +9,7 @@ import {
   Image,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import FontAwesome from '@expo/vector-icons/FontAwesome';
 import UrlService from "../../../../services/UrlService";
 import axios from "axios";
 
@@ -157,13 +158,11 @@ const DigiteCodigoScreen = ({ navigation, route }) => {
 
   return (
     <View style={styles.container}>
-      <View style={styles.nav}>
-        <Pressable style={styles.backButton} onPress={() => navigation.goBack()}>
-          <Text style={styles.backArrow}>{"<"}</Text>
+      <View style={styles.cabecalho}>
+        <Pressable onPress={() => navigation.navigate('Menu')} style={styles.iconeCabecalho}>
+          <FontAwesome name="arrow-left" size={24} color="#12577B" />
         </Pressable>
-        <View style={styles.header}>
-          <Text style={styles.headerTitle}>Verificação de Conta</Text>
-        </View>
+        <Text style={styles.tituloCabecalho}>Verificação de Conta</Text>
       </View>
 
       <View style={styles.avatarContainer}>
@@ -239,21 +238,50 @@ const DigiteCodigoScreen = ({ navigation, route }) => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 20, backgroundColor: "#fff", alignItems: "center" },
-  header: { flexDirection: "row", alignItems: "center" },
-  backButton: { marginRight: 90, marginBottom: 10 },
-  nav: { flexDirection: "row" },
-  backArrow: { fontSize: 70, color: "#12577B" },
-  headerTitle: { fontSize: 22, fontWeight: "600", color: "#000", marginLeft: -50 },
-  avatarContainer: { alignItems: "center", marginBottom: 10 },
-  logoContainer: { alignItems: "center" },
-  logo: { width: 200, height: 200, resizeMode: "contain" },
+  container: { 
+    flex: 1, 
+    padding: 20, 
+    backgroundColor: "#fff", 
+    paddingTop: 60,
+  },
+  
+  cabecalho: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 30,
+    paddingHorizontal: 10,
+    gap:55,  
+  },
+  tituloCabecalho: {
+    fontSize: 20,
+    fontWeight: '600',
+    color: '#12577B',
+  },
+  iconeCabecalho: {
+    padding: 5,
+  },
+  avatarContainer: { 
+    alignItems: "center", 
+    marginBottom: 10 
+  },
+  
+  logoContainer: { 
+    alignItems: "center" 
+  },
+  
+  logo: { 
+    width: 200, 
+    height: 200, 
+    resizeMode: "contain" 
+  },
+  
   inputContainer: {
     flexDirection: "row",
     justifyContent: "center",
     gap: 10,
     marginVertical: 20,
   },
+  
   input: {
     width: 45,
     height: 55,
@@ -265,8 +293,20 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     elevation: 2,
   },
-  errorMessage: { color: "red", marginBottom: 10, textAlign: "center" },
-  resendLink: { color: "#007AFF", fontSize: 14, textAlign: "center", marginBottom: 20 },
+  
+  errorMessage: { 
+    color: "red", 
+    marginBottom: 10, 
+    textAlign: "center" 
+  },
+  
+  resendLink: { 
+    color: "#007AFF", 
+    fontSize: 14, 
+    textAlign: "center", 
+    marginBottom: 20 
+  },
+  
   confirmButton: {
     backgroundColor: "#003366",
     paddingVertical: 12,
@@ -274,8 +314,17 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     alignItems: "center",
   },
-  confirmButtonText: { color: "#fff", fontSize: 16, fontWeight: "bold" },
-  disabledButton: { opacity: 0.5 },
+  
+  confirmButtonText: { 
+    color: "#fff", 
+    fontSize: 16, 
+    fontWeight: "bold" 
+  },
+  
+  disabledButton: { 
+    opacity: 0.5 
+  },
+  
   title: {
     fontSize: 18,
     fontWeight: "600",
@@ -283,8 +332,18 @@ const styles = StyleSheet.create({
     textAlign: "center",
     marginBottom: 20,
   },
-  linkText: { fontSize: 14, color: "#555", textAlign: "center", marginTop: 10 },
-  linkHighlight: { color: "#1E90FF", fontWeight: "bold" },
+  
+  linkText: { 
+    fontSize: 14, 
+    color: "#555", 
+    textAlign: "center", 
+    marginTop: 10 
+  },
+  
+  linkHighlight: { 
+    color: "#1E90FF", 
+    fontWeight: "bold" 
+  },
 });
 
 export default DigiteCodigoScreen;

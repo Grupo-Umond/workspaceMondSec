@@ -55,7 +55,7 @@ Route::prefix('notificacao')
 
 Route::prefix('comentario')
     ->name('notificacao')
-    ->controller(ComentarioController:class)->middleware('auth:api')
+    ->controller(ComentarioController::class)->middleware('auth:api')
     ->group(function (){
         Route::get('/comentarios/{idOcorrencia}', 'getByOcorrencia');
         Route::post('/comentarios', 'store');

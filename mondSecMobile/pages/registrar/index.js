@@ -17,6 +17,7 @@ import { CoordenadaService } from '../../services/CoordenadaService';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import UrlService from '../../services/UrlService';
+import { ScrollView } from "react-native-gesture-handler";
 
 const RegistrarScreen = ({ navigation }) => {
   const [carregando, setCarregando] = useState(false);
@@ -210,7 +211,7 @@ const RegistrarScreen = ({ navigation }) => {
   };
 
   return (
-    <View style={styles.container}>
+<View style={styles.container}>
       <View style={styles.cabecalho}>
         <Pressable onPress={() => navigation.goBack()} style={styles.iconeCabecalho}>
           <FontAwesome name="arrow-left" size={24} color="#12577B" />
@@ -221,111 +222,112 @@ const RegistrarScreen = ({ navigation }) => {
         </Pressable>
       </View>
 
-      <View style={styles.form}>
-        <Text style={styles.label}>Título da Ocorrência</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Digite o título..."
-          value={titulo}
-          onChangeText={setTitulo}
-        />
-
-        <Text style={styles.label}>Tipo de Ocorrência</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Pesquisar tipo..."
-          value={buscaTipo}
-          onChangeText={(texto) => {
-            setBuscaTipo(texto);
-            setDropdownAberto(true);
-          }}
-        />
-
-        {dropdownAberto && (
-          <View style={styles.dropdown}>
-            <FlatList
-              data={tiposFiltrados}
-              keyExtractor={(item, index) => index.toString()}
-              renderItem={({ item }) => (
-                <TouchableOpacity
-                  style={[styles.item, item === tipo && styles.itemSelecionado]}
-                  onPress={() => { setTipo(item); setBuscaTipo(item); setDropdownAberto(false); }}
-                >
-                  <Text style={[styles.itemTexto, item === tipo && styles.itemTextoSelecionado]}>{item}</Text>
-                </TouchableOpacity>
-              )}
-            />
-          </View>
-        )}
-
-        {/* 🔹 Campos de endereço separados */}
-        <Text style={styles.label}>Rua</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Ex: Avenida Nordestina"
-          value={rua}
-          onChangeText={setRua}
-        />
-
-        <Text style={styles.label}>Número</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Ex: 320"
-          keyboardType="numeric"
-          value={numero}
-          onChangeText={setNumero}
-        />
-
-        <Text style={styles.label}>Bairro / Distrito</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Ex: Guaianases"
-          value={bairro}
-          onChangeText={setBairro}
-        />
-
-        <Text style={styles.label}>Cidade</Text>
-        <TextInput
-          style={styles.input}
-          placeholder="Ex: São Paulo"
-          value={cidade}
-          onChangeText={setCidade}
-        />
-
-        <Text style={styles.label}>Descrição</Text>
-        <TextInput
-          style={styles.textArea}
-          placeholder="Descreva a ocorrência..."
-          value={descricao}
-          onChangeText={setDescricao}
-          multiline
-          maxLength={120}
-          textAlignVertical="top"
-        />
-
-        <Text>{dataAcontecimento}</Text>
-        <Button onPress={() => setShow(true)} title='Selecionar Data'/>
-        {show && (
-          <DateTimePicker
-            value={selectedDate}
-            mode='date'
-            display='default'
-            onChange={onChange}
+       <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+        <View style={styles.form}>
+          <Text style={styles.label}>Título da Ocorrência</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="Digite o título..."
+            value={titulo}
+            onChangeText={setTitulo}
           />
-        )}
 
-        <Text style={styles.contador}>{descricao.length}/120</Text>
-        {mensagemErro ? <Text style={styles.erro}>{mensagemErro}</Text> : null}
-      </View>
+          <Text style={styles.label}>Tipo de Ocorrência</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="Pesquisar tipo..."
+            value={buscaTipo}
+            onChangeText={(texto) => {
+              setBuscaTipo(texto);
+              setDropdownAberto(true);
+            }}
+          />
 
-      <TouchableOpacity
-        style={[styles.botao, carregando && styles.botaoDesabilitado]}
-        onPress={enviarOcorrencia}
-        disabled={carregando}
-      >
-        {carregando ? <ActivityIndicator color="#fff" /> : <Text style={styles.textoBotao}>Enviar</Text>}
-      </TouchableOpacity>
+          {dropdownAberto && (
+            <View style={styles.dropdown}>
+              <FlatList
+                data={tiposFiltrados}
+                keyExtractor={(item, index) => index.toString()}
+                renderItem={({ item }) => (
+                  <TouchableOpacity
+                    style={[styles.item, item === tipo && styles.itemSelecionado]}
+                    onPress={() => { setTipo(item); setBuscaTipo(item); setDropdownAberto(false); }}
+                  >
+                    <Text style={[styles.itemTexto, item === tipo && styles.itemTextoSelecionado]}>{item}</Text>
+                  </TouchableOpacity>
+                )}
+              />
+            </View>
+          )}
 
+          {/* 🔹 Campos de endereço separados */}
+          <Text style={styles.label}>Rua</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="Ex: Avenida Nordestina"
+            value={rua}
+            onChangeText={setRua}
+          />
+
+          <Text style={styles.label}>Número</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="Ex: 320"
+            keyboardType="numeric"
+            value={numero}
+            onChangeText={setNumero}
+          />
+
+          <Text style={styles.label}>Bairro / Distrito</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="Ex: Guaianases"
+            value={bairro}
+            onChangeText={setBairro}
+          />
+
+          <Text style={styles.label}>Cidade</Text>
+            <TextInput
+            style={styles.input}
+            placeholder="Ex: São Paulo"
+            value={cidade}
+            onChangeText={setCidade}
+          />
+
+          <Text style={styles.label}>Descrição</Text>
+          <TextInput
+            style={styles.textArea}
+            placeholder="Descreva a ocorrência..."
+            value={descricao}
+            onChangeText={setDescricao}
+            multiline
+            maxLength={120}
+            textAlignVertical="top"
+          />
+
+          <Text>{dataAcontecimento}</Text>
+          <Button onPress={() => setShow(true)} title='Selecionar Data'/>
+          {show && (
+            <DateTimePicker
+              value={selectedDate}
+              mode='date'
+              display='default'
+              onChange={onChange}
+            />
+          )}
+
+          <Text style={styles.contador}>{descricao.length}/120</Text>
+          {mensagemErro ? <Text style={styles.erro}>{mensagemErro}</Text> : null}
+        </View>
+
+        <TouchableOpacity
+          style={[styles.botao, carregando && styles.botaoDesabilitado]}
+          onPress={enviarOcorrencia}
+          disabled={carregando}
+        >
+          {carregando ? <ActivityIndicator color="#fff" /> : <Text style={styles.textoBotao}>Enviar</Text>}
+        </TouchableOpacity>
+      </ScrollView>
       {/* 🔹 Modais iguais */}
       <Modal visible={visivelInicio} transparent animationType="slide" onRequestClose={() => setVisivelInicio(false)}>
         <View style={styles.modalContainer}>
