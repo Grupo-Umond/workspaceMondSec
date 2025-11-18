@@ -133,7 +133,8 @@ class AdminController extends Controller
         if (!$admin) {
             return redirect()->back()->with('Error', 'O adm não foi encontrado');
         }
-        $admin->delete();
+        $admin->status = 'inativo';
+        $admin->save();
 
         return redirect()->route('adm.admins.index')->with('success', 'Adm deletado com sucesso');
     }
@@ -186,7 +187,8 @@ class AdminController extends Controller
         if (!$usuario) {
             return redirect()->back()->with('Error', 'O usuário não foi encontrado');
         }
-        $usuario->delete();
+        $usuario->status = 'inativo';
+        $usuario->save();
 
         return redirect()->route('adm.users.index')->with('success', 'Usuário deletado com sucesso');
     }
@@ -238,7 +240,8 @@ class AdminController extends Controller
         if (!$ocorrencia) {
             return redirect()->back()->with('Error', 'O usuário não foi encontrado');
         }
-        $ocorrencia->delete();
+        $ocorrencia->status = 'inativo';
+        $ocorrencia->save();
 
         return redirect()->route('adm.ocorrencia.index')->with('success', 'Usuário deletado com sucesso');
     }

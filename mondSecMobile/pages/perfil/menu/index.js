@@ -56,7 +56,7 @@ const enviarFoto = async (uri) => {
   try {
     const token = await AsyncStorage.getItem('userToken');
 
-    // converte a imagem local para blob
+
     const response = await fetch(uri);
     const blob = await response.blob();
 
@@ -98,10 +98,7 @@ const enviarFoto = async (uri) => {
     const tokenUser = await AsyncStorage.getItem('userToken');
     try {
       const response = await UrlService.put('/usuario/deletar', {
-        headers: {
-          Authorization: `Bearer ${tokenUser}`,
           senha: senha,
-        },
       });
       logout();
     } catch (erro) {
