@@ -17,7 +17,7 @@
                 @method('PUT')
 
                 <div class="conteudo-nome">
-                    <label for="nome">Nome:</label>
+                    <label for="nome">Nome</label>
                     <input type="text" id="nome" name="nome" value="{{ old('nome', $usuario->nome) }}">
                     @error('nome')
                         <div class="error">{{ $message }}</div>
@@ -25,7 +25,7 @@
                 </div>
 
                 <div class="conteudo-email">
-                    <label for="email">Email:</label>
+                    <label for="email">Email</label>
                     <input type="email" id="email" name="email" value="{{ old('email', $usuario->email) }}">
                     @error('email')
                         <div class="error">{{ $message }}</div>
@@ -33,7 +33,7 @@
                 </div>
 
                 <div class="conteudo-telefone">
-                    <label for="telefone">Telefone:</label>
+                    <label for="telefone">Telefone</label>
                     <input type="telefone" id="telefone" name="telefone" value="{{ old('telefone', $usuario->telefone) }}">
                     @error('telefone')
                         <div class="error">{{ $message }}</div>
@@ -41,7 +41,7 @@
                 </div>
 
                 <div class="conteudo-genero">
-                    <label for="genero">Genero:</label>
+                    <label for="genero">Genero</label>
                     <select id="genero" name="genero">
                         <option value="">-- Selecione --</option>
                         <option value="Masculino" {{ old('genero', $usuario->genero) == 'Masculino' ? 'selected' : '' }}>
