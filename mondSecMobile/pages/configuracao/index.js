@@ -3,6 +3,7 @@ import { View, Text, Pressable, Switch, Linking, StyleSheet, ScrollView} from 'r
 import { AuthContext } from "../../services/AuthContext";
 import Slider from '@react-native-community/slider';
 import CheckBox from 'expo-checkbox';
+import FontAwesome from '@expo/vector-icons/FontAwesome';
 
 const ConfiguracaoScreen = ({ navigation, setUserToken }) => {
   const [notificacao, setNotificacao] = useState(true);
@@ -14,11 +15,11 @@ const ConfiguracaoScreen = ({ navigation, setUserToken }) => {
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <View style={styles.header}>
-        <Pressable style={styles.backButton} onPress={() => navigation.navigate('Home')}>
-          <Text style={styles.backArrow}>{"<"}</Text>
+         <View style={styles.cabecalho}>
+        <Pressable onPress={() => navigation.navigate('Menu')} style={styles.iconeCabecalho}>
+          <FontAwesome name="arrow-left" size={26} color="#12577B" />
         </Pressable>
-        <Text style={styles.title}>Configuração</Text>
+        <Text style={styles.tituloCabecalho}>Configurações</Text>
       </View>
 
       <View style={styles.section}>
@@ -95,26 +96,21 @@ const ConfiguracaoScreen = ({ navigation, setUserToken }) => {
 const styles = StyleSheet.create({
   container: {
     padding: 20,
-    backgroundColor: '#fff'
+    backgroundColor: '#fff', 
+    paddingTop: 60,
   },
-  header: {
-    marginBottom: 20,
-      marginTop: -20,
+  cabecalho: {
     flexDirection: 'row',
-    gap: 60
+    alignItems: 'center',
+    marginBottom: 50,
+    paddingHorizontal: 10,
+     gap:80
   },
-  backArrow: {
-    fontSize: 60,
-    color: "#12577B"
-  },
-  backText: {
-    color: '#12577B'
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    marginTop: 30,
-    color: '#12577B'
+  tituloCabecalho: {
+    fontSize: 20,
+    fontWeight: '600',
+    color: '#12577B',
+   
   },
   section: {
     marginBottom: 25
