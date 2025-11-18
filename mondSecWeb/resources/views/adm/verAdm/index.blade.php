@@ -38,7 +38,7 @@
 
         <h1 class="mb-4">Admins Cadastrados</h1>
 
-        <div class="d-flex flex-wrap gap-3 mb-4 justify-content-center">
+        <div id="pesquisas" class="d-flex flex-wrap gap-3 mb-4 justify-content-center">
             <input id="pesquisaAdmin" type="text" class="form-control w-auto" placeholder="Pesquisar por nome, e-mail ou ID">
             <select id="filtroNivel" class="form-select w-auto">
                 <option value="">Todos os níveis</option>
@@ -47,7 +47,7 @@
 
         <div id="lista-admins"></div>
 
-        <a href="{{ route('adm.dashboard.index') }}" class="btn btn-outline-primary mt-3">Voltar ao Painel</a>
+        <a href="{{ route('adm.dashboard.index') }}" id="btnVoltar" class="btn btn-outline-primary mt-3">Voltar ao Painel</a>
     </div>
 </div>
 
@@ -109,7 +109,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 <td>${a.created_at || '-'}</td>
                 <td>
                     <a href="/adm/admins/${a.id}" class="btn btn-sm btn-warning">
-                        <i class="fa-solid fa-pencil"></i>
+                        <i class="fa-solid fa-pencil btn-alterar"></i>
                     </a>
                 </td>
                 <td>
@@ -117,7 +117,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         @csrf
                         @method('DELETE')
                         <button type="submit" class="btn btn-sm btn-danger">
-                            <i class="fa-solid fa-trash-can"></i>
+                            <i class="fa-solid fa-trash-can btn-excluir"></i>
                         </button>
                     </form>
                 </td>
