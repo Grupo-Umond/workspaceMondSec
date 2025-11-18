@@ -8,6 +8,7 @@ use App\Http\Controllers\OcorrenciaController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\CodigoController;
 use App\Http\Controllers\ComentarioController;
+use App\Http\Controllers\EmailController;
 Route::prefix('usuario')
     ->name('usuario.')
     ->controller(UsuarioController::class)
@@ -39,11 +40,21 @@ Route::prefix('codigo')
     ->name('codigo.')
     ->controller(EmailController::class)
     ->group(function () {
+        Route::post('/sendEmail', 'sendCodeEmail')->name('email.public');
+        Route::post('/sendSms', 'sendCodeSms')->name('sms.public');
+        Route::post('/verify', 'verifyCode')->name('verificar.public');
+    });
+
+
+Route::prefix('codigo/auth')
+    ->name('codigo.auth.')
+    ->middleware('auth:api')
+    ->controller(EmailController::class)
+    ->group(function () {
         Route::post('/sendEmail', 'sendCodeEmail')->name('email');
         Route::post('/sendSms', 'sendCodeSms')->name('sms');
         Route::post('/verify', 'verifyCode')->name('verificar');
     });
-
 Route::prefix('notificacao')
     ->name('notificacao.')
     ->controller(NotificationController::class)

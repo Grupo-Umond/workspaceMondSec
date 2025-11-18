@@ -16,13 +16,12 @@ useEffect(() => {
   const getOcorrencias = async () => {
     try {
       const tokenUser = await AsyncStorage.getItem('userToken');
-      const response = await UrlService.get('/ocorrencia/procurar', {
+      const response = await UrlService.get('/ocorrencia/listar', {
         headers: { Authorization: `Bearer ${tokenUser}` },
       });
 
       let data = response.data.ocorrencias;
 
-      // 🔥 FILTRA AQUI PRA NÃO PEGAR OCORRÊNCIAS INATIVAS
       data = data.filter(o => o.status !== 'inativo');
 
       const comEndereco = await Promise.all(
