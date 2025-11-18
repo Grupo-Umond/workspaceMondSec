@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   StyleSheet,
   Image,
+  Alert
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import FontAwesome from '@expo/vector-icons/FontAwesome';
@@ -15,7 +16,7 @@ import axios from "axios";
 
 const DigiteCodigoScreen = ({ navigation, route }) => {
   const [digitos, setDigitos] = useState(["", "", "", "", "", ""]);
-  const [direcao, setDirecao] = useState(true);
+  const [direcao, setDirecao] = useState(true); // true => email, false => telefone
   const [email, setEmail] = useState("");
   const [telefone, setTelefone] = useState("");
   const [carregando, setCarregando] = useState(false);
@@ -27,66 +28,102 @@ const DigiteCodigoScreen = ({ navigation, route }) => {
   const code = digitos.join("");
 
   useEffect(() => {
-    const poronde = () => {
-      if(campo === 'telefone'){
-        setDirecao(false);
-      }
-
-
+    // define direcao inicial com base no campo passado
+    if (campo === 'telefone') {
+      setDirecao(false);
+    } else if (campo === 'email') {
+      setDirecao(true);
     }
-    poronde();
+    console.log('[DigiteCodigoScreen] route.params', route.params);
     buscarDados();
-    criarCodigo();
-  }, [direcao]);
+  }, []);
 
+  // Busca dados do usuário logado (se houver) ou pega os dados do "usuario" prop
   const buscarDados = async () => {
-      const tokenUser = await AsyncStorage.getItem("userToken");
-      try {
-        if (tokenUser) {
-          const response = await UrlService.get('/usuario/buscar', {
-            headers: { Authorization: `Bearer ${tokenUser}` },
-          });
-          setEmail(response.data.usuario.email);
-          setTelefone(response.data.usuario.telefone);
-        } else if (usuario) {
-          return pegarLogin();
+    console.log('[DigiteCodigoScreen] buscarDados iniciado');
+    const tokenUser = await AsyncStorage.getItem("userToken");
+    try {
+      if (tokenUser) {
+        console.log('[DigiteCodigoScreen] tokenUser encontrado, buscando /usuario/buscar');
+        const response = await UrlService.get('/usuario/buscar', {
+          headers: { Authorization: `Bearer ${tokenUser}` },
+        });
+        console.log('[DigiteCodigoScreen] response /usuario/buscar', response.data);
+        setEmail(response.data.usuario.email || "");
+        setTelefone(response.data.usuario.telefone || "");
+
+        // depois de popular, automaticamente criar codigo
+        if (direcao && response.data.usuario.email) {
+          criarCodigo(response.data.usuario.email);
+        } else if (!direcao && response.data.usuario.telefone) {
+          criarCodigo(response.data.usuario.telefone);
         }
-      } catch (erro) {
-        console.log("Erro ao buscar dados:", erro.response?.data || erro.message);
-      }
-    };
-
-    const criarCodigo = async () => {
-      const login = await pegarLogin();
-      const tokenUser = await AsyncStorage.getItem("userToken");
-
-      try {
-        let response;
-        if (direcao) {
-          response = tokenUser
-            ? await UrlService.post('/codigo/sendEmail', {}, { headers: { Authorization: `Bearer ${tokenUser}` } })
-            : await UrlService.post('/codigo/sendEmail', { login });
+      } else if (usuario) {
+        console.log('[DigiteCodigoScreen] sem token, usando usuario passado por param', usuario);
+        if (direcao && usuario.email) {
+          setEmail(usuario.email);
+          criarCodigo(usuario.email);
+        } else if (!direcao && usuario.telefone) {
+          setTelefone(usuario.telefone);
+          criarCodigo(usuario.telefone);
         } else {
-          response = tokenUser
-            ? await UrlService.post('/codigo/sendSms', {}, { headers: { Authorization: `Bearer ${tokenUser}` } })
-            : await UrlService.post('/codigo/sendSms', { telefone });
+          console.log('[DigiteCodigoScreen] usuario param não possui o campo necessário', { usuario, direcao });
         }
-
-        setTempoRestante(30); 
-
-      } catch (erro) {
-        if (erro.response?.status === 429) {
-          setTempoRestante(erro.response.data.tempoRestante || 30);
-        }
-        console.log("Erro ao criar código:", erro.response?.data || erro.message);
+      } else {
+        console.log('[DigiteCodigoScreen] nem token nem usuario param disponíveis');
       }
-    };
+    } catch (erro) {
+      console.log('[DigiteCodigoScreen] erro ao buscarDados:', erro.response?.data || erro.message);
+      Alert.alert('Erro', 'Falha ao buscar dados do usuário: ' + (erro.response?.data?.mensagem || erro.message));
+    }
+  };
+
+  const criarCodigo = async (loginParam) => {
+    console.log('[DigiteCodigoScreen] criarCodigo chamado', { direcao, loginParam });
+    const tokenUser = await AsyncStorage.getItem("userToken");
+    try {
+      let response;
+      if (direcao) {
+        if (tokenUser) {
+          console.log('[DigiteCodigoScreen] POST /codigo/auth/sendEmail via UrlService');
+          response = await UrlService.post('/codigo/auth/sendEmail', {}, { headers: { Authorization: `Bearer ${tokenUser}` } });
+        } else {
+          const login = loginParam || email;
+          console.log('[DigiteCodigoScreen] POST /codigo/sendEmail via axios, login:', login);
+          response = await axios.post('http://192.168.15.116:8000/api/codigo/sendEmail', { login });
+        }
+      } else {
+        if (tokenUser) {
+          console.log('[DigiteCodigoScreen] POST /codigo/auth/sendSms via UrlService');
+          response = await UrlService.post('/codigo/auth/sendSms', {}, { headers: { Authorization: `Bearer ${tokenUser}` } });
+        } else {
+          const tel = loginParam || telefone;
+          console.log('[DigiteCodigoScreen] POST /codigo/sendSms via axios, telefone:', tel);
+          response = await axios.post('http://192.168.15.116:8000/api/codigo/sendSms', { telefone: tel });
+        }
+      }
+
+      console.log('[DigiteCodigoScreen] criarCodigo response', response?.data);
+      setTempoRestante(30);
+    } catch (erro) {
+      console.log('[DigiteCodigoScreen] erro ao criar codigo', erro.response?.data || erro.message);
+      if (erro.response?.status === 429) {
+        setTempoRestante(erro.response.data.tempoRestante || 30);
+        Alert.alert('Aguarde', `Por favor, aguarde ${erro.response.data.tempoRestante || 30}s antes de tentar novamente.`);
+      } else {
+        Alert.alert('Erro', 'Falha ao criar código: ' + (erro.response?.data?.erro || erro.message));
+      }
+    }
+  };
 
   useEffect(() => {
     if (tempoRestante <= 0) return;
     const timer = setInterval(() => {
       setTempoRestante(prev => {
-        if (prev <= 1) clearInterval(timer);
+        if (prev <= 1) {
+          clearInterval(timer);
+          return 0;
+        }
         return prev - 1;
       });
     }, 1000);
@@ -96,17 +133,19 @@ const DigiteCodigoScreen = ({ navigation, route }) => {
 
   const pegarLogin = () => {
     if (direcao) {
-      setEmail(usuario.email);
-      return usuario.email;
+      console.log('[DigiteCodigoScreen] pegarLogin -> email', email || usuario?.email);
+      setEmail(email || usuario?.email || "");
+      return email || usuario?.email || "";
     } else {
-      setTelefone(usuario.telefone);
-      return usuario.telefone;
+      console.log('[DigiteCodigoScreen] pegarLogin -> telefone', telefone || usuario?.telefone);
+      setTelefone(telefone || usuario?.telefone || "");
+      return telefone || usuario?.telefone || "";
     }
   };
 
   const handleChange = (text, index) => {
     const newDigitos = [...digitos];
-    newDigitos[index] = text;
+    newDigitos[index] = text.replace(/[^0-9]/g, '');
     setDigitos(newDigitos);
   };
 
@@ -133,27 +172,44 @@ const DigiteCodigoScreen = ({ navigation, route }) => {
     const tokenUser = await AsyncStorage.getItem("userToken");
 
     try {
-      const login = await pegarLogin();
+      const login = pegarLogin();
+      console.log('[DigiteCodigoScreen] enviarCodigo enviando verify', { code, direcao, login, hasToken: !!tokenUser });
 
       const response = await UrlService.post(
-        '/codigo/verify',
+        '/codigo/auth/verify',
         { code, direcao, login },
         tokenUser ? { headers: { Authorization: `Bearer ${tokenUser}` } } : {}
       );
 
+      console.log('[DigiteCodigoScreen] enviarCodigo response', response.data);
+
       const tokenTemp = response.data.token;
       if (!tokenTemp) {
         setErroMessage("Permissão não recebida");
+        Alert.alert('Erro', 'Permissão não recebida do servidor.');
         return;
       }
 
       await AsyncStorage.setItem("tokenTemp", tokenTemp);
+      Alert.alert('Sucesso', 'Código validado. Redirecionando...');
       navigation.navigate("AlterarSenha", { direcao });
     } catch (err) {
-      console.log("Erro ao enviar código:", err.response?.data || err.message);
+      console.log('[DigiteCodigoScreen] erro ao enviar codigo', err.response?.data || err.message);
+      const mensagem = err.response?.data?.message || err.response?.data?.erro || err.message;
+      setErroMessage(mensagem);
+      Alert.alert('Erro', mensagem);
     } finally {
       setCarregando(false);
     }
+  };
+
+  const handleResendPress = async () => {
+    if (tempoRestante > 0) {
+      console.log('[DigiteCodigoScreen] tentativa de reenviar bloqueado', tempoRestante);
+      return;
+    }
+    setTempoRestante(30);
+    await criarCodigo();
   };
 
   return (
@@ -181,14 +237,14 @@ const DigiteCodigoScreen = ({ navigation, route }) => {
       </Text>
 
       {direcao ? (
-        <Pressable onPress={() => setDirecao(false)}>
+        <Pressable onPress={() => { setDirecao(false); setTempoRestante(0); }}>
           <Text style={styles.linkText}>
             Não tenho acesso a esse email.{" "}
             <Text style={styles.linkHighlight}>Enviar por SMS</Text>
           </Text>
         </Pressable>
       ) : (
-        <Pressable onPress={() => setDirecao(true)}>
+        <Pressable onPress={() => { setDirecao(true); setTempoRestante(0); }}>
           <Text style={styles.linkText}>
             Não tenho acesso a esse telefone.{" "}
             <Text style={styles.linkHighlight}>Enviar por email</Text>
@@ -214,7 +270,7 @@ const DigiteCodigoScreen = ({ navigation, route }) => {
       ) : null}
 
       <TouchableOpacity
-        onPress={() => setTempoRestante(tempoRestante > 0 ? tempoRestante : 30) || criarCodigo()}
+        onPress={handleResendPress}
         disabled={tempoRestante > 0}
       >
         <Text style={[styles.resendLink, tempoRestante > 0 && { opacity: 0.5 }]}>
@@ -237,6 +293,7 @@ const DigiteCodigoScreen = ({ navigation, route }) => {
   );
 };
 
+// ... estilos (mantive os mesmos do seu original) ...
 const styles = StyleSheet.create({
   container: { 
     flex: 1, 
@@ -244,7 +301,6 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff", 
     paddingTop: 60,
   },
-  
   cabecalho: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -264,24 +320,20 @@ const styles = StyleSheet.create({
     alignItems: "center", 
     marginBottom: 10 
   },
-  
   logoContainer: { 
     alignItems: "center" 
   },
-  
   logo: { 
     width: 200, 
     height: 200, 
     resizeMode: "contain" 
   },
-  
   inputContainer: {
     flexDirection: "row",
     justifyContent: "center",
     gap: 10,
     marginVertical: 20,
   },
-  
   input: {
     width: 45,
     height: 55,
@@ -293,20 +345,17 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     elevation: 2,
   },
-  
   errorMessage: { 
     color: "red", 
     marginBottom: 10, 
     textAlign: "center" 
   },
-  
   resendLink: { 
     color: "#007AFF", 
     fontSize: 14, 
     textAlign: "center", 
     marginBottom: 20 
   },
-  
   confirmButton: {
     backgroundColor: "#003366",
     paddingVertical: 12,
@@ -314,17 +363,14 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     alignItems: "center",
   },
-  
   confirmButtonText: { 
     color: "#fff", 
     fontSize: 16, 
     fontWeight: "bold" 
   },
-  
   disabledButton: { 
     opacity: 0.5 
   },
-  
   title: {
     fontSize: 18,
     fontWeight: "600",
@@ -332,14 +378,12 @@ const styles = StyleSheet.create({
     textAlign: "center",
     marginBottom: 20,
   },
-  
   linkText: { 
     fontSize: 14, 
     color: "#555", 
     textAlign: "center", 
     marginTop: 10 
   },
-  
   linkHighlight: { 
     color: "#1E90FF", 
     fontWeight: "bold" 
