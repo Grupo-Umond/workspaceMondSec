@@ -7,7 +7,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\OcorrenciaController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\CodigoController;
-
+use App\Http\Controllers\ComentarioController;
 Route::prefix('usuario')
     ->name('usuario.')
     ->controller(UsuarioController::class)
@@ -55,7 +55,7 @@ Route::prefix('notificacao')
 
 Route::prefix('comentario')
     ->name('notificacao')
-    ->controller(ComentarioController:class)->middleware('auth:api')
+    ->controller(ComentarioController::class)->middleware('auth:api')
     ->group(function (){
         Route::get('/comentarios/{idOcorrencia}', 'getByOcorrencia');
         Route::post('/comentarios', 'store');
