@@ -78,18 +78,23 @@ const HomeScreen = ({ navigation }) => {
             </View>
           </Pressable>
         </View>
+        
         <View style={styles.searchContainer}>
-          <TextInput
-            style={styles.searchInput}
-            placeholder="Pesquise um local..."
-            placeholderTextColor="#888"
-            value={endereco}
-            onChangeText={setEndereco}
-          />
-          <Pressable style={styles.searchButton} onPress={() => buscarEndereco()}>
-            <Icon name="search" size={24} color="#003366" />
-          </Pressable>
+          <View style={styles.searchInputContainer}>
+            <TextInput
+              style={styles.searchInput}
+              placeholder="Pesquise um local..."
+              placeholderTextColor="#888"
+              value={endereco}
+              onChangeText={setEndereco}
+            />
+            <Pressable style={styles.searchButton} onPress={() => buscarEndereco()}>
+              <Icon name="search" size={24} color="#003366" />
+            </Pressable>
+          </View>
         </View>
+
+
       </View>
 
       <View style={styles.mapContainer}>
@@ -203,7 +208,7 @@ const HomeScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#E6F0FA',
+    backgroundColor: '#FFFFFF',
   },
   navCima: { 
     position: 'absolute',
@@ -213,115 +218,124 @@ const styles = StyleSheet.create({
     zIndex: 10,
     flexDirection: 'row', 
     alignItems: 'center',
-    padding: 20,
-    backgroundColor: 'transparent',
-  }, 
-  searchContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    paddingHorizontal: 15,
+    paddingTop: 50,
+    paddingBottom: 10,
     backgroundColor: '#FFFFFF',
-    borderRadius: 8,
-    margin: 10,
-    paddingHorizontal: 10,
     shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
-    shadowRadius: 4,
-    width: '75%', 
+    shadowRadius: 3,
+    elevation: 3,
   },
   navRota: { 
-    flexDirection: 'row', 
-  }, 
+    marginRight: 10 
+  },
+  navButton: { 
+    alignItems: 'center', 
+    justifyContent: 'center' 
+  },
+  buttonRota: { 
+    backgroundColor: '#003366', 
+    padding: 10, 
+    borderRadius: 50,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 3,
+    elevation: 3,
+  },
+  searchContainer: { 
+    flex: 1, 
+    marginHorizontal: 10,
+  },
+  searchInputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#F5F5F5',
+    borderRadius: 25,
+    paddingHorizontal: 15,
+    height: 50,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
+  },
   searchInput: {
     flex: 1,
-    height: 40,
+    fontSize: 16,
     color: '#333',
-    width: '100%', 
+    paddingVertical: 8,
   },
-  buttonRota: {
+  searchButton: {
     padding: 8,
-    height: 'auto', 
-    width: 45, 
-    backgroundColor: '#12577B', 
-    borderRadius: 6,
   },
-  mapContainer: {
+  localizacaoButton: {
+    padding: 10,
+    backgroundColor: '#F5F5F5',
+    borderRadius: 25,
+    marginLeft: 5,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
+  },
+  mapContainer: { 
     flex: 1,
-    overflow: 'hidden',
-    width: '100%',
   },
   mapImage: {
-    width: '100%',
-    height: '100%',
+    flex: 1,
   },
-
   ocorrenciaButton: {
     position: 'absolute',
-    bottom: 90,
+    bottom: 140,
     right: 20,
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    backgroundColor: '#e55858',
-    justifyContent: 'center',
-    alignItems: 'center',
+    backgroundColor: '#df4f1fff',
+    padding: 15,
+    borderRadius: 50,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
     elevation: 5,
-    zIndex: 10,
   },
   navigationContainer: {
-    position: 'absolute',
-    bottom: 1,
-    left: 4,
-    right: 14,
     flexDirection: 'row',
     justifyContent: 'space-around',
     alignItems: 'center',
-    backgroundColor: 'rgba(0, 51, 102, 0.9)',
-    borderRadius: 28,
-    paddingVertical: 8,
+    backgroundColor: '#003366',
+    paddingVertical: 15,
     paddingHorizontal: 10,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 10,
-    zIndex: 10,
   },
   centralButton: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    backgroundColor: '#FFF',
-    marginTop: -30,
+    backgroundColor: '#FFFFFF',
+    padding: 15,
+    borderRadius: 50,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
     elevation: 5,
   },
   navButtonText: {
     color: '#FFFFFF',
     fontSize: 12,
     marginTop: 4,
-    fontWeight: '500',
   },
   modalContainer: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.3)',
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.5)',
   },
   modalContent: {
     backgroundColor: '#FFFFFF',
     padding: 20,
-    borderRadius: 10,
-    width: '90%',
+    borderRadius: 15,
     alignItems: 'center',
+    width: '80%',
   },
   modalTitle: {
     fontSize: 20,
@@ -330,14 +344,17 @@ const styles = StyleSheet.create({
     color: '#003366',
   },
   modalText: {
+    fontSize: 16,
     textAlign: 'center',
     marginBottom: 20,
     color: '#333',
   },
   modalButton: {
-    color: '#007BFF',
-    marginTop: 10,
+    fontSize: 16,
+    color: '#003366',
     fontWeight: 'bold',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
   },
 });
 
