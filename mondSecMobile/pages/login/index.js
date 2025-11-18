@@ -16,7 +16,6 @@ const LoginScreen = ({navigation, route}) => {
   const mensagem = route.params?.mensagem;
   const [sucessMessage, setSucessMessage] = useState(mensagem);
 
-
   const validarDados = () => {
     setSucessMessage('');
     if(!login || !senha) {
@@ -62,8 +61,10 @@ const LoginScreen = ({navigation, route}) => {
 
         if(err.response?.status === 401) {
           setErroMessage("Email ou senha incorretos.");
-        } else {
-
+        } else if(err.response?.status === 403) {
+          setErroMessage("Conta deletada"); 
+    
+        }else if(err.response?.status === 505){
           console.log(err);
           setErroMessage("Falha no servidor.");
 

@@ -12,6 +12,7 @@ import {
   TextInput,
   ScrollView,
   ActivityIndicator,
+  Pressable,
 } from 'react-native';
 import MapView, { Polygon, Marker } from 'react-native-maps';
 import * as Location from 'expo-location';
@@ -167,26 +168,30 @@ const MapaZonaLesteGeojson = forwardRef(({ ocorrencias = [], currentUserId = nul
     }
   };
 
-  const carregarComentarios = async (idOcorrencia) => {
-    if (!idOcorrencia) {
-      setComentarios([]);
-      return;
-    }
+const carregarComentarios = async (idOcorrencia) => {
+  if (!idOcorrencia) {
+    setComentarios([]);
+    return;
+  }
 
-    setLoadingComentarios(true);
+  setLoadingComentarios(true);
 
-    try {
+  try {
+    const r = await UrlService.get(`/comentarios/${idOcorrencia}`);
+    const lista = Array.isArray(r.data) ? r.data : [];
 
-      const r = await UrlService.get(`/comentarios/${idOcorrencia}`);
-      const lista = Array.isArray(r.data) ? r.data : [];
-      setComentarios(lista);
-    } catch (e) {
-      console.warn('Erro ao carregar comentários:', e);
-      setComentarios([]);
-    } finally {
-      setLoadingComentarios(false);
-    }
-  };
+    const ativos = lista.filter(c => c.status !== 'inativo');
+
+    setComentarios(ativos);
+
+  } catch (e) {
+    console.warn('Erro ao carregar comentários:', e);
+    setComentarios([]);
+  } finally {
+    setLoadingComentarios(false);
+  }
+};
+
 
   const abrirModal = async (oc) => {
     setSelectedOcorrencia(oc);
@@ -312,6 +317,7 @@ const MapaZonaLesteGeojson = forwardRef(({ ocorrencias = [], currentUserId = nul
               <TouchableOpacity onPress={fecharModal}>
                 <Text style={styles.modalClose}>Fechar</Text>
               </TouchableOpacity>
+              <Pressable onPress={() => excluirComentario()}><Text>Excluir</Text></Pressable>
             </View>
 
             <ScrollView style={{ maxHeight: 500 }}>

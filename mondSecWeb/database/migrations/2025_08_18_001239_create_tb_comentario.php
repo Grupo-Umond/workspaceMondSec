@@ -16,6 +16,7 @@ return new class extends Migration
         Schema::create('tbComentario', function (Blueprint $table) {
             $table->id();
             $table->text('mensagem');
+            $table->string('status');
             $table->timestamp('data')->useCurrent();
             $table->unsignedBigInteger('idUsuario');
             $table->unsignedBigInteger('idOcorrencia');

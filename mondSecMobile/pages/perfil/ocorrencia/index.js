@@ -12,44 +12,48 @@ const OcorrenciaScreen = ({ navigation }) => {
   const [busca, setBusca] = useState(""); 
   const [selecionada, setSelecionada] = useState(null); 
 
-  useEffect(() => {
-    const getOcorrencias = async () => {
-      try {
-        const tokenUser = await AsyncStorage.getItem('userToken');
-        const response = await UrlService.get('/ocorrencia/procurar', {
-          headers: { Authorization: `Bearer ${tokenUser}` },
-        });
+useEffect(() => {
+  const getOcorrencias = async () => {
+    try {
+      const tokenUser = await AsyncStorage.getItem('userToken');
+      const response = await UrlService.get('/ocorrencia/procurar', {
+        headers: { Authorization: `Bearer ${tokenUser}` },
+      });
 
-        const data = response.data.ocorrencias;
+      let data = response.data.ocorrencias;
 
-        const comEndereco = await Promise.all(
-          data.map(async (ocorrencia) => {
-            try {
-              const endereco = await EnderecoService(ocorrencia.latitude, ocorrencia.longitude);
-              return {
-                ...ocorrencia,
-                rua: endereco.road || 'Rua não encontrada',
-                cidade: endereco.city || 'Cidade não encontrada',
-              };
-            } catch (erro) {
-              return {
-                ...ocorrencia,
-                rua: 'Rua não encontrada',
-                cidade: 'Cidade não encontrada',
-              };
-            }
-          })
-        );
+      // 🔥 FILTRA AQUI PRA NÃO PEGAR OCORRÊNCIAS INATIVAS
+      data = data.filter(o => o.status !== 'inativo');
 
-        setOcorrencias(comEndereco);
-        setQuantidade(comEndereco.length);
-      } catch (erro) {
-        console.log('Erro interno: ', erro);
-      }
-    };
+      const comEndereco = await Promise.all(
+        data.map(async (ocorrencia) => {
+          try {
+            const endereco = await EnderecoService(ocorrencia.latitude, ocorrencia.longitude);
+            return {
+              ...ocorrencia,
+              rua: endereco.road || 'Rua não encontrada',
+              cidade: endereco.city || 'Cidade não encontrada',
+            };
+          } catch (erro) {
+            return {
+              ...ocorrencia,
+              rua: 'Rua não encontrada',
+              cidade: 'Cidade não encontrada',
+            };
+          }
+        })
+      );
 
-    getOcorrencias();
-  }, []);
+      setOcorrencias(comEndereco);
+      setQuantidade(comEndereco.length);
+    } catch (erro) {
+      console.log('Erro interno: ', erro);
+    }
+  };
+
+  getOcorrencias();
+}, []);
+
 
   const ocorrenciasFiltradas = useMemo(() => {
     return ocorrencias.filter((ocorrencia) => {

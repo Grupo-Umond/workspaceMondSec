@@ -71,7 +71,11 @@ public function buscarUsuario(Request $request)
         }
 
         $usuario = Usuario::where($campo, $request->login)->first();
-
+            if ($usuario->status === 'Inativo') {
+        return response()->json([
+            'mensagem' => 'Sua conta está desativada. Entre em contato com o suporte.'
+        ], 403); 
+    }
         if (!$usuario || !Hash::check($request->senha, $usuario->senha)) {
             return response()->json(['error' => 'Credenciais inválidas'], 401);
         }
@@ -148,27 +152,35 @@ public function buscarUsuario(Request $request)
     }
 
     
-    public function delete(Request $request)
+       public function delete(Request $request)
     {
         $senha = $request->senha;
-        if(!$senha) {
-            return response()->json(['message' => 'Senha não recebida']);
+
+        if (!$senha) {
+            return response()->json(['mensagem' => 'Senha não recebida'], 400);
         }
 
         $usuario = $request->user();
-            
-        if (!$usuario ) {
+
+        if (!$usuario) {
             return response()->json(['mensagem' => 'Usuário não encontrado.'], 404);
         }
 
-        if(!Hash::check($senha, $usuario->senha)) {
-            return response()->json(['mensagem' => 'Senha Incorreta'], 401);
+        if (!Hash::check($senha, $usuario->senha)) {
+            return response()->json(['mensagem' => 'Senha incorreta'], 401);
+        }
+        $usuarioP = Usuario::find($usuario->id);
+
+        if (!$usuarioP) {
+            return response()->json(['mensagem' => 'Usuário não encontrado no banco.'], 404);
         }
 
-        $usuario->status = 'Inativo';
-        $usuario->save();
+        $usuarioP->status = 'Inativo';
+        $usuarioP->save();
 
-        return response()->json(['mensagem' => "Usuário ({$usuario->nome}) deletado com sucesso."], 200);
+        return response()->json([
+            'mensagem' => "Usuário ({$usuario->nome}) deletado com sucesso."
+        ], 200);
     }
 
     public function check(Request $request)

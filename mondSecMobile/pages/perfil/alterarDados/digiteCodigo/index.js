@@ -71,7 +71,7 @@ const DigiteCodigoScreen = ({ navigation, route }) => {
             : await UrlService.post('/codigo/sendSms', { telefone });
         }
 
-        setTempoRestante(30); // ⏳ inicia contagem de 30s após envio
+        setTempoRestante(30); 
 
       } catch (erro) {
         if (erro.response?.status === 429) {
@@ -80,7 +80,7 @@ const DigiteCodigoScreen = ({ navigation, route }) => {
         console.log("Erro ao criar código:", erro.response?.data || erro.message);
       }
     };
-  // ⏱ Atualiza contagem regressiva
+
   useEffect(() => {
     if (tempoRestante <= 0) return;
     const timer = setInterval(() => {

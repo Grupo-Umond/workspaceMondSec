@@ -63,6 +63,7 @@ class ComentarioController extends Controller
             'mensagem' => $request->mensagem,
             'idOcorrencia' => $request->idOcorrencia,
             'idUsuario' => $userId,
+            'status' => 'ativo',
             'data' => $data,
         ]);
 
@@ -73,4 +74,31 @@ class ComentarioController extends Controller
 
         return response()->json($comentario, 201);
     }
+        public function upleite(Request $request)
+    {
+        $comentario = Comentario::find($request->idco);
+
+        if (!$comentario) {
+            return response()->json(['erro' => 'Comentário não encontrado'], 404);
+        }
+
+        $comentario->mensagem = $request->textoAt;
+        $comentario->save();
+
+        return response()->json(['mensagem' => 'Comentário Atualizado com sucesso']);
+    }
+    public function delete(Request $request)
+    {
+        $comentario = Comentario::find($request->idco);
+
+        if (!$comentario) {
+            return response()->json(['erro' => 'Comentário não encontrado'], 404);
+        }
+
+        $comentario->status = 'inativo';
+        $comentario->save();
+
+        return response()->json(['mensagem' => 'Comentário deletado com sucesso']);
+    }
+
 }

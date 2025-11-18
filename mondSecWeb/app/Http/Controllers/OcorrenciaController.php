@@ -56,6 +56,7 @@ class OcorrenciaController extends Controller
             'dataAcontecimento' => $dados['dataAcontecimento'],
             'tipo' => $dados['tipo'],
             'idUsuario' => $usuario->id,
+            'status' => 'ativo',
         ]);
 
 

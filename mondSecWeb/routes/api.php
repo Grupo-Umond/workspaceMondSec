@@ -16,7 +16,7 @@ Route::prefix('usuario')
         Route::post('/login', 'login')->withoutMiddleware('auth:api')->name('login');
         Route::post('/checkcampo','check')->withoutMiddleware('auth:api')->name('check');
         Route::put('/alterar', 'updateSenha')->withoutMiddleware('auth:api')->name('alterarSenha');
-
+        Route::get('/verificar','tapodendo')->withoutMiddleware('auth:api')->name('verificar');
         Route::middleware('auth:api')->group(function () {
             Route::get('/buscar', 'buscarUsuario')->name('buscar');
             Route::put('/update', 'updateUsuario')->name('update');
@@ -59,4 +59,6 @@ Route::prefix('comentario')
     ->group(function (){
         Route::get('/comentarios/{idOcorrencia}', 'getByOcorrencia');
         Route::post('/comentarios', 'store');
+        Route::put('/atualizar','upleite');
+        Route::put('/excluir','delete');
 });
