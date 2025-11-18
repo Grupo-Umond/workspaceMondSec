@@ -12,11 +12,18 @@ class Comentario extends Model
     protected $table = 'tbComentario';
     public $timestamps = false;
 
-    protected $fillable = [;
+    protected $fillable = [
         'mensagem',
         'data',
+        'idUsuario',
+        'idOcorrencia'
     ];
-        public function usuario()
+
+    protected $casts = [
+        'data' => 'datetime',
+    ];
+
+    public function usuario()
     {
         return $this->belongsTo(Usuario::class, 'idUsuario', 'id');
     }
@@ -26,5 +33,3 @@ class Comentario extends Model
         return $this->belongsTo(Ocorrencia::class, 'idOcorrencia', 'id');
     }
 }
-
-

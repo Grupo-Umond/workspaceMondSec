@@ -4,24 +4,34 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Comentario;
-use App\Models\Usuario;
-use App\Models\Ocorrencia;
 use Carbon\Carbon;
 use Validator;
 
 class ComentarioController extends Controller
 {
-   
+
     public function getByOcorrencia($idOcorrencia)
     {
         if (!is_numeric($idOcorrencia)) {
             return response()->json([], 400);
         }
 
-        $comentarios = Comentario::where('ocorrencia_id', $idOcorrencia)
-            ->with(['usuario:id,name']) 
-            ->orderBy('created_at', 'desc')
-            ->get();
+        $comentarios = Comentario::where('idOcorrencia', $idOcorrencia)
+            ->with(['usuario:id,nome,email'])
+            ->orderBy('data', 'desc')
+            ->get()
+            ->map(function ($c) {
+                if ($c->data instanceof Carbon) {
+                    $c->data = $c->data->toIso8601String();
+                } elseif ($c->data) {
+                    try {
+                        $c->data = Carbon::parse($c->data)->toIso8601String();
+                    } catch (\Exception $e) {
+  
+                    }
+                }
+                return $c;
+            });
 
         return response()->json($comentarios, 200);
     }
@@ -30,8 +40,7 @@ class ComentarioController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'mensagem' => 'required|string',
-            'idOcorrencia' => 'required|exists:ocorrencias,id',
-            'idUsuario' => 'required|exists:users,id',
+            'idOcorrencia' => 'required|integer|exists:tbOcorrencia,id',
             'data' => 'nullable|date',
         ]);
 
@@ -41,20 +50,27 @@ class ComentarioController extends Controller
             ], 422);
         }
 
-        $mensagem = $request->input('mensagem');
-        $idOcorrencia = $request->input('idOcorrencia');
-        $idUsuario = $request->input('idUsuario');
-        $data = $request->input('data') ? Carbon::parse($request->input('data')) : Carbon::now();
+        $userId = auth()->id();
+        if (!$userId) {
+            return response()->json(['error' => 'Usuário não autenticado'], 401);
+        }
 
+        $data = $request->input('data')
+            ? Carbon::parse($request->input('data'))
+            : Carbon::now();
 
         $comentario = Comentario::create([
-            'mensagem' => $mensagem,
+            'mensagem' => $request->mensagem,
+            'idOcorrencia' => $request->idOcorrencia,
+            'idUsuario' => $userId,
             'data' => $data,
-            'idOcorrencia' => $idOcorrencia,
-            'idUsuario' => $idUsuario,
         ]);
-u
-        $comentario->load('usuario:id,name');
+
+        $comentario->load('usuario:id,nome,email');
+        if ($comentario->data instanceof Carbon) {
+            $comentario->data = $comentario->data->toIso8601String();
+        }
 
         return response()->json($comentario, 201);
-        }}
+    }
+}

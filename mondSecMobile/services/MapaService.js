@@ -16,7 +16,7 @@ import {
 import MapView, { Polygon, Marker } from 'react-native-maps';
 import * as Location from 'expo-location';
 import UrlService from './UrlService';
-import * as IconServiceModule from './IconService'; 
+import * as IconServiceModule from './IconService';
 const local = require('./GeoJson/zonaLeste_convertido.json');
 const { width, height } = Dimensions.get('window');
 
@@ -29,7 +29,6 @@ const MapaZonaLesteGeojson = forwardRef(({ ocorrencias = [], currentUserId = nul
   const [bounds, setBounds] = useState(null);
   const [ocorrenciasState, setOcorrencias] = useState([]);
 
- 
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedOcorrencia, setSelectedOcorrencia] = useState(null);
 
@@ -37,32 +36,16 @@ const MapaZonaLesteGeojson = forwardRef(({ ocorrencias = [], currentUserId = nul
   const [mensagemComentario, setMensagemComentario] = useState('');
   const [loadingComentarios, setLoadingComentarios] = useState(false);
   const [sendingComentario, setSendingComentario] = useState(false);
-  const [loggedUserId, setLoggedUserId] = useState(currentUserId); 
+  const [loggedUserId, setLoggedUserId] = useState(currentUserId);
 
-  const resolveIconFromService = (tipo) => {
-    const svc = IconServiceModule.default || IconServiceModule.IconService || IconServiceModule;
-    if (!svc) {
-      console.warn('[IconService] nenhum serviço de ícone disponível, usando default.');
-      return DEFAULT_ICON;
-    }
+  const resolveIcon = (key) => {
+    const svc = IconServiceModule.default || IconServiceModule;
+    if (!svc) return DEFAULT_ICON;
+    if (!key) return svc.default || DEFAULT_ICON;
 
-    if (!tipo) return svc.default || DEFAULT_ICON;
-
-    const key = String(tipo).trim();
-    let icon = svc[key] || svc[key.toLowerCase()];
-    if (!icon) {
-      const compactKey = key.replace(/\s+/g, ' ').trim();
-      icon = svc[compactKey] || svc[compactKey.toLowerCase()];
-    }
-
-    if (!icon) {
-      console.warn(`[IconService] ícone não encontrado para tipo="${tipo}". Usando fallback.`);
-      return svc.default || DEFAULT_ICON;
-    }
-
-    return icon;
+    const t = String(key).trim();
+    return svc[t] || svc[t.toLowerCase()] || svc.default || DEFAULT_ICON;
   };
-
 
   useEffect(() => {
     (async () => {
@@ -73,145 +56,143 @@ const MapaZonaLesteGeojson = forwardRef(({ ocorrencias = [], currentUserId = nul
           return;
         }
 
-        const location = await Location.getCurrentPositionAsync({});
-        const userRegion = {
-          latitude: location.coords.latitude,
-          longitude: location.coords.longitude,
+        const loc = await Location.getCurrentPositionAsync({});
+        setRegion({
+          latitude: loc.coords.latitude,
+          longitude: loc.coords.longitude,
           latitudeDelta: 0.08,
           longitudeDelta: 0.08,
-        };
-        setRegion(userRegion);
+        });
 
         const parsed = parseGeoJSON(local);
         setPolygons(parsed);
 
-        const allCoords = parsed.flatMap(p => p.rings[0] || []);
-        const latitudes = allCoords.map(c => c.latitude).filter(Boolean);
-        const longitudes = allCoords.map(c => c.longitude).filter(Boolean);
+        const all = parsed.flatMap((p) => p.rings[0] || []);
+        const lat = all.map((c) => c.latitude);
+        const lng = all.map((c) => c.longitude);
 
-        if (latitudes.length && longitudes.length) {
+        if (lat.length && lng.length) {
           setBounds({
-            minLat: Math.min(...latitudes),
-            maxLat: Math.max(...latitudes),
-            minLng: Math.min(...longitudes),
-            maxLng: Math.max(...longitudes),
+            minLat: Math.min(...lat),
+            maxLat: Math.max(...lat),
+            minLng: Math.min(...lng),
+            maxLng: Math.max(...lng),
           });
-        } else {
-          console.warn('[Mapa] Não foi possível calcular bounds do GeoJSON (arrays vazios).');
         }
-      } catch (err) {
-        console.warn('[Mapa] Erro ao obter localização/geojson:', err);
+      } catch (e) {
+        console.warn('ERRO AO CARREGAR:', e);
       }
     })();
   }, []);
 
-
   useEffect(() => {
-    const puxarOcorrencias = async () => {
+    const puxar = async () => {
       try {
-        const response = await UrlService.get('/ocorrencia/getall');
-        const list = response?.data?.ocorrencias ?? response?.data ?? [];
+        const r = await UrlService.get('/ocorrencia/getall');
+        const list = r?.data?.ocorrencias ?? r?.data ?? [];
         if (!Array.isArray(list)) {
-          console.warn('[Mapa] resposta de ocorrências inesperada:', response?.data);
-          setOcorrencias([]);
+          console.warn('Formato inesperado:', r.data);
           return;
         }
         setOcorrencias(list);
-        console.log(`[Mapa] ${list.length} ocorrências carregadas do backend.`);
-      } catch (err) {
-        console.warn('Erro ao puxar ocorrências:', err);
-        setOcorrencias([]);
+      } catch (e) {
+        console.warn('Erro ao puxar ocorrências:', e);
       }
     };
-    puxarOcorrencias();
+    puxar();
   }, []);
-
 
   function parseGeoJSON(geojson) {
     const feats = geojson.type === 'FeatureCollection' ? geojson.features : [geojson];
     const out = [];
 
-    feats.forEach((f, idx) => {
-      const name = f.properties?.name || f.properties?.nome || `Área ${idx + 1}`;
-      const geom = f.geometry;
-      if (!geom) return;
+    feats.forEach((f, i) => {
+      const name = f.properties?.name || `Area ${i}`;
+      const g = f.geometry;
+      if (!g) return;
 
-      if (geom.type === 'Polygon') {
-        const rings = geom.coordinates.map(ring =>
+      if (g.type === 'Polygon') {
+        const rings = g.coordinates.map((ring) =>
           ring.map(([lng, lat]) => ({ latitude: lat, longitude: lng }))
         );
-        out.push({ id: `${idx}`, name, rings });
+        out.push({ id: String(i), name, rings });
+      }
 
-      } else if (geom.type === 'MultiPolygon') {
-        geom.coordinates.forEach((poly, pidx) => {
-          const rings = poly.map(ring =>
+      if (g.type === 'MultiPolygon') {
+        g.coordinates.forEach((poly, j) => {
+          const rings = poly.map((ring) =>
             ring.map(([lng, lat]) => ({ latitude: lat, longitude: lng }))
           );
-          out.push({ id: `${idx}-${pidx}`, name, rings });
+          out.push({ id: `${i}-${j}`, name, rings });
         });
       }
     });
-
     return out;
   }
 
   const handleRegionChangeComplete = (rgn) => {
     if (!bounds || !mapRef.current) return;
 
-    const { minLat, maxLat, minLng, maxLng } = bounds;
-    let { latitude, longitude, latitudeDelta, longitudeDelta } = rgn;
+    const out =
+      rgn.latitude < bounds.minLat ||
+      rgn.latitude > bounds.maxLat ||
+      rgn.longitude < bounds.minLng ||
+      rgn.longitude > bounds.maxLng;
 
-    const latOut = latitude < minLat || latitude > maxLat;
-    const lngOut = longitude < minLng || longitude > maxLng;
-
-    if (latOut || lngOut || latitudeDelta > 0.25 || longitudeDelta > 0.25) {
-      const centerLat = (minLat + maxLat) / 2;
-      const centerLng = (minLng + maxLng) / 2;
+    if (out) {
+      const lat = (bounds.minLat + bounds.maxLat) / 2;
+      const lng = (bounds.minLng + bounds.maxLng) / 2;
 
       mapRef.current.animateToRegion({
-        latitude: centerLat,
-        longitude: centerLng,
+        latitude: lat,
+        longitude: lng,
         latitudeDelta: 0.1,
         longitudeDelta: 0.1,
       });
-
-      Alert.alert('Zona restrita', 'Você não pode sair da Zona Leste!');
+      Alert.alert('Restrito', 'Você não pode sair da Zona Leste.');
     }
   };
 
-
   const ensureLoggedUser = async () => {
     if (loggedUserId) return loggedUserId;
+
     try {
-      const resp = await UrlService.get('/usuario/buscar');
-      const id = resp?.data?.id ?? resp?.data?.usuario?.id ?? null;
+      const r = await UrlService.get('/usuario/buscar');
+      const id = r?.data?.id ?? r?.data?.usuario?.id ?? null;
       if (id) setLoggedUserId(id);
       return id;
-    } catch (err) {
-      console.warn('[Auth] não foi possível obter usuário logado via /auth/me', err);
+    } catch (e) {
+      console.warn('Erro ao buscar usuário logado:', e);
       return null;
     }
   };
 
   const carregarComentarios = async (idOcorrencia) => {
-    if (!idOcorrencia) return setComentarios([]);
+    if (!idOcorrencia) {
+      setComentarios([]);
+      return;
+    }
+
     setLoadingComentarios(true);
+
     try {
-      const resp = await UrlService.get(`/comentarios/${idOcorrencia}`);
-      setComentarios(Array.isArray(resp.data) ? resp.data : []);
-    } catch (err) {
-      console.warn('[Mapa] Erro ao carregar comentários:', err);
+
+      const r = await UrlService.get(`/comentarios/${idOcorrencia}`);
+      const lista = Array.isArray(r.data) ? r.data : [];
+      setComentarios(lista);
+    } catch (e) {
+      console.warn('Erro ao carregar comentários:', e);
       setComentarios([]);
     } finally {
       setLoadingComentarios(false);
     }
   };
 
-  const abrirModal = async (ocorrencia) => {
-    setSelectedOcorrencia(ocorrencia);
+  const abrirModal = async (oc) => {
+    setSelectedOcorrencia(oc);
     setModalVisible(true);
 
-    const idOc = ocorrencia?.id ?? ocorrencia?._id ?? null;
+    const idOc = oc?.id ?? oc?._id ?? null;
     await carregarComentarios(idOc);
 
     ensureLoggedUser().catch(() => {});
@@ -224,38 +205,56 @@ const MapaZonaLesteGeojson = forwardRef(({ ocorrencias = [], currentUserId = nul
     setMensagemComentario('');
   };
 
+  const formatDate = (iso) => {
+    try {
+      if (!iso) return '';
+      return new Date(iso).toLocaleString();
+    } catch {
+      return String(iso || '');
+    }
+  };
+
   const enviarComentario = async () => {
     const texto = (mensagemComentario || '').trim();
     if (!texto) return;
 
-    const idOc = selectedOcorrencia?.id ?? selectedOcorrencia?._id ?? null;
-    if (!idOc) {
-      Alert.alert('Erro', 'Ocorrência inválida.');
-      return;
-    }
+    const idOc = selectedOcorrencia?.id ?? selectedOcorrencia?._id;
+    if (!idOc) return Alert.alert('Erro', 'Ocorrência inválida.');
 
     setSendingComentario(true);
+
     try {
       const idUsuario = await ensureLoggedUser();
-
-      const finalUserId = idUsuario ?? currentUserId ?? loggedUserId;
-      if (!finalUserId) {
-        Alert.alert('Autenticação', 'Usuário não identificado. Faça login.');
+      if (!idUsuario) {
+        Alert.alert('Erro', 'Usuário não identificado.');
         setSendingComentario(false);
         return;
       }
 
-      await UrlService.post('/comentarios', {
+
+      const payload = {
         mensagem: texto,
         data: new Date().toISOString(),
         idOcorrencia: idOc,
-        idUsuario: finalUserId,
-      });
+      };
 
-      setMensagemComentario('');
-      await carregarComentarios(idOc);
-    } catch (err) {
-      console.warn('[Mapa] erro ao enviar comentário:', err);
+      const res = await UrlService.post('/comentario/comentarios', payload);
+
+      const novo = res?.data ?? null;
+
+      if (novo && novo.id) {
+        const normalized = {
+          ...novo,
+          data: novo.data ? novo.data : new Date().toISOString(),
+        };
+        setComentarios((prev) => [normalized, ...(prev || [])]);
+        setMensagemComentario('');
+      } else {
+        await carregarComentarios(idOc);
+        setMensagemComentario('');
+      }
+    } catch (e) {
+      console.warn('Erro ao enviar comentário:', e);
       Alert.alert('Erro', 'Não foi possível enviar o comentário.');
     } finally {
       setSendingComentario(false);
@@ -271,111 +270,70 @@ const MapaZonaLesteGeojson = forwardRef(({ ocorrencias = [], currentUserId = nul
         style={styles.map}
         initialRegion={region}
         showsUserLocation
-        showsMyLocationButton={false}
         loadingEnabled
         toolbarEnabled
-        zoomControlEnabled={false}
         minZoomLevel={10}
         maxZoomLevel={19}
         onRegionChangeComplete={handleRegionChangeComplete}
       >
-        {polygons.map((poly) => (
+        {polygons.map((p) => (
           <Polygon
-            key={poly.id}
-            coordinates={poly.rings[0]}
-            strokeColor={'#0A84FF'}
-            fillColor={'rgba(10,132,255,0.12)'}
+            key={p.id}
+            coordinates={p.rings[0]}
+            strokeColor="#0A84FF"
+            fillColor="rgba(10,132,255,0.12)"
             strokeWidth={2}
           />
         ))}
 
-        {ocorrenciasState.map((oc, index) => {
-          const lat = Number(oc.latitude ?? oc.lat ?? oc.latitud ?? NaN);
-          const lng = Number(oc.longitude ?? oc.lng ?? oc.long ?? NaN);
+        {ocorrenciasState.map((oc, i) => {
+          const lat = Number(oc.latitude);
+          const lng = Number(oc.longitude);
 
-          if (!isFinite(lat) || !isFinite(lng)) {
-            console.warn(`[Mapa] Ocorrência sem coord válida (index ${index}, id:${oc.id ?? oc._id ?? '??'})`, { oc });
-            return null;
-          }
-
-          const icone = resolveIconFromService(oc.tipo);
+          if (!isFinite(lat) || !isFinite(lng)) return null;
 
           return (
             <Marker
-              key={oc.id ?? oc._id ?? index}
+              key={oc.id ?? i}
               coordinate={{ latitude: lat, longitude: lng }}
-              title={oc.tipo}
-              description={oc.descricao}
               onPress={() => abrirModal(oc)}
-              anchor={{ x: 0.5, y: 0.5 }}
             >
-              <Image
-                source={icone || DEFAULT_ICON}
-                style={{ width: 40, height: 40 }}
-                resizeMode="contain"
-              />
+              <Image source={resolveIcon(oc.tipo)} style={{ width: 40, height: 40 }} />
             </Marker>
           );
         })}
       </MapView>
 
-      <Modal
-        visible={modalVisible}
-        transparent
-        animationType="slide"
-        onRequestClose={fecharModal}
-      >
+      <Modal visible={modalVisible} transparent animationType="slide">
         <View style={styles.modalOverlay}>
           <View style={styles.modalCard}>
             <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>
-                {selectedOcorrencia?.tipo || 'Detalhes'}
-              </Text>
+              <Text style={styles.modalTitle}>{selectedOcorrencia?.tipo}</Text>
               <TouchableOpacity onPress={fecharModal}>
                 <Text style={styles.modalClose}>Fechar</Text>
               </TouchableOpacity>
             </View>
 
-            <View style={styles.modalBody}>
+            <ScrollView style={{ maxHeight: 500 }}>
               <Text style={styles.modalLabel}>Descrição:</Text>
-              <Text style={styles.modalText}>
-                {selectedOcorrencia?.descricao || 'Sem descrição'}
-              </Text>
+              <Text style={styles.modalText}>{selectedOcorrencia?.descricao}</Text>
 
-              {selectedOcorrencia?.endereco && (
-                <>
-                  <Text style={[styles.modalLabel, { marginTop: 12 }]}>Endereço:</Text>
-                  <Text style={styles.modalText}>{selectedOcorrencia.endereco}</Text>
-                </>
-              )}
-
-              {selectedOcorrencia?.data && (
-                <>
-                  <Text style={[styles.modalLabel, { marginTop: 12 }]}>Data:</Text>
-                  <Text style={styles.modalText}>{selectedOcorrencia.data}</Text>
-                </>
-              )}
-
-              <Text style={[styles.modalLabel, { marginTop: 14 }]}>Comentários:</Text>
+              <Text style={[styles.modalLabel, { marginTop: 16 }]}>Comentários:</Text>
 
               {loadingComentarios ? (
                 <ActivityIndicator style={{ marginVertical: 12 }} />
+              ) : comentarios.length === 0 ? (
+                <Text style={{ marginTop: 8, color: '#666' }}>Nenhum comentário ainda.</Text>
               ) : (
-                <ScrollView style={{ maxHeight: 180, marginTop: 8 }}>
-                  {comentarios.length === 0 ? (
-                    <Text style={{ color: '#666' }}>Nenhum comentário ainda.</Text>
-                  ) : (
-                    comentarios.map((c, i) => (
-                      <View key={c.id ?? i} style={styles.commentItem}>
-                        <Text style={styles.commentAuthor}>
-                          {c.usuario?.name || c.usuario?.nome || 'Usuário'}
-                        </Text>
-                        <Text style={styles.commentText}>{c.mensagem}</Text>
-                        <Text style={styles.commentDate}>{c.data ?? c.created_at}</Text>
-                      </View>
-                    ))
-                  )}
-                </ScrollView>
+                comentarios.map((c) => (
+                  <View key={c.id} style={styles.commentItem}>
+                    <Text style={styles.commentAuthor}>
+                      {c.usuario?.nome || c.usuario?.name || 'Usuário'}
+                    </Text>
+                    <Text style={styles.commentText}>{c.mensagem}</Text>
+                    <Text style={styles.commentDate}>{formatDate(c.data)}</Text>
+                  </View>
+                ))
               )}
 
               <TextInput
@@ -384,27 +342,18 @@ const MapaZonaLesteGeojson = forwardRef(({ ocorrencias = [], currentUserId = nul
                 onChangeText={setMensagemComentario}
                 style={styles.commentInput}
                 multiline
-                numberOfLines={2}
               />
 
-              <View style={{ flexDirection: 'row', justifyContent: 'flex-end', marginTop: 8 }}>
-                <TouchableOpacity
-                  onPress={enviarComentario}
-                  style={[styles.btn, { opacity: sendingComentario ? 0.7 : 1 }]}
-                  disabled={sendingComentario}
-                >
-                  <Text style={styles.btnText}>
-                    {sendingComentario ? 'Enviando...' : 'Enviar Comentário'}
-                  </Text>
-                </TouchableOpacity>
-              </View>
-
-              <View style={{ marginTop: 14, alignItems: 'flex-end' }}>
-                <TouchableOpacity onPress={fecharModal} style={[styles.btn, { marginTop: 6 }]}>
-                  <Text style={styles.btnText}>OK</Text>
-                </TouchableOpacity>
-              </View>
-            </View>
+              <TouchableOpacity
+                onPress={enviarComentario}
+                disabled={sendingComentario}
+                style={[styles.btn, { opacity: sendingComentario ? 0.5 : 1, marginTop: 12 }]}
+              >
+                <Text style={styles.btnText}>
+                  {sendingComentario ? 'Enviando...' : 'Enviar Comentário'}
+                </Text>
+              </TouchableOpacity>
+            </ScrollView>
           </View>
         </View>
       </Modal>
@@ -416,63 +365,46 @@ const styles = StyleSheet.create({
   map: { width, height },
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.45)',
+    backgroundColor: 'rgba(0,0,0,0.4)',
     justifyContent: 'center',
-    alignItems: 'center',
     padding: 20,
   },
   modalCard: {
-    width: '100%',
-    maxWidth: 520,
     backgroundColor: '#fff',
     borderRadius: 12,
     padding: 16,
-    ...Platform.select({
-      ios: {
-        shadowColor: '#000',
-        shadowOpacity: 0.12,
-        shadowOffset: { width: 0, height: 6 },
-        shadowRadius: 12,
-      },
-      android: { elevation: 8 },
-    }),
   },
   modalHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 8,
   },
   modalTitle: { fontSize: 18, fontWeight: '700' },
-  modalClose: { color: '#0A84FF', fontWeight: '600' },
-  modalBody: { marginTop: 6 },
-  modalLabel: { fontSize: 13, fontWeight: '600', color: '#333' },
-  modalText: { fontSize: 14, color: '#222', marginTop: 4 },
+  modalClose: { fontSize: 16, color: '#0A84FF' },
+  modalLabel: { marginTop: 12, fontWeight: 'bold' },
+  modalText: { marginTop: 4 },
   btn: {
-    backgroundColor: '#0A84FF',
-    paddingVertical: 8,
-    paddingHorizontal: 16,
+    backgroundColor: '#007AFF',
+    padding: 10,
     borderRadius: 8,
+    alignItems: 'center',
   },
   btnText: { color: '#fff', fontWeight: '700' },
-
   commentItem: {
-    marginBottom: 12,
+    marginTop: 12,
     paddingBottom: 8,
     borderBottomWidth: 0.5,
-    borderBottomColor: '#eee',
+    borderColor: '#ccc',
   },
-  commentAuthor: { fontWeight: '700', fontSize: 13 },
-  commentText: { marginTop: 4, fontSize: 14 },
-  commentDate: { marginTop: 4, fontSize: 11, color: '#666' },
+  commentAuthor: { fontWeight: '700' },
+  commentText: { marginTop: 4 },
+  commentDate: { fontSize: 11, color: '#666', marginTop: 4 },
   commentInput: {
+    marginTop: 12,
+    padding: 8,
     borderWidth: 1,
     borderColor: '#ddd',
     borderRadius: 8,
-    padding: 8,
-    marginTop: 8,
-    minHeight: 42,
-    maxHeight: 120,
+    minHeight: 50,
   },
 });
 
