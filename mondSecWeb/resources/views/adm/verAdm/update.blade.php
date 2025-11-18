@@ -1,9 +1,9 @@
 @extends('adm.layouts.admin')
 
-@section('title','Update')
+@section('title', 'Update')
 
 @section('content')
-    <div class="container">
+    <div id="conteudo-container" class="container">
         <h2>Alterar Dados do Administrador</h2>
 
         @if(session('success'))
@@ -14,37 +14,53 @@
             @csrf
             @method('PUT')
 
-            <label for="nome">Nome:</label>
-            <input type="text" id="nome" name="nome" value="{{ old('nome', $admin->nome) }}">
-            @error('nome')
-                <div class="error">{{ $message }}</div>
-            @enderror
+            <div class="conteudo-nome">
+                <label for="nome">Nome</label>
+                <br>
+                <input type="text" id="nome" name="nome" value="{{ old('nome', $admin->nome) }}">
+                @error('nome')
+                    <div class="error">{{ $message }}</div>
+                @enderror
+            </div>
 
-            <label for="email">Email:</label>
-            <input type="email" id="email" name="email" value="{{ old('email', $admin->email) }}">
-            @error('email')
-                <div class="error">{{ $message }}</div>
-            @enderror
+            <div class="conteudo-email">
+                <label for="email">Email</label>
+                <br>
+                <input type="email" id="email" name="email" value="{{ old('email', $admin->email) }}">
+                @error('email')
+                    <div class="error">{{ $message }}</div>
+                @enderror
+            </div>
 
-            <label for="telefone">Telefone:</label>
-            <input type="text" id="telefone" name="telefone" value="{{ old('telefone', $admin->telefone) }}">
-            @error('email')
-                <div class="error">{{ $message }}</div>
-            @enderror
+            <div class="conteudo-telefone">
+                <label for="telefone">Telefone</label>
+                <br>
+                <input type="text" id="telefone" name="telefone" value="{{ old('telefone', $admin->telefone) }}">
+                @error('email')
+                    <div class="error">{{ $message }}</div>
+                @enderror
+            </div>
 
-            <label for="nivelAdmin">Nível de Acesso:</label>
-            <select id="nivelAdmin" name="nivelAdmin">
-                <option value="">-- Selecione --</option>
-                <option value="ouro" {{ old('nivelAdmin', $admin->nivelAdmin) == 'ouro' ? 'selected' : '' }}>Ouro</option>
-                <option value="prata" {{ old('nivelAdmin', $admin->nivelAdmin) == 'prata' ? 'selected' : '' }}>Prata</option>
-                <option value="bronze" {{ old('nivelAdmin', $admin->nivelAdmin) == 'bronze' ? 'selected' : '' }}>Bronze</option>
+            <div class="conteudo-nivel">
+                <label for="nivelAdmin">Nível de Acesso</label>
+                <br>
+                <select id="nivelAdmin" name="nivelAdmin">
+                    <option value="">-- Selecione --</option>
+                    <option value="ouro" {{ old('nivelAdmin', $admin->nivelAdmin) == 'ouro' ? 'selected' : '' }}>Ouro</option>
+                    <option value="prata" {{ old('nivelAdmin', $admin->nivelAdmin) == 'prata' ? 'selected' : '' }}>Prata
+                    </option>
+                    <option value="bronze" {{ old('nivelAdmin', $admin->nivelAdmin) == 'bronze' ? 'selected' : '' }}>Bronze
+                    </option>
 
-            </select>
-            @error('nivelAdmin')
-                <div class="error">{{ $message }}</div>
-            @enderror
+                </select>
+                @error('nivelAdmin')
+                    <div class="error">{{ $message }}</div>
+                @enderror
+            </div>
 
-            <button type="submit">Alterar</button>
+            <div id="conteudo-alterar">
+                <button id="btn-alterar" type="submit">Alterar</button>
+            </div>
         </form>
     </div>
 @endsection
