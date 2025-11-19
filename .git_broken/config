@@ -1,0 +1,35 @@
+[core]
+	repositoryformatversion = 0
+	filemode = true
+	bare = false
+	logallrefupdates = true
+[remote "origin"]
+	url = https://www.github.com/Grupo-Umond/workspaceMondSec
+	fetch = +refs/heads/*:refs/remotes/origin/*
+[branch "main"]
+	remote = origin
+	merge = refs/heads/main
+[branch "feature/mapa"]
+	remote = origin
+	merge = refs/heads/feature/mapa
+[branch "FrontPablo"]
+	remote = origin
+	merge = refs/heads/FrontPablo
+[branch "frontEndPeper"]
+	remote = origin
+	merge = refs/heads/frontEndPeper
+[branch "feature/tipo"]
+	remote = origin
+	merge = refs/heads/feature/tipo
+[branch "umondSite"]
+	remote = origin
+	merge = refs/heads/umondSite
+[branch "ppp"]
+	remote = origin
+	merge = refs/heads/FrontPablo
+[branch "bbb"]
+	remote = origin
+	merge = refs/heads/FrontPablo
+[branch "aaa"]
+	remote = origin
+	merge = refs/heads/frontEndPaper
