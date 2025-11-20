@@ -169,11 +169,11 @@ const pickImage = async () => {
     <View style={styles.container}>
       <View style={styles.cabecalho}>
         <Pressable onPress={() => navigation.navigate('Home')} style={styles.iconeCabecalho}>
-          <FontAwesome name="arrow-left" size={24} color="#12577B" />
+          <FontAwesome name="arrow-left" size={20} color="#12577B" />
         </Pressable>
         <Text style={styles.tituloCabecalho}>Seu Perfil</Text>
         <Pressable onPress={() => navigation.navigate('Configuracao')} style={styles.iconeCabecalho}>
-          <FontAwesome name="cog" size={24} color="#12577B" />
+          <FontAwesome name="cog" size={20} color="#12577B" />
         </Pressable>
       </View>
       <Text>{mensagem}</Text>
@@ -266,7 +266,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#FFFFFF',
     paddingHorizontal: 20,
-    paddingTop: 60,
+    paddingTop: 20,
   },
   cabecalho: {
     flexDirection: 'row',

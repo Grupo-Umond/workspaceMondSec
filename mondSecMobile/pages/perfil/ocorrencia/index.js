@@ -173,7 +173,7 @@ useEffect(() => {
                 <View style={styles.linhaInfo}>
                   <FontAwesome name="calendar" size={12} color="#666" />
                   <Text style={styles.textoInfo}>
-                    Registrado em: {ocorrencia.data}
+                    Ocorrido em: {ocorrencia.dataAcontecimento}
                   </Text>
                 </View>
               </View>
@@ -232,17 +232,10 @@ useEffect(() => {
                       {selecionada.rua}, {selecionada.cidade}
                     </Text>
                   </View>
-                  
-                  <View style={styles.linhaInfoBasica}>
-                    <FontAwesome name="calendar" size={14} color="#12577B" />
-                    <Text style={styles.textoInfoBasica}>
-                      Registrado em: {selecionada.data}
-                    </Text>
-                  </View>
 
                   {selecionada.dataAcontecimento && (
                     <View style={styles.linhaInfoBasica}>
-                      <FontAwesome name="clock-o" size={14} color="#12577B" />
+                      <FontAwesome name="calendar" size={14} color="#12577B" />
                       <Text style={styles.textoInfoBasica}>
                         Ocorrido em: {selecionada.dataAcontecimento}
                       </Text>

@@ -2,7 +2,9 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, Pressable, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import CheckBox from 'expo-checkbox';
+import FontAwesome from '@expo/vector-icons/FontAwesome';
 import UrlService from '../../services/UrlService'; 
+import { TextInputMask } from 'react-native-masked-text';
 
 const CadastroScreen = ({ navigation }) => {
   
@@ -74,13 +76,13 @@ const CadastroScreen = ({ navigation }) => {
   }, [senhaConfirma]);
 
 
-  const validarDados = () => {
+  const validarCadastro = () => {
     if (!nome || !genero || !email || !senha || !telefone) {
       setErroMessage('Por favor, preencha todos os campos obrigatórios.');
       return false;
     }
 
-    if(!senha === senhaConfirma){
+    if(senha !== senhaConfirma){
       setErroMessage('As senhas devem ser iguais');
       return false;
     }
@@ -110,7 +112,7 @@ const CadastroScreen = ({ navigation }) => {
   };
 
   const enviarDados = async () => {
-    if (!validarDados()) return;
+    if (!validarCadastro()) return;
 
     setCarregando(true);
 
@@ -121,8 +123,7 @@ const CadastroScreen = ({ navigation }) => {
         telefone,
         genero,
         senha,
-
-      });
+    });
 
       const mensagem = response.data.mensagem;
       navigation.navigate('Login', { mensagem });
@@ -144,8 +145,8 @@ const CadastroScreen = ({ navigation }) => {
   return (
     <View style={styles.container}>
       <View style={styles.containerLogo}>
-        <Pressable style={styles.backButton} onPress={() => navigation.goBack()}>
-          <Text style={styles.backArrow}>{"<"}</Text>
+        <Pressable onPress={() => navigation.goBack()} style={styles.iconeCabecalho}>
+          <FontAwesome name="arrow-left" size={20} color="#12577B" />
         </Pressable>
         <Text style={styles.textoCabecalho}>Cadastre-se Agora</Text>
         <Image 
@@ -183,14 +184,20 @@ const CadastroScreen = ({ navigation }) => {
 
         <View style={styles.grupoInput}>
           <Text style={styles.rotulo}>Telefone</Text>
-          <TextInput
-            style={styles.input}
-            placeholder="Digite seu telefone..."
-            placeholderTextColor="#999"
+          <TextInputMask
+            type={'cel-phone'}
+            options={{
+              maskType: 'BRL',
+              withDDD: true,
+              dddMask: '(99) '
+            }}
             value={telefone}
-            onChangeText={setTelefone}
+            onChangeText={text => setTelefone(text)}
+            style={styles.input}
             keyboardType="numeric"
             autoCapitalize="none"
+            placeholderTextColor="#999"
+            placeholder="Digite seu telefone..."
           />
         </View>
 
@@ -205,6 +212,9 @@ const CadastroScreen = ({ navigation }) => {
             onChangeText={setSenha}
             secureTextEntry
           />
+        </View>
+
+        <View style={styles.grupoInput}>
           <Text style={styles.rotulo}>Confirma Senha</Text>
           {erroSenhaConfirma ? <Text style={styles.erro}>{erroSenhaConfirma}</Text> : null}
           <TextInput
@@ -216,6 +226,7 @@ const CadastroScreen = ({ navigation }) => {
             secureTextEntry
           />
         </View>
+
 
         <View style={styles.grupoInput}>
           <Text style={styles.rotulo}>Gênero</Text>
@@ -239,9 +250,9 @@ const CadastroScreen = ({ navigation }) => {
             style={styles.checkbox}
           />
          <Text style={styles.textoTermos}>
-      Concordo com os
-  <Text style={styles.termosLink} onPress={() => navigation.navigate('Politica')}> termos de uso</Text>
-</Text>
+              Concordo com os{' '}
+         <Text style={styles.termosLink} onPress={() => navigation.navigate('Politica')}>termos de uso</Text>
+        </Text>
 
         </View>
 
@@ -329,7 +340,7 @@ const styles = StyleSheet.create({
     height: 18,
     borderRadius: 9,
     borderWidth: 1.5,
-    borderColor: '#CBD5E0',
+    borderColor: '#1A202C',
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 6,
@@ -344,8 +355,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#4299E1',
   },
   textoOpcao: {
-    fontSize: 13,
-    color: '#4A5568',
+    fontSize: 11,
+    color: '#000',
   },
   containerTermos: {
     flexDirection: 'row',
@@ -378,12 +389,13 @@ const styles = StyleSheet.create({
   },
   botaoPrimario: {
     width: '100%',
-    height: 44,
-    backgroundColor: '#4299E1',
-    borderRadius: 6,
+    height: 45, 
+    backgroundColor: '#12577B',
+    borderRadius: 20,
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: 8,
+    marginBottom: 15,
+    alignSelf: 'center',
   },
   botaoDesativado: {
     backgroundColor: '#BEE3F8',
@@ -449,7 +461,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   textoLinkLoginNegrito: {
-    color: '#4299E1',
+    color: '#12577B',
     fontWeight: '600',
   },
 });

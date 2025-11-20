@@ -59,7 +59,7 @@ const DigiteDadosScreen = ({ navigation }) => {
     buscarDados();
   }, []);
 
-  const validarDados = () => {
+  const validarEditPerfil = () => {
     if (email) {
       if (emailV !== email) {
         if (!regexEmail.test(email)) {
@@ -78,7 +78,7 @@ const DigiteDadosScreen = ({ navigation }) => {
   };
 
   const alterarDados = async () => {
-    if (!validarDados()) return;
+    if (!validarEditPerfil()) return;
 
     const tokenUser = await AsyncStorage.getItem("userToken");
 
@@ -108,7 +108,7 @@ const DigiteDadosScreen = ({ navigation }) => {
 
       <View style={styles.card}>
         <Pressable style={styles.backButton} onPress={() => navigation.goBack()}>
-          <Icon name="arrow-left" size={32} color="#12577B" />
+          <Icon name="arrow-left" size={20} color="#12577B" />
         </Pressable>
 
         <Text style={styles.title}>Edite Perfil</Text>
@@ -256,7 +256,6 @@ const styles = StyleSheet.create({
     padding: 15,
     borderRadius: 10,
     alignItems: "center",
-    marginTop: 10,
   },
   buttonText: {
     color: "#fff",
@@ -289,10 +288,11 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   radioSelecionado: {
-    width: 16,
-    height: 16,
+    width: 9,
+    height: 9,
     backgroundColor: "#000",
     borderRadius: 5,
+    alignSelf: "center",
   },
   texto: {
     fontSize: 11,

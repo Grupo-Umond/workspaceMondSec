@@ -17,7 +17,7 @@ const ConfiguracaoScreen = ({ navigation, setUserToken }) => {
     <ScrollView contentContainerStyle={styles.container}>
          <View style={styles.cabecalho}>
         <Pressable onPress={() => navigation.navigate('Menu')} style={styles.iconeCabecalho}>
-          <FontAwesome name="arrow-left" size={26} color="#12577B" />
+          <FontAwesome name="arrow-left" size={20} color="#12577B" />
         </Pressable>
         <Text style={styles.tituloCabecalho}>Configurações</Text>
       </View>

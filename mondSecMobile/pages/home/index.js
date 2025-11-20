@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useContext } from 'react';
-import { View, Text, Pressable, TextInput, Modal, StyleSheet, ActivityIndicator } from 'react-native';
+import { View, Text, Pressable, TextInput, Modal, StyleSheet } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { MaterialIcons as Icon } from '@expo/vector-icons';
 import Mapa from "../../services/MapaService";
@@ -7,6 +7,9 @@ import { AuthContext } from '../../services/AuthContext';
 import { CoordenadaService } from '../../services/CoordenadaService';
 import { LocalizacaoService } from '../../services/LocalizacaoService';
 import { NotificacaoService } from '../../services/NotificacaoService';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import * as NavigationBar from 'expo-navigation-bar';
+import { Platform } from 'react-native';
 
 const HomeScreen = ({ navigation }) => {
   const [permissao, setPermissao] = useState(false);
@@ -14,6 +17,7 @@ const HomeScreen = ({ navigation }) => {
   const [endereco, setEndereco] = useState('');
   const { tokenUser } = useContext(AuthContext);
   const mapaRef = useRef(null);
+  const insets = useSafeAreaInsets(); // Pega os insets do SafeArea
 
   useEffect(() => {
     const verificarModal = async () => {
@@ -30,16 +34,23 @@ const HomeScreen = ({ navigation }) => {
     verificarModal();
   }, []);
 
+  useEffect(() => {
+  if (Platform.OS === 'android') {
+    NavigationBar.setBackgroundColorAsync('#003366'); // fundo branco
+    NavigationBar.setButtonStyleAsync('dark'); // botões escuros
+    NavigationBar.setVisibilityAsync('visible'); // garante que esteja visível
+    NavigationBar.setPositionAsync('absolute'); // às vezes necessário
+  }
+}, []);
+
   const pedirPermissao = async (permitiu) => {
     if (permitiu) {
       await LocalizacaoService();
       await AsyncStorage.setItem('permissaoLocal', 'granted');
       await NotificacaoService();
-
     } else {
       await AsyncStorage.setItem('permissaoLocal', 'denied');
     }
-     
     setPermissao(false);
   };
 
@@ -47,8 +58,8 @@ const HomeScreen = ({ navigation }) => {
     await AsyncStorage.setItem('welcomeSeen', 'ok');
     setWelcome(false);
     setPermissao(true);
-    
-  }
+  };
+
   const buscarEndereco = async () => {
     try {
       const coords = await CoordenadaService(endereco);
@@ -57,150 +68,125 @@ const HomeScreen = ({ navigation }) => {
       alert('Endereço não encontrado');
     }
   };
-  
-
 
   return (
-    <View style={styles.container}>
-
-     
-      <View style={styles.navCima}>
-        <View style={styles.navRota}>
-          <Pressable 
-            style={({ pressed }) => [
-              styles.navButton,
-              { opacity: pressed ? 0.6 : 1 }
-            ]} 
-            onPress={() => navigation.navigate('registrar')}
-          >
-            <View style={styles.buttonRota}>
-              <Icon name="directions" size={28} color="#fafafaff" />
-            </View>
-          </Pressable>
-        </View>
-        
-        <View style={styles.searchContainer}>
-          <View style={styles.searchInputContainer}>
-            <TextInput
-              style={styles.searchInput}
-              placeholder="Pesquise um local..."
-              placeholderTextColor="#888"
-              value={endereco}
-              onChangeText={setEndereco}
-            />
-            <Pressable style={styles.searchButton} onPress={() => buscarEndereco()}>
-              <Icon name="search" size={24} color="#003366" />
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
+      <View style={styles.container}>
+        <View style={styles.navCima}>
+          <View style={styles.navRota}>
+            <Pressable
+              style={({ pressed }) => [styles.navButton, { opacity: pressed ? 0.6 : 1 }]}
+              onPress={() => navigation.navigate('registrar')}
+            >
+              <View style={styles.buttonRota}>
+                <Icon name="directions" size={28} color="#fafafaff" />
+              </View>
             </Pressable>
+          </View>
+
+          <View style={styles.searchContainer}>
+            <View style={styles.searchInputContainer}>
+              <TextInput
+                style={styles.searchInput}
+                placeholder="Pesquise um local..."
+                placeholderTextColor="#888"
+                value={endereco}
+                onChangeText={setEndereco}
+              />
+              <Pressable style={styles.searchButton} onPress={() => buscarEndereco()}>
+                <Icon name="search" size={24} color="#003366" />
+              </Pressable>
+            </View>
           </View>
         </View>
 
+        <View style={styles.mapContainer}>
+          <Mapa style={styles.mapImage} />
+        </View>
 
-      </View>
-
-      <View style={styles.mapContainer}>
-        <Mapa style={styles.mapImage} />
-      </View>
-
-      
-        {tokenUser ?  (
-          <>
-            <Pressable 
-              style={({ pressed }) => [
-                styles.ocorrenciaButton,
-                { opacity: pressed ? 0.6 : 1 }
-              ]} 
-              onPress={() => navigation.navigate('Registrar')}
-            >
-              <Icon name="warning" size={28} color="#FFFFFF" />
-            </Pressable>
-          </>
-        ):(
-          <>
-          </>
+        {tokenUser && (
+          <Pressable
+            style={({ pressed }) => [styles.ocorrenciaButton, { opacity: pressed ? 0.6 : 1 }]}
+            onPress={() => navigation.navigate('Registrar')}
+          >
+            <Icon name="warning" size={28} color="#FFFFFF" />
+          </Pressable>
         )}
 
-      <View style={styles.navigationContainer}>
-        <Pressable 
-          style={({ pressed }) => [
-            styles.navButton,
-            { opacity: pressed ? 0.6 : 1 }
-          ]} 
-          onPress={() => navigation.navigate('Home')}
-        >
-          <Icon name="home" size={26} color="#FFFFFF" />
-          <Text style={styles.navButtonText}>Início</Text>
-        </Pressable>
-        
-        <Pressable 
-          style={({ pressed }) => [
-            styles.navButton,
-            { opacity: pressed ? 0.6 : 1 }
-          ]} 
-          onPress={() => navigation.navigate('Sobre')}
-        >
-          <View style={styles.centralButton}>
-            <Icon name="info" size={28} color="#003366" />
-          </View>
-        </Pressable>
-        {tokenUser ?  (
-          <>
-            <Pressable 
-              style={({ pressed }) => [
-                styles.navButton,
-                { opacity: pressed ? 0.6 : 1 }
-              ]} 
+        {/* Barra de navegação inferior */}
+        <View style={[styles.navigationContainer]}>
+          <Pressable
+            style={({ pressed }) => [styles.navButton, { opacity: pressed ? 0.6 : 1 }]}
+            onPress={() => navigation.navigate('Home')}
+          >
+            <Icon name="home" size={26} color="#FFFFFF" />
+            <Text style={styles.navButtonText}>Início</Text>
+          </Pressable>
+
+          <Pressable
+            style={({ pressed }) => [styles.navButton, { opacity: pressed ? 0.6 : 1 }]}
+            onPress={() => navigation.navigate('Sobre')}
+          >
+            <View style={styles.centralButton}>
+              <Icon name="info" size={28} color="#003366" />
+            </View>
+          </Pressable>
+
+          {tokenUser ? (
+            <Pressable
+              style={({ pressed }) => [styles.navButton, { opacity: pressed ? 0.6 : 1 }]}
               onPress={() => navigation.navigate('Menu')}
             >
               <Icon name="person" size={26} color="#FFFFFF" />
               <Text style={styles.navButtonText}>Perfil</Text>
             </Pressable>
-          </>
-        ):(
-          <>
-            <Pressable 
-              style={({ pressed }) => [
-                styles.navButton,
-                { opacity: pressed ? 0.6 : 1 }
-              ]} 
+          ) : (
+            <Pressable
+              style={({ pressed }) => [styles.navButton, { opacity: pressed ? 0.6 : 1 }]}
               onPress={() => navigation.navigate('Login')}
-              >
+            >
               <Icon name="person" size={26} color="#FFFFFF" />
               <Text style={styles.navButtonText}>Entrar</Text>
             </Pressable>
-          </>
-        )}
+          )}
+        </View>
+
+        {/* Modais */}
+        <Modal animationType="slide" transparent visible={welcome}>
+          <View style={styles.modalContainer}>
+            <View style={styles.modalContent}>
+              <Text style={styles.modalTitle}>Bem-vindo ao MondSec!</Text>
+              <Text style={styles.modalText}>Seu app de rotas seguras!</Text>
+              <Pressable onPress={() => esconderModal()}>
+                <Text style={styles.modalButton}>Ok</Text>
+              </Pressable>
+            </View>
+          </View>
+        </Modal>
+
+        <Modal animationType="slide" transparent visible={permissao}>
+          <View style={styles.modalContainer}>
+            <View style={styles.modalContent}>
+              <Text style={styles.modalTitle}>Aviso!</Text>
+              <Text style={styles.modalText}>
+                Esse aplicativo precisa da sua localização!
+              </Text>
+              <Pressable
+                onPress={() => {
+                  setPermissao(false);
+                  pedirPermissao(true);
+                }}
+              >
+                <Text style={styles.modalButton}>Sim</Text>
+              </Pressable>
+              <Pressable onPress={() => pedirPermissao(false)}>
+                <Text style={styles.modalButton}>Não</Text>
+              </Pressable>
+            </View>
+          </View>
+        </Modal>
       </View>
-
-      <Modal animationType="slide" transparent visible={welcome}>
-        <View style={styles.modalContainer}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Bem-vindo ao MondSec!</Text>
-            <Text style={styles.modalText}>Seu app de rotas seguras!</Text>
-            <Pressable onPress={() => esconderModal()}>
-              <Text style={styles.modalButton}>Ok</Text>
-            </Pressable>
-          </View>
-        </View>
-      </Modal>
-
-      <Modal animationType="slide" transparent visible={permissao}>
-        <View style={styles.modalContainer}>
-          <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Aviso!</Text>
-            <Text style={styles.modalText}>
-              Esse aplicativo precisa da sua localização!
-            </Text>
-            <Pressable onPress={() => {setPermissao(false);pedirPermissao(true);}}>
-              <Text style={styles.modalButton}>Sim</Text>
-            </Pressable>
-            <Pressable onPress={() => pedirPermissao(false)}>
-              <Text style={styles.modalButton}>Não</Text>
-            </Pressable>
-          </View>
-        </View>
-      </Modal>
-
-    </View>
+    </SafeAreaView>
   );
 };
 
@@ -219,7 +205,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row', 
     alignItems: 'center',
     paddingHorizontal: 15,
-    paddingTop: 50,
+    paddingTop: 10,
     paddingBottom: 10,
     backgroundColor: '#FFFFFF',
     shadowColor: '#000',
@@ -290,7 +276,7 @@ const styles = StyleSheet.create({
   },
   ocorrenciaButton: {
     position: 'absolute',
-    bottom: 140,
+    bottom: 80,
     right: 20,
     backgroundColor: '#df4f1fff',
     padding: 15,
@@ -306,7 +292,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-around',
     alignItems: 'center',
     backgroundColor: '#003366',
-    paddingVertical: 15,
+    paddingVertical: 5,
     paddingHorizontal: 10,
   },
   centralButton: {

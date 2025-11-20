@@ -90,16 +90,16 @@ const DigiteCodigoScreen = ({ navigation, route }) => {
         } else {
           const login = loginParam || email;
           console.log('[DigiteCodigoScreen] POST /codigo/sendEmail via axios, login:', login);
-          response = await axios.post('http://192.168.15.116:8000/api/codigo/sendEmail', { login });
+          response = await axios.post('http://10.248.176.10:8000/api/codigo/sendEmail', { login });
         }
       } else {
         if (tokenUser) {
           console.log('[DigiteCodigoScreen] POST /codigo/auth/sendSms via UrlService');
           response = await UrlService.post('/codigo/auth/sendSms', {}, { headers: { Authorization: `Bearer ${tokenUser}` } });
         } else {
-          const tel = loginParam || telefone;
+          const tel = loginParam || usuario?.telefone || telefone;
           console.log('[DigiteCodigoScreen] POST /codigo/sendSms via axios, telefone:', tel);
-          response = await axios.post('http://192.168.15.116:8000/api/codigo/sendSms', { telefone: tel });
+          response = await axios.post('http://10.248.176.10:8000/api/codigo/sendSms', { telefone: tel });
         }
       }
 
@@ -216,7 +216,7 @@ const DigiteCodigoScreen = ({ navigation, route }) => {
     <View style={styles.container}>
       <View style={styles.cabecalho}>
         <Pressable onPress={() => navigation.navigate('Menu')} style={styles.iconeCabecalho}>
-          <FontAwesome name="arrow-left" size={24} color="#12577B" />
+          <FontAwesome name="arrow-left" size={20} color="#12577B" />
         </Pressable>
         <Text style={styles.tituloCabecalho}>Verificação de Conta</Text>
       </View>

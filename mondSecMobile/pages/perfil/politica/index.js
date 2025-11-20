@@ -9,7 +9,7 @@ const PoliticaScreen = ({ navigation }) => {
       
       <View style={styles.cabecalho}>
         <Pressable onPress={() => navigation.goBack()} style={styles.iconeCabecalho}>
-          <FontAwesome name="arrow-left" size={24} color="#12577B" />
+          <FontAwesome name="arrow-left" size={20} color="#12577B" />
         </Pressable>
         <Text style={styles.tituloCabecalho}>Política</Text>
         <View style={styles.iconeCabecalho} />
@@ -74,7 +74,7 @@ const PoliticaScreen = ({ navigation }) => {
 
   <Text style={styles.tituloSecao}>10. Contato e Suporte</Text>
   <Text style={styles.textoSecao}>
-    Em caso de dúvidas ou problemas, o usuário pode entrar em contato com nossa equipe de suporte pelo e-mail Umondoficial@gmail.com.
+    Em caso de dúvidas ou problemas, o usuário pode entrar em contato com nossa equipe de suporte pelo e-mail contatoumond@gmail.com.
   </Text>
 </ScrollView>
 

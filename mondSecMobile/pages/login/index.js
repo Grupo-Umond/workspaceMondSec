@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useContext} from "react";
 import { View, Text, TextInput, Pressable, StyleSheet, TouchableOpacity, Image}  from 'react-native';
 import { AuthContext } from '../../services/AuthContext';
+import FontAwesome from '@expo/vector-icons/FontAwesome';
 import UrlService from '../../services/UrlService';
 import  axios  from 'axios';
 
@@ -81,15 +82,16 @@ const LoginScreen = ({navigation, route}) => {
         <View style={[styles.metadeFundo, styles.metadeInferior]} />
       </View>
         <View style={styles.containerConteudo}>
+              <Pressable onPress={() => navigation.navigate('Home')} style={styles.iconeCabecalho}>
+                <FontAwesome name="arrow-left" size={20} color="#12577B" />
+              </Pressable>
             <View style={styles.logoContainer}>
                 <Image
                   source={require('../../assets/mondlogo.png')}
                   style={styles.logo}
                 />
               </View>
-              <Pressable style={styles.backButton} onPress={() => navigation.navigate('Home')}>
-                        <Text style={styles.backArrow}>{"<"}</Text>
-                      </Pressable>
+
               <Text style={styles.textoBoasVindas}>Bem-vindo à MondSec!</Text>
     <Text style={styles.textoEntrar}>Entrar</Text>
 

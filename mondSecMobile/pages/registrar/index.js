@@ -21,7 +21,7 @@ import { ScrollView } from "react-native-gesture-handler";
 
 const RegistrarScreen = ({ navigation }) => {
   const [carregando, setCarregando] = useState(false);
-  const [visivelInicio, setVisivelInicio] = useState(true);
+  const [visivelInicio, setVisivelInicio] = useState(false);
   const [mostrar, setMostrar] = useState(false);
   const [visivelSucesso, setVisivelSucesso] = useState(false);
 
@@ -132,7 +132,13 @@ const RegistrarScreen = ({ navigation }) => {
   useEffect(() => {
     const checarModal = async () => {
       const mostrarSalvo = await AsyncStorage.getItem('mostrarModalInicio');
-      if (mostrarSalvo === 'true') setVisivelInicio(false);
+      if (mostrarSalvo !== 'true') {
+        setVisivelInicio(true);
+        setMostrar(false);
+      } else {
+        setVisivelInicio(false);
+        setMostrar(true);
+      }
     };
     checarModal();
   }, []);
@@ -148,6 +154,7 @@ const RegistrarScreen = ({ navigation }) => {
   const toggleMostrar = async (value) => {
     setMostrar(value);
     await AsyncStorage.setItem('mostrarModalInicio', value ? 'true' : 'false');
+    if (value) setVisivelInicio(false); // fecha o modal se marcar "não mostrar novamente"
   };
 
   // 🔹 Monta o endereço completo
@@ -214,12 +221,9 @@ const RegistrarScreen = ({ navigation }) => {
 <View style={styles.container}>
       <View style={styles.cabecalho}>
         <Pressable onPress={() => navigation.goBack()} style={styles.iconeCabecalho}>
-          <FontAwesome name="arrow-left" size={24} color="#12577B" />
+          <FontAwesome name="arrow-left" size={20} color="#12577B" />
         </Pressable>
         <Text style={styles.tituloCabecalho}>Registrar Ocorrência</Text>
-        <Pressable onPress={() => navigation.navigate('Configuracao')} style={styles.iconeCabecalho}>
-          <FontAwesome name="cog" size={24} color="#12577B" />
-        </Pressable>
       </View>
 
        <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
@@ -304,6 +308,7 @@ const RegistrarScreen = ({ navigation }) => {
             maxLength={120}
             textAlignVertical="top"
           />
+          <Text style={styles.contador}>{descricao.length}/120</Text>
 
           <Text>{dataAcontecimento}</Text>
           <Button onPress={() => setShow(true)} title='Selecionar Data'/>
@@ -316,7 +321,6 @@ const RegistrarScreen = ({ navigation }) => {
             />
           )}
 
-          <Text style={styles.contador}>{descricao.length}/120</Text>
           {mensagemErro ? <Text style={styles.erro}>{mensagemErro}</Text> : null}
         </View>
 
@@ -329,6 +333,7 @@ const RegistrarScreen = ({ navigation }) => {
         </TouchableOpacity>
       </ScrollView>
       {/* 🔹 Modais iguais */}
+      {visivelInicio && (
       <Modal visible={visivelInicio} transparent animationType="slide" onRequestClose={() => setVisivelInicio(false)}>
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
@@ -349,6 +354,7 @@ const RegistrarScreen = ({ navigation }) => {
           </View>
         </View>
       </Modal>
+      )}
 
       <Modal visible={visivelSucesso} transparent animationType="slide">
         <View style={styles.modalContainer}>
@@ -369,10 +375,10 @@ const RegistrarScreen = ({ navigation }) => {
 
 const styles = StyleSheet.create({
   container: { flex: 1, padding: 20, backgroundColor: '#FFFFFF' },
-  cabecalho: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 30, paddingHorizontal: 10 },
-  tituloCabecalho: { fontSize: 20, fontWeight: '600', color: '#12577B' },
+  cabecalho: { flexDirection: 'row', alignItems: 'center',position: 'relative', marginBottom: 30, paddingHorizontal: 10 },
+  tituloCabecalho: { fontSize: 20, fontWeight: '600', color: '#12577B',  position: 'absolute', left: 0, right: 0, textAlign: 'center' },
   iconeCabecalho: { padding: 5 },
-  form: { marginBottom: 20, backgroundColor: '#FFFFFF', padding: 16, borderRadius: 12, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 4, elevation: 5 },
+  form: { marginBottom: 20, backgroundColor: '#FFFFFF', padding: 16, borderRadius: 12,},
   label: { fontSize: 14, fontWeight: '600', color: '#1D3557', marginBottom: 8 },
   input: { borderWidth: 1, borderColor: '#ccc', borderRadius: 6, padding: 12, marginBottom: 12, fontSize: 14, color: '#334155' },
   textArea: { borderWidth: 1, borderColor: '#cbd5e1', borderRadius: 6, padding: 8, minHeight: 80, marginBottom: 4, fontSize: 14, color: '#334155' },

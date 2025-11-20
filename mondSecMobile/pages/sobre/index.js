@@ -7,11 +7,11 @@ const SobreScreen = ({navigation}) => {
         <View style={styles.container}>
             <View style={styles.cabecalho}>
                 <Pressable onPress={() => navigation.navigate('Home')} style={styles.iconeCabecalho}>
-                    <FontAwesome name="arrow-left" size={24} color="#fff" />
+                    <FontAwesome name="arrow-left" size={20} color="#fff" />
                 </Pressable>
                 <Text style={styles.tituloCabecalho}>Sobre o App</Text>
                 <Pressable onPress={() => navigation.navigate('Configuracao')} style={styles.iconeCabecalho}>
-                    <FontAwesome name="cog" size={24} color="#fff" />
+                    <FontAwesome name="cog" size={20} color="#fff" />
                 </Pressable>
             </View>
 
