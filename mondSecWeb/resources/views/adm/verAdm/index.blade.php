@@ -7,7 +7,7 @@
     <div class="parteCima">
         <div class="graficosAdministradores mb-4">
             <div id="chart-container1Administradores" style="height:45vh;"></div>
-            <div id="chart-container2Administradores" style="height:45vh; margin-top: 20px;"></div>
+            <div id="chart-container2Administradores" style="height:45vh;"></div>
         </div>
 
         <script src="https://cdn.jsdelivr.net/npm/echarts/dist/echarts.min.js"></script>

@@ -70,17 +70,23 @@ body {
     bottom: -4px;
     left: 0;
     width: 0%;
-    height: 2px;
+    height: 3px;
+    border-radius: 10px;
     background: #4a3aff;
     transition: width 0.3s ease;
 }
 
-.cabecalho__menu__itens a:hover {
-    color: #dcdcff;
+.cabecalho__menu__itens a:hover::after,
+.cabecalho__menu__itens a.active::after {
+    width: 100%;
 }
 
-.cabecalho__menu__itens a:hover::after {
-    width: 100%;
+.cabecalho__menu__itens a.active {
+    color: #4a3aff;
+}
+
+.cabecalho__menu__itens a:hover {
+    color: #4a3aff;
 }
 
 /* Botão mobile */

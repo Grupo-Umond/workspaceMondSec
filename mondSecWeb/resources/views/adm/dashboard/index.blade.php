@@ -30,7 +30,7 @@
         </div>
 
         <div class="graficosDireita">
-            <div id="chartGenero" style="height:40vh;"></div>
+            <div id="chartGenero" style="height: 50vh;"></div>
             <div id="chartRadar" style="height:40vh; margin-top:20px;"></div>
         </div>
     </section>

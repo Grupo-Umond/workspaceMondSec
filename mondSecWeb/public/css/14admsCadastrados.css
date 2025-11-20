@@ -118,7 +118,7 @@ main.container {
 
 .graficosDireita {
   width: 40%;
-  height: 80vh;
+  /* height: 80vh; */
   flex: 0 0 auto;
   display: flex;
   flex-direction: column;
@@ -253,7 +253,6 @@ canvas.bar-size {
   font-weight: 700;
   color: var(--text);
 }
-
 
 .graficos::-webkit-scrollbar {
   height: 8px;
