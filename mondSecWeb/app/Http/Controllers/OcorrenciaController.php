@@ -9,7 +9,6 @@ use Illuminate\Http\Request;
 
 class OcorrenciaController extends Controller
 {
-
     public function allOcorrencias(Request $request) {
         $ocorrencias = Ocorrencia::all();
 
@@ -57,10 +56,8 @@ class OcorrenciaController extends Controller
             'dataAcontecimento' => $dados['dataAcontecimento'],
             'tipo' => $dados['tipo'],
             'idUsuario' => $usuario->id,
-<<<<<<< HEAD
             'status' => 'ativo',
-=======
->>>>>>> pedro
+
         ]);
 
 

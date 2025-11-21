@@ -3,6 +3,8 @@ import { View, Text, Pressable, Switch, Linking, StyleSheet, ScrollView} from 'r
 import { AuthContext } from "../../services/AuthContext";
 import Slider from '@react-native-community/slider';
 import CheckBox from 'expo-checkbox';
+import { MaterialIcons as Icon } from '@expo/vector-icons';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 
 const ConfiguracaoScreen = ({ navigation, setUserToken }) => {
@@ -14,10 +16,12 @@ const ConfiguracaoScreen = ({ navigation, setUserToken }) => {
   const { logout } = useContext(AuthContext);
 
   return (
+    <View style={{ flex: 1, backgroundColor: "#FFFFFF" }}>
     <ScrollView contentContainerStyle={styles.container}>
          <View style={styles.cabecalho}>
         <Pressable onPress={() => navigation.navigate('Menu')} style={styles.iconeCabecalho}>
-          <FontAwesome name="arrow-left" size={26} color="#12577B" />
+
+          <FontAwesome name="arrow-left" size={20} color="#12577B" />
         </Pressable>
         <Text style={styles.tituloCabecalho}>Configurações</Text>
       </View>
@@ -90,6 +94,34 @@ const ConfiguracaoScreen = ({ navigation, setUserToken }) => {
 
       </View>
     </ScrollView>
+
+    <SafeAreaView edges={['bottom']} style={styles.navigationContainer}>
+        <Pressable
+          style={({ pressed }) => [styles.navButton, { opacity: pressed ? 0.6 : 1 }]}
+          onPress={() => navigation.navigate('Home')}
+        >
+          <Icon name="home" size={26} color="#FFFFFF" />
+          <Text style={styles.navButtonText}>Início</Text>
+        </Pressable>
+
+        <Pressable
+          style={({ pressed }) => [styles.navButton, { opacity: pressed ? 0.6 : 1 }]}
+          onPress={() => navigation.navigate('Sobre')}
+        >
+          <View style={styles.centralButton}>
+            <Icon name="info" size={28} color="#003366" />
+          </View>
+        </Pressable>
+
+        <Pressable
+          style={({ pressed }) => [styles.navButton, { opacity: pressed ? 0.6 : 1 }]}
+          onPress={() => navigation.navigate('Menu')}
+        >
+          <Icon name="person" size={26} color="#FFFFFF" />
+          <Text style={styles.navButtonText}>Perfil</Text>
+        </Pressable>
+      </SafeAreaView>
+    </View>
   );
 };
 
@@ -97,7 +129,8 @@ const styles = StyleSheet.create({
   container: {
     padding: 20,
     backgroundColor: '#fff', 
-    paddingTop: 60,
+
+    paddingTop: 30,
   },
   cabecalho: {
     flexDirection: 'row',
@@ -111,7 +144,6 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#12577B',
    
-
   },
   section: {
     marginBottom: 25
@@ -137,6 +169,31 @@ const styles = StyleSheet.create({
     color: '#12577B',
     textDecorationLine: 'underline',
     marginTop: 5
+  },
+  navigationContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    alignItems: 'center',
+    backgroundColor: '#003366',
+    paddingVertical: 5,
+    paddingHorizontal: 10,
+  },
+
+  centralButton: {
+    backgroundColor: '#FFFFFF',
+    padding: 15,
+    borderRadius: 50,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+
+  navButtonText: {
+    color: '#FFFFFF',
+    fontSize: 12,
+    marginTop: 4,
   },
   modalOverlay: {
     flex: 1,

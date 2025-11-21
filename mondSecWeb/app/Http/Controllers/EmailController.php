@@ -14,7 +14,6 @@ class EmailController extends Controller
 {
     public function enviar(Request $request)
     {
-
         Log::info('[EmailController@enviar] entrada', ['body' => $request->all()]);
 
         $request->validate([
@@ -200,8 +199,8 @@ class EmailController extends Controller
                 return response()->json(['erro' => 'Usuário não autenticado.'], 401);
             }
 
-           
             $direcao = $request->input('direcao', true); 
+
             $login = $direcao ? $usuario->email : $usuario->telefone;
             Log::debug('[EmailController@verifyCode] login obtido via usuario', ['direcao' => $direcao ? 'email' : 'telefone', 'login' => $login]);
         }
@@ -232,5 +231,4 @@ class EmailController extends Controller
 
         return response()->json(['token' => $tempToken, 'mensagem' => 'Código válido, verificado com sucesso']);
     }
-
 }

@@ -1,5 +1,7 @@
 import React from 'react';
 import {View, Text, Pressable, Image, StyleSheet } from 'react-native';
+import { MaterialIcons as Icon } from '@expo/vector-icons';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 
 const SobreScreen = ({navigation}) => {
@@ -7,12 +9,9 @@ const SobreScreen = ({navigation}) => {
         <View style={styles.container}>
             <View style={styles.cabecalho}>
                 <Pressable onPress={() => navigation.navigate('Home')} style={styles.iconeCabecalho}>
-                    <FontAwesome name="arrow-left" size={24} color="#fff" />
+                    <FontAwesome name="arrow-left" size={20} color="#fff" />
                 </Pressable>
                 <Text style={styles.tituloCabecalho}>Sobre o App</Text>
-                <Pressable onPress={() => navigation.navigate('Configuracao')} style={styles.iconeCabecalho}>
-                    <FontAwesome name="cog" size={24} color="#fff" />
-                </Pressable>
             </View>
 
             <View style={styles.conteudo}>
@@ -51,19 +50,25 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: '#12577B',
         paddingHorizontal: 20,
-        paddingTop: 20,
+        paddingTop: 30,
     },
     cabecalho: {
         flexDirection: 'row',
         justifyContent: 'space-between',
+        position: 'relative',
         alignItems: 'center',
         marginBottom: 20,
         paddingHorizontal: 10,
     },
     tituloCabecalho: {
+        textAlign:'center',
         fontSize: 20,
         fontWeight: '600',
         color: '#fff',
+        position: 'absolute',
+        left: 0,
+        right: 0,
+        textAlign: 'center',
     },
     iconeCabecalho: {
         padding: 5,
@@ -116,6 +121,7 @@ const styles = StyleSheet.create({
         opacity: 0.95,
         letterSpacing: 0.2,
     },
+    
 });
 
 export default SobreScreen;

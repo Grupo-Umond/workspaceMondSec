@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { Pressable, View, TextInput, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import axios from 'axios';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import Icon from 'react-native-vector-icons/FontAwesome';
+import FontAwesome from '@expo/vector-icons/FontAwesome';
+import { MaterialIcons as Icon } from '@expo/vector-icons';
 import UrlService from '../../../../services/UrlService';
 
 const AlterarSenhaScreen = ({ navigation, route }) => {
@@ -23,8 +25,8 @@ const AlterarSenhaScreen = ({ navigation, route }) => {
       return false;
     }
 
-    if (novaSenha.length < 6 || novaSenhaConfirma.length < 6) {
-      setErroMessage('Digite uma senha com 6 ou mais caracteres');
+    if (novaSenha.length < 8 || novaSenhaConfirma.length < 8) {
+      setErroMessage('Digite uma senha com 8 ou mais caracteres');
       return false;
     }
 
@@ -82,7 +84,7 @@ const AlterarSenhaScreen = ({ navigation, route }) => {
 
       <View style={styles.card}>
         <Pressable style={styles.backButton} onPress={() => navigation.navigate('Menu')}>
-          <Icon name="arrow-left" size={32} color="#12577B" />
+          <FontAwesome name="arrow-left" size={20} color="#12577B" />
         </Pressable>
 
         <Text style={styles.title}>Defina sua nova senha</Text>
@@ -92,7 +94,7 @@ const AlterarSenhaScreen = ({ navigation, route }) => {
         </View>
 
         <Text style={styles.subtitle}>
-          Sua nova senha deve ter pelo menos 6 caracteres, incluindo letras e números.
+          Sua nova senha deve ter pelo menos 8 caracteres, incluindo letras e números.
         </Text>
 
         <Text style={styles.sectionTitle}>Nova Senha</Text>
@@ -154,7 +156,6 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     padding: 20,
     elevation: 5,
-    height: 500,
   },
   backButton: {
     position: 'absolute',

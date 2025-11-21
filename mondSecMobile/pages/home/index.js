@@ -92,7 +92,6 @@ const HomeScreen = ({ navigation }) => {
               <Icon name="search" size={24} color="#003366" />
             </Pressable>
           </View>
-
         </View>
 
 
@@ -337,7 +336,6 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     alignItems: 'center',
     width: '80%',
-
   },
   modalTitle: {
     fontSize: 20,

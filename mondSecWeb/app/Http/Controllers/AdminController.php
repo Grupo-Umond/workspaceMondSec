@@ -138,7 +138,10 @@ class AdminController extends Controller
         }
         $admin->status = 'inativo';
         $admin->save();
+<<<<<<< HEAD
 
+=======
+>>>>>>> veras
 
         return redirect()->route('adm.admins.index')->with('success', 'Adm deletado com sucesso');
     }

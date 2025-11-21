@@ -2,6 +2,8 @@ import React, { useEffect, useState, useMemo } from 'react';
 import { View, Text, Pressable, TextInput, Modal, StyleSheet, ScrollView, StatusBar } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { EnderecoService } from '../../../services/EnderecoService';
+import { MaterialIcons as Icon } from '@expo/vector-icons';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import UrlService from '../../../services/UrlService';
 
@@ -11,7 +13,6 @@ const OcorrenciaScreen = ({ navigation }) => {
   const [informacao, setInformacao] = useState(false);
   const [busca, setBusca] = useState(""); 
   const [selecionada, setSelecionada] = useState(null); 
-
 
 useEffect(() => {
   const getOcorrencias = async () => {
@@ -50,7 +51,6 @@ useEffect(() => {
       console.log('Erro interno: ', erro);
     }
   };
-
 
   getOcorrencias();
 }, []);
@@ -106,9 +106,6 @@ useEffect(() => {
           <FontAwesome name="arrow-left" size={20} color="#FFFFFF" />
         </Pressable>
         <Text style={styles.tituloCabecalho}>Minhas Ocorrências</Text>
-        <Pressable onPress={() => navigation.navigate('Configuracao')} style={styles.botaoCabecalho}>
-          <FontAwesome name="cog" size={20} color="#FFFFFF" />
-        </Pressable>
       </View>
 
       <ScrollView style={styles.conteudo} showsVerticalScrollIndicator={false}>
@@ -175,7 +172,7 @@ useEffect(() => {
                 <View style={styles.linhaInfo}>
                   <FontAwesome name="calendar" size={12} color="#666" />
                   <Text style={styles.textoInfo}>
-                    Registrado em: {ocorrencia.data}
+                    Ocorrido em: {ocorrencia.dataAcontecimento}
                   </Text>
                 </View>
               </View>
@@ -193,6 +190,33 @@ useEffect(() => {
           ))}
         </View>
       </ScrollView>
+
+      <SafeAreaView edges={['bottom']} style={styles.navigationContainer}>
+        <Pressable
+          style={({ pressed }) => [styles.navButton, { opacity: pressed ? 0.6 : 1 }]}
+          onPress={() => navigation.navigate('Home')}
+        >
+          <Icon name="home" size={26} color="#FFFFFF" />
+          <Text style={styles.navButtonText}>Início</Text>
+        </Pressable>
+
+        <Pressable
+          style={({ pressed }) => [styles.navButton, { opacity: pressed ? 0.6 : 1 }]}
+          onPress={() => navigation.navigate('Sobre')}
+        >
+          <View style={styles.centralButton}>
+            <Icon name="info" size={28} color="#003366" />
+          </View>
+        </Pressable>
+
+        <Pressable
+          style={({ pressed }) => [styles.navButton, { opacity: pressed ? 0.6 : 1 }]}
+          onPress={() => navigation.navigate('Menu')}
+        >
+          <Icon name="person" size={26} color="#FFFFFF" />
+          <Text style={styles.navButtonText}>Perfil</Text>
+        </Pressable>
+      </SafeAreaView>
 
 
       <Modal 
@@ -234,17 +258,10 @@ useEffect(() => {
                       {selecionada.rua}, {selecionada.cidade}
                     </Text>
                   </View>
-                  
-                  <View style={styles.linhaInfoBasica}>
-                    <FontAwesome name="calendar" size={14} color="#12577B" />
-                    <Text style={styles.textoInfoBasica}>
-                      Registrado em: {selecionada.data}
-                    </Text>
-                  </View>
 
                   {selecionada.dataAcontecimento && (
                     <View style={styles.linhaInfoBasica}>
-                      <FontAwesome name="clock-o" size={14} color="#12577B" />
+                      <FontAwesome name="calendar" size={14} color="#12577B" />
                       <Text style={styles.textoInfoBasica}>
                         Ocorrido em: {selecionada.dataAcontecimento}
                       </Text>
@@ -278,16 +295,19 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: 20,
     paddingVertical: 16,
-    paddingTop: 30,
+    position:'relative',
   },
   botaoCabecalho: {
-    padding: 8,
-    borderRadius: 8,
+    padding: 5,
   },
   tituloCabecalho: {
     fontSize: 18,
     fontWeight: '700',
     color: '#FFFFFF',
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    textAlign: 'center',
   },
   conteudo: {
     flex: 1,
@@ -445,6 +465,31 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '600',
     marginRight: 4,
+  },
+  navigationContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    alignItems: 'center',
+    backgroundColor: '#003366',
+    paddingVertical: 5,
+    paddingHorizontal: 10,
+  },
+
+  centralButton: {
+    backgroundColor: '#FFFFFF',
+    padding: 15,
+    borderRadius: 50,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+
+  navButtonText: {
+    color: '#FFFFFF',
+    fontSize: 12,
+    marginTop: 4,
   },
   fundoModal: {
     flex: 1,
