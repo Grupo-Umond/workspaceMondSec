@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { View, Text, TextInput, Pressable, StyleSheet, Image } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { MaterialIcons as Icon } from '@expo/vector-icons';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import UrlService from '../../../../services/UrlService';
 
 const DigiteCampoScreen = ({ navigation }) => {

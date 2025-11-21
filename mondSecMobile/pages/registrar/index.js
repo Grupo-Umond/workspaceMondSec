@@ -14,6 +14,8 @@ import {
 import CheckBox from 'expo-checkbox';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { CoordenadaService } from '../../services/CoordenadaService';
+import { MaterialIcons as Icon } from '@expo/vector-icons';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import UrlService from '../../services/UrlService';

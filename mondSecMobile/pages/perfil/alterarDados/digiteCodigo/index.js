@@ -11,6 +11,8 @@ import {
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import FontAwesome from '@expo/vector-icons/FontAwesome';
+import { MaterialIcons as Icon } from '@expo/vector-icons';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import UrlService from "../../../../services/UrlService";
 import axios from "axios";
 
@@ -90,7 +92,7 @@ const DigiteCodigoScreen = ({ navigation, route }) => {
         } else {
           const login = loginParam || email;
           console.log('[DigiteCodigoScreen] POST /codigo/sendEmail via axios, login:', login);
-          response = await axios.post('http://10.248.176.10:8000/api/codigo/sendEmail', { login });
+          response = await axios.post('http://10.122.45.10:8000/api/codigo/sendEmail', { login });
         }
       } else {
         if (tokenUser) {
@@ -99,7 +101,7 @@ const DigiteCodigoScreen = ({ navigation, route }) => {
         } else {
           const tel = loginParam || usuario?.telefone || telefone;
           console.log('[DigiteCodigoScreen] POST /codigo/sendSms via axios, telefone:', tel);
-          response = await axios.post('http://10.248.176.10:8000/api/codigo/sendSms', { telefone: tel });
+          response = await axios.post('http://10.122.45.10:8000/api/codigo/sendSms', { telefone: tel });
         }
       }
 
@@ -213,6 +215,7 @@ const DigiteCodigoScreen = ({ navigation, route }) => {
   };
 
   return (
+    <View style={{ flex: 1, backgroundColor: "#FFFFFF" }}>
     <View style={styles.container}>
       <View style={styles.cabecalho}>
         <Pressable onPress={() => navigation.navigate('Menu')} style={styles.iconeCabecalho}>
@@ -289,6 +292,34 @@ const DigiteCodigoScreen = ({ navigation, route }) => {
           {carregando ? "Enviando..." : "Confirmar"}
         </Text>
       </TouchableOpacity>
+    </View>
+
+    <SafeAreaView edges={['bottom']} style={styles.navigationContainer}>
+        <Pressable
+          style={({ pressed }) => [styles.navButton, { opacity: pressed ? 0.6 : 1 }]}
+          onPress={() => navigation.navigate('Home')}
+        >
+          <Icon name="home" size={26} color="#FFFFFF" />
+          <Text style={styles.navButtonText}>Início</Text>
+        </Pressable>
+
+        <Pressable
+          style={({ pressed }) => [styles.navButton, { opacity: pressed ? 0.6 : 1 }]}
+          onPress={() => navigation.navigate('Sobre')}
+        >
+          <View style={styles.centralButton}>
+            <Icon name="info" size={28} color="#003366" />
+          </View>
+        </Pressable>
+
+        <Pressable
+          style={({ pressed }) => [styles.navButton, { opacity: pressed ? 0.6 : 1 }]}
+          onPress={() => navigation.navigate('Menu')}
+        >
+          <Icon name="person" size={26} color="#FFFFFF" />
+          <Text style={styles.navButtonText}>Perfil</Text>
+        </Pressable>
+      </SafeAreaView>
     </View>
   );
 };
@@ -387,6 +418,31 @@ const styles = StyleSheet.create({
   linkHighlight: { 
     color: "#1E90FF", 
     fontWeight: "bold" 
+  },
+  navigationContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    alignItems: 'center',
+    backgroundColor: '#003366',
+    paddingVertical: 5,
+    paddingHorizontal: 10,
+  },
+
+  centralButton: {
+    backgroundColor: '#FFFFFF',
+    padding: 15,
+    borderRadius: 50,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+
+  navButtonText: {
+    color: '#FFFFFF',
+    fontSize: 12,
+    marginTop: 4,
   },
 });
 

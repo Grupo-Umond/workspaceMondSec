@@ -10,8 +10,10 @@ import {
   Image,
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { SafeAreaView } from 'react-native-safe-area-context';
 import axios from "axios";
-import Icon from "react-native-vector-icons/FontAwesome";
+import FontAwesome from '@expo/vector-icons/FontAwesome';
+import { MaterialIcons as Icon } from '@expo/vector-icons';
 import UrlService from '../../../../services/UrlService';
 
 
@@ -100,6 +102,7 @@ const DigiteDadosScreen = ({ navigation }) => {
   };
 
   return (
+    <View style={{ flex: 1, backgroundColor: "#FFFFFF" }}>
     <View style={styles.container}>
       <View style={styles.containerFundo}>
         <View style={[styles.metadeFundo, styles.metadeSuperior]} />
@@ -108,7 +111,7 @@ const DigiteDadosScreen = ({ navigation }) => {
 
       <View style={styles.card}>
         <Pressable style={styles.backButton} onPress={() => navigation.goBack()}>
-          <Icon name="arrow-left" size={20} color="#12577B" />
+          <FontAwesome name="arrow-left" size={20} color="#12577B" />
         </Pressable>
 
         <Text style={styles.title}>Edite Perfil</Text>
@@ -176,6 +179,33 @@ const DigiteDadosScreen = ({ navigation }) => {
         </TouchableOpacity>
       </View>
     </View>
+    <SafeAreaView edges={['bottom']} style={styles.navigationContainer}>
+        <Pressable
+          style={({ pressed }) => [styles.navButton, { opacity: pressed ? 0.6 : 1 }]}
+          onPress={() => navigation.navigate('Home')}
+        >
+          <Icon name="home" size={26} color="#FFFFFF" />
+          <Text style={styles.navButtonText}>Início</Text>
+        </Pressable>
+
+        <Pressable
+          style={({ pressed }) => [styles.navButton, { opacity: pressed ? 0.6 : 1 }]}
+          onPress={() => navigation.navigate('Sobre')}
+        >
+          <View style={styles.centralButton}>
+            <Icon name="info" size={28} color="#003366" />
+          </View>
+        </Pressable>
+
+        <Pressable
+          style={({ pressed }) => [styles.navButton, { opacity: pressed ? 0.6 : 1 }]}
+          onPress={() => navigation.navigate('Menu')}
+        >
+          <Icon name="person" size={26} color="#FFFFFF" />
+          <Text style={styles.navButtonText}>Perfil</Text>
+        </Pressable>
+      </SafeAreaView>
+          </View>
   );
 };
 
@@ -208,7 +238,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     padding: 20,
     elevation: 5,
-    height: 530,
+    height: 550,
     width: "85%",
   },
   backButton: {
@@ -280,7 +310,7 @@ const styles = StyleSheet.create({
     width: 15,
     height: 15,
     borderWidth: 1,
-    borderColor: "#000",
+    borderColor: "#4299E1",
     borderRadius: 10,
     marginRight: 4,
     marginLeft: -5,
@@ -290,12 +320,37 @@ const styles = StyleSheet.create({
   radioSelecionado: {
     width: 9,
     height: 9,
-    backgroundColor: "#000",
+    backgroundColor: "#4299E1",
     borderRadius: 5,
     alignSelf: "center",
   },
   texto: {
     fontSize: 11,
+  },
+  navigationContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    alignItems: 'center',
+    backgroundColor: '#003366',
+    paddingVertical: 5,
+    paddingHorizontal: 10,
+  },
+
+  centralButton: {
+    backgroundColor: '#FFFFFF',
+    padding: 15,
+    borderRadius: 50,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+
+  navButtonText: {
+    color: '#FFFFFF',
+    fontSize: 12,
+    marginTop: 4,
   },
 });
 

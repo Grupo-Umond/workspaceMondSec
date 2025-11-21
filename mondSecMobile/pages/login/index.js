@@ -2,6 +2,8 @@ import React, { useState, useEffect, useContext} from "react";
 import { View, Text, TextInput, Pressable, StyleSheet, TouchableOpacity, Image}  from 'react-native';
 import { AuthContext } from '../../services/AuthContext';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
+import { MaterialIcons as Icon } from '@expo/vector-icons';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import UrlService from '../../services/UrlService';
 import  axios  from 'axios';
 

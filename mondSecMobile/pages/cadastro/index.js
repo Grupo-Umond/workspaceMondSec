@@ -3,6 +3,8 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, Pressable, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import CheckBox from 'expo-checkbox';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
+import { MaterialIcons as Icon } from '@expo/vector-icons';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import UrlService from '../../services/UrlService'; 
 import { TextInputMask } from 'react-native-masked-text';
 
@@ -24,6 +26,7 @@ const CadastroScreen = ({ navigation }) => {
   const [erroMessage, setErroMessage] = useState('');
   const [erroSenha, setErroSenha] = useState('');
   const [erroSenhaConfirma, setErroSenhaConfirma] = useState('');
+  
 
   const opcoesGenero = ['Masculino', 'Feminino', 'Prefiro não informar'];
 
@@ -285,6 +288,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
     paddingHorizontal: 24,
     justifyContent: 'center',
+    paddingTop:'20',
   },
   containerLogo: {
     alignItems: 'center',
