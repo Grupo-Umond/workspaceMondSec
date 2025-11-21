@@ -122,9 +122,13 @@ document.addEventListener('DOMContentLoaded', function() {
                     </a>
                 </td>
                 <td>
-                    <a href="#"">
-                        <i class="fa-solid fa-trash-can btn-excluirUsuario"></i>
-                    </a>
+                    <form action="/adm/users/excluir/${u.id}" method="POST" onsubmit="return confirm('Tem certeza que quer excluir?');">
+                        @csrf
+                        @method('PUT')
+                        <button type="submit" class="btn btn-sm btn-danger">
+                            <i class="fa-solid fa-trash-can btn-excluir"></i>
+                        </button>
+                    </form>
                 </td>
             `;
             tbody.appendChild(tr);

@@ -105,6 +105,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 <th>Latitude</th>
                 <th>Longitude</th>
                 <th>Descrição</th>
+                <th>Status</th>
                 <th></th>
                 <th></th>
             </tr>
@@ -127,8 +128,17 @@ document.addEventListener('DOMContentLoaded', function () {
                 <td>${o.latitude || '-'}</td>
                 <td>${o.longitude || '-'}</td>
                 <td>${o.descricao || '-'}</td>
+                <td>${o.status || '-'}</td>
                 <td><a href="/adm/ocorrencias/${o.id}" class="btn btn-sm btn-primary"><i class="fa-solid fa-pencil"></i></a></td>
-                <td><a href="" class="btn btn-sm btn-danger"><i class="fa-solid fa-trash-can"></i></a></td>
+                <td>
+                    <form action="/adm/ocorrencias/excluir/${o.id}" method="POST" onsubmit="return confirm('Tem certeza que quer excluir?');">
+                        @csrf
+                        @method('PUT')
+                        <button type="submit" class="btn btn-sm btn-danger">
+                            <i class="fa-solid fa-trash-can btn-excluir"></i>
+                        </button>
+                    </form>
+                </td>
             `;
             tbody.appendChild(tr);
         });

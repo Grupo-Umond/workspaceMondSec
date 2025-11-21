@@ -22,6 +22,7 @@ return new class extends Migration
             $table->string('descricao');
             $table->timestamp('dataPostagem')->useCurrent();
             $table->string('dataAcontecimento');
+            $table->string('status');
             $table->unsignedBigInteger('idUsuario');
 
             $table->foreign('idUsuario')->references('id')->on('tbUsuario')->onDelete('cascade');

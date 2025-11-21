@@ -47,13 +47,13 @@ Route::prefix('adm')
             Route::get('/users', 'showUserScreen')->name('users.index');
             Route::get('/users/{id}', 'updateUserScreen')->name('users.edit');
             Route::put('/users/{id}', 'updateUser')->name('users.update');
-            Route::delete('/users/{id}', 'deleteUser')->name('users.destroy');
+            Route::delete('/users/excluir/{id}', 'deleteUser')->name('users.destroy');
 
             //Ocorrencia
             Route::get('/ocorrencias','showOcorrenciaScreen')->name('ocorrencia.index');
             Route::get('/ocorrencias/{id}', 'updateOcorrenciaScreen')->name('ocorrencia.edit');
             Route::put('/ocorrencias/{id}', 'updateOcorrencia')->name('ocorrencia.update');
-            Route::delete('/ocorrencias/{id}', 'deleteOcorrencia')->name('ocorrencia.destroy');
+            Route::put('/ocorrencias/excluir/{id}', 'deleteOcorrencia')->name('ocorrencia.destroy');
 
 
             //Comentario
