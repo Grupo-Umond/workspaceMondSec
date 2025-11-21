@@ -1,4 +1,0 @@
-0000000000000000000000000000000000000000 b87d06b0e34d78a207515c03e4dc50dc909f5cee hdtmrs <hdtmrsame8@gmail.com> 1760858266 -0300	branch: Created from HEAD
-b87d06b0e34d78a207515c03e4dc50dc909f5cee 227ba6bd24fdcd4d0a6c75013f647397a20f004a hdtmrs <hdtmrsame8@gmail.com> 1760858296 -0300	commit: feat:Adicionando conteudo ao icon service
-227ba6bd24fdcd4d0a6c75013f647397a20f004a 3ba36eb5636bd092cfa1570bfce8ec2f994d41f6 hdtmrs <hdtmrsame8@gmail.com> 1760940302 -0300	commit: feat:Adicionando tempo entre as solicitações de codigo
-3ba36eb5636bd092cfa1570bfce8ec2f994d41f6 117b1e913bd101bc561816889547062d273a4c8e hdtmrs <hdtmrsame8@gmail.com> 1760941351 -0300	commit: feat:Ocultando botao warning na home para usuarios deslogados
