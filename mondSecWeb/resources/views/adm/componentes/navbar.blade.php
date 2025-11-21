@@ -14,6 +14,8 @@
                     <a href="{{ route('adm.ocorrencia.index') }}" class="btn btn-primary btn-lg flex-fill"> <i class="fa-solid fa-circle-exclamation"></i> Ocorrencias </a>
                     <a href="{{ route('adm.admins.index') }}" class="btn btn-primary btn-lg flex-fill"> <i class="fa-solid fa-user-tie"></i> Adiministradores </a>
                     <a href="{{ route('adm.users.index') }}" class="btn btn-secondary btn-lg flex-fill"> <i class="fa-solid fa-user"></i> Usuários </a>
+                    <a href="{{ route('adm.comentario.index') }}" class="btn btn-secondary btn-lg flex-fill"> <i class="fa-solid fa-user"></i> Comentarios </a>
+
                 </div>
 
             </div>

@@ -20,6 +20,7 @@ return new class extends Migration
             $table->string('telefone')->unique();
             $table->string('senha');
             $table->string('nivelAdmin');
+            $tabel->string('status')
             $table->timestamps();
         });
     }

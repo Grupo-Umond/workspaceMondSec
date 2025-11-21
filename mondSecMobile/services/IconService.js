@@ -3,7 +3,7 @@ const icons = {
   "Assalto": require("../assets/icones/default.png"),
   "Tentativa de assalto": require("../assets/icones/default.png"),
 
-  /**"Roubo de veículo": require("../assets/icones/RouboDeCarro.png"),
+  "Roubo de veículo": require("../assets/icones/RouboDeCarro.png"),
   "Furto de peças de veículo": require("../assets/icones/RouboDeCarro.png"),
 
   "Agressão": require("../assets/icones/Briga.png"),
@@ -120,7 +120,7 @@ const icons = {
   "Trilhos bloqueando travessia": require("../assets/icones/default.png"),
 
   // Default para qualquer tipo não mapeado
-  default: require("../assets/icones/default.png"),*/
+  default: require("../assets/icones/default.png"),
 };
 
 export function getIconForTipo(tipo) {

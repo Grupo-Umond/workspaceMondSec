@@ -38,7 +38,7 @@ Route::prefix('adm')
             Route::get('/admins', 'showAdmScreen')->name('admins.index');
             Route::get('/admins/{id}', 'updateAdmScreen')->name('admins.edit');
             Route::put('/admins/{id}', 'updateAdm')->name('admins.update');
-            Route::delete('/admins/{id}', 'deleteAdm')->name('admins.destroy');
+            Route::put('/admins/excluir/{id}', 'deleteAdm')->name('admins.destroy');
 
             //Contato
             Route::post('/contato', [EmailController::class, 'enviar'])->name('email.enviar');
@@ -54,6 +54,14 @@ Route::prefix('adm')
             Route::get('/ocorrencias/{id}', 'updateOcorrenciaScreen')->name('ocorrencia.edit');
             Route::put('/ocorrencias/{id}', 'updateOcorrencia')->name('ocorrencia.update');
             Route::delete('/ocorrencias/{id}', 'deleteOcorrencia')->name('ocorrencia.destroy');
+
+
+            //Comentario
+            Route::get('/cometarios', 'showComentarioScreen')->name('comentario.index');
+            Route::put('/{id}','update')->name('comentario.update');
+            Route::get('/comentario/{id}', 'show')->name('comentario.show');
+            Route::put('/comentario/excluir/{id}', 'destroy')->name('comentario.destroy');
+
         });
     });
 
