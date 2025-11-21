@@ -1,3 +1,4 @@
+
 import React, { useRef, useState, useEffect, forwardRef } from 'react';
 import {
   StyleSheet,
@@ -12,19 +13,24 @@ import {
   TextInput,
   ScrollView,
   ActivityIndicator,
-  Pressable,
 } from 'react-native';
 import MapView, { Polygon, Marker } from 'react-native-maps';
 import * as Location from 'expo-location';
-import UrlService from './UrlService';
-import * as IconServiceModule from './IconService';
+
+
+import { parseGeoJSON } from './MapaZonaLeste/geojsonParser.service';
+import { calculateBounds, checkAndFixRegion } from './MapaZonaLeste/regionBounds.service';
+import { buscarOcorrencias } from './MapaZonaLeste/ocorrencias.service';
+import { carregarComentarios, enviarComentarioRequest } from './MapaZonaLeste/comentarios.service';
+import { buscarUsuarioLogado } from './MapaZonaLeste/user.service';
+import { resolveIcon } from './MapaZonaLeste/iconResolver.service';
+
 const local = require('./GeoJson/zonaLeste_convertido.json');
 const { width, height } = Dimensions.get('window');
 
-const DEFAULT_ICON = require('../assets/icones/default.png');
-
 const MapaZonaLesteGeojson = forwardRef(({ ocorrencias = [], currentUserId = null }, ref) => {
   const mapRef = useRef(null);
+
   const [region, setRegion] = useState(null);
   const [polygons, setPolygons] = useState([]);
   const [bounds, setBounds] = useState(null);
@@ -38,15 +44,6 @@ const MapaZonaLesteGeojson = forwardRef(({ ocorrencias = [], currentUserId = nul
   const [loadingComentarios, setLoadingComentarios] = useState(false);
   const [sendingComentario, setSendingComentario] = useState(false);
   const [loggedUserId, setLoggedUserId] = useState(currentUserId);
-
-  const resolveIcon = (key) => {
-    const svc = IconServiceModule.default || IconServiceModule;
-    if (!svc) return DEFAULT_ICON;
-    if (!key) return svc.default || DEFAULT_ICON;
-
-    const t = String(key).trim();
-    return svc[t] || svc[t.toLowerCase()] || svc.default || DEFAULT_ICON;
-  };
 
   useEffect(() => {
     (async () => {
@@ -68,18 +65,8 @@ const MapaZonaLesteGeojson = forwardRef(({ ocorrencias = [], currentUserId = nul
         const parsed = parseGeoJSON(local);
         setPolygons(parsed);
 
-        const all = parsed.flatMap((p) => p.rings[0] || []);
-        const lat = all.map((c) => c.latitude);
-        const lng = all.map((c) => c.longitude);
-
-        if (lat.length && lng.length) {
-          setBounds({
-            minLat: Math.min(...lat),
-            maxLat: Math.max(...lat),
-            minLng: Math.min(...lng),
-            maxLng: Math.max(...lng),
-          });
-        }
+        const b = calculateBounds(parsed);
+        setBounds(b);
       } catch (e) {
         console.warn('ERRO AO CARREGAR:', e);
       }
@@ -89,13 +76,13 @@ const MapaZonaLesteGeojson = forwardRef(({ ocorrencias = [], currentUserId = nul
   useEffect(() => {
     const puxar = async () => {
       try {
-        const r = await UrlService.get('/ocorrencia/getall');
-        const list = r?.data?.ocorrencias ?? r?.data ?? [];
+        const list = await buscarOcorrencias();
         if (!Array.isArray(list)) {
-          console.warn('Formato inesperado:', r.data);
+          console.warn('Formato inesperado ao buscar ocorrências:', list);
           return;
         }
         setOcorrencias(list);
+        setSelectedOcorrencia(list);
       } catch (e) {
         console.warn('Erro ao puxar ocorrências:', e);
       }
@@ -103,105 +90,32 @@ const MapaZonaLesteGeojson = forwardRef(({ ocorrencias = [], currentUserId = nul
     puxar();
   }, []);
 
-  function parseGeoJSON(geojson) {
-    const feats = geojson.type === 'FeatureCollection' ? geojson.features : [geojson];
-    const out = [];
-
-    feats.forEach((f, i) => {
-      const name = f.properties?.name || `Area ${i}`;
-      const g = f.geometry;
-      if (!g) return;
-
-
-      if (g.type === 'Polygon') {
-        const rings = g.coordinates.map((ring) =>
-          ring.map(([lng, lat]) => ({ latitude: lat, longitude: lng }))
-        );
-        out.push({ id: String(i), name, rings });
-      }
-
-      if (g.type === 'MultiPolygon') {
-        g.coordinates.forEach((poly, j) => {
-          const rings = poly.map((ring) =>
-            ring.map(([lng, lat]) => ({ latitude: lat, longitude: lng }))
-          );
-          out.push({ id: `${i}-${j}`, name, rings });
-        });
-      }
-    });
-    return out;
-  }
-
   const handleRegionChangeComplete = (rgn) => {
     if (!bounds || !mapRef.current) return;
 
-    const out =
-      rgn.latitude < bounds.minLat ||
-      rgn.latitude > bounds.maxLat ||
-      rgn.longitude < bounds.minLng ||
-      rgn.longitude > bounds.maxLng;
-
-    if (out) {
-      const lat = (bounds.minLat + bounds.maxLat) / 2;
-      const lng = (bounds.minLng + bounds.maxLng) / 2;
-
-      mapRef.current.animateToRegion({
-        latitude: lat,
-        longitude: lng,
-        latitudeDelta: 0.1,
-        longitudeDelta: 0.1,
-      });
+    const corrected = checkAndFixRegion(rgn, bounds, mapRef);
+    if (corrected) {
       Alert.alert('Restrito', 'Você não pode sair da Zona Leste.');
     }
   };
-
-  const ensureLoggedUser = async () => {
-    if (loggedUserId) return loggedUserId;
-
-    try {
-      const r = await UrlService.get('/usuario/buscar');
-      const id = r?.data?.id ?? r?.data?.usuario?.id ?? null;
-      if (id) setLoggedUserId(id);
-      return id;
-    } catch (e) {
-      console.warn('Erro ao buscar usuário logado:', e);
-      return null;
-    }
-  };
-
-const carregarComentarios = async (idOcorrencia) => {
-  if (!idOcorrencia) {
-    setComentarios([]);
-    return;
-  }
-
-  setLoadingComentarios(true);
-
-  try {
-    const r = await UrlService.get(`/comentarios/${idOcorrencia}`);
-    const lista = Array.isArray(r.data) ? r.data : [];
-
-    const ativos = lista.filter(c => c.status !== 'inativo');
-
-    setComentarios(ativos);
-
-  } catch (e) {
-    console.warn('Erro ao carregar comentários:', e);
-    setComentarios([]);
-  } finally {
-    setLoadingComentarios(false);
-  }
-};
-
 
   const abrirModal = async (oc) => {
     setSelectedOcorrencia(oc);
     setModalVisible(true);
 
     const idOc = oc?.id ?? oc?._id ?? null;
-    await carregarComentarios(idOc);
+    if (!idOc) {
+      setComentarios([]);
+      return;
+    }
 
-    ensureLoggedUser().catch(() => {});
+    setLoadingComentarios(true);
+    const coms = await carregarComentarios(idOc);
+    setComentarios(coms || []);
+    setLoadingComentarios(false);
+
+    const idUser = await buscarUsuarioLogado();
+    setLoggedUserId(idUser);
   };
 
   const fecharModal = () => {
@@ -230,25 +144,25 @@ const carregarComentarios = async (idOcorrencia) => {
     setSendingComentario(true);
 
     try {
-      const idUsuario = await ensureLoggedUser();
+      const idUsuario = loggedUserId || (await buscarUsuarioLogado());
       if (!idUsuario) {
         Alert.alert('Erro', 'Usuário não identificado.');
         setSendingComentario(false);
         return;
       }
 
-
       const payload = {
         mensagem: texto,
         data: new Date().toISOString(),
         idOcorrencia: idOc,
+        idUsuario,
       };
 
-      const res = await UrlService.post('/comentario/comentarios', payload);
+      const res = await enviarComentarioRequest(payload);
 
-      const novo = res?.data ?? null;
+      const novo = res ?? null;
 
-      if (novo && novo.id) {
+      if (novo && (novo.id || novo._id)) {
         const normalized = {
           ...novo,
           data: novo.data ? novo.data : new Date().toISOString(),
@@ -256,7 +170,8 @@ const carregarComentarios = async (idOcorrencia) => {
         setComentarios((prev) => [normalized, ...(prev || [])]);
         setMensagemComentario('');
       } else {
-        await carregarComentarios(idOc);
+        const recarregado = await carregarComentarios(idOc);
+        setComentarios(recarregado || []);
         setMensagemComentario('');
       }
     } catch (e) {
@@ -310,132 +225,112 @@ const carregarComentarios = async (idOcorrencia) => {
         })}
       </MapView>
 
-<Modal
-  visible={modalVisible}
-  transparent
-  animationType="slide"
-  onRequestClose={fecharModal}
->
-  <View style={styles.modalOverlay}>
-    <View style={styles.modalCard}>
-   {/* HEADER DO MODAL PABLO  */}
-      <View style={styles.modalHeader}>
-        <Text style={styles.modalTitle}>
-          {selectedOcorrencia?.tipo || 'Detalhes da Ocorrência'}
-        </Text>
-        <TouchableOpacity 
-          style={styles.closeButton}
-          onPress={fecharModal}
-        >
-          <Pressable onPress={() => excluirComentario()}><Text>Excluir</Text></Pressable>
-          <Text style={styles.closeButtonText}>×</Text>
-        </TouchableOpacity>
-      </View>
-
-     {/* CORPO DO MODAL  */}
-      <ScrollView style={styles.modalBody} showsVerticalScrollIndicator={false}>
-        <View style={styles.infoSection}>
-          <Text style={styles.sectionTitle}>Informações</Text>
-          
-          <View style={styles.infoItem}>
-            <Text style={styles.infoLabel}>Descrição:</Text>
-            <Text style={styles.infoText}>
-              {selectedOcorrencia?.descricao || 'Sem descrição'}
-            </Text>
-          </View>
-
-
-          {selectedOcorrencia?.dataAcontecimento && (
-            <View style={styles.infoItem}>
-              <Text style={styles.infoData}>Data:</Text>
-              <Text style={styles.infoText}>{selectedOcorrencia.dataAcontecimento}</Text>
+      <Modal visible={modalVisible} transparent animationType="slide" onRequestClose={fecharModal}>
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalCard}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>
+                {selectedOcorrencia?.tipo || 'Detalhes da Ocorrência'}
+              </Text>
+              <TouchableOpacity style={styles.closeButton} onPress={fecharModal}>
+                <Text style={styles.closeButtonText}>×</Text>
+              </TouchableOpacity>
             </View>
-          )}
-        </View>
-        {/* Seção de Comentários */}
-        <View style={styles.commentsSection}>
-          <Text style={styles.sectionTitle}>Comentários</Text>
 
-          {loadingComentarios ? (
-            <View style={styles.loadingContainer}>
-              <ActivityIndicator size="small" color="#003366" />
-              <Text style={styles.loadingText}>Carregando comentários...</Text>
-            </View>
-          ) : (
-            <View style={styles.commentsList}>
-              {comentarios.length === 0 ? (
-                <Text style={styles.emptyComments}>Nenhum comentário ainda.</Text>
-              ) : (
-                comentarios.map((c, i) => (
-                  <View key={c.id ?? i} style={styles.commentItem}>
-                    <View style={styles.commentHeader}>
-                      <Text style={styles.commentAuthor}>
-                        {c.usuario?.name || c.usuario?.nome || 'Usuário'}
-                      </Text>
-                      <Text style={styles.commentDate}>{c.data ?? c.created_at}</Text>
-                    </View>
-                    <Text style={styles.commentText}>{c.mensagem}</Text>
+            <ScrollView style={styles.modalBody} showsVerticalScrollIndicator={false}>
+              <View style={styles.infoSection}>
+                <Text style={styles.sectionTitle}>Informações</Text>
+
+                <View style={styles.infoItem}>
+                  <Text style={styles.infoLabel}>Descrição:</Text>
+                  <Text style={styles.infoText}>
+                    {selectedOcorrencia?.descricao || 'Sem descrição'}
+                  </Text>
+                </View>
+
+                {selectedOcorrencia?.dataAcontecimento && (
+                  <View style={styles.infoItem}>
+                    <Text style={styles.infoData}>Data:</Text>
+                    <Text style={styles.infoText}>
+                      {formatDate(selectedOcorrencia.dataAcontecimento)}
+                    </Text>
                   </View>
-                ))
-              )}
-            </View>
-          )}
+                )}
+              </View>
 
-          {/* Input de Comentário */}
-          <View style={styles.commentInputContainer}>
-            <TextInput
-              placeholder="Escreva um comentário..."
-              placeholderTextColor="#888"
-              value={mensagemComentario}
-              onChangeText={setMensagemComentario}
-              style={styles.commentInput}
-              multiline
-              numberOfLines={3}
-            />
-            
-            <TouchableOpacity
-              onPress={enviarComentario}
-              style={[
-                styles.sendButton,
-                sendingComentario && styles.sendButtonDisabled
-              ]}
-              disabled={sendingComentario}
-            >
-              {sendingComentario ? (
-                <ActivityIndicator size="small" color="#FFFFFF" />
-              ) : (
-                <Text style={styles.sendButtonText}>Enviar</Text>
-              )}
-            </TouchableOpacity>
+              <View style={styles.commentsSection}>
+                <Text style={styles.sectionTitle}>Comentários</Text>
+
+                {loadingComentarios ? (
+                  <View style={{ paddingVertical: 12 }}>
+                    <ActivityIndicator size="small" color="#003366" />
+                    <Text style={{ textAlign: 'center', marginTop: 8 }}>Carregando comentários...</Text>
+                  </View>
+                ) : (
+                  <View style={styles.commentsList}>
+                    {comentarios.length === 0 ? (
+                      <Text style={styles.emptyComments}>Nenhum comentário ainda.</Text>
+                    ) : (
+                      comentarios.map((c, i) => (
+                        <View key={c.id ?? i} style={styles.commentItem}>
+                          <View style={styles.commentHeader}>
+                            <Text style={styles.commentAuthor}>
+                              {c.usuario?.name || c.usuario?.nome || 'Usuário'}
+                            </Text>
+                            <Text style={styles.commentDate}>
+                              {formatDate(c.data ?? c.created_at)}
+                            </Text>
+                          </View>
+                          <Text style={styles.commentText}>{c.mensagem}</Text>
+                        </View>
+                      ))
+                    )}
+                  </View>
+                )}
+
+                <View style={styles.commentInputContainer}>
+                  <TextInput
+                    placeholder="Escreva um comentário..."
+                    placeholderTextColor="#888"
+                    value={mensagemComentario}
+                    onChangeText={setMensagemComentario}
+                    style={styles.commentInput}
+                    multiline
+                    numberOfLines={3}
+                  />
+
+                  <TouchableOpacity
+                    onPress={enviarComentario}
+                    style={[styles.sendButton, sendingComentario && styles.sendButtonDisabled]}
+                    disabled={sendingComentario}
+                  >
+                    {sendingComentario ? (
+                      <ActivityIndicator size="small" color="#FFFFFF" />
+                    ) : (
+                      <Text style={styles.sendButtonText}>Enviar</Text>
+                    )}
+                  </TouchableOpacity>
+                </View>
+              </View>
+            </ScrollView>
+
+            <View style={styles.modalFooter}>
+              <TouchableOpacity style={styles.okButton} onPress={fecharModal}>
+                <Text style={styles.okButtonText}>Fechar</Text>
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
-      </ScrollView>
-
-      {/* Footer do Modal */}
-      <View style={styles.modalFooter}>
-        <TouchableOpacity 
-          style={styles.okButton}
-          onPress={fecharModal}
-        >
-          <Text style={styles.okButtonText}>Fechar</Text>
-        </TouchableOpacity>
-      </View>
-    </View>
-  </View>
-</Modal>
+      </Modal>
     </>
   );
 });
 
 const styles = StyleSheet.create({
-  map: { 
-    width, 
-    height 
-  },
+  map: { width, height },
 
   modalOverlay: {
     flex: 1,
-
     backgroundColor: 'rgba(0, 34, 68, 0.6)',
     justifyContent: 'center',
     alignItems: 'center',
@@ -444,10 +339,10 @@ const styles = StyleSheet.create({
   modalCard: {
     width: '85%',
     maxWidth: 420,
-    height: '85%',      
-    maxHeight: 620,    
+    height: '85%',
+    maxHeight: 620,
     backgroundColor: '#FFFFFF',
-    borderRadius: 16, 
+    borderRadius: 16,
     overflow: 'hidden',
     ...Platform.select({
       ios: {
@@ -469,8 +364,8 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
   },
 
-  modalTitle: { 
-    fontSize: 19, 
+  modalTitle: {
+    fontSize: 19,
     fontWeight: '700',
     color: '#FFFFFF',
     flex: 1,
@@ -485,17 +380,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
 
-  closeButtonText: { 
-    color: '#FFFFFF', 
-    fontSize: 22,
-    lineHeight: 24,
-    fontWeight: 'bold',
-  },
+  closeButtonText: { color: '#FFFFFF', fontSize: 22, fontWeight: 'bold' },
 
   modalBody: {
     flex: 1,
     paddingHorizontal: 20,
-    paddingVertical: 16, 
+    paddingVertical: 16,
     backgroundColor: '#FAFBFD',
   },
 
@@ -515,9 +405,7 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
 
-  infoItem: { 
-    marginBottom: 10,
-  },
+  infoItem: { marginBottom: 10 },
 
   infoLabel: {
     fontSize: 13,
@@ -542,8 +430,6 @@ const styles = StyleSheet.create({
     color: '#333333',
     lineHeight: 20,
   },
-
-
 
   commentsSection: {
     flex: 1,
