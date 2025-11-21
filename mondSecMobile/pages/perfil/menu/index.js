@@ -56,7 +56,6 @@ const enviarFoto = async (uri) => {
   try {
     const token = await AsyncStorage.getItem('userToken');
 
-
     const response = await fetch(uri);
     const blob = await response.blob();
 

@@ -108,6 +108,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 <td>${a.nivelAdmin || '-'}</td>
                 <td>${a.created_at || '-'}</td>
                 <td>${a.status || '-'}</td>
+
                 <td>
                     <a href="/adm/admins/${a.id}" class="btn btn-sm btn-warning">
                         <i class="fa-solid fa-pencil btn-alterar"></i>

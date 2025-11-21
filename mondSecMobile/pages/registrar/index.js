@@ -17,6 +17,7 @@ import { CoordenadaService } from '../../services/CoordenadaService';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import UrlService from '../../services/UrlService';
+
 import { ScrollView } from "react-native-gesture-handler";
 
 const RegistrarScreen = ({ navigation }) => {
@@ -222,6 +223,7 @@ const RegistrarScreen = ({ navigation }) => {
         </Pressable>
       </View>
 
+
        <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
         <View style={styles.form}>
           <Text style={styles.label}>Título da Ocorrência</Text>
@@ -328,7 +330,6 @@ const RegistrarScreen = ({ navigation }) => {
           {carregando ? <ActivityIndicator color="#fff" /> : <Text style={styles.textoBotao}>Enviar</Text>}
         </TouchableOpacity>
       </ScrollView>
-      {/* 🔹 Modais iguais */}
       <Modal visible={visivelInicio} transparent animationType="slide" onRequestClose={() => setVisivelInicio(false)}>
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>

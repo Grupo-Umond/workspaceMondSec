@@ -107,6 +107,7 @@ const MapaZonaLesteGeojson = forwardRef(({ ocorrencias = [], currentUserId = nul
     const feats = geojson.type === 'FeatureCollection' ? geojson.features : [geojson];
     const out = [];
 
+
     feats.forEach((f, i) => {
       const name = f.properties?.name || `Area ${i}`;
       const g = f.geometry;
@@ -458,7 +459,6 @@ const styles = StyleSheet.create({
       android: { elevation: 10 },
     }),
   },
-
   modalHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',

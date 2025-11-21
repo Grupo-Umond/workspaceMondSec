@@ -8,10 +8,6 @@ document.getElementById('prev').onclick = function() {
     document.getElementById('slide').prepend(lists[lists.length - 1]);
 }
 
-
-
-
-
 const wrapper = document.querySelector(".wrapper");
 const carousel = document.querySelector(".carousel");
 const arrowBtns = document.querySelectorAll(".wrapper i");

@@ -34,6 +34,7 @@ Route::prefix('ocorrencia')
         Route::get('/listar', 'index')->name('listar');
         Route::post('/registrar', 'store')->name('registrar');
         Route::get('/getall', 'allOcorrencias')->name('getall');
+
     });
 
 Route::prefix('codigo')
@@ -73,3 +74,4 @@ Route::prefix('comentario')
         Route::put('/atualizar','upleite');
         Route::put('/excluir','delete');
 });
+

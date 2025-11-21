@@ -118,7 +118,8 @@ main.container {
 
 .graficosDireita {
   width: 40%;
-  height: 80vh;
+
+  /* height: 80vh; */
   flex: 0 0 auto;
   display: flex;
   flex-direction: column;
@@ -239,6 +240,7 @@ canvas.bar-size {
   transform: translateY(-4px);
   box-shadow: var(--shadow-2);
 }
+
 
 .card h3 {
   margin: 0 0 8px 0;

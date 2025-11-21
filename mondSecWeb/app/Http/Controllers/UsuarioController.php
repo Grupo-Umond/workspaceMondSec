@@ -175,7 +175,8 @@ public function buscarUsuario(Request $request)
             return response()->json(['mensagem' => 'Usuário não encontrado no banco.'], 404);
         }
 
-        $usuarioP->status = 'Inativo';
+
+        $usuarioP->status = 'inativo';
         $usuarioP->save();
 
         return response()->json([

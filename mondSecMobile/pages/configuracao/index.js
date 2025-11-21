@@ -111,6 +111,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#12577B',
    
+
   },
   section: {
     marginBottom: 25

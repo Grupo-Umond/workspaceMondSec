@@ -12,6 +12,7 @@ const OcorrenciaScreen = ({ navigation }) => {
   const [busca, setBusca] = useState(""); 
   const [selecionada, setSelecionada] = useState(null); 
 
+
 useEffect(() => {
   const getOcorrencias = async () => {
     try {
@@ -49,6 +50,7 @@ useEffect(() => {
       console.log('Erro interno: ', erro);
     }
   };
+
 
   getOcorrencias();
 }, []);

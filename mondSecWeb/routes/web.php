@@ -62,6 +62,7 @@ Route::prefix('adm')
             Route::get('/comentario/{id}', 'show')->name('comentario.show');
             Route::put('/comentario/excluir/{id}', 'destroy')->name('comentario.destroy');
 
+
         });
     });
 

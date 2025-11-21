@@ -124,6 +124,7 @@ const DigiteCodigoScreen = ({ navigation, route }) => {
           clearInterval(timer);
           return 0;
         }
+
         return prev - 1;
       });
     }, 1000);

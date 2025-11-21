@@ -139,6 +139,7 @@ class AdminController extends Controller
         $admin->status = 'inativo';
         $admin->save();
 
+
         return redirect()->route('adm.admins.index')->with('success', 'Adm deletado com sucesso');
     }
 
@@ -194,6 +195,7 @@ class AdminController extends Controller
         $usuario->save();
 
         return redirect()->route('adm.users.index')->with('success', 'Usuário deletado com sucesso');
+
     }
 
     // =======================

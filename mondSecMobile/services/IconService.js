@@ -1,3 +1,4 @@
+
 const icons = {
    
   "Assalto": require("../assets/icones/default.png"),
@@ -128,3 +129,4 @@ export function getIconForTipo(tipo) {
   const key = String(tipo).trim();
   return icons[key] || icons.default;
 }  
+

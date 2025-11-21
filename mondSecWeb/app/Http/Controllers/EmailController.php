@@ -14,6 +14,7 @@ class EmailController extends Controller
 {
     public function enviar(Request $request)
     {
+
         Log::info('[EmailController@enviar] entrada', ['body' => $request->all()]);
 
         $request->validate([
@@ -70,6 +71,7 @@ class EmailController extends Controller
 
         if (empty($email)) {
             Log::warning('[EmailController@sendCodeEmail] email vazio recebido.');
+
             return response()->json([
                 'erro' => 'E-mail não fornecido.'
             ], 400);
@@ -77,6 +79,7 @@ class EmailController extends Controller
 
         $ultimoEnvio = Cache::get("last_send_{$email}");
         if ($ultimoEnvio && now()->diffInSeconds($ultimoEnvio) < 30) {
+
             $remaining = 30 - now()->diffInSeconds($ultimoEnvio);
             Log::info('[EmailController@sendCodeEmail] request bloqueado por rate limit', ['email' => $email, 'remaining' => $remaining]);
 
@@ -97,6 +100,7 @@ class EmailController extends Controller
             Log::info('[EmailController@sendCodeEmail] mail com codigo enviado', ['email' => $email]);
         } catch (\Exception $e) {
             Log::error('[EmailController@sendCodeEmail] erro ao enviar mail', ['exception' => $e->getMessage()]);
+
             return response()->json([
                 'erro' => 'Erro ao enviar e-mail: ' . $e->getMessage()
             ], 500);
@@ -129,6 +133,7 @@ class EmailController extends Controller
         if (strpos($telefone, '+') !== 0) {
             Log::warning('[EmailController@sendCodeSms] telefone sem +, recomendando E.164', ['telefone' => $telefone]);
             return response()->json(['erro' => 'Formato do telefone inválido. Use +<countrycode><number>'], 400);
+
         }
 
         $ultimoEnvio = Cache::get("last_send_{$telefone}");
@@ -139,6 +144,7 @@ class EmailController extends Controller
             return response()->json([
                 'erro' => 'Aguarde 30 segundos antes de solicitar outro código.',
                 'tempoRestante' => $remaining
+
             ], 429);
         }
 
@@ -194,8 +200,8 @@ class EmailController extends Controller
                 return response()->json(['erro' => 'Usuário não autenticado.'], 401);
             }
 
-            // A direção determina se comparamos com email ou telefone
-            $direcao = $request->input('direcao', true); // default true (email)
+           
+            $direcao = $request->input('direcao', true); 
             $login = $direcao ? $usuario->email : $usuario->telefone;
             Log::debug('[EmailController@verifyCode] login obtido via usuario', ['direcao' => $direcao ? 'email' : 'telefone', 'login' => $login]);
         }
@@ -203,6 +209,7 @@ class EmailController extends Controller
         if (empty($login)) {
             Log::warning('[EmailController@verifyCode] login indefinido ao verificar codigo.');
             return response()->json(['message' => 'Login (email/telefone) não fornecido.'], 400);
+
         }
 
         $cachedCode = Cache::get("verify_{$login}");
@@ -225,4 +232,5 @@ class EmailController extends Controller
 
         return response()->json(['token' => $tempToken, 'mensagem' => 'Código válido, verificado com sucesso']);
     }
+
 }

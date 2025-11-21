@@ -139,6 +139,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         </button>
                     </form>
                 </td>
+
             `;
             tbody.appendChild(tr);
         });
