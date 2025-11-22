@@ -1,94 +1,106 @@
 import React, { useState } from "react";
 import { View, Text, TextInput, Pressable, StyleSheet, Image } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { MaterialIcons as Icon } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import UrlService from '../../../../services/UrlService';
+import { useTheme } from '../../../../services/themes/themecontext';
 
 const DigiteCampoScreen = ({ navigation }) => {
+    const { theme, isDarkMode } = useTheme();
+
     const [login, setLogin] = useState('');
     const [erroMessage, setErroMessage] = useState('');
     const [loading, setLoading] = useState(false);
 
     const telefoneRegex = /^(?:\(?\d{2}\)?\s?)?(?:9\d{4}|\d{4})-?\d{4}$/;
-
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
     const determinarCampo = () => {
-        if (telefoneRegex.test(login)) {
-            return 'telefone';
-        }
-        if (emailRegex.test(login)) {
-            return 'email';
-        }
+        if (telefoneRegex.test(login)) return 'telefone';
+        if (emailRegex.test(login)) return 'email';
         return null;
     };
 
-const verificarExistenciaDoCampo = async () => {
-    const campo = determinarCampo();
-    if (!campo) {
-        setErroMessage('Digite um e-mail ou telefone válido');
-        return;
-    }
+    const verificarExistenciaDoCampo = async () => {
+        const campo = determinarCampo();
+        if (!campo) {
+            setErroMessage('Digite um e-mail ou telefone válido');
+            return;
+        }
 
-    try {
-        setLoading(true);
-        setErroMessage('');
+        try {
+            setLoading(true);
+            setErroMessage('');
 
-        let valorLogin = login.trim();
+            let valorLogin = login.trim();
 
-        if (campo === 'telefone') {
-            valorLogin = valorLogin.replace(/\D/g, '');
-            if (!valorLogin.startsWith('55')) {
-                valorLogin = '+55' + valorLogin;
-            } else {
-                valorLogin = '+' + valorLogin;
+            if (campo === 'telefone') {
+                valorLogin = valorLogin.replace(/\D/g, '');
+                if (!valorLogin.startsWith('55')) {
+                    valorLogin = '+55' + valorLogin;
+                } else {
+                    valorLogin = '+' + valorLogin;
+                }
             }
+
+            const response = await UrlService.post('/usuario/checkcampo', {
+                login: valorLogin,
+                campo
+            });
+
+            const usuario = response.data.usuario;
+
+            if (response.data.mensagem === 'granted') {
+                await AsyncStorage.setItem('entrada', 'saida');
+                navigation.navigate('DigiteCodigo', { usuario, campo });
+            } else if (response.data.mensagem === 'denied') {
+                setErroMessage('Erro! E-mail ou telefone não encontrado');
+            } else {
+                setErroMessage('Erro! Tente novamente mais tarde');
+            }
+        } catch (error) {
+            console.error(error);
+            setErroMessage('Erro de conexão. Tente novamente mais tarde.');
+        } finally {
+            setLoading(false);
         }
-
-        const response = await UrlService.post('/usuario/checkcampo', { 
-            login: valorLogin, 
-            campo 
-        });
-
-        const usuario = response.data.usuario;
-
-        if (response.data.mensagem === 'granted') {
-            await AsyncStorage.setItem('entrada', 'saida');
-            navigation.navigate('DigiteCodigo', { usuario, campo });
-        } else if (response.data.mensagem === 'denied') {
-            setErroMessage('Erro! E-mail ou telefone não encontrado');
-        } else {
-            setErroMessage('Erro! Tente novamente mais tarde');
-        }
-    } catch (error) {
-        console.error(error);
-        setErroMessage('Erro de conexão. Tente novamente mais tarde.');
-    } finally {
-        setLoading(false);
-    }
-};
+    };
 
 
     return (
-        <View style={styles.container}>
+        <View style={[styles.container, { backgroundColor: theme.background }]}>
+
+            {/* NAV */}
             <View style={styles.nav}>
                 <Pressable style={styles.backButton} onPress={() => navigation.goBack()}>
-                    <Text style={styles.backArrow}>{"<"}</Text>
+                    <Text style={[styles.backArrow, { color: theme.primary }]}>{"<"}</Text>
                 </Pressable>
+
                 <View style={styles.header}>
-                    <Text style={styles.headerTitle}>Alterar Senha</Text>
+                    <Text style={[styles.headerTitle, { color: theme.text }]}>Alterar Senha</Text>
                 </View>
             </View>
 
+            {/* LOGO */}
             <View style={styles.avatarContainer}>
                 <View style={styles.logoContainer}>
-                    <Image source={require('../../../../assets/mondSecLogo.png')} style={styles.logo} />
+                    <Image
+                        source={
+                            isDarkMode
+                                ? require('../../../../assets/logobranca.png')
+                                : require('../../../../assets/mondSecLogo.png')
+                        }
+                        style={styles.logo}
+                    />
                 </View>
             </View>
 
-            <Text style={styles.title}>Digite seu e-mail ou telefone</Text>
+            {/* TÍTULO */}
+            <Text style={[styles.title, { color: theme.title}]}>
+                Digite seu e-mail ou telefone
+            </Text>
 
+            {/* INPUT */}
             <View style={styles.inputContainer}>
                 <TextInput
                     onChangeText={setLogin}
@@ -96,23 +108,36 @@ const verificarExistenciaDoCampo = async () => {
                     keyboardType="email-address"
                     autoCapitalize="none"
                     placeholder="E-mail ou telefone"
-                    placeholderTextColor="#999"
+                    placeholderTextColor={theme.textSecondary}
                     style={[
                         styles.input,
-                        erroMessage ? styles.inputError : null
+                        {
+                            backgroundColor: theme.card,
+                            borderColor: erroMessage ? theme.danger : theme.border,
+                            color: theme.text
+                        }
                     ]}
                 />
 
                 {erroMessage ? (
-                    <Text style={styles.errorMessage}>{erroMessage}</Text>
+                    <Text style={[styles.errorMessage, { color: theme.danger }]}>
+                        {erroMessage}
+                    </Text>
                 ) : null}
 
+                {/* BOTÃO */}
                 <Pressable
                     onPress={verificarExistenciaDoCampo}
-                    style={[styles.confirmButton, loading && { opacity: 0.7 }]}
+                    style={[
+                        styles.confirmButton,
+                        {
+                            backgroundColor: theme.primary,
+                            opacity: loading ? 0.7 : 1
+                        }
+                    ]}
                     disabled={loading}
                 >
-                    <Text style={styles.confirmButtonText}>
+                    <Text style={[styles.confirmButtonText, { color: theme.onPrimary }]}>
                         {loading ? 'Verificando...' : 'Enviar'}
                     </Text>
                 </Pressable>
@@ -125,7 +150,6 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         padding: 20,
-        backgroundColor: "#fff",
         alignItems: "center"
     },
     nav: {
@@ -138,8 +162,7 @@ const styles = StyleSheet.create({
         marginBottom: 10
     },
     backArrow: {
-        fontSize: 70,
-        color: "#12577B"
+        fontSize: 70
     },
     header: {
         flexDirection: "row",
@@ -148,7 +171,6 @@ const styles = StyleSheet.create({
     headerTitle: {
         fontSize: 22,
         fontWeight: "600",
-        color: "#000",
         marginLeft: -50
     },
     avatarContainer: {
@@ -166,7 +188,6 @@ const styles = StyleSheet.create({
     title: {
         fontSize: 18,
         fontWeight: "600",
-        color: "#333",
         textAlign: "center",
         marginBottom: 20
     },
@@ -180,9 +201,7 @@ const styles = StyleSheet.create({
         fontSize: 16,
         paddingHorizontal: 15,
         borderWidth: 1,
-        borderColor: "#ccc",
         borderRadius: 8,
-        backgroundColor: "#fff",
         elevation: 2,
         shadowColor: "#000",
         shadowOffset: { width: 0, height: 2 },
@@ -190,16 +209,11 @@ const styles = StyleSheet.create({
         shadowRadius: 4,
         marginBottom: 15
     },
-    inputError: {
-        borderColor: "red",
-    },
     errorMessage: {
-        color: "#ff0000ff",
         marginBottom: 10,
         textAlign: "center"
     },
     confirmButton: {
-        backgroundColor: "#003366",
         paddingVertical: 12,
         paddingHorizontal: 40,
         borderRadius: 8,
@@ -208,7 +222,6 @@ const styles = StyleSheet.create({
         marginTop: 10
     },
     confirmButtonText: {
-        color: "#fff",
         fontSize: 16,
         fontWeight: "bold"
     },

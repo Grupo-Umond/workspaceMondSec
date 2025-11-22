@@ -11,6 +11,7 @@ import {
 } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import FontAwesome from '@expo/vector-icons/FontAwesome';
+import { useTheme } from "../../../../services/themes/themecontext";
 
 import { MaterialIcons as Icon } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -26,6 +27,7 @@ const DigiteCodigoScreen = ({ navigation, route }) => {
   const [carregando, setCarregando] = useState(false);
   const [erroMessage, setErroMessage] = useState("");
   const [tempoRestante, setTempoRestante] = useState(0);
+  const { theme, isDarkMode } = useTheme(); // ← TEMA AQUI PABLO
 
   const usuario = route.params?.usuario;
   const campo = route.params?.campo;
@@ -222,239 +224,230 @@ const DigiteCodigoScreen = ({ navigation, route }) => {
   };
 
   return (
-    <View style={{ flex: 1, backgroundColor: "#FFFFFF" }}>
-    <View style={styles.container}>
-      <View style={styles.cabecalho}>
-        <Pressable onPress={() => navigation.navigate('Menu')} style={styles.iconeCabecalho}>
+    <View style={{ flex: 1, backgroundColor: theme.background }}>
+      <View style={[styles.container, { backgroundColor: theme.background }]}>
 
-          <FontAwesome name="arrow-left" size={20} color="#12577B" />
+        {/* Cabeçalho */}
+        <View style={styles.cabecalho}>
+          <Pressable
+            onPress={() => navigation.navigate("Menu")}
+            style={styles.iconeCabecalho}
+          >
+            <FontAwesome name="arrow-left" size={20} color={theme.title} />
+          </Pressable>
 
-        </Pressable>
-        <Text style={styles.tituloCabecalho}>Verificação de Conta</Text>
-      </View>
-
-      <View style={styles.avatarContainer}>
-        <View style={styles.logoContainer}>
-          <Image
-            source={require("../../../../assets/mondSecLogo.png")}
-            style={styles.logo}
-          />
+          <Text style={[styles.tituloCabecalho, { color: theme.title }]}>
+            Verificação de Conta
+          </Text>
         </View>
-      </View>
 
-      <Text style={styles.title}>
-        {direcao
-          ? `Digite o código que enviamos para o email ${email}`
-          : `Digite o código que enviamos para o número ${telefone}`}
-      </Text>
+        {/* Logo */}
+   <View style={styles.avatarContainer}>
+  <View style={styles.logoContainer}>
+    <Image
+      source={
+        isDarkMode
+          ? require("../../../../assets/logobranca.png")   // logo clara no se for modo escura 
+          : require("../../../../assets/mondSecLogo.png")       // logo escura se for modo claro 
+      }
+      style={styles.logo}
+    />
+  </View>
+</View>
 
-      {direcao ? (
-        <Pressable onPress={() => { setDirecao(false); setTempoRestante(0); }}>
-          <Text style={styles.linkText}>
-            Não tenho acesso a esse email.{" "}
-            <Text style={styles.linkHighlight}>Enviar por SMS</Text>
-          </Text>
-        </Pressable>
-      ) : (
-        <Pressable onPress={() => { setDirecao(true); setTempoRestante(0); }}>
-          <Text style={styles.linkText}>
-            Não tenho acesso a esse telefone.{" "}
-            <Text style={styles.linkHighlight}>Enviar por email</Text>
-          </Text>
-        </Pressable>
-      )}
-
-      <View style={styles.inputContainer}>
-        {digitos.map((d, index) => (
-          <TextInput
-            key={index}
-            style={styles.input}
-            value={d}
-            maxLength={1}
-            keyboardType="numeric"
-            onChangeText={(text) => handleChange(text, index)}
-          />
-        ))}
-      </View>
-
-      {erroMessage ? (
-        <Text style={styles.errorMessage}>{erroMessage}</Text>
-      ) : null}
-
-      <TouchableOpacity
-        onPress={handleResendPress}
-        disabled={tempoRestante > 0}
-      >
-        <Text style={[styles.resendLink, tempoRestante > 0 && { opacity: 0.5 }]}>
-          {tempoRestante > 0
-            ? `Reenviar em ${tempoRestante}s`
-            : "Não recebeu o código? Reenviar"}
+        {/* Texto principal */}
+        <Text style={[styles.title, { color: theme.text }]}>
+          {direcao
+            ? `Digite o código que enviamos para o email ${email}`
+            : `Digite o código que enviamos para o número ${telefone}`}
         </Text>
-      </TouchableOpacity>
 
-      <TouchableOpacity
-        style={[styles.confirmButton, carregando && styles.disabledButton]}
-        onPress={enviarCodigo}
-        disabled={carregando}
-      >
-        <Text style={styles.confirmButtonText}>
-          {carregando ? "Enviando..." : "Confirmar"}
-        </Text>
-      </TouchableOpacity>
-    </View>
+        {/* Alternar Email/SMS */}
+        {direcao ? (
+          <Pressable
+            onPress={() => {
+              setDirecao(false);
+              setTempoRestante(0);
+            }}
+          >
+            <Text style={[styles.linkText, { color: theme.textSecondary }]}>
+              Não tenho acesso a esse email.{" "}
+              <Text style={[styles.linkHighlight, { color: theme.primary }]}>
+                Enviar por SMS
+              </Text>
+            </Text>
+          </Pressable>
+        ) : (
+          <Pressable
+            onPress={() => {
+              setDirecao(true);
+              setTempoRestante(0);
+            }}
+          >
+            <Text style={[styles.linkText, { color: theme.textSecondary }]}>
+              Não tenho acesso a esse telefone.{" "}
+              <Text style={[styles.linkHighlight, { color: theme.primary }]}>
+                Enviar por email
+              </Text>
+            </Text>
+          </Pressable>
+        )}
 
-    <SafeAreaView edges={['bottom']} style={styles.navigationContainer}>
-        <Pressable
-          style={({ pressed }) => [styles.navButton, { opacity: pressed ? 0.6 : 1 }]}
-          onPress={() => navigation.navigate('Home')}
+        {/* Inputs */}
+        <View style={styles.inputContainer}>
+          {digitos.map((d, index) => (
+            <TextInput
+              key={index}
+              style={[
+                styles.input,
+                {
+                  backgroundColor: isDarkMode ? "#1a1a1a" : "#fff",
+                  borderColor: theme.border,
+                  color: theme.text,
+                },
+              ]}
+              value={d}
+              maxLength={1}
+              keyboardType="numeric"
+              onChangeText={(text) => handleChange(text, index)}
+            />
+          ))}
+        </View>
+
+        {erroMessage ? (
+          <Text style={[styles.errorMessage, { color: theme.danger }]}>
+            {erroMessage}
+          </Text>
+        ) : null}
+
+        {/* Reenviar código */}
+        <TouchableOpacity disabled={tempoRestante > 0}>
+          <Text
+            style={[
+              styles.resendLink,
+              {
+                color: theme.primary,
+                opacity: tempoRestante > 0 ? 0.5 : 1,
+              },
+            ]}
+          >
+            {tempoRestante > 0
+              ? `Reenviar em ${tempoRestante}s`
+              : "Não recebeu o código? Reenviar"}
+          </Text>
+        </TouchableOpacity>
+
+        {/* Botão Confirmar */}
+        <TouchableOpacity
+          style={[
+            styles.confirmButton,
+            { backgroundColor: theme.button },
+            carregando && styles.disabledButton,
+          ]}
+          disabled={carregando}
         >
-          <Icon name="home" size={26} color="#FFFFFF" />
-          <Text style={styles.navButtonText}>Início</Text>
-        </Pressable>
-
-        <Pressable
-          style={({ pressed }) => [styles.navButton, { opacity: pressed ? 0.6 : 1 }]}
-          onPress={() => navigation.navigate('Sobre')}
-        >
-          <View style={styles.centralButton}>
-            <Icon name="info" size={28} color="#003366" />
-          </View>
-        </Pressable>
-
-        <Pressable
-          style={({ pressed }) => [styles.navButton, { opacity: pressed ? 0.6 : 1 }]}
-          onPress={() => navigation.navigate('Menu')}
-        >
-          <Icon name="person" size={26} color="#FFFFFF" />
-          <Text style={styles.navButtonText}>Perfil</Text>
-        </Pressable>
-      </SafeAreaView>
+          <Text style={styles.confirmButtonText}>
+            {carregando ? "Enviando..." : "Confirmar"}
+          </Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 };
 
-// ... estilos (mantive os mesmos do seu original) ...
 const styles = StyleSheet.create({
-  container: { 
-    flex: 1, 
-    padding: 20, 
-    backgroundColor: "#fff", 
-    paddingTop: 60,
+  container: {
+    flex: 1,
+    padding: 20,
+    paddingTop: 50,
   },
+
   cabecalho: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     marginBottom: 30,
     paddingHorizontal: 10,
-    gap:55,  
+    gap: 55,
   },
+
   tituloCabecalho: {
     fontSize: 20,
-    fontWeight: '600',
-    color: '#12577B',
+    fontWeight: "600",
   },
-  iconeCabecalho: {
-    padding: 5,
+
+  iconeCabecalho: { padding: 5 },
+
+  avatarContainer: { alignItems: "center", marginBottom: 10 },
+
+  logoContainer: { alignItems: "center" },
+
+  logo: {
+    width: 200,
+    height: 200,
+    resizeMode: "contain",
   },
-  avatarContainer: { 
-    alignItems: "center", 
-    marginBottom: 10 
-  },
-  logoContainer: { 
-    alignItems: "center" 
-  },
-  logo: { 
-    width: 200, 
-    height: 200, 
-    resizeMode: "contain" 
-  },
+
   inputContainer: {
     flexDirection: "row",
     justifyContent: "center",
     gap: 10,
     marginVertical: 20,
   },
+
   input: {
     width: 45,
     height: 55,
     fontSize: 20,
     textAlign: "center",
     borderWidth: 1,
-    borderColor: "#ccc",
     borderRadius: 8,
-    backgroundColor: "#fff",
     elevation: 2,
   },
-  errorMessage: { 
-    color: "red", 
-    marginBottom: 10, 
-    textAlign: "center" 
+
+  errorMessage: {
+    marginBottom: 10,
+    textAlign: "center",
   },
-  resendLink: { 
-    color: "#007AFF", 
-    fontSize: 14, 
-    textAlign: "center", 
-    marginBottom: 20 
+
+  resendLink: {
+    fontSize: 14,
+    textAlign: "center",
+    marginBottom: 20,
   },
+
   confirmButton: {
-    backgroundColor: "#003366",
     paddingVertical: 12,
     paddingHorizontal: 40,
     borderRadius: 8,
     alignItems: "center",
   },
-  confirmButtonText: { 
-    color: "#fff", 
-    fontSize: 16, 
-    fontWeight: "bold" 
+
+  confirmButtonText: {
+    color: "#fff",
+    fontSize: 16,
+    fontWeight: "bold",
   },
-  disabledButton: { 
-    opacity: 0.5 
+
+  disabledButton: {
+    opacity: 0.5,
   },
+
   title: {
     fontSize: 18,
     fontWeight: "600",
-    color: "#333",
     textAlign: "center",
     marginBottom: 20,
   },
-  linkText: { 
-    fontSize: 14, 
-    color: "#555", 
-    textAlign: "center", 
-    marginTop: 10 
-  },
-  linkHighlight: { 
-    color: "#1E90FF", 
-    fontWeight: "bold" 
+
+  linkText: {
+    fontSize: 14,
+    textAlign: "center",
+    marginTop: 10,
   },
 
-  navigationContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    alignItems: 'center',
-    backgroundColor: '#003366',
-    paddingVertical: 5,
-    paddingHorizontal: 10,
+  linkHighlight: {
+    fontWeight: "bold",
   },
-
-  centralButton: {
-    backgroundColor: '#FFFFFF',
-    padding: 15,
-    borderRadius: 50,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
-  },
-
-  navButtonText: {
-    color: '#FFFFFF',
-    fontSize: 12,
-    marginTop: 4,
-  },
-
 });
 
 export default DigiteCodigoScreen;

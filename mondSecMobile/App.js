@@ -4,6 +4,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 import { ActivityIndicator, View } from 'react-native';
 
 import { AuthProvider, AuthContext } from './services/AuthContext';
+import { ThemeProvider } from "./services/themes/themecontext";
 
 import HomeScreen from './pages/home';
 import LoginScreen from './pages/login';
@@ -63,9 +64,11 @@ function AppRoutes() {
 export default function App() {
   return (
     <AuthProvider>
-      <NavigationContainer>
-        <AppRoutes />
-      </NavigationContainer>
+      <ThemeProvider>
+        <NavigationContainer>
+          <AppRoutes />
+        </NavigationContainer>
+      </ThemeProvider>
     </AuthProvider>
   );
 }

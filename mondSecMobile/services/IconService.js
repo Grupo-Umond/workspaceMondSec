@@ -7,7 +7,8 @@ const icons = {
 /** 
   "Roubo de veículo": require("../assets/icones/RouboDeCarro.png"),
 
-  "Furto de peças de veículo": require("../assets/icones/RouboDeCarro.png"),
+
+  "Furto de peças de veículo": require("../assets/icones/RouboDeCarro.svg"),
 
   "Agressão": require("../assets/icones/Briga.png"),
   "Briga de rua": require("../assets/icones/Briga.png"),
@@ -122,8 +123,8 @@ const icons = {
   "Falha de energia em cruzamentos": require("../assets/icones/default.png"),
   "Trilhos bloqueando travessia": require("../assets/icones/default.png"),
 
-  // Default para qualquer tipo não mapeado
 */
+
   default: require("../assets/icones/default.png"),
 }
 

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, Pressable, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import CheckBox from 'expo-checkbox';
@@ -7,16 +6,20 @@ import { MaterialIcons as Icon } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import UrlService from '../../services/UrlService'; 
 import { TextInputMask } from 'react-native-masked-text';
+import { useTheme } from "../../services/themes/themecontext";  // ⭐ ADICIONADO
 
 const CadastroScreen = ({ navigation }) => {
-  
+
+  // ⭐ TEMA
+  const { theme, isDarkMode } = useTheme();
+
   const [nome, setNome] = useState('');
-  const [genero, setGenero] = useState(null);          
+  const [genero, setGenero] = useState(null);
   const [email, setEmail] = useState('');
   const [telefone, setTelefone] = useState('');
   const [senha, setSenha] = useState('');
   const [senhaConfirma, setSenhaConfirma] = useState('');
-  
+
   const regexTelefone = /^(?:\+55\s?)?(?:\(?\d{2}\)?\s?)?(?:9?\d{4}-?\d{4})$/;
   const regexEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -26,97 +29,82 @@ const CadastroScreen = ({ navigation }) => {
   const [erroMessage, setErroMessage] = useState('');
   const [erroSenha, setErroSenha] = useState('');
   const [erroSenhaConfirma, setErroSenhaConfirma] = useState('');
-  
 
   const opcoesGenero = ['Masculino', 'Feminino', 'Prefiro não informar'];
 
   useEffect(() => {
     const validarSenha = () => {
-        if (!senha) return;
-
-        if (senha.length < 8){
-          setErroSenha('A senha precisa ter pelo menos 8 caracteres.');
-          return false;
-        }
-    
-        if (!/\d/.test(senha)){ 
-          setErroSenha('A senha precisa conter pelo menos um número.');
-          return false;
-        }
-    
-        if (!/[A-Z]/.test(senha)){
-          setErroSenha('A senha precisa conter pelo menos uma letra maiúscula.');
-          return false;
-        }
-        setErroSenha('');
-        return true;
-      }    
-      validarSenha();
+      if (!senha) return;
+      if (senha.length < 8) {
+        setErroSenha('A senha precisa ter pelo menos 8 caracteres.');
+        return false;
+      }
+      if (!/\d/.test(senha)) {
+        setErroSenha('A senha precisa conter pelo menos um número.');
+        return false;
+      }
+      if (!/[A-Z]/.test(senha)) {
+        setErroSenha('A senha precisa conter pelo menos uma letra maiúscula.');
+        return false;
+      }
+      setErroSenha('');
+      return true;
+    };
+    validarSenha();
   }, [senha]);
 
-    useEffect(() => {
+  useEffect(() => {
     const validarSenhaConfirma = () => {
-        if (!senhaConfirma) return;
-
-        if (senhaConfirma.length < 8){
-          setErroSenhaConfirma('A senha precisa ter pelo menos 8 caracteres.');
-          return false;
-        }
-    
-        if (!/\d/.test(senhaConfirma)){ 
-          setErroSenhaConfirma('A senha precisa conter pelo menos um número.');
-          return false;
-        }
-    
-        if (!/[A-Z]/.test(senhaConfirma)){
-          setErroSenhaConfirma('A senha precisa conter pelo menos uma letra maiúscula.');
-          return false;
-        }
-        setErroSenhaConfirma('');
-        return true;
-      }    
-      validarSenhaConfirma();
+      if (!senhaConfirma) return;
+      if (senhaConfirma.length < 8) {
+        setErroSenhaConfirma('A senha precisa ter pelo menos 8 caracteres.');
+        return false;
+      }
+      if (!/\d/.test(senhaConfirma)) {
+        setErroSenhaConfirma('A senha precisa conter pelo menos um número.');
+        return false;
+      }
+      if (!/[A-Z]/.test(senhaConfirma)) {
+        setErroSenhaConfirma('A senha precisa conter pelo menos uma letra maiúscula.');
+        return false;
+      }
+      setErroSenhaConfirma('');
+      return true;
+    };
+    validarSenhaConfirma();
   }, [senhaConfirma]);
-
 
   const validarCadastro = () => {
     if (!nome || !genero || !email || !senha || !telefone) {
       setErroMessage('Por favor, preencha todos os campos obrigatórios.');
       return false;
     }
-
-    if(senha !== senhaConfirma){
+    if (senha !== senhaConfirma) {
       setErroMessage('As senhas devem ser iguais');
       return false;
     }
-
     if (erroSenha) {
       setErroMessage(erroSenha);
       return false;
     }
-
     if (!regexTelefone.test(telefone)) {
       setErroMessage('Telefone inválido.');
       return false;
     }
-
     if (!regexEmail.test(email)) {
       setErroMessage('Email inválido.');
       return false;
     }
-
     if (!concordoTermos) {
       setErroMessage('Concorde com nossos termos de uso.');
       return false;
     }
-
     setErroMessage('');
     return true;
   };
 
   const enviarDados = async () => {
     if (!validarCadastro()) return;
-
     setCarregando(true);
 
     try {
@@ -126,7 +114,7 @@ const CadastroScreen = ({ navigation }) => {
         telefone,
         genero,
         senha,
-    });
+      });
 
       const mensagem = response.data.mensagem;
       navigation.navigate('Login', { mensagem });
@@ -139,44 +127,77 @@ const CadastroScreen = ({ navigation }) => {
       else if (status === 500) setErroMessage('Erro no servidor, tente mais tarde.');
       else if (status === 422) setErroMessage('Erro, dados inválidos.');
       else setErroMessage('Erro inesperado, tente mais tarde.');
-      
+
     } finally {
       setCarregando(false);
     }
   };
 
   return (
-    <View style={styles.container}>
-      <View style={styles.containerLogo}>
-        <Pressable onPress={() => navigation.goBack()} style={styles.iconeCabecalho}>
-          <FontAwesome name="arrow-left" size={20} color="#12577B" />
-        </Pressable>
-        <Text style={styles.textoCabecalho}>Cadastre-se Agora</Text>
-        <Image 
-          source={require('../../assets/mondSecLogo.png')} 
-          style={styles.imagemLogo} 
-        />
-      </View> 
 
+    <View style={[
+      styles.container, 
+      { backgroundColor: theme.background }  // ⭐ MODO ESCURO
+    ]}>
+
+      {/* HEADER */}
+      <View style={styles.header}>
+        <Pressable onPress={() => navigation.goBack()} style={styles.iconeCabecalho}>
+          <FontAwesome name="arrow-left" size={20} color={theme.title} />
+        </Pressable>
+        <Text style={[styles.textoCabecalho, { color: theme.title }]}>
+          Cadastre-se Agora
+        </Text>
+      </View>
+
+      {/* LOGO */}
+      <View style={styles.containerLogo}>
+        <Image
+          source={
+            isDarkMode
+              ? require("../../assets/logobranca.png")
+              : require("../../assets/mondSecLogo.png")
+          }
+          style={styles.imagemLogo}
+        />
+      </View>
+
+      {/* FORMULÁRIO */}
       <View style={styles.containerFormulario}>
 
+        {/* NOME */}
         <View style={styles.grupoInput}>
-          <Text style={styles.rotulo}>Nome</Text>
+          <Text style={[styles.rotulo, { color: theme.text }]}>Nome</Text>
           <TextInput
-            style={styles.input}
+            style={[
+              styles.input,
+              {
+                backgroundColor: theme.input,
+                borderColor: theme.border,
+                color: theme.text,
+              }
+            ]}
             placeholder="Digite seu nome..."
-            placeholderTextColor="#999"
+            placeholderTextColor={theme.textSecondary}
             value={nome}
             onChangeText={setNome}
           />
         </View>
 
+        {/* EMAIL */}
         <View style={styles.grupoInput}>
-          <Text style={styles.rotulo}>Email</Text>
+          <Text style={[styles.rotulo, { color: theme.text }]}>Email</Text>
           <TextInput
-            style={styles.input}
+            style={[
+              styles.input,
+              {
+                backgroundColor: theme.input,
+                borderColor: theme.border,
+                color: theme.text,
+              }
+            ]}
             placeholder="Digite seu email..."
-            placeholderTextColor="#999"
+            placeholderTextColor={theme.textSecondary}
             value={email}
             onChangeText={setEmail}
             keyboardType="email-address"
@@ -185,8 +206,9 @@ const CadastroScreen = ({ navigation }) => {
           />
         </View>
 
+        {/* TELEFONE */}
         <View style={styles.grupoInput}>
-          <Text style={styles.rotulo}>Telefone</Text>
+          <Text style={[styles.rotulo, { color: theme.text }]}>Telefone</Text>
           <TextInputMask
             type={'cel-phone'}
             options={{
@@ -196,73 +218,119 @@ const CadastroScreen = ({ navigation }) => {
             }}
             value={telefone}
             onChangeText={text => setTelefone(text)}
-            style={styles.input}
+            style={[
+              styles.input,
+              {
+                backgroundColor: theme.input,
+                borderColor: theme.border,
+                color: theme.text,
+              }
+            ]}
             keyboardType="numeric"
-            autoCapitalize="none"
-            placeholderTextColor="#999"
+            placeholderTextColor={theme.textSecondary}
             placeholder="Digite seu telefone..."
           />
         </View>
 
+        {/* SENHA */}
         <View style={styles.grupoInput}>
-          <Text style={styles.rotulo}>Senha</Text>
+          <Text style={[styles.rotulo, { color: theme.text }]}>Senha</Text>
           {erroSenha ? <Text style={styles.erro}>{erroSenha}</Text> : null}
           <TextInput
-            style={styles.input}
+            style={[
+              styles.input,
+              {
+                backgroundColor: theme.input,
+                borderColor: theme.border,
+                color: theme.text,
+              }
+            ]}
             placeholder="Digite sua senha..."
-            placeholderTextColor="#999"
+            placeholderTextColor={theme.textSecondary}
             value={senha}
             onChangeText={setSenha}
             secureTextEntry
           />
         </View>
 
+        {/* CONFIRMAR SENHA */}
         <View style={styles.grupoInput}>
-          <Text style={styles.rotulo}>Confirma Senha</Text>
+          <Text style={[styles.rotulo, { color: theme.text }]}>Confirma Senha</Text>
           {erroSenhaConfirma ? <Text style={styles.erro}>{erroSenhaConfirma}</Text> : null}
           <TextInput
-            style={styles.input}
+            style={[
+              styles.input,
+              {
+                backgroundColor: theme.input,
+                borderColor: theme.border,
+                color: theme.text,
+              }
+            ]}
             placeholder="Confirme a senha..."
-            placeholderTextColor="#999"
+            placeholderTextColor={theme.textSecondary}
             value={senhaConfirma}
             onChangeText={setSenhaConfirma}
             secureTextEntry
           />
         </View>
 
-
+        {/* GÊNERO */}
         <View style={styles.grupoInput}>
-          <Text style={styles.rotulo}>Gênero</Text>
+          <Text style={[styles.rotulo, { color: theme.text }]}>Gênero</Text>
+
           <View style={styles.opcoesGenero}>
             {opcoesGenero.map((op) => (
-              <Pressable key={op} style={styles.botaoOpcao} onPress={() => setGenero(op)}>
-                <View style={[styles.radioExterno, genero === op && styles.radioSelecionado]}>
-                  {genero === op && <View style={styles.radioInterno} />}
+              <Pressable
+                key={op}
+                style={styles.botaoOpcao}
+                onPress={() => setGenero(op)}
+              >
+                <View style={[
+                  styles.radioExterno,
+                  { borderColor: theme.text },
+                  genero === op && { borderColor: theme.buttonColor }
+                ]}>
+                  {genero === op && (
+                    <View style={[styles.radioInterno, { backgroundColor: theme.buttonColor }]} />
+                  )}
                 </View>
-                <Text style={styles.textoOpcao}>{op}</Text>
+                <Text style={[styles.textoOpcao, { color: theme.text }]}>{op}</Text>
               </Pressable>
             ))}
           </View>
         </View>
 
+        {/* TERMOS */}
         <View style={styles.containerTermos}>
           <CheckBox
             value={concordoTermos}
             onValueChange={setConcordoTermos}
-            tintColors={{ true: '#4CAF50', false: '#aaa' }}
+            tintColors={{
+              true: theme.buttonColor,
+              false: theme.textSecondary
+            }}
             style={styles.checkbox}
           />
-         <Text style={styles.textoTermos}>
-              Concordo com os{' '}
-         <Text style={styles.termosLink} onPress={() => navigation.navigate('Politica')}>termos de uso</Text>
-        </Text>
-
+          <Text style={[styles.textoTermos, { color: theme.text }]}>
+            Concordo com os{' '}
+            <Text
+              style={[styles.termosLink, { color: theme.primary }]}
+              onPress={() => navigation.navigate('Politica')}
+            >
+              termos de uso
+            </Text>
+          </Text>
         </View>
 
         {erroMessage ? <Text style={styles.erro}>{erroMessage}</Text> : null}
 
-        <TouchableOpacity 
-          style={[styles.botaoPrimario, carregando && styles.botaoDesativado]} 
+        {/* BOTÃO */}
+        <TouchableOpacity
+          style={[
+            styles.botaoPrimario,
+            { backgroundColor: theme.buttonColor },
+            carregando && styles.botaoDesativado
+          ]}
           onPress={enviarDados}
           disabled={carregando}
         >
@@ -271,9 +339,13 @@ const CadastroScreen = ({ navigation }) => {
           </Text>
         </TouchableOpacity>
 
+        {/* LINK LOGIN */}
         <Pressable style={styles.linkLogin} onPress={() => navigation.navigate('Login')}>
-          <Text style={styles.textoLinkLogin}>
-            Já tem uma conta? <Text style={styles.textoLinkLoginNegrito}>Faça login</Text>
+          <Text style={[styles.textoLinkLogin, { color: theme.textSecondary }]}>
+            Já tem uma conta?{' '}
+            <Text style={[styles.textoLinkLoginNegrito, { color: theme.buttonColor }]}>
+              Faça login
+            </Text>
           </Text>
         </Pressable>
 
@@ -283,22 +355,35 @@ const CadastroScreen = ({ navigation }) => {
 };
 
 const styles = StyleSheet.create({
-  container: {
+   container: {
     flex: 1,
     backgroundColor: '#FFFFFF',
     paddingHorizontal: 24,
     justifyContent: 'center',
-    paddingTop:'20',
+    paddingTop: 20,
   },
-  containerLogo: {
-    alignItems: 'center',
-    marginBottom: 16,
+  header: {
+    width: "100%",
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center", 
+    marginBottom: 20,
+    position: 'relative', 
+  },
+  iconeCabecalho: {
+    position: 'absolute', 
+    left: 0, 
+    padding: 6,
   },
   textoCabecalho: {
     fontSize: 22,
     fontWeight: '700',
     color: '#2D3748',
-    marginBottom: 8,
+    textAlign: 'center', 
+  },
+  containerLogo: {
+    alignItems: 'center',
+    marginBottom: 16,
   },
   imagemLogo: {
     width: 100,
