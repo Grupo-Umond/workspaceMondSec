@@ -35,7 +35,6 @@ const local = require('./GeoJson/zonaLeste_convertido.json');
 const { width, height } = Dimensions.get('window');
 
 const MapaZonaLesteGeojson = forwardRef(({ ocorrencias = [], currentUserId = null }, ref) => {
-  
   const mapRef = useRef(null);
 
   const [region, setRegion] = useState(null);
@@ -43,7 +42,7 @@ const MapaZonaLesteGeojson = forwardRef(({ ocorrencias = [], currentUserId = nul
   const [bounds, setBounds] = useState(null);
   const [ocorrenciasState, setOcorrencias] = useState([]);
 
-  const [rotaCoords, setRotaCoords] = useState([]);   
+  const [rotaCoords, setRotaCoords] = useState([]);
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedOcorrencia, setSelectedOcorrencia] = useState(null);
 
@@ -53,6 +52,7 @@ const MapaZonaLesteGeojson = forwardRef(({ ocorrencias = [], currentUserId = nul
   const [sendingComentario, setSendingComentario] = useState(false);
   const [loggedUserId, setLoggedUserId] = useState(currentUserId);
 
+  // ================== CARREGAR MAPA =====================
   useEffect(() => {
     (async () => {
       try {
@@ -81,13 +81,13 @@ const MapaZonaLesteGeojson = forwardRef(({ ocorrencias = [], currentUserId = nul
     })();
   }, []);
 
+  // ================== OCORRÊNCIAS =====================
   useEffect(() => {
     const puxar = async () => {
       try {
         const list = await buscarOcorrencias();
         if (!Array.isArray(list)) return;
         setOcorrencias(list);
-        setSelectedOcorrencia(list);
       } catch (e) {
         console.warn('Erro ao puxar ocorrências:', e);
       }
@@ -95,7 +95,7 @@ const MapaZonaLesteGeojson = forwardRef(({ ocorrencias = [], currentUserId = nul
     puxar();
   }, []);
 
-
+  // ================== BLOQUEIO DE REGIÃO =====================
   const handleRegionChangeComplete = (rgn) => {
     if (!bounds || !mapRef.current) return;
 
@@ -105,6 +105,7 @@ const MapaZonaLesteGeojson = forwardRef(({ ocorrencias = [], currentUserId = nul
     }
   };
 
+  // ================== MODAL =====================
   const abrirModal = async (oc) => {
     setSelectedOcorrencia(oc);
     setModalVisible(true);
@@ -140,6 +141,7 @@ const MapaZonaLesteGeojson = forwardRef(({ ocorrencias = [], currentUserId = nul
     }
   };
 
+  // ================== ENVIAR COMENTÁRIO =====================
   const enviarComentario = async () => {
     const texto = (mensagemComentario || '').trim();
     if (!texto) return;
@@ -186,7 +188,7 @@ const MapaZonaLesteGeojson = forwardRef(({ ocorrencias = [], currentUserId = nul
     }
   };
 
-
+  // ================== CONTROLES EXTERNOS (REF) =====================
   useImperativeHandle(ref, () => ({
     centralizarNoEndereco(lat, lon) {
       mapRef.current?.animateCamera({
@@ -196,22 +198,20 @@ const MapaZonaLesteGeojson = forwardRef(({ ocorrencias = [], currentUserId = nul
     },
 
     desenharRota(rota) {
-      if (!rota || !rota.coordenadas) return;
-
-      const coords = rota.coordenadas.map((c) => ({
-        latitude: c.lat,
-        longitude: c.lng,
-      }));
-
-      setRotaCoords(coords);
-
-      if (coords.length > 0) {
-        mapRef.current?.fitToCoordinates(coords, {
-          edgePadding: { top: 80, bottom: 80, left: 80, right: 80 },
-          animated: true,
-        });
+      if (!rota || !Array.isArray(rota) || rota.length === 0) {
+        console.log('Rota inválida:', rota);
+        return;
       }
-    },
+
+      console.log('ROTA RECEBIDA ===>', rota);
+
+      setRotaCoords(rota);
+
+      mapRef.current?.fitToCoordinates(rota, {
+        edgePadding: { top: 80, bottom: 80, left: 80, right: 80 },
+        animated: true,
+      });
+    }
   }));
 
   if (!region) return null;

@@ -65,34 +65,70 @@ const HomeScreen = ({ navigation }) => {
     }
   };
 
-  const getCoordInicio = async () => {
-    const r = await CoordenadaService(enderecoInicial);
-    return { lat: r.lat, lon: r.lon };
-  };
+const getCoordInicio = async () => {
+  const r = await CoordenadaService(enderecoInicial);
 
-  const getCoordFinal = async () => {
-    const r = await CoordenadaService(enderecoFinal);
-    return { lat: r.lat, lon: r.lon };
-  };
+  console.log("DEBUG CoordenadaService retorno ===>", r);
+
+  const lat = Number(r.lat || r.latitude);
+  const lon = Number(r.lon || r.longitude);
+
+  console.log("DEBUG getCoordInicio FINAL ===>", { latitude: lat, longitude: lon });
+
+  return { latitude: lat, longitude: lon };
+};
+
+
+const getCoordFinal = async () => {
+  const r = await CoordenadaService(enderecoFinal );
+
+  console.log("DEBUG CoordenadaService retorno ===>", r);
+
+  const lat = Number(r.lat || r.latitude);
+  const lon = Number(r.lon || r.longitude);
+
+  console.log("DEBUG getCoordFinal  FINAL ===>", { latitude: lat, longitude: lon });
+
+  return { latitude: lat, longitude: lon };
+};
+
+
 
   const enviarRota = async () => {
     try {
       const origem = await getCoordInicio();
       const destino = await getCoordFinal();
+      console.log("ORIGEM ===>", origem);
+      console.log("DESTINO ===>", destino);
 
       const ocorrencias = await OcorrenciaService();
-      const avoid = gerarMultiPoligono(ocorrencias);
+      console.log("RETORNO OCORRENCIAS ===>", ocorrencias);
+
+      const avoid = gerarMultiPoligono(ocorrencias.ocorrencias);
+      console.log("AVOID ===>", JSON.stringify(avoid, null, 2));
 
       const rota = await RotaService(origem, destino, avoid);
-      setRotaCalculada(rota);
 
-      mapaRef.current?.desenharRota(rota);
+      const geometry = rota.features[0].geometry;  
+
+      const coordsMap = geometry.coordinates.map(c => ({
+        latitude: c[1],
+        longitude: c[0]
+      }));
+
+      console.log("COORDS FORMATADAS PARA O MAPA ===>", coordsMap);
+
+      setRotaCalculada(coordsMap);
+
+      mapaRef.current?.desenharRota(coordsMap);
 
       setModalRota(false);
+
     } catch (err) {
       console.log("Erro enviarRota:", err);
       alert("Não foi possível calcular a rota segura.");
     }
+
   };
 
   return (

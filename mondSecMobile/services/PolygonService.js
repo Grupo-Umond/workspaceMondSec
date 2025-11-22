@@ -18,7 +18,10 @@ export function gerarMultiPoligono(listaPontos) {
   return {
     type: "MultiPolygon",
     coordinates: listaPontos.map(p => {
-      const poly = pontoParaPoligono(p.longitude, p.latitude);
+      const lat = parseFloat(p.latitude);
+      const lon = parseFloat(p.longitude);
+
+      const poly = pontoParaPoligono(lon, lat);
       return poly.coordinates;
     })
   };
