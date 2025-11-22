@@ -23,6 +23,7 @@ class Usuario extends Authenticatable
         'foto',
         'dataCadastro',
         'expoToken', 
+        'status'
     ];
 
     protected $hidden = [

@@ -26,6 +26,7 @@ class Ocorrencia extends Model
         'dataAcontecimento',
         'dataPostagem',
         'idUsuario',
+        'status'
     ];
     public function usuario()
     {

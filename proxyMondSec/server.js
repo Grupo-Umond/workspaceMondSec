@@ -10,37 +10,34 @@ app.use(cors());
 app.use(express.json());
 
 const PORT = 3000;
-
 /* ============================================================
    GEOCODE (Nominatim)
 ============================================================ */
 app.get("/geocode", async (req, res) => {
   const address = req.query.address;
+  console.log("📥 [BACKEND] Recebido endereço:", address);
 
   if (!address) {
+    console.log("⚠️ [BACKEND] Endereço vazio");
     return res.status(400).json({ error: "Endereço vazio" });
   }
 
   try {
     const response = await axios.get("https://nominatim.openstreetmap.org/search", {
-      params: {
-        q: address,
-        format: "json",
-        addressdetails: 1,
-        countrycodes: "br",
-        limit: 5
-      },
-      headers: {
-        "User-Agent": "SeuAppDeCoordenadas/1.0 (andreaccioly@exemplo.com)"
-      }
+      params: { q: address, format: "json", addressdetails: 1, countrycodes: "br", limit: 5 },
+      headers: { "User-Agent": "SeuApp/1.0" }
     });
 
+    console.log("🌐 [NOMINATIM] Resposta:", response.data);
+
     res.json(response.data);
+
   } catch (err) {
-    console.error("Erro no geocode:", err.message);
+    console.error("❌ [ERRO GEOCODE BACKEND]:", err.message);
     res.status(500).json({ error: "Erro ao buscar coordenadas" });
   }
 });
+
 
 /* ============================================================
    REVERSE GEOCODE (Nominatim)
@@ -70,6 +67,7 @@ app.post("/rota", async (req, res) => {
   }
 
   try {
+    
     const response = await axios.post(
       "https://api.openrouteservice.org/v2/directions/driving-car/geojson",
       {

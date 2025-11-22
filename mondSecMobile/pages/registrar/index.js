@@ -157,10 +157,10 @@ const RegistrarScreen = ({ navigation }) => {
   const toggleMostrar = async (value) => {
     setMostrar(value);
     await AsyncStorage.setItem('mostrarModalInicio', value ? 'true' : 'false');
-    if (value) setVisivelInicio(false); // fecha o modal se marcar "não mostrar novamente"
+    if (value) setVisivelInicio(false); 
   };
 
-  // 🔹 Monta o endereço completo
+
   const montarEnderecoCompleto = () => {
     return `${rua}, ${numero}, ${bairro}, ${cidade}`;
   };
@@ -185,40 +185,71 @@ const RegistrarScreen = ({ navigation }) => {
     setBuscaTipo('');
   };
 
-  const converterEndereco = async () => {
-    try {
-      const enderecoCompleto = montarEnderecoCompleto();
-      const response = await CoordenadaService(enderecoCompleto);
-      return { latitude: response.latitude, longitude: response.longitude };
-    } catch (erro) {
-      throw new Error('Não foi possível obter coordenadas do endereço');
-    }
-  };
+const converterEndereco = async () => {
+  try {
+    const enderecoCompleto = montarEnderecoCompleto();
+    console.log("➡️ [DEBUG] Endereço montado:", enderecoCompleto);
+
+    const response = await CoordenadaService(enderecoCompleto);
+
+    console.log("✔️ [DEBUG] Coordenadas retornadas:", response);
+
+    return { latitude: response.latitude, longitude: response.longitude };
+
+  } catch (erro) {
+    console.log("❌ [ERRO] converterEndereco:", erro.message);
+    throw new Error('Não foi possível obter coordenadas do endereço');
+  }
+};
+
 
   const enviarOcorrencia = async () => {
-    if (!validarDados()) return;
-    setCarregando(true);
-    try {
-      const { latitude, longitude } = await converterEndereco();
-      const dados = { 
-        titulo, 
-        latitude, 
-        longitude, 
-        tipo, 
-        descricao, 
-        dataAcontecimento 
-      };
-      const tokenUser = await AsyncStorage.getItem('userToken');
-      await UrlService.post('/ocorrencia/registrar', dados, { headers: { Authorization: `Bearer ${tokenUser}` } });
-      limparCampos();
-      setVisivelSucesso(true);
-      setMensagemErro('');
-    } catch (erro) {
-      setMensagemErro('Falha ao enviar ocorrência, tente novamente.');
-    } finally {
-      setCarregando(false);
+  console.log("🚀 [DEBUG] Iniciando envio de ocorrência...");
+
+  if (!validarDados()) {
+    console.log("⚠️ [VALIDAÇÃO] Falhou: campos obrigatórios ausentes");
+    return;
+  }
+
+  setCarregando(true);
+
+  try {
+    console.log("🔎 [DEBUG] Buscando coordenadas do endereço...");
+    const { latitude, longitude } = await converterEndereco();
+
+    console.log("📌 [DEBUG] Dados finais antes de enviar:", {
+      titulo, latitude, longitude, tipo, descricao, dataAcontecimento
+    });
+
+    const tokenUser = await AsyncStorage.getItem('userToken');
+
+    console.log("🔐 [DEBUG] Token encontrado:", tokenUser);
+
+    if (!tokenUser) {
+      console.log("❌ [ERRO] Token do usuário está vazio!");
+      throw new Error("Token inválido");
     }
-  };
+
+    const response = await UrlService.post(
+      '/ocorrencia/registrar',
+      { titulo, latitude, longitude, tipo, descricao, dataAcontecimento },
+      { headers: { Authorization: `Bearer ${tokenUser}` } }
+    );
+
+    console.log("📥 [DEBUG] Resposta do backend:", response.data);
+
+    limparCampos();
+    setVisivelSucesso(true);
+    setMensagemErro('');
+
+  } catch (erro) {
+    console.log("❌ [ERRO] enviarOcorrencia:", erro.response?.data || erro.message);
+    setMensagemErro('Falha ao enviar ocorrência, tente novamente.');
+  } finally {
+    setCarregando(false);
+  }
+};
+
 
   return (
 <View style={styles.container}>

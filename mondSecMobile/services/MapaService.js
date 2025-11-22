@@ -1,5 +1,10 @@
-
-import React, { useRef, useState, useEffect, forwardRef } from 'react';
+import React, {
+  useRef,
+  useState,
+  useEffect,
+  forwardRef,
+  useImperativeHandle,
+} from 'react';
 import {
   StyleSheet,
   Dimensions,
@@ -14,9 +19,9 @@ import {
   ScrollView,
   ActivityIndicator,
 } from 'react-native';
-import MapView, { Polygon, Marker } from 'react-native-maps';
-import * as Location from 'expo-location';
 
+import MapView, { Polygon, Marker, Polyline } from 'react-native-maps';
+import * as Location from 'expo-location';
 
 import { parseGeoJSON } from './MapaZonaLeste/geojsonParser.service';
 import { calculateBounds, checkAndFixRegion } from './MapaZonaLeste/regionBounds.service';
@@ -26,9 +31,11 @@ import { buscarUsuarioLogado } from './MapaZonaLeste/user.service';
 import { resolveIcon } from './MapaZonaLeste/iconResolver.service';
 
 const local = require('./GeoJson/zonaLeste_convertido.json');
+
 const { width, height } = Dimensions.get('window');
 
 const MapaZonaLesteGeojson = forwardRef(({ ocorrencias = [], currentUserId = null }, ref) => {
+  
   const mapRef = useRef(null);
 
   const [region, setRegion] = useState(null);
@@ -36,6 +43,7 @@ const MapaZonaLesteGeojson = forwardRef(({ ocorrencias = [], currentUserId = nul
   const [bounds, setBounds] = useState(null);
   const [ocorrenciasState, setOcorrencias] = useState([]);
 
+  const [rotaCoords, setRotaCoords] = useState([]);   
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedOcorrencia, setSelectedOcorrencia] = useState(null);
 
@@ -77,10 +85,7 @@ const MapaZonaLesteGeojson = forwardRef(({ ocorrencias = [], currentUserId = nul
     const puxar = async () => {
       try {
         const list = await buscarOcorrencias();
-        if (!Array.isArray(list)) {
-          console.warn('Formato inesperado ao buscar ocorrências:', list);
-          return;
-        }
+        if (!Array.isArray(list)) return;
         setOcorrencias(list);
         setSelectedOcorrencia(list);
       } catch (e) {
@@ -89,6 +94,7 @@ const MapaZonaLesteGeojson = forwardRef(({ ocorrencias = [], currentUserId = nul
     };
     puxar();
   }, []);
+
 
   const handleRegionChangeComplete = (rgn) => {
     if (!bounds || !mapRef.current) return;
@@ -103,7 +109,7 @@ const MapaZonaLesteGeojson = forwardRef(({ ocorrencias = [], currentUserId = nul
     setSelectedOcorrencia(oc);
     setModalVisible(true);
 
-    const idOc = oc?.id ?? oc?._id ?? null;
+    const idOc = oc?.id ?? oc?._id;
     if (!idOc) {
       setComentarios([]);
       return;
@@ -159,7 +165,6 @@ const MapaZonaLesteGeojson = forwardRef(({ ocorrencias = [], currentUserId = nul
       };
 
       const res = await enviarComentarioRequest(payload);
-
       const novo = res ?? null;
 
       if (novo && (novo.id || novo._id)) {
@@ -175,12 +180,39 @@ const MapaZonaLesteGeojson = forwardRef(({ ocorrencias = [], currentUserId = nul
         setMensagemComentario('');
       }
     } catch (e) {
-      console.warn('Erro ao enviar comentário:', e);
       Alert.alert('Erro', 'Não foi possível enviar o comentário.');
     } finally {
       setSendingComentario(false);
     }
   };
+
+
+  useImperativeHandle(ref, () => ({
+    centralizarNoEndereco(lat, lon) {
+      mapRef.current?.animateCamera({
+        center: { latitude: lat, longitude: lon },
+        zoom: 16,
+      });
+    },
+
+    desenharRota(rota) {
+      if (!rota || !rota.coordenadas) return;
+
+      const coords = rota.coordenadas.map((c) => ({
+        latitude: c.lat,
+        longitude: c.lng,
+      }));
+
+      setRotaCoords(coords);
+
+      if (coords.length > 0) {
+        mapRef.current?.fitToCoordinates(coords, {
+          edgePadding: { top: 80, bottom: 80, left: 80, right: 80 },
+          animated: true,
+        });
+      }
+    },
+  }));
 
   if (!region) return null;
 
@@ -210,7 +242,6 @@ const MapaZonaLesteGeojson = forwardRef(({ ocorrencias = [], currentUserId = nul
         {ocorrenciasState.map((oc, i) => {
           const lat = Number(oc.latitude);
           const lng = Number(oc.longitude);
-
           if (!isFinite(lat) || !isFinite(lng)) return null;
 
           return (
@@ -223,11 +254,25 @@ const MapaZonaLesteGeojson = forwardRef(({ ocorrencias = [], currentUserId = nul
             </Marker>
           );
         })}
+
+        {rotaCoords.length > 0 && (
+          <Polyline
+            coordinates={rotaCoords}
+            strokeWidth={5}
+            strokeColor="#ff0000ff"
+          />
+        )}
       </MapView>
 
-      <Modal visible={modalVisible} transparent animationType="slide" onRequestClose={fecharModal}>
+      <Modal
+        visible={modalVisible}
+        transparent
+        animationType="slide"
+        onRequestClose={fecharModal}
+      >
         <View style={styles.modalOverlay}>
           <View style={styles.modalCard}>
+
             <View style={styles.modalHeader}>
               <Text style={styles.modalTitle}>
                 {selectedOcorrencia?.tipo || 'Detalhes da Ocorrência'}
@@ -238,6 +283,7 @@ const MapaZonaLesteGeojson = forwardRef(({ ocorrencias = [], currentUserId = nul
             </View>
 
             <ScrollView style={styles.modalBody} showsVerticalScrollIndicator={false}>
+
               <View style={styles.infoSection}>
                 <Text style={styles.sectionTitle}>Informações</Text>
 
@@ -264,7 +310,9 @@ const MapaZonaLesteGeojson = forwardRef(({ ocorrencias = [], currentUserId = nul
                 {loadingComentarios ? (
                   <View style={{ paddingVertical: 12 }}>
                     <ActivityIndicator size="small" color="#003366" />
-                    <Text style={{ textAlign: 'center', marginTop: 8 }}>Carregando comentários...</Text>
+                    <Text style={{ textAlign: 'center', marginTop: 8 }}>
+                      Carregando comentários...
+                    </Text>
                   </View>
                 ) : (
                   <View style={styles.commentsList}>
@@ -301,7 +349,10 @@ const MapaZonaLesteGeojson = forwardRef(({ ocorrencias = [], currentUserId = nul
 
                   <TouchableOpacity
                     onPress={enviarComentario}
-                    style={[styles.sendButton, sendingComentario && styles.sendButtonDisabled]}
+                    style={[
+                      styles.sendButton,
+                      sendingComentario && styles.sendButtonDisabled
+                    ]}
                     disabled={sendingComentario}
                   >
                     {sendingComentario ? (
@@ -312,6 +363,7 @@ const MapaZonaLesteGeojson = forwardRef(({ ocorrencias = [], currentUserId = nul
                   </TouchableOpacity>
                 </View>
               </View>
+
             </ScrollView>
 
             <View style={styles.modalFooter}>
@@ -319,6 +371,7 @@ const MapaZonaLesteGeojson = forwardRef(({ ocorrencias = [], currentUserId = nul
                 <Text style={styles.okButtonText}>Fechar</Text>
               </TouchableOpacity>
             </View>
+
           </View>
         </View>
       </Modal>
@@ -411,135 +464,117 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: '600',
     color: '#012E61',
-    marginBottom: 3,
-    textTransform: 'uppercase',
-    letterSpacing: 0.3,
+  },
+
+  infoText: {
+    fontSize: 13,
+    color: '#333',
+    marginTop: 4,
   },
 
   infoData: {
     fontSize: 13,
     fontWeight: '600',
     color: '#012E61',
-    marginBottom: 3,
-    textTransform: 'uppercase',
-    letterSpacing: 0.3,
-  },
-
-  infoText: {
-    fontSize: 14,
-    color: '#333333',
-    lineHeight: 20,
   },
 
   commentsSection: {
-    flex: 1,
+    marginBottom: 24,
     backgroundColor: '#FFFFFF',
-    borderRadius: 10,
     padding: 14,
+    borderRadius: 10,
     borderWidth: 1,
     borderColor: '#E5E8ED',
   },
 
-  commentsList: {
-    marginBottom: 16,
+  commentsList: { marginTop: 10 },
+
+  emptyComments: {
+    color: '#666',
+    fontStyle: 'italic',
+    textAlign: 'center',
   },
 
   commentItem: {
-    backgroundColor: '#F3F6FA',
-    padding: 12,
+    backgroundColor: '#F2F6FA',
+    padding: 10,
     borderRadius: 8,
-    marginBottom: 8,
-    borderLeftWidth: 3,
-    borderLeftColor: '#012E61',
+    marginBottom: 12,
   },
 
   commentHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 4,
+    marginBottom: 5,
   },
 
   commentAuthor: {
-    fontSize: 13,
     fontWeight: '700',
     color: '#012E61',
+    fontSize: 13,
   },
 
   commentDate: {
     fontSize: 11,
-    color: '#808080',
+    color: '#777',
   },
 
   commentText: {
-    fontSize: 14,
-    color: '#333333',
-    lineHeight: 20,
+    fontSize: 13,
+    color: '#333',
   },
 
-  emptyComments: {
-    textAlign: 'center',
-    color: '#666666',
-    fontStyle: 'italic',
-    paddingVertical: 20,
+  commentInputContainer: {
+    marginTop: 15,
   },
-
-  commentInputContainer: { marginTop: 10 },
 
   commentInput: {
-    marginTop: 12,
-    padding: 8,
     borderWidth: 1,
-    borderColor: '#D0D7E0',
-    borderRadius: 10,
-    padding: 12,
-    fontSize: 14,
+    borderColor: '#D8DDE5',
+    borderRadius: 8,
+    padding: 10,
     backgroundColor: '#FFFFFF',
-    color: '#333333',
-    minHeight: 80,
+    color: '#333',
+    minHeight: 70,
     textAlignVertical: 'top',
   },
 
   sendButton: {
-    backgroundColor: '#012E61',
-    paddingVertical: 12,
-    paddingHorizontal: 24,
-    borderRadius: 10,
-    alignItems: 'center',
-    justifyContent: 'center',
     marginTop: 10,
-    alignSelf: 'flex-end',
-    minWidth: 110,
+    paddingVertical: 10,
+    backgroundColor: '#003366',
+    borderRadius: 8,
+    alignItems: 'center',
   },
 
   sendButtonDisabled: {
-    opacity: 0.6,
+    opacity: 0.5,
   },
 
   sendButtonText: {
-    color: '#FFFFFF',
+    color: '#FFF',
+    fontWeight: '700',
     fontSize: 14,
-    fontWeight: '600',
   },
 
   modalFooter: {
-    padding: 18,
+    padding: 14,
+    backgroundColor: '#FAFBFD',
     borderTopWidth: 1,
-    borderTopColor: '#E5E8ED',
-    backgroundColor: '#F8FAFC',
+    borderColor: '#E5E8ED',
   },
 
   okButton: {
-    backgroundColor: '#012E61',
+    backgroundColor: '#003366',
     paddingVertical: 12,
-    paddingHorizontal: 32,
-    borderRadius: 10,
+    borderRadius: 8,
     alignItems: 'center',
   },
 
   okButtonText: {
     color: '#FFFFFF',
+    fontWeight: '700',
     fontSize: 16,
-    fontWeight: '600',
   },
 });
 

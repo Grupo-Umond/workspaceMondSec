@@ -17,6 +17,7 @@ class Comentario extends Model
         'data',
         'idUsuario',
         'idOcorrencia'
+        'status'
     ];
 
     protected $casts = [

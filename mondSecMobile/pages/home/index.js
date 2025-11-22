@@ -2,83 +2,114 @@ import React, { useState, useEffect, useRef, useContext } from 'react';
 import { View, Text, Pressable, TextInput, Modal, StyleSheet, ActivityIndicator } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { MaterialIcons as Icon } from '@expo/vector-icons';
+
 import Mapa from "../../services/MapaService";
 import { AuthContext } from '../../services/AuthContext';
 import { CoordenadaService } from '../../services/CoordenadaService';
 import { LocalizacaoService } from '../../services/LocalizacaoService';
 import { NotificacaoService } from '../../services/NotificacaoService';
+import { RotaService } from '../../services/RotaService';
+import { OcorrenciaService } from '../../services/OcorrenciaService';
+import { gerarMultiPoligono } from '../../services/PolygonService';
 
 const HomeScreen = ({ navigation }) => {
   const [permissao, setPermissao] = useState(false);
   const [welcome, setWelcome] = useState(false);
   const [endereco, setEndereco] = useState('');
+  const [modalRota, setModalRota] = useState(false);
+
   const { tokenUser } = useContext(AuthContext);
+
+  const [enderecoInicial, setEnderecoInicial] = useState('');
+  const [enderecoFinal, setEnderecoFinal] = useState('');
+  const [rotaCalculada, setRotaCalculada] = useState(null);
+
   const mapaRef = useRef(null);
 
   useEffect(() => {
     const verificarModal = async () => {
-      const vizualizacao = await AsyncStorage.getItem('welcomeSeen');
-      if (!vizualizacao) {
-        setWelcome(true);
-      }
+      const vizu = await AsyncStorage.getItem('welcomeSeen');
+      if (!vizu) setWelcome(true);
 
-      const response = await AsyncStorage.getItem('permissaoLocal');
-      if (response !== 'granted') {
-        setPermissao(true);
-      }
+      const perm = await AsyncStorage.getItem('permissaoLocal');
+      if (perm !== 'granted') setPermissao(true);
     };
+
     verificarModal();
   }, []);
 
   const pedirPermissao = async (permitiu) => {
     if (permitiu) {
       await LocalizacaoService();
-      await AsyncStorage.setItem('permissaoLocal', 'granted');
       await NotificacaoService();
-
+      await AsyncStorage.setItem('permissaoLocal', 'granted');
+      setPermissao(false);
     } else {
       await AsyncStorage.setItem('permissaoLocal', 'denied');
+      setPermissao(false);
     }
-     
     setPermissao(false);
   };
 
   const esconderModal = async () => {
     await AsyncStorage.setItem('welcomeSeen', 'ok');
     setWelcome(false);
-    setPermissao(true);
-    
-  }
+  };
+
   const buscarEndereco = async () => {
     try {
       const coords = await CoordenadaService(endereco);
-      mapaRef.current?.centralizarNoEndereco(coords.lat, coords.lng);
+      mapaRef.current?.centralizarNoEndereco(coords.lat, coords.lon);
     } catch (e) {
-      alert('Endereço não encontrado');
+      alert("Endereço não encontrado!");
     }
   };
-  
 
+  const getCoordInicio = async () => {
+    const r = await CoordenadaService(enderecoInicial);
+    return { lat: r.lat, lon: r.lon };
+  };
+
+  const getCoordFinal = async () => {
+    const r = await CoordenadaService(enderecoFinal);
+    return { lat: r.lat, lon: r.lon };
+  };
+
+  const enviarRota = async () => {
+    try {
+      const origem = await getCoordInicio();
+      const destino = await getCoordFinal();
+
+      const ocorrencias = await OcorrenciaService();
+      const avoid = gerarMultiPoligono(ocorrencias);
+
+      const rota = await RotaService(origem, destino, avoid);
+      setRotaCalculada(rota);
+
+      mapaRef.current?.desenharRota(rota);
+
+      setModalRota(false);
+    } catch (err) {
+      console.log("Erro enviarRota:", err);
+      alert("Não foi possível calcular a rota segura.");
+    }
+  };
 
   return (
     <View style={styles.container}>
 
-     
       <View style={styles.navCima}>
         <View style={styles.navRota}>
           <Pressable 
-            style={({ pressed }) => [
-              styles.navButton,
-              { opacity: pressed ? 0.6 : 1 }
-            ]} 
-            onPress={() => navigation.navigate('registrar')}
+            style={styles.navButton} 
+            onPress={() => setModalRota(true)}
           >
             <View style={styles.buttonRota}>
-              <Icon name="directions" size={28} color="#fafafaff" />
+              <Icon name="directions" size={28} color="#fafafa" />
             </View>
           </Pressable>
         </View>
-        
+
         <View style={styles.searchContainer}>
           <View style={styles.searchInputContainer}>
             <TextInput
@@ -88,86 +119,50 @@ const HomeScreen = ({ navigation }) => {
               value={endereco}
               onChangeText={setEndereco}
             />
-            <Pressable style={styles.searchButton} onPress={() => buscarEndereco()}>
+            <Pressable style={styles.searchButton} onPress={buscarEndereco}>
               <Icon name="search" size={24} color="#003366" />
             </Pressable>
           </View>
         </View>
-
-
       </View>
+
 
       <View style={styles.mapContainer}>
-        <Mapa style={styles.mapImage} />
+        <Mapa ref={mapaRef} style={styles.mapImage} />
       </View>
 
-      
-        {tokenUser ?  (
-          <>
-            <Pressable 
-              style={({ pressed }) => [
-                styles.ocorrenciaButton,
-                { opacity: pressed ? 0.6 : 1 }
-              ]} 
-              onPress={() => navigation.navigate('Registrar')}
-            >
-              <Icon name="warning" size={28} color="#FFFFFF" />
-            </Pressable>
-          </>
-        ):(
-          <>
-          </>
-        )}
-
-      <View style={styles.navigationContainer}>
+      {tokenUser && (
         <Pressable 
-          style={({ pressed }) => [
-            styles.navButton,
-            { opacity: pressed ? 0.6 : 1 }
-          ]} 
-          onPress={() => navigation.navigate('Home')}
+          style={styles.ocorrenciaButton}
+          onPress={() => navigation.navigate('Registrar')}
         >
-          <Icon name="home" size={26} color="#FFFFFF" />
+          <Icon name="warning" size={28} color="#FFF" />
+        </Pressable>
+      )}
+
+     
+      <View style={styles.navigationContainer}>
+        <Pressable style={styles.navButton} onPress={() => navigation.navigate('Home')}>
+          <Icon name="home" size={26} color="#FFF" />
           <Text style={styles.navButtonText}>Início</Text>
         </Pressable>
-        
-        <Pressable 
-          style={({ pressed }) => [
-            styles.navButton,
-            { opacity: pressed ? 0.6 : 1 }
-          ]} 
-          onPress={() => navigation.navigate('Sobre')}
-        >
+
+        <Pressable style={styles.navButton} onPress={() => navigation.navigate('Sobre')}>
           <View style={styles.centralButton}>
             <Icon name="info" size={28} color="#003366" />
           </View>
         </Pressable>
-        {tokenUser ?  (
-          <>
-            <Pressable 
-              style={({ pressed }) => [
-                styles.navButton,
-                { opacity: pressed ? 0.6 : 1 }
-              ]} 
-              onPress={() => navigation.navigate('Menu')}
-            >
-              <Icon name="person" size={26} color="#FFFFFF" />
-              <Text style={styles.navButtonText}>Perfil</Text>
-            </Pressable>
-          </>
-        ):(
-          <>
-            <Pressable 
-              style={({ pressed }) => [
-                styles.navButton,
-                { opacity: pressed ? 0.6 : 1 }
-              ]} 
-              onPress={() => navigation.navigate('Login')}
-              >
-              <Icon name="person" size={26} color="#FFFFFF" />
-              <Text style={styles.navButtonText}>Entrar</Text>
-            </Pressable>
-          </>
+
+        {tokenUser ? (
+          <Pressable style={styles.navButton} onPress={() => navigation.navigate('Menu')}>
+            <Icon name="person" size={26} color="#FFF" />
+            <Text style={styles.navButtonText}>Perfil</Text>
+          </Pressable>
+        ) : (
+          <Pressable style={styles.navButton} onPress={() => navigation.navigate('Login')}>
+            <Icon name="person" size={26} color="#FFF" />
+            <Text style={styles.navButtonText}>Entrar</Text>
+          </Pressable>
         )}
       </View>
 
@@ -176,7 +171,7 @@ const HomeScreen = ({ navigation }) => {
           <View style={styles.modalContent}>
             <Text style={styles.modalTitle}>Bem-vindo ao MondSec!</Text>
             <Text style={styles.modalText}>Seu app de rotas seguras!</Text>
-            <Pressable onPress={() => esconderModal()}>
+            <Pressable onPress={esconderModal}>
               <Text style={styles.modalButton}>Ok</Text>
             </Pressable>
           </View>
@@ -187,10 +182,8 @@ const HomeScreen = ({ navigation }) => {
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
             <Text style={styles.modalTitle}>Aviso!</Text>
-            <Text style={styles.modalText}>
-              Esse aplicativo precisa da sua localização!
-            </Text>
-            <Pressable onPress={() => {setPermissao(false);pedirPermissao(true);}}>
+            <Text style={styles.modalText}>Esse aplicativo precisa da sua localização.</Text>
+            <Pressable onPress={() => pedirPermissao(true)}>
               <Text style={styles.modalButton}>Sim</Text>
             </Pressable>
             <Pressable onPress={() => pedirPermissao(false)}>
@@ -200,162 +193,94 @@ const HomeScreen = ({ navigation }) => {
         </View>
       </Modal>
 
+      <Modal animationType="slide" transparent visible={modalRota}>
+        <View style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <Pressable onPress={() => setModalRota(false)}><Text>Fechar</Text></Pressable>
+            <Text>Para onde você quer ir?</Text>
+
+            <Text>Local de início</Text>
+            <TextInput
+              
+              placeholder="Digite o endereço..."
+              value={enderecoInicial}
+              onChangeText={setEnderecoInicial}
+            />
+
+            <Text>Destino</Text>
+            <TextInput
+              placeholder="Digite o endereço..."
+              value={enderecoFinal}
+              onChangeText={setEnderecoFinal}
+            />
+
+            <Pressable onPress={enviarRota}>
+              <Text style={styles.modalButton}>Calcular rota</Text>
+            </Pressable>
+          </View>
+        </View>
+      </Modal>
+
     </View>
   );
 };
 
-
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#FFFFFF',
-  },
-  navCima: { 
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
+  container: { flex: 1, backgroundColor: "#fff" },
+  navCima: {
+    position: "absolute",
+    top: 0, left: 0, right: 0,
     zIndex: 10,
-    flexDirection: 'row', 
-    alignItems: 'center',
+    flexDirection: "row",
     paddingHorizontal: 15,
     paddingTop: 50,
     paddingBottom: 10,
-    backgroundColor: '#FFFFFF',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 3,
+    backgroundColor: "#FFF",
     elevation: 3,
   },
-  navRota: { 
-    marginRight: 10 
-  },
-  navButton: { 
-    alignItems: 'center', 
-    justifyContent: 'center' 
-  },
-  buttonRota: { 
-    backgroundColor: '#003366', 
-    padding: 10, 
-    borderRadius: 50,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 3,
-    elevation: 3,
-  },
-  searchContainer: { 
-    flex: 1, 
-    marginHorizontal: 10,
-  },
+  navRota: { marginRight: 10 },
+  navButton: { alignItems: "center", justifyContent: "center" },
+  buttonRota: { backgroundColor: "#003366", padding: 10, borderRadius: 50 },
+  searchContainer: { flex: 1, marginHorizontal: 10 },
   searchInputContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#F5F5F5',
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: "#F5F5F5",
     borderRadius: 25,
     paddingHorizontal: 15,
     height: 50,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
     elevation: 2,
   },
-  searchInput: {
-    flex: 1,
-    fontSize: 16,
-    color: '#333',
-    paddingVertical: 8,
-  },
-  searchButton: {
-    padding: 8,
-  },
-  localizacaoButton: {
-    padding: 10,
-    backgroundColor: '#F5F5F5',
-    borderRadius: 25,
-    marginLeft: 5,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 2,
-  },
-  mapContainer: { 
-    flex: 1,
-  },
-  mapImage: {
-    flex: 1,
-  },
+  searchInput: { flex: 1, fontSize: 16, color: "#333" },
+  searchButton: { padding: 8 },
+  mapContainer: { flex: 1 },
   ocorrenciaButton: {
-    position: 'absolute',
-    bottom: 140,
-    right: 20,
-    backgroundColor: '#df4f1fff',
-    padding: 15,
-    borderRadius: 50,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
+    position: "absolute", bottom: 140, right: 20,
+    backgroundColor: "#df4f1f",
+    padding: 15, borderRadius: 50,
   },
   navigationContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    alignItems: 'center',
-    backgroundColor: '#003366',
+    flexDirection: "row",
+    justifyContent: "space-around",
     paddingVertical: 15,
-    paddingHorizontal: 10,
+    backgroundColor: "#003366",
   },
-  centralButton: {
-    backgroundColor: '#FFFFFF',
-    padding: 15,
-    borderRadius: 50,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
-  },
-  navButtonText: {
-    color: '#FFFFFF',
-    fontSize: 12,
-    marginTop: 4,
-  },
+  navButtonText: { color: "#FFF", fontSize: 12, marginTop: 4 },
+  centralButton: { backgroundColor: "#FFF", padding: 15, borderRadius: 50 },
   modalContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0,0,0,0.5)',
+    flex: 1, justifyContent: "center",
+    alignItems: "center", backgroundColor: "rgba(0,0,0,0.5)"
   },
   modalContent: {
-    backgroundColor: '#FFFFFF',
-    padding: 20,
-    borderRadius: 15,
-    alignItems: 'center',
-    width: '80%',
+    backgroundColor: "#FFF", padding: 20,
+    borderRadius: 15, width: "80%", alignItems: "center",
   },
-  modalTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    marginBottom: 10,
-    color: '#003366',
-  },
-  modalText: {
-    fontSize: 16,
-    textAlign: 'center',
-    marginBottom: 20,
-    color: '#333',
-  },
+  modalTitle: { fontSize: 20, fontWeight: "bold", marginBottom: 10 },
+  modalText: { fontSize: 16, marginBottom: 20, textAlign: "center" },
   modalButton: {
-    fontSize: 16,
-    color: '#003366',
-    fontWeight: 'bold',
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-  },
+    fontSize: 16, color: "#003366",
+    fontWeight: "bold", marginTop: 10
+  }
 });
 
 export default HomeScreen;
