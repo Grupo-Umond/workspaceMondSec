@@ -1,173 +1,223 @@
-import React, { useState, useEffect, useContext} from "react";
-import { View, Text, TextInput, Pressable, StyleSheet, TouchableOpacity, Image}  from 'react-native';
+import React, { useState, useEffect, useContext } from "react";
+import { View, Text, TextInput, Pressable, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import { AuthContext } from '../../services/AuthContext';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
-import { MaterialIcons as Icon } from '@expo/vector-icons';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { useTheme } from "../../services/themes/themecontext"; // THEME AQUI
 import UrlService from '../../services/UrlService';
-import  axios  from 'axios';
 
-const LoginScreen = ({navigation, route}) => {
+const LoginScreen = ({ navigation, route }) => {
 
-  const[erroMessage, setErroMessage] = useState('');
-  const[carregando, setCarregando] = useState(false);
-  const[login, setLogin] = useState('');
-  const[senha, setSenha] = useState('');
+  const [erroMessage, setErroMessage] = useState('');
+  const [carregando, setCarregando] = useState(false);
+  const [login, setLogin] = useState('');
+  const [senha, setSenha] = useState('');
   const regexTelefone = /^(?:\s?)?(?:\(?\d{2}\)?\s?)?(?:9?\d{4}-?\d{4})$/;
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  const { logar }= useContext(AuthContext);
+  const { logar } = useContext(AuthContext);
+
   const mensagem = route.params?.mensagem;
   const [sucessMessage, setSucessMessage] = useState(mensagem);
 
+  // TEMA
+  const { theme, isDarkMode } = useTheme();
+
   const validarDados = () => {
     setSucessMessage('');
-    if(!login || !senha) {
+    if (!login || !senha) {
       setErroMessage('Por favor, preenche todos os campos.');
       return false;
     }
 
-    if(!emailRegex.test(login) && !regexTelefone.test(login)) {
-      setErroMessage('Por favor, digite um email ou numero valido.');
+    if (!emailRegex.test(login) && !regexTelefone.test(login)) {
+      setErroMessage('Por favor, digite um email ou número válido.');
       return false;
     }
 
-    if(senha.length < 8) {
-      setErroMessage('Por favor, digite uma senha com no minimo 8 digitos.');
+    if (senha.length < 8) {
+      setErroMessage('Por favor, digite uma senha com no mínimo 8 dígitos.');
       return false;
     }
-    
-    setErroMessage('')
+
+    setErroMessage('');
     return true;
-  }
+  };
 
   const validarLogin = async () => {
-    if(!validarDados()) return;
+    if (!validarDados()) return;
     setCarregando(true);
 
     try {
-
       const response = await UrlService.post('/usuario/login', {
         login,
         senha,
       });
 
       const token = response.data.tokenUser;
-    
-      if(!token) {
+
+      if (!token) {
         setErroMessage("Erro ao autenticar. Token não recebido.");
         return;
       }
+
       const mensagem = response.data.mensagem;
       await logar(token);
-      navigation.navigate('Home',{mensagem});     
+      navigation.navigate('Home', { mensagem });
+
     } catch (err) {
 
-        if(err.response?.status === 401) {
-          setErroMessage("Email ou senha incorretos.");
-        } else if(err.response?.status === 403) {
-          setErroMessage("Conta deletada"); 
-    
-        }else if(err.response?.status === 505){
-          console.log(err);
-          setErroMessage("Falha no servidor.");
-
-        }
-      }finally{
-        setCarregando(false);
+      if (err.response?.status === 401) {
+        setErroMessage("Email ou senha incorretos.");
+      } else if (err.response?.status === 403) {
+        setErroMessage("Conta deletada");
+      } else if (err.response?.status === 505) {
+        setErroMessage("Falha no servidor.");
       }
-  }
+
+    } finally {
+      setCarregando(false);
+    }
+  };
 
   return (
-  <View style={styles.container}>
-     <View style={styles.containerFundo}>
-        <View style={[styles.metadeFundo, styles.metadeSuperior]} />
-        <View style={[styles.metadeFundo, styles.metadeInferior]} />
+    <View style={[styles.container, { backgroundColor: theme.background }]}>
+
+      {/* Fundo */}
+      <View style={styles.containerFundo}>
+        <View style={[
+          styles.metadeFundo,
+          { backgroundColor: isDarkMode ? theme.cimaDark : "#12577B" }
+        ]} />
+
+        <View style={[
+          styles.metadeFundo,
+          { backgroundColor: isDarkMode ? theme.baixoDark : "#a9cfe5" }
+        ]} />
       </View>
-        <View style={styles.containerConteudo}>
-              <Pressable onPress={() => navigation.navigate('Home')} style={styles.iconeCabecalho}>
-                <FontAwesome name="arrow-left" size={20} color="#12577B" />
-              </Pressable>
-            <View style={styles.logoContainer}>
-                <Image
-                  source={require('../../assets/mondlogo.png')}
-                  style={styles.logo}
-                />
-              </View>
 
-              <Text style={styles.textoBoasVindas}>Bem-vindo à MondSec!</Text>
-    <Text style={styles.textoEntrar}>Entrar</Text>
+      {/* CARD */}
+      <View style={[
+        styles.containerConteudo,
+        { backgroundColor: isDarkMode ? "#1a1a1a" : "whitesmoke" }
+      ]}>
 
-     <View style={styles.containerInput}>
-          <Text style={styles.rotulo}>Email</Text>
+        <Pressable
+          onPress={() => navigation.navigate('Home')}
+          style={styles.iconeCabecalho}
+        >
+          <FontAwesome name="arrow-left" size={20} color={theme.title} />
+        </Pressable>
+
+        <View style={styles.logoContainer}>
+           <Image
+                    source={
+                      isDarkMode
+                        ? require("../../assets/logobranca.png")
+                        : require("../../assets/mondSecLogo.png")
+                    }
+                    style={styles.imagemLogo}
+                  />
+        </View>
+
+        <Text style={[styles.textoBoasVindas, { color: theme.title }]}>
+          Bem-vindo à MondSec!
+        </Text>
+
+        <Text style={[styles.textoEntrar, { color: theme.title }]}>
+          Entrar
+        </Text>
+
+        {/* EMAIL */}
+        <View style={styles.containerInput}>
+          <Text style={[styles.rotulo, { color: theme.text }]}>Email</Text>
           <TextInput
-            style={styles.input}
+            style={[
+              styles.input,
+              {
+                borderBottomColor: theme.border,
+                color: theme.text
+              }
+            ]}
             placeholder="Digite seu email..."
-            placeholderTextColor="#999"
+            placeholderTextColor={theme.textSecondary}
             onChangeText={setLogin}
-            keyboardType="default"
-            autoCorrect={false}
             autoCapitalize="none"
           />
         </View>
-    
-     <View style={styles.containerInput}>
-           <Text style={styles.rotulo}>Senha</Text>
-           <TextInput
-             style={styles.input}
-             keyboardType="default"
-             placeholder="Digite sua senha..."
-             placeholderTextColor="#999"
-             onChangeText={setSenha}
-             secureTextEntry
-           />
-         </View>
 
-         <View style={styles.linhaOpcoes}>
-     
-           <Pressable onPress={() => navigation.navigate('DigiteCampo')}>
-             <Text style={styles.textoSenhaEsquecida}>Esqueceu a senha?</Text>
-           </Pressable>
-         </View>
+        {/* SENHA */}
+        <View style={styles.containerInput}>
+          <Text style={[styles.rotulo, { color: theme.text }]}>Senha</Text>
+          <TextInput
+            style={[
+              styles.input,
+              {
+                borderBottomColor: theme.border,
+                color: theme.text
+              }
+            ]}
+            placeholder="Digite sua senha..."
+            placeholderTextColor={theme.textSecondary}
+            secureTextEntry
+            onChangeText={setSenha}
+          />
+        </View>
 
-      {erroMessage ? <Text style={styles.erro}>{erroMessage}</Text> : null}
-      {sucessMessage ? ( <Text style={styles.sucess}>{sucessMessage}</Text> ) : (null)}
-<TouchableOpacity 
-  style={styles.botaoLogin} 
-  onPress={validarLogin} 
-  disabled={carregando}
->
-  <Text style={styles.textoBotaoLogin}>
-    {carregando ? 'Entrando...' : 'Entrar'}
-  </Text>
-</TouchableOpacity>
+        {/* Recuperação */}
+        <View style={styles.linhaOpcoes}>
+          <Pressable onPress={() => navigation.navigate('DigiteCampo')}>
+            <Text style={[styles.textoSenhaEsquecida, { color: theme.primary }]}>
+              Esqueceu a senha?
+            </Text>
+          </Pressable>
+        </View>
 
+        {erroMessage ? <Text style={styles.erro}>{erroMessage}</Text> : null}
+        {sucessMessage ? <Text style={styles.sucess}>{sucessMessage}</Text> : null}
 
-    
+        {/* Botão Login */}
+        <TouchableOpacity
+          style={[
+            styles.botaoLogin,
+            { backgroundColor: theme.buttonColor }
+          ]}
+          onPress={validarLogin}
+          disabled={carregando}
+        >
+          <Text style={[styles.textoBotaoLogin, { color: "#fff" }]}>
+            {carregando ? "Entrando..." : "Entrar"}
+          </Text>
+        </TouchableOpacity>
 
-    <View style={styles.divisor}>
-      <View style={styles.linhaDivisor} />
-      <Text style={styles.textoDivisor}>ou</Text>
-      <View style={styles.linhaDivisor} />
+        {/* Divisor */}
+        <View style={styles.divisor}>
+          <View style={[styles.linhaDivisor, { backgroundColor: theme.border }]} />
+          <Text style={[styles.textoDivisor, { color: theme.textSecondary }]}>ou</Text>
+          <View style={[styles.linhaDivisor, { backgroundColor: theme.border }]} />
+        </View>
+
+        {/* Cadastro */}
+        <Pressable
+          style={styles.linkCadastro}
+          onPress={() => navigation.navigate('Cadastro')}
+        >
+          <Text style={[styles.textoLinkCadastro, { color: theme.textSecondary }]}>
+            Ainda não tem uma conta?
+            <Text style={[styles.destaqueLinkCadastro, { color: theme.primary }]}>
+              {" "}Cadastre-se
+            </Text>
+          </Text>
+        </Pressable>
+
+      </View>
+
     </View>
-
-    <Pressable 
-      style={styles.linkCadastro} 
-      onPress={() => navigation.navigate('Cadastro')}
-    >
-      <Text style={styles.textoLinkCadastro}>Ainda não tem uma conta? <Text style={styles.destaqueLinkCadastro}>Cadastre-se</Text></Text>
-    </Pressable>
-  </View>
-
-  </View>
   );
 };
 
 
 const styles = StyleSheet.create({
- container: {
+  container: {
     flex: 1,
-    position: 'relative',
-    backgroundColor: '#FFFFFF',
   },
   containerFundo: {
     position: 'absolute',
@@ -178,12 +228,6 @@ const styles = StyleSheet.create({
   metadeFundo: {
     height: '50%',
   },
-  metadeSuperior: {
-    backgroundColor: '#12577B',
-  },
-  metadeInferior: {
-    backgroundColor: '#a9cfe5',
-  },
   containerConteudo: {
     flex: 1,
     paddingHorizontal: 20,
@@ -191,24 +235,17 @@ const styles = StyleSheet.create({
     marginTop: 80,
     marginBottom: 80,
     zIndex: 1,
-    backgroundColor: 'whitesmoke',
     borderRadius: 10,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
     elevation: 3,
     justifyContent: 'center',
   },
   logoContainer: {
     alignSelf: 'center',
-    backgroundColor: 'transparent',
     paddingVertical: 12,
     paddingHorizontal: 30,
-    elevation: 3,
     width: '80%'
   },
-  logo: {
+  imagemLogo: {
     width: '100%',
     height: 80,
     resizeMode: 'contain'
@@ -216,7 +253,6 @@ const styles = StyleSheet.create({
   textoBoasVindas: {
     fontSize: 16,
     fontWeight: 'bold',
-    color: '#021b33',
     textAlign: 'center',
     marginBottom: 20,
     marginTop: 10,
@@ -224,7 +260,6 @@ const styles = StyleSheet.create({
   textoEntrar: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: '#021b33',
     textAlign: 'center',
     marginBottom: 20,
   },
@@ -234,7 +269,6 @@ const styles = StyleSheet.create({
   rotulo: {
     fontSize: 14,
     fontWeight: '600',
-    color: '#333',
     marginBottom: -12,
   },
   input: {
@@ -242,18 +276,13 @@ const styles = StyleSheet.create({
     height: 60,
     backgroundColor: 'transparent',
     borderBottomWidth: 0.8,
-    borderBottomColor: 'gray',
     fontSize: 16,
-    color: '#333',
   },
   linhaOpcoes: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
     marginBottom: 20,
   },
   textoSenhaEsquecida: {
-    color: '#12577B',
     fontSize: 14,
     fontWeight: '600',
   },
@@ -269,14 +298,9 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontSize: 15,
   },
-  containerBotoes: {
-    width: '100%',
-    marginTop: 20,
-  },
   botaoLogin: {
     width: '70%',
-    height: 45, 
-    backgroundColor: '#12577B',
+    height: 45,
     borderRadius: 20,
     justifyContent: 'center',
     alignItems: 'center',
@@ -284,7 +308,6 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
   },
   textoBotaoLogin: {
-    color: '#FFFFFF',
     fontSize: 16,
     fontWeight: '600',
   },
@@ -295,10 +318,8 @@ const styles = StyleSheet.create({
   linhaDivisor: {
     flex: 1,
     height: 1,
-    backgroundColor: '#E0E0E0',
   },
   textoDivisor: {
-    color: '#757575',
     fontSize: 14,
     fontWeight: '600',
     paddingHorizontal: 10,
@@ -307,14 +328,11 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   textoLinkCadastro: {
-    color: '#757575',
     fontSize: 14,
     textAlign: 'center',
   },
   destaqueLinkCadastro: {
-    color: '#12577B',
     fontWeight: '600',
-
   },
 });
 

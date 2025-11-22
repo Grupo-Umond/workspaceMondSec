@@ -21,8 +21,6 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import UrlService from '../../services/UrlService';
 import { ScrollView } from "react-native-gesture-handler";
 
-import { ScrollView } from "react-native-gesture-handler";
-
 const RegistrarScreen = ({ navigation }) => {
   const [carregando, setCarregando] = useState(false);
   const [visivelInicio, setVisivelInicio] = useState(false);
