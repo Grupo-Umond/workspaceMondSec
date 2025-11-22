@@ -30,11 +30,8 @@
         </div>
 
         <div class="graficosDireita">
-<<<<<<< HEAD
-            <div id="chartGenero" style="height:40vh;"></div>
-=======
+
             <div id="chartGenero" style="height: 50vh;"></div>
->>>>>>> pedro
             <div id="chartRadar" style="height:40vh; margin-top:20px;"></div>
         </div>
     </section>

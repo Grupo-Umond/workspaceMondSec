@@ -41,6 +41,9 @@
     <a href="{{ route('adm.dashboard.index') }}" class="link-btn">
         <div id="btnVoltar" class="botao mt-4">Voltar ao Painel</div>
     </a>
+    <a href="{{ route('adm.ocorrencia.denuncia') }}" class="link-btn">
+        <div id="btnVoltar" class="botao mt-4">Denuncias</div>
+    </a>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>

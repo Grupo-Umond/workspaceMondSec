@@ -74,6 +74,7 @@ class AdminController extends Controller
             'telefone' => $dados['telefone'],
             'senha' => Hash::make($dados['senha']),
             'nivelAdmin' => $dados['nivelAdmin'],
+            'status' => 'ativo'
         ]);
 
         return redirect()->route('adm.auth.register')->with('success', 'Adm cadastrado com sucesso!');
@@ -138,10 +139,7 @@ class AdminController extends Controller
         }
         $admin->status = 'inativo';
         $admin->save();
-<<<<<<< HEAD
 
-=======
->>>>>>> veras
 
         return redirect()->route('adm.admins.index')->with('success', 'Adm deletado com sucesso');
     }
@@ -254,6 +252,15 @@ class AdminController extends Controller
         return redirect()->route('adm.ocorrencia.index')->with('success', 'Ocorrencia deletado com sucesso');
     }
 
+    public function showDenunciaScreen()
+    {
+        $ocorrencias = Ocorrencia::with('usuario')
+            ->where('status', 'denunciada')
+            ->orderBy('dataPostagem', 'desc')
+            ->paginate(20);
+
+        return view('adm.verOcorrencia.denuncia', compact('ocorrencias'));
+    }
     // =======================
     //  COMENTARIOS
     // =======================
@@ -275,19 +282,19 @@ class AdminController extends Controller
     }
 
     public function update(Request $request, $id)
-{
-    $request->validate([
-        'mensagem' => 'required|string|max:5000'
-    ]);
+    {
+        $request->validate([
+            'mensagem' => 'required|string|max:5000'
+        ]);
 
-    $comentario = Comentario::findOrFail($id);
+        $comentario = Comentario::findOrFail($id);
 
-    $comentario->update([
-        'mensagem' => $request->mensagem
-    ]);
+        $comentario->update([
+            'mensagem' => $request->mensagem
+        ]);
 
-    return redirect()->back()->with('success', 'Comentário atualizado com sucesso!');
-}
+        return redirect()->back()->with('success', 'Comentário atualizado com sucesso!');
+    }
 
 
     public function destroy($id) {
@@ -301,6 +308,8 @@ class AdminController extends Controller
         return redirect()->route('adm.comentario.index')->with('success', 'Comentario deletado com sucesso');
     
 
-}
+    }
+
+    
 
 }

@@ -16,7 +16,7 @@ class Comentario extends Model
         'mensagem',
         'data',
         'idUsuario',
-        'idOcorrencia'
+        'idOcorrencia',
         'status'
     ];
 
