@@ -314,7 +314,7 @@ const CadastroScreen = ({ navigation }) => {
           <Text style={[styles.textoTermos, { color: theme.text }]}>
             Concordo com os{' '}
             <Text
-              style={[styles.termosLink, { color: theme.buttonColor }]}
+              style={[styles.termosLink, { color: theme.primary }]}
               onPress={() => navigation.navigate('Politica')}
             >
               termos de uso
@@ -366,20 +366,20 @@ const styles = StyleSheet.create({
     width: "100%",
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "center", // Centraliza o conteúdo
+    justifyContent: "center", 
     marginBottom: 20,
-    position: 'relative', // Para posicionamento absoluto da seta
+    position: 'relative', 
   },
   iconeCabecalho: {
-    position: 'absolute', // Posiciona a seta absolutamente
-    left: 0, // Coloca no canto esquerdo
+    position: 'absolute', 
+    left: 0, 
     padding: 6,
   },
   textoCabecalho: {
     fontSize: 22,
     fontWeight: '700',
     color: '#2D3748',
-    textAlign: 'center', // Centraliza o texto
+    textAlign: 'center', 
   },
   containerLogo: {
     alignItems: 'center',

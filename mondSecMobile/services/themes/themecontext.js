@@ -49,7 +49,9 @@ export const ThemeProvider = ({ children }) => {
       danger: "#ff6b6b",
       cimaDark: "#10405eff",
       baixoDark: "#2c3e50",
-       buttonColor: '#0c2946ff'
+       buttonColor: '#0c2946ff', 
+       backlegenda: '#4FC3F7', 
+      colorlegenda: '#0b0505ff'
      
     }
   : {
@@ -66,7 +68,9 @@ export const ThemeProvider = ({ children }) => {
       danger: "#E53935",
       cimaDark: "#ffffff", 
       baixoDark: "#ffffff",
-      buttonColor: '#003366'
+      buttonColor: '#003366',
+      backlegenda: '#e1e5eaff', 
+      colorlegenda: '#05101dff'
     };
 
   return (

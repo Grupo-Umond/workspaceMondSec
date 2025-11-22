@@ -341,7 +341,7 @@ const DigiteCodigoScreen = ({ navigation, route }) => {
         <TouchableOpacity
           style={[
             styles.confirmButton,
-            { backgroundColor: theme.primary },
+            { backgroundColor: theme.button },
             carregando && styles.disabledButton,
           ]}
           disabled={carregando}

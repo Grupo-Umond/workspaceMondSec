@@ -336,7 +336,7 @@
               ]}
               onPress={() => navigation.navigate("Menu")}
             >
-              <Icon name="person" size={26} color="#fff" />
+              <Icon name="person" size={28} color="#fff" />
               <Text style={styles.navButtonText}>Perfil</Text>
             </Pressable>
           </SafeAreaView>
@@ -519,6 +519,12 @@
     navButtonText: {
       color: "#fff",
       fontSize: 12,
+      marginTop: 4,
+    },
+
+    navButtonPerfil: {
+      color: "#fff",
+      fontSize: 16,
       marginTop: 4,
     },
 

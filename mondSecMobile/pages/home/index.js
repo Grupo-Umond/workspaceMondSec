@@ -9,13 +9,13 @@ import { LocalizacaoService } from '../../services/LocalizacaoService';
 import { NotificacaoService } from '../../services/NotificacaoService';
 import { Dimensions } from 'react-native';
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useTheme } from "../../services/themes/themecontext";   // ⬅️ TEMA AQUI
+import { useTheme } from "../../services/themes/themecontext";
 
 const { width } = Dimensions.get('window');
 
 const HomeScreen = ({ navigation }) => {
 
-  const { theme, isDarkMode } = useTheme();   // ⬅️ PEGANDO O TEMA
+  const { theme, isDarkMode } = useTheme();
 
   const [permissao, setPermissao] = useState(false);
   const [welcome, setWelcome] = useState(false);
@@ -24,6 +24,8 @@ const HomeScreen = ({ navigation }) => {
   const mapaRef = useRef(null);
   const [modalSobreVisible, setModalSobreVisible] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
+  // NOVO ESTADO PARA O MODAL DE LEGENDA
+  const [modalLegendaVisible, setModalLegendaVisible] = useState(false);
 
   const slides = [
     { id: "1", titulo: "Introdução", texto: "Bem-vindo ao seu app de segurança!", imagem: require("../../assets/escudo.png") },
@@ -31,6 +33,16 @@ const HomeScreen = ({ navigation }) => {
     { id: "3", titulo: "Incidentes", texto: "Ações rápidas de emergência.", imagem: require("../../assets/Alerta.png") },
     { id: "4", titulo: "Personalização", texto: "Escolha temas, modo escuro e mais.", imagem: require("../../assets/setting.png") },
     { id: "5", titulo: "Aviso", texto: "Use o app de forma responsável.", imagem: require("../../assets/xis.png") }
+  ];
+
+  // DADOS DA LEGENDA
+  const itensLegenda = [
+    { id: "1", cor: '#FF0000', texto: "Área de alto risco" },
+    { id: "2", cor: '#FFA500', texto: "Área de médio risco" },
+    { id: "3", cor: '#00FF00', texto: "Área segura" },
+    { id: "4", cor: '#0000FF', texto: "Postos policiais" },
+    { id: "5", cor: '#800080', texto: "Hospitais" },
+    { id: "6", cor: '#FFFF00', texto: "Áreas com iluminação" },
   ];
 
   useEffect(() => {
@@ -111,6 +123,14 @@ const HomeScreen = ({ navigation }) => {
         </View>
       </View>
 
+      {/* BOTÃO DA LEGENDA AQUIJ PABLO */}
+      <Pressable
+        style={[styles.legendaButton, { backgroundColor: theme.backlegenda }]}
+        onPress={() => setModalLegendaVisible(true)}
+      >
+        <Icon name="arrow-right" size={30} color={theme.colorlegenda} />
+      </Pressable>
+
       {/* MAPA */}
       <View style={styles.mapContainer}>
         <Mapa style={styles.mapImage} />
@@ -127,11 +147,11 @@ const HomeScreen = ({ navigation }) => {
       )}
 
       {/* NAV BOTTOM */}
-      <SafeAreaView edges={['bottom']} style={[styles.navigationContainer, { backgroundColor: theme.buttonColor }]}>
+      <SafeAreaView edges={['bottom']} style={[styles.navigationContainer,{ backgroundColor: isDarkMode ? "#01080aff" : "#003366" },]}>
         
         <Pressable onPress={() => navigation.navigate('Home')} style={styles.navButton}>
           <Icon name="home" size={26} color={theme.icon} />
-          <Text style={[styles.navButtonText, { color: theme.icon }]}>Início</Text>
+          <Text style={[styles.navButtonInicio, { color: theme.icon }]}>Início</Text>
         </Pressable>
 
         <Pressable onPress={() => setModalSobreVisible(true)} style={styles.navButton}>
@@ -154,6 +174,43 @@ const HomeScreen = ({ navigation }) => {
 
       {/* ---- MODAIS ESTÃO ABAIXO ---- */}
 
+      {/* MODAL LEGENDA */}
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={modalLegendaVisible}
+        onRequestClose={() => setModalLegendaVisible(false)}
+      >
+        <View style={styles.legendaModalContainer}>
+          <Pressable 
+            style={styles.legendaModalBackdrop}
+            onPress={() => setModalLegendaVisible(false)}
+          />
+          <View style={[styles.legendaModalContent, { backgroundColor: theme.background }]}>
+            <View style={styles.legendaHeader}>
+              <Text style={[styles.legendaTitle, { color: theme.primary }]}>Legenda do Mapa</Text>
+              <Pressable 
+                onPress={() => setModalLegendaVisible(false)}
+                style={styles.legendaCloseButton}
+              >
+                <Icon name="close" size={18} color={theme.text} />
+              </Pressable>
+            </View>
+            
+            <View style={styles.legendaList}>
+              {itensLegenda.map((item) => (
+                <View key={item.id} style={styles.legendaItem}>
+                  <View style={[styles.legendaColor, { backgroundColor: item.cor }]} />
+                  <Text style={[styles.legendaText, { color: theme.text }]}>{item.texto}</Text>
+                </View>
+              ))}
+            </View>
+
+          </View>
+        </View>
+      </Modal>
+
+      {/* MODAL BEM VINDO  */}
 
       <Modal animationType="slide" transparent visible={welcome}>
         <View style={[styles.modalContainer]}>
@@ -167,7 +224,7 @@ const HomeScreen = ({ navigation }) => {
         </View>
       </Modal>
 
-      {/* PERMISSÃO */}
+      {/* MODAL PERMISSÃO */}
       <Modal animationType="slide" transparent visible={permissao}>
         <View style={styles.modalContainer}>
           <View style={[styles.modalContent, { backgroundColor: theme.background }]}>
@@ -187,7 +244,7 @@ const HomeScreen = ({ navigation }) => {
         </View>
       </Modal>
 
-      {/* CARROSSEL */}
+      {/* MODAL CARROSSEL */}
       <Modal visible={modalSobreVisible} animationType="fade" transparent>
         <View style={styles.overlay}>
           <View style={[styles.modalCarrosselContent, { backgroundColor: theme.background }]}>
@@ -242,8 +299,6 @@ const HomeScreen = ({ navigation }) => {
     </View>
   );
 };
-
-
 
 const styles = StyleSheet.create({
   container: {
@@ -311,6 +366,82 @@ const styles = StyleSheet.create({
   searchButton: {
     padding: 8,
   },
+
+legendaButton: {
+  position: 'absolute',
+  left: 10,
+  top: '50%',
+  transform: [{ translateY: -20 }], 
+  width: 28, 
+  height: 100, 
+  borderRadius: 28, 
+  justifyContent: 'center',
+  alignItems: 'center',
+  elevation: 6,
+  shadowColor: '#000',
+  shadowOffset: { width: 0, height: 2 },
+  shadowOpacity: 0.2,
+  shadowRadius: 3,
+  zIndex: 999,
+},
+  legendaModalContainer: {
+    flex: 1,
+    flexDirection: 'row',
+  },
+  legendaModalBackdrop: {
+    flex: 1,
+  },
+  legendaModalContent: {
+    width: 200,
+    borderTopRightRadius: 10,
+    borderBottomRightRadius: 10,
+    elevation: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: -2, height: 0 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    marginTop: 300,
+    right: 175, 
+    marginBottom: 280,
+    paddingHorizontal: 10,
+    backgroundColor: '#FFFFFF',
+  },
+  legendaHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: '#E0E0E0',
+  },
+  legendaTitle: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: '#131212ff',
+  },
+  legendaCloseButton: {
+    padding: 4,
+  },
+  legendaList: {
+    paddingVertical: 10,
+  },
+  legendaItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  legendaColor: {
+    width: 14,
+    height: 14,
+    borderRadius: 4,
+    marginRight: 8,
+    borderWidth: 1,
+    borderColor: '#E0E0E0',
+  },
+  legendaText: {
+    fontSize: 10,
+    color: '#333333',
+  },
   localizacaoButton: {
     padding: 10,
     backgroundColor: '#F5F5F5',
@@ -364,6 +495,11 @@ const styles = StyleSheet.create({
     fontSize: 12,
     marginTop: 4,
   },
+  navButtonInicio : {
+    color: '#FFFFFF',
+    fontSize: 16,
+    marginTop:4,
+  }, 
   modalContainer: {
     flex: 1,
     justifyContent: 'center',
@@ -397,119 +533,107 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
   },
   modalCarrosselContent: {
-  backgroundColor: '#FFFFFF',
-  width: '90%',
-  maxWidth: 380,
-  paddingVertical: 25,
-  paddingHorizontal: 0,
-  borderRadius: 24,
-  alignItems: 'center',
-  shadowColor: '#003366',
-  shadowOffset: { width: 0, height: 12 },
-  shadowOpacity: 0.15,
-  shadowRadius: 24,
-  elevation: 15,
-  borderWidth: 1,
-  borderColor: 'rgba(0, 51, 102, 0.08)',
-  overflow: 'hidden',
-},
-
-slide: {
-  width: width - 80,
-  justifyContent: 'center',
-  alignItems: 'center',
-  paddingVertical: 10,
-},
-
-overlay: {
-  flex: 1,
-  backgroundColor: 'rgba(0, 0, 0, 0.75)',
-  justifyContent: 'center',
-  alignItems: 'center',
-  padding: 20,
-},
-
-closeButton: {
-  alignSelf: 'flex-end',
-  padding: 10,
-  backgroundColor: '#F5F8FF',
-  borderRadius: 20,
-  width: 45,
-  height: 45,
-  justifyContent: 'center',
-  alignItems: 'center',
-  marginRight: 8,
-  marginBottom: 10,
-  borderWidth: 1,
-  borderColor: 'rgba(0, 51, 102, 0.1)',
-},
-
-closeButtonText: {
-  fontSize: 16,
-  color: '#003366',
-  fontWeight: '700',
-},
-
-imageContainer: {
-  marginBottom: 20,
-},
-
-imageBackground: {
-  backgroundColor: '#FFFFFF',
-  padding: 18,
-  borderRadius: 20,
-  shadowColor: '#003366',
-  shadowOffset: { width: 0, height: 6 },
-  shadowOpacity: 0.2,
-  shadowRadius: 12,
-  elevation: 8,
-},
-
-slideImage: {
-  width: 95,
-  height: 95,
-  borderRadius: 18,
-},
-
-slideTitle: {
-  fontSize: 22,
-  fontWeight: '800',
-  marginBottom: 10,
-  color: '#003366',
-  textAlign: 'center',
-  paddingHorizontal: 10,
-},
-
-slideText: {
-  fontSize: 15,
-  textAlign: 'center',
-  color: '#5A6C7D',
-  lineHeight: 20,
-  paddingHorizontal: 20,
-},
-
-indicatorContainer: {
-  flexDirection: 'row',
-  justifyContent: 'center',
-  alignItems: 'center',
-  marginTop: 15,
-  gap: 8,
-},
-
-indicator: {
-  width: 10,
-  height: 10,
-  borderRadius: 5,
-  backgroundColor: '#E0E6EB',
-  transition: 'all 0.25s',
-},
-
-indicatorActive: {
-  backgroundColor: '#003366',
-  width: 26,
-  height: 10,
-  borderRadius: 6,
-},
+    backgroundColor: '#FFFFFF',
+    width: '90%',
+    maxWidth: 380,
+    paddingVertical: 25,
+    paddingHorizontal: 0,
+    borderRadius: 24,
+    alignItems: 'center',
+    shadowColor: '#003366',
+    shadowOffset: { width: 0, height: 12 },
+    shadowOpacity: 0.15,
+    shadowRadius: 24,
+    elevation: 15,
+    borderWidth: 1,
+    borderColor: 'rgba(0, 51, 102, 0.08)',
+    overflow: 'hidden',
+  },
+  slide: {
+    width: width - 80,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: 10,
+  },
+  overlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.75)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  closeButton: {
+    alignSelf: 'flex-end',
+    padding: 10,
+    backgroundColor: '#F5F8FF',
+    borderRadius: 20,
+    width: 45,
+    height: 45,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 8,
+    marginBottom: 10,
+    borderWidth: 1,
+    borderColor: 'rgba(0, 51, 102, 0.1)',
+  },
+  closeButtonText: {
+    fontSize: 16,
+    color: '#003366',
+    fontWeight: '700',
+  },
+  imageContainer: {
+    marginBottom: 20,
+  },
+  imageBackground: {
+    backgroundColor: '#FFFFFF',
+    padding: 18,
+    borderRadius: 20,
+    shadowColor: '#003366',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.2,
+    shadowRadius: 12,
+    elevation: 8,
+  },
+  slideImage: {
+    width: 95,
+    height: 95,
+    borderRadius: 18,
+  },
+  slideTitle: {
+    fontSize: 22,
+    fontWeight: '800',
+    marginBottom: 10,
+    color: '#003366',
+    textAlign: 'center',
+    paddingHorizontal: 10,
+  },
+  slideText: {
+    fontSize: 15,
+    textAlign: 'center',
+    color: '#5A6C7D',
+    lineHeight: 20,
+    paddingHorizontal: 20,
+  },
+  indicatorContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 15,
+    gap: 8,
+  },
+  indicator: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    backgroundColor: '#E0E6EB',
+    transition: 'all 0.25s',
+  },
+  indicatorActive: {
+    backgroundColor: '#003366',
+    width: 26,
+    height: 10,
+    borderRadius: 6,
+  },
 });
 
 export default HomeScreen;
