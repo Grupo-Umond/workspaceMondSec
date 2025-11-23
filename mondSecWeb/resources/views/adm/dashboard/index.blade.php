@@ -32,8 +32,15 @@
         <div class="graficosDireita">
             <div id="chartGenero" style="height: 50vh;"></div>
             <div id="chartRadar" style="height:40vh; margin-top:20px;"></div>
+            <div id="chartRadar" style="height: 50vh; margin-top:20px;"></div>
         </div>
     </section>
+
+    <style>
+        body {
+            overflow-y: hidden;
+        }
+    </style>
 </main>
 
 <script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
@@ -86,28 +93,45 @@ document.addEventListener('DOMContentLoaded', function() {
         }]
     });
 
-    const chart4 = echarts.init(document.getElementById('chartRadar'));
-    chart4.setOption({
-        title: { text: 'Exemplo de Radar', left: 'center' },
-        legend: { bottom: 0 },
-        radar: {
-            indicator: [
-                { name: 'Atividade', max: 100 },
-                { name: 'Engajamento', max: 100 },
-                { name: 'Satisfação', max: 100 },
-                { name: 'Relatórios', max: 100 },
-                { name: 'Feedbacks', max: 100 }
-            ]
-        },
-        series: [{
-            name: 'Indicadores',
-            type: 'radar',
-            data: [
-                { value: [80, 70, 65, 90, 50], name: 'Este mês' },
-                { value: [60, 55, 70, 65, 40], name: 'Mês anterior' }
-            ]
-        }]
-    });
+const chart4 = echarts.init(document.getElementById('chartRadar'));
+
+chart4.setOption({
+    title: { 
+        text: 'Atividades',
+        left: 'center',
+        top: 0,   
+    },
+
+    legend: { 
+        bottom: 10
+    },
+
+   radar: {
+    top: 150,        
+    radius: '60%',  
+    name: {
+        textStyle: {
+            fontSize: 14
+        }
+    },
+    indicator: [
+        { name: 'Atividade', max: 100 },
+        { name: 'Engajamento', max: 100 },
+        { name: 'Satisfação', max: 100 },
+        { name: 'Relatórios', max: 100 },
+        { name: 'Feedbacks', max: 100 }
+    ]
+},
+
+    series: [{
+        name: 'Indicadores',
+        type: 'radar',
+        data: [
+            { value: [80, 70, 65, 90, 50], name: 'Este mês' },
+            { value: [60, 55, 70, 65, 40], name: 'Mês anterior' }
+        ]
+    }]
+});
 
     window.addEventListener('resize', () => {
         chart1.resize();

@@ -1,19 +1,10 @@
-/* * {
-    padding: 0;
-    margin: 0;
-    box-sizing: border-box;
-} */
-
-
 :root {
-  /* --bg: #f4f6fb; */
   --card-bg: #ffffff;
   --text: #111827;
   --muted: #6b7280;
   --accent: #0f62fe;
   --shadow-1: 0 8px 20px rgba(15,24,39,0.06);
   --shadow-2: 0 14px 36px rgba(15,24,39,0.08);
-
   --sidebar-width: 240px;
 }
 
@@ -23,7 +14,6 @@ body {
   font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  /* background: var(--bg); */
   background-color: white;
   color: var(--text);
   line-height: 1.35;
@@ -65,13 +55,11 @@ header nav a:hover {
   background: rgba(255,255,255,0.04);
 }
 
-
 header nav a.btn {
   background: rgba(255,255,255,0.06);
   padding: 10px;
   border-radius: 10px;
 }
-
 
 main.container {
   margin: 28px 28px 28px var(--sidebar-width);
@@ -138,31 +126,13 @@ canvas.bar-size  { width: 420px !important;  height: 320px !important; }
 .card:hover { transform: translateY(-4px); box-shadow: var(--shadow-2); }
 .card h3 { margin: 0 0 8px 0; font-size: 0.95rem; color: var(--muted); font-weight: 600; }
 .card p { margin: 0; font-size: 1.45rem; font-weight: 700; color: var(--text); }
-
-
 .graficos::-webkit-scrollbar { height: 8px; }
 .graficos::-webkit-scrollbar-thumb { background: rgba(15,24,39,0.08); border-radius: 8px; }
 .graficos::-webkit-scrollbar-track { background: transparent; }
 
-@media (max-width: 1024px) {
-  .cards { grid-template-columns: repeat(2, 1fr); }
-  :root { --sidebar-width: 200px; }
-  main.container { margin-left: var(--sidebar-width); width: calc(100% - var(--sidebar-width) - 56px); }
-}
-
-@media (max-width: 640px) {
-  :root { --sidebar-width: 72px; } 
-  main.container { margin-left: var(--sidebar-width); width: calc(100% - var(--sidebar-width) - 28px); padding: 14px; }
-  .cards { grid-template-columns: 1fr; }
-  canvas.pie-size  { width: 300px !important; height: 240px !important; }
-  canvas.line-size { width: 360px !important; height: 240px !important; }
-  canvas.bar-size  { width: 320px !important; height: 240px !important; }
-}
-
 h1 {
     margin-bottom: 1%;
 }
-
 
 body {
     position: absolute;
@@ -244,4 +214,19 @@ tbody i {
 
 .parteCima {
   height: 40vh;
+}
+
+@media (max-width: 1024px) {
+  .cards { grid-template-columns: repeat(2, 1fr); }
+  :root { --sidebar-width: 200px; }
+  main.container { margin-left: var(--sidebar-width); width: calc(100% - var(--sidebar-width) - 56px); }
+}
+
+@media (max-width: 640px) {
+  :root { --sidebar-width: 72px; } 
+  main.container { margin-left: var(--sidebar-width); width: calc(100% - var(--sidebar-width) - 28px); padding: 14px; }
+  .cards { grid-template-columns: 1fr; }
+  canvas.pie-size  { width: 300px !important; height: 240px !important; }
+  canvas.line-size { width: 360px !important; height: 240px !important; }
+  canvas.bar-size  { width: 320px !important; height: 240px !important; }
 }

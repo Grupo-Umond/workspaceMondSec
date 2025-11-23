@@ -6,8 +6,7 @@
     <title>Cadastro</title>
 
     <link rel="stylesheet" href="{{ asset('css/11cadastroADM.css') }}">
-
-
+    
 </head>
 
 <body>
@@ -69,7 +68,6 @@
                 <div class="select-grupo6">
                     <label class="acessoLabel" for="nivelAdmin">Nível de Acesso:</label>
                     <select required class="campoAcesso" id="nivelAdmin" name="nivelAdmin">
-                        <!-- <option value="">Nível de acesso</option> -->
                         <option value="ouro" {{ old('nivel_acesso') == 'ouro' ? 'selected' : '' }}>Ouro</option>
                         <option value="prata" {{ old('nivel_acesso') == 'prata' ? 'selected' : '' }}>Prata</option>
                         <option value="bronze" {{ old('nivel_acesso') == 'bronze' ? 'selected' : '' }}>Bronze</option>
@@ -82,20 +80,6 @@
                 <button type="submit">Cadastrar</button>
             </form>
         </div>
-        <!-- <div class="adicionais">
-            <p>
-                Copyright ©2025 MondSec, L.L.C MondSec é um produto de mondSec, L.L.C.
-            </p>
-            <div class="termos">
-                <p>
-                    termos de servico
-                </p>
-                <p> | </p>
-                <p>
-                    termos de privacidade
-                </p>
-            </div>
-        </div> -->
     </div>
     <div class="parteDireita">
         <video controls autoplay muted loop>
@@ -131,8 +115,6 @@
                 event.preventDefault();
                 alert('Senha deve ter mais de 8 digitos');
             }
-
-
         });
     </script>
 </body>

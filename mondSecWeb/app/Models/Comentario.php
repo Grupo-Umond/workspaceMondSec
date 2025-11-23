@@ -15,6 +15,9 @@ class Comentario extends Model
     protected $fillable = [
         'mensagem',
         'data',
+        'idUsuario',
+        'idOcorrencia'
+        // 'status'
     ];
     
 }

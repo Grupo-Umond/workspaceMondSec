@@ -16,18 +16,23 @@
                     </a>
 
                     <a href="{{ route('adm.ocorrencia.index') }}"
-                        class="btn btn-primary btn-lg flex-fill btn-nav {{ request()->routeIs('adm.ocorrencia.index') ? 'active' : '' }}">
+                        class="btn btn-primary btn-lg flex-fill btn-nav {{ request()->routeIs('adm.chart.ocorrencia') ? 'active' : '' }}">
                         <i class="fa-solid fa-circle-exclamation"></i> Ocorrencias
                     </a>
 
                     <a href="{{ route('adm.admins.index') }}"
-                        class="btn btn-primary btn-lg flex-fill btn-nav {{ request()->routeIs('adm.admins.index') ? 'active' : '' }}">
+                        class="btn btn-primary btn-lg flex-fill btn-nav {{ request()->routeIs('adm.chart.admin') ? 'active' : '' }}">
                         <i class="fa-solid fa-user-tie"></i> Administradores
                     </a>
 
                     <a href="{{ route('adm.users.index') }}"
-                        class="btn btn-secondary btn-lg flex-fill btn-nav {{ request()->routeIs('adm.users.index') ? 'active' : '' }}">
+                        class="btn btn-secondary btn-lg flex-fill btn-nav {{ request()->routeIs('adm.chart.usuario') ? 'active' : '' }}">
                         <i class="fa-solid fa-user"></i> Usuários
+                    </a>
+
+                    <a href="{{ route('adm.comentario.index') }}"
+                        class="btn btn-secondary btn-lg flex-fill btn-nav {{ request()->routeIs('adm.comentario.index') ? 'active' : '' }}">
+                        <i class="fa-solid fa-user"></i> Comentarios
                     </a>
                 </div>
 
@@ -59,3 +64,4 @@
     </script>
 
 </div>
+    </div>

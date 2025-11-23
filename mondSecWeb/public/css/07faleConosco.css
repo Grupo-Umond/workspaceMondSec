@@ -222,7 +222,6 @@ form textarea {
     overflow: hidden;
 }
 
-
 /* Responsividade */
 @media (max-width: 1200px) {
     .conteudo_faleConosco {

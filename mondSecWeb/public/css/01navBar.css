@@ -5,7 +5,7 @@ body {
     margin: 0;
 }
 
-/* Cabeçalho fixo */
+/* Menu_Principal */
 .cabecalho {
     position: fixed;
     width: 100%;
@@ -20,7 +20,6 @@ body {
     box-shadow: 0 4px 20px rgba(0,0,0,0.15);
 }
 
-/* Menu principal */
 .cabecalho__menu {
     display: flex;
     justify-content: space-between;
@@ -29,7 +28,6 @@ body {
     padding: 0 6%;
 }
 
-/* Logo */
 .cabecalho__menu__logo {
     width: 180px;
     transition: transform 0.3s ease;
@@ -46,7 +44,6 @@ body {
     filter: brightness(0) invert(1);
 }
 
-/* Links desktop */
 .cabecalho__menu__itens {
     display: flex;
     gap: 2rem;
@@ -87,63 +84,33 @@ body {
 
 .cabecalho__menu__itens a:hover {
     color: #4a3aff;
-}
+}/* Fim_Menu_Principal */
 
-/* Botão mobile */
-
-/* Esconde o X por padrão */
-#iconFechar {
-  display: none;
-}
-
-/* Quando o menu abre, some o hamburguer e aparece o X */
-.cabecalho__menu__itens__mobile.abrir ~ .icons__menu #iconAbrir {
-  display: none;
-}
-
-.cabecalho__menu__itens__mobile.abrir ~ .icons__menu #iconFechar {
-  display: inline-block;
-}
-
-.icons__menu {
-    display: none;
-    background: none;
-    border: none;
-    color: white;
-    cursor: pointer;
-    padding: 8px;
-    transition: transform 0.3s ease;
-    z-index: 1001;
-}
-
-.icons__menu:hover {
-    transform: scale(1.1);
-}
-
-.icons__menu i {
-    font-size: 1.5rem;
-}
-
-/* Menu mobile */
-.cabecalho__menu__itens__mobile {
-    position: fixed;
+/* Menu_Mobile */
+#menuMobile {
+    position: absolute;
     top: 0;
-    left: 0;
-    width: 100%;
-    height: 100vh;
+    right: 0;
+    width: 0%;
+    height: 0vh;
+    padding: 0px 6%;
+    overflow: hidden;
     background: linear-gradient(135deg, #0e0852 0%, #08043a 100%);
-    z-index: 999;
-    transform: translateX(-100%);
-    transition: transform 0.35s ease-in-out;
+    transition: .2s ease-in-out;
     display: flex;
     flex-direction: column;
     justify-content: center;
-    align-items: center;
+    align-items: end;
     gap: 2rem;
 }
 
-.cabecalho__menu__itens__mobile.abrir {
-    transform: translateX(0);
+body.no-overflow {
+    overflow-y: hidden;
+}
+
+#menuMobile.abrir {
+    width: 80%;
+    height: 100vh;
 }
 
 .cabecalho__menu__itens__mobile a {
@@ -159,28 +126,49 @@ body {
     color: #4a3aff;
 }
 
-/* X fechar menu mobile */
-.fa-xmark {
-    position: absolute;
-    top: 20px;
-    right: 25px;
-    font-size: 1.8rem;
-    color: white;
-    cursor: pointer;
-    transition: transform 0.3s ease;
+header nav .icons__menu {
+    display: none;
+    position: relative;
+    z-index: 9;
 }
 
-.fa-xmark:hover {
-    transform: rotate(90deg) scale(1.1);
-    color: #cfcfff;
+header nav .icons__menu div {
+    margin: 5px 0px;
+    background-color: white;
+    height: 3px;
+    transition: .2s;
 }
+
+header nav .icons__menu .botao_menu1 {
+    width: 30px;
+}
+
+header nav .icons__menu .botao_menu2 {
+    width: 30px;
+}
+
+header nav .icons__menu .botao_menu3 {
+    width: 30px;
+}
+
+header nav .icons__menu .botao_menu1.ativo1 {
+    transform: rotate(45deg) translate(35%);
+}
+
+header nav .icons__menu .botao_menu2.ativo2 {
+    width: 0%;
+}
+
+header nav .icons__menu .botao_menu3.ativo3 {
+    transform: rotate(-45deg) translate(35%);
+}/* Fim_Menu_Mobile */
 
 /* Responsividade */
 @media (max-width: 1050px) {
     .cabecalho__menu__itens {
         display: none;
     }
-    .icons__menu {
+    header nav .icons__menu {
         display: block;
     }
     .cabecalho__menu__logo {
@@ -207,4 +195,4 @@ body {
     .cabecalho__menu__itens__mobile a {
         font-size: 1.1rem;
     }
-}
+}/* Fim_Responsividade */

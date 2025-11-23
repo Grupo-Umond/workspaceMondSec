@@ -72,6 +72,7 @@ class AdminController extends Controller
             'telefone' => $dados['telefone'],
             'senha' => Hash::make($dados['senha']),
             'nivelAdmin' => $dados['nivelAdmin'],
+            'status' => 'ativo'
         ]);
 
         return redirect()->route('adm.auth.register')->with('success', 'Adm cadastrado com sucesso!');
@@ -94,6 +95,7 @@ class AdminController extends Controller
     {
         
         return redirect()->route('adm.chart.admin');
+        // return view('adm.admins.index');
     }
 
     public function updateAdmScreen($id)
@@ -134,6 +136,8 @@ class AdminController extends Controller
             return redirect()->back()->with('Error', 'O adm não foi encontrado');
         }
         $admin->delete();
+        $admin->status = 'inativo';
+        $admin->save();
 
         return redirect()->route('adm.admins.index')->with('success', 'Adm deletado com sucesso');
     }

@@ -6,6 +6,7 @@
     <div class="wrapper">
         <i id="left" class="fa-solid fa-arrow-left"></i>
         <ul class="carousel">
+
             {{-- André --}}
             <li class="card">
                 <div class="image">
@@ -54,7 +55,6 @@
                 </div>
             </li>
 
-
             {{-- Tiago --}}
             <li class="card">
                 <div class="image">
@@ -70,6 +70,8 @@
                     </div>
                 </div>
             </li>
+
+            {{-- Veras --}}
             <li class="card">
                 <div class="image">
                     <img src="{{ asset('Imagens/Integrantes/verasfoto2.png') }}" alt="" draggable="false">
@@ -84,6 +86,8 @@
                     </div>
                 </div>
             </li>
+
+            {{-- Joao --}}
             <li class="card">
                 <div class="image">
                     <img src="{{ asset('Imagens/Integrantes/joãofoto2.png') }}" alt="" draggable="false">
@@ -98,6 +102,8 @@
                     </div>
                 </div>
             </li>
+
+            {{-- Chris --}}
             <li class="card">
                 <div class="image">
                     <img src="{{ asset('Imagens/Integrantes/christopherfoto2.png') }}" alt="" draggable="false">
@@ -112,6 +118,8 @@
                     </div>
                 </div>
             </li>
+
+            {{-- Duarte --}}
             <li class="card">
                 <div class="image">
                     <img src="{{ asset('Imagens/Integrantes/duartefoto2.png') }}" alt="" draggable="false">
@@ -126,6 +134,8 @@
                     </div>
                 </div>
             </li>
+
+            {{-- Danilo --}}
             <li class="card">
                 <div class="image">
                     <img src="{{ asset('Imagens/Integrantes/danilofoto2.png') }}" alt="" draggable="false">
@@ -140,6 +150,8 @@
                     </div>
                 </div>
             </li>
+
+            {{-- Faedda --}}
             <li class="card">
                 <div class="image">
                     <img src="{{ asset('Imagens/Integrantes/faeddafoto2.png') }}" alt="" draggable="false">
@@ -154,6 +166,8 @@
                     </div>
                 </div>
             </li>
+
+            {{-- Arthur --}}
             <li class="card">
                 <div class="image">
                     <img src="{{ asset('Imagens/Integrantes/arthurfoto2.png') }}" alt="" draggable="false">
