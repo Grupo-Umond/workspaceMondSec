@@ -9,7 +9,7 @@
                     <img src="{{ asset('Imagens/Logos/mondseclogoBranca.png') }}" class="logo" alt="Logo">
                 </div>
 
-                <div class="itens_nav_btns">
+                <div class="itens_nav_btns">]
                     <a href="{{ route('adm.dashboard.index') }}"
                         class="btn btn-primary btn-lg flex-fill btn-nav {{ request()->routeIs('adm.dashboard.index') ? 'active' : '' }}">
                         <i class="fa-solid fa-house"></i> DashBoard
@@ -43,25 +43,5 @@
             </div>
         </nav>
     </header>
-
-    <script>
-        const menuItem = document.querySelectorAll('.btn-nav');
-
-        const savedActive = localStorage.getItem("activeLink");
-        if (savedActive) {
-            const activeLink = document.querySelector(`.btn-nav[href="${savedActive}"]`);
-            if (activeLink) activeLink.classList.add('active');
-        }
-
-        function selectLink() {
-            menuItem.forEach(item => item.classList.remove('active'));
-            this.classList.add('active');
-
-            localStorage.setItem("activeLink", this.getAttribute("href"));
-        }
-
-        menuItem.forEach(item => item.addEventListener('click', selectLink));
-    </script>
-
 </div>
     </div>

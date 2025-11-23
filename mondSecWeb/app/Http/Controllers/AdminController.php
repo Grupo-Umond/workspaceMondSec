@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use App\Models\Admin;
+use App\Models\Comentario;
+
 use App\Models\Ocorrencia;
 use App\Models\Usuario;
 
@@ -95,7 +97,6 @@ class AdminController extends Controller
     {
         
         return redirect()->route('adm.chart.admin');
-        // return view('adm.admins.index');
     }
 
     public function updateAdmScreen($id)
@@ -111,6 +112,7 @@ class AdminController extends Controller
             'email' => 'nullable|max:225|string',
             'telefone' => 'nullable|max:255|string',
             'nivelAdmin' => 'nullable|string',
+            'status' => 'ativo'
         ]);
 
         $admin = Admin::findOrFail($id);
@@ -135,9 +137,9 @@ class AdminController extends Controller
         if (!$admin) {
             return redirect()->back()->with('Error', 'O adm não foi encontrado');
         }
-        $admin->delete();
         $admin->status = 'inativo';
         $admin->save();
+
 
         return redirect()->route('adm.admins.index')->with('success', 'Adm deletado com sucesso');
     }
@@ -190,9 +192,11 @@ class AdminController extends Controller
         if (!$usuario) {
             return redirect()->back()->with('Error', 'O usuário não foi encontrado');
         }
-        $usuario->delete();
+        $usuario->status = 'inativo';
+        $usuario->save();
 
         return redirect()->route('adm.users.index')->with('success', 'Usuário deletado com sucesso');
+
     }
 
     // =======================
@@ -238,13 +242,81 @@ class AdminController extends Controller
     }
 
     public function deleteOcorrencia($id) {
-        $ocorrencia = Usuario::find($id);
+        $ocorrencia = Ocorrencia::find($id);
         if (!$ocorrencia) {
-            return redirect()->back()->with('Error', 'O usuário não foi encontrado');
+            return redirect()->back()->with('Error', 'O ocorrencia não foi encontrado');
         }
-        $ocorrencia->delete();
+        $ocorrencia->status = 'inativo';
+        $ocorrencia->save();
 
-        return redirect()->route('adm.ocorrencia.index')->with('success', 'Usuário deletado com sucesso');
+        return redirect()->route('adm.ocorrencia.index')->with('success', 'Ocorrencia deletado com sucesso');
     }
 
+    public function showDenunciaOcorrenciaScreen()
+    {
+        $ocorrencias = Ocorrencia::with('usuario')
+            ->where('status', 'denunciado')
+            ->orderBy('dataPostagem', 'desc')
+            ->paginate(20);
+
+        return view('adm.verOcorrencia.denuncia', compact('ocorrencias'));
+    }
+
+    public function ocorrenciaSelecionada($id) {
+
+        $o = Ocorrencia::with('usuario')->findOrFail($id);
+
+        return response()->json($o);
+    }
+
+    // =======================
+    //  COMENTARIOS
+    // =======================
+
+    public function showComentarioScreen()
+    {
+        $comentarios = Comentario::with('usuario')->orderBy('id', 'DESC')->get();
+
+        return view('adm.verComentario.index', [
+            'comentarios' => $comentarios
+        ]);
+    }
+
+    public function show($id)
+    {
+        $comentario = Comentario::with(['usuario', 'ocorrencia'])->findOrFail($id);
+
+        return view('adm.verComentario.update', compact('comentario'));
+    }
+
+    public function update(Request $request, $id)
+    {
+        $request->validate([
+            'mensagem' => 'required|string|max:5000'
+        ]);
+
+        $comentario = Comentario::findOrFail($id);
+
+        $comentario->update([
+            'mensagem' => $request->mensagem
+        ]);
+
+        return redirect()->back()->with('success', 'Comentário atualizado com sucesso!');
+    }
+
+
+    public function destroy($id) {
+        $comentario= Comentario::find($id);
+        if (!$comentario) {
+            return redirect()->back()->with('Error', 'O comentario não foi encontrado');
+        }
+        $comentario->status = 'inativo';
+        $comentario->save();
+
+        return redirect()->route('adm.comentario.index')->with('success', 'Comentario deletado com sucesso');
+    
+
+    }
+
+    
 }
