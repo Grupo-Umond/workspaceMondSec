@@ -27,7 +27,7 @@
                 <td>{{ $o->titulo }}</td>
 
                 <td style="max-width: 250px;">
-                    {{ Str::limit($o->descricao, 80) }}
+                    {{ Str::limit($o->descricao, 555) }}
                 </td>
 
                 <td>{{ $o->tipo }}</td>
@@ -73,7 +73,6 @@
 </div>
 
 
-{{-- ====================== MODAL ========================= --}}
 <div class="modal fade" id="modalVerOcorrencia" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content">
@@ -112,7 +111,6 @@
         </div>
     </div>
 </div>
-{{-- ======================================================= --}}
 
 
 <script>
@@ -125,14 +123,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
             const id = btn.getAttribute('data-id');
 
-            // Reset UI
             document.getElementById('conteudoOcorrencia').style.display = 'none';
             document.getElementById('carregandoOcorrencia').style.display = 'block';
 
             modal.show();
 
             try {
-                const response = await fetch(`/admin/ocorrencia/${id}`);
+                const response = await fetch(`/adm/ocorrencias/selecionada/${id}`);
 
                 if (!response.ok) {
                     throw new Error("Erro ao buscar dados");
@@ -140,7 +137,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
                 const o = await response.json();
 
-                // Preenchendo
                 document.getElementById('o_id').textContent = o.id;
                 document.getElementById('o_titulo').textContent = o.titulo;
                 document.getElementById('o_descricao').textContent = o.descricao;

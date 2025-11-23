@@ -54,7 +54,8 @@ Route::prefix('adm')
             Route::get('/ocorrencias/{id}', 'updateOcorrenciaScreen')->name('ocorrencia.edit');
             Route::put('/ocorrencias/{id}', 'updateOcorrencia')->name('ocorrencia.update');
             Route::put('/ocorrencias/excluir/{id}', 'deleteOcorrencia')->name('ocorrencia.destroy');
-            Route::get('/denuncias','showDenunciaScreen')->name('ocorrencia.denuncia');
+            Route::get('/denuncias','showDenunciaOcorrenciaScreen')->name('ocorrencia.denuncia');
+            Route::get('/ocorrencias/selecionada/{id}','ocorrenciaSelecionada')->name('ocorrencia.selecionada');
 
 
             //Comentario

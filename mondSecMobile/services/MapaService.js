@@ -18,6 +18,7 @@ import {
   TextInput,
   ScrollView,
   ActivityIndicator,
+  Pressable,
 } from 'react-native';
 
 import MapView, { Polygon, Marker, Polyline } from 'react-native-maps';
@@ -29,6 +30,7 @@ import { buscarOcorrencias } from './MapaZonaLeste/ocorrencias.service';
 import { carregarComentarios, enviarComentarioRequest } from './MapaZonaLeste/comentarios.service';
 import { buscarUsuarioLogado } from './MapaZonaLeste/user.service';
 import { resolveIcon } from './MapaZonaLeste/iconResolver.service';
+import UrlService from './UrlService';
 
 const local = require('./GeoJson/zonaLeste_convertido.json');
 
@@ -51,6 +53,7 @@ const MapaZonaLesteGeojson = forwardRef(({ ocorrencias = [], currentUserId = nul
   const [loadingComentarios, setLoadingComentarios] = useState(false);
   const [sendingComentario, setSendingComentario] = useState(false);
   const [loggedUserId, setLoggedUserId] = useState(currentUserId);
+  const [modalDenuncia, setModalDenuncia] = useState(false);
 
   // ================== CARREGAR MAPA =====================
   useEffect(() => {
@@ -140,7 +143,11 @@ const MapaZonaLesteGeojson = forwardRef(({ ocorrencias = [], currentUserId = nul
       return String(iso || '');
     }
   };
-
+  const denunciarOcorrencia = async (id) => {
+    const idc = id;
+    const response = await UrlService.put(`/ocorrencia/denuncia/${idc}`);
+    setModalDenuncia(false);
+  }
   // ================== ENVIAR COMENTÁRIO =====================
   const enviarComentario = async () => {
     const texto = (mensagemComentario || '').trim();
@@ -280,6 +287,142 @@ const MapaZonaLesteGeojson = forwardRef(({ ocorrencias = [], currentUserId = nul
               <TouchableOpacity style={styles.closeButton} onPress={fecharModal}>
                 <Text style={styles.closeButtonText}>×</Text>
               </TouchableOpacity>
+              <Pressable onPress={() => denunciarOcorrencia()}>
+                <Text>Denunciar</Text>
+              </Pressable>
+            </View>
+
+            <ScrollView style={styles.modalBody} showsVerticalScrollIndicator={false}>
+
+              <View style={styles.infoSection}>
+                <Text style={styles.sectionTitle}>Informações</Text>
+
+                <View style={styles.infoItem}>
+                  <Text style={styles.infoLabel}>Descrição:</Text>
+                  <Text style={styles.infoText}>
+                    {selectedOcorrencia?.descricao || 'Sem descrição'}
+                  </Text>
+                </View>
+
+                {selectedOcorrencia?.dataAcontecimento && (
+                  <View style={styles.infoItem}>
+                    <Text style={styles.infoData}>Data:</Text>
+                    <Text style={styles.infoText}>
+                      {formatDate(selectedOcorrencia.dataAcontecimento)}
+                    </Text>
+                  </View>
+                )}
+              </View>
+                <Modal
+                  visible={modalDenuncia}
+                  transparent
+                  animationType="slide"
+                  onRequestClose={setModalDenuncia}
+                >
+                  <View style={styles.modalOverlay}>
+                    <View style={styles.modalCard}>
+
+                      <Text>Tem certeza que quer denunciar essa ocorrencia?</Text>
+                      <Pressable onPress={() => denunciarOcorrencia(selectedOcorrencia.id)}>
+                        <Text>Sim</Text>
+                      </Pressable>
+                      <Pressable onPress={() => setModalDenuncia(false)}>
+                        <Text>Não</Text>
+                      </Pressable>
+
+                    </View>
+                  </View>
+                </Modal>
+              <View style={styles.commentsSection}>
+                <Text style={styles.sectionTitle}>Comentários</Text>
+
+                {loadingComentarios ? (
+                  <View style={{ paddingVertical: 12 }}>
+                    <ActivityIndicator size="small" color="#003366" />
+                    <Text style={{ textAlign: 'center', marginTop: 8 }}>
+                      Carregando comentários...
+                    </Text>
+                  </View>
+                ) : (
+                  <View style={styles.commentsList}>
+                    {comentarios.length === 0 ? (
+                      <Text style={styles.emptyComments}>Nenhum comentário ainda.</Text>
+                    ) : (
+                      comentarios.map((c, i) => (
+                        <View key={c.id ?? i} style={styles.commentItem}>
+                          <View style={styles.commentHeader}>
+                            <Text style={styles.commentAuthor}>
+                              {c.usuario?.name || c.usuario?.nome || 'Usuário'}
+                            </Text>
+                            <Text style={styles.commentDate}>
+                              {formatDate(c.data ?? c.created_at)}
+                            </Text>
+                          </View>
+                          <Text style={styles.commentText}>{c.mensagem}</Text>
+                        </View>
+                      ))
+                    )}
+                  </View>
+                )}
+
+                <View style={styles.commentInputContainer}>
+                  <TextInput
+                    placeholder="Escreva um comentário..."
+                    placeholderTextColor="#888"
+                    value={mensagemComentario}
+                    onChangeText={setMensagemComentario}
+                    style={styles.commentInput}
+                    multiline
+                    numberOfLines={3}
+                  />
+
+                  <TouchableOpacity
+                    onPress={enviarComentario}
+                    style={[
+                      styles.sendButton,
+                      sendingComentario && styles.sendButtonDisabled
+                    ]}
+                    disabled={sendingComentario}
+                  >
+                    {sendingComentario ? (
+                      <ActivityIndicator size="small" color="#FFFFFF" />
+                    ) : (
+                      <Text style={styles.sendButtonText}>Enviar</Text>
+                    )}
+                  </TouchableOpacity>
+                </View>
+              </View>
+
+            </ScrollView>
+
+            <View style={styles.modalFooter}>
+              <TouchableOpacity style={styles.okButton} onPress={fecharModal}>
+                <Text style={styles.okButtonText}>Fechar</Text>
+              </TouchableOpacity>
+            </View>
+
+          </View>
+        </View>
+      </Modal>
+      <Modal
+        visible={modalVisible}
+        transparent
+        animationType="slide"
+        onRequestClose={fecharModal}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalCard}>
+
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>
+                {selectedOcorrencia?.tipo || 'Detalhes da Ocorrência'}
+              </Text>
+              <TouchableOpacity style={styles.closeButton} onPress={fecharModal}>
+                <Text style={styles.closeButtonText}>×</Text>
+              </TouchableOpacity>
+              <Pressable onPress={() => setModalDenuncia(true)}>
+                <Text>Denunciar</Text>
+              </Pressable>
             </View>
 
             <ScrollView style={styles.modalBody} showsVerticalScrollIndicator={false}>
@@ -375,6 +518,7 @@ const MapaZonaLesteGeojson = forwardRef(({ ocorrencias = [], currentUserId = nul
           </View>
         </View>
       </Modal>
+      
     </>
   );
 });

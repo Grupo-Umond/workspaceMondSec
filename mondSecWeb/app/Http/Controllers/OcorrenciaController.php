@@ -66,5 +66,20 @@ class OcorrenciaController extends Controller
         ]);
     }
 
+    public function denunciando($id) {
+        $ocorrencia = Ocorrencia::find($id);
+
+        if (!$ocorrencia) {
+            return response()->json(['mensagem' => 'Ocorrencia não encontrado no banco.'], 404);
+        }
+
+        $ocorrencia->status = 'denunciado';
+        $ocorrencia->save();
+
+        return response()->json([
+            'mensagem' => "Usuário ({$ocorrencia->titulo}) deletado com sucesso."
+        ], 200);
+    }
+
 }
 

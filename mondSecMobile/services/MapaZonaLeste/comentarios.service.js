@@ -2,7 +2,7 @@ import UrlService from '../UrlService';
 
 export async function carregarComentarios(id) {
   try {
-    const r = await UrlService.get(`/comentarios/${id}`);
+    const r = await UrlService.get(`comentario/comentarios/${id}`);
     const lista = Array.isArray(r.data) ? r.data : [];
     return lista.filter(c => c.status !== 'inativo');
   } catch (e) {

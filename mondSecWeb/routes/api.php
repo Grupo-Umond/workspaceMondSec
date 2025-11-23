@@ -34,7 +34,7 @@ Route::prefix('ocorrencia')
         Route::get('/listar', 'index')->name('listar');
         Route::post('/registrar', 'store')->name('registrar');
         Route::get('/getall', 'allOcorrencias')->name('getall');
-
+        Route::put('/denuncia/{id}','denunciando')->name('denuncia');
     });
 
 Route::prefix('codigo')

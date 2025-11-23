@@ -252,15 +252,23 @@ class AdminController extends Controller
         return redirect()->route('adm.ocorrencia.index')->with('success', 'Ocorrencia deletado com sucesso');
     }
 
-    public function showDenunciaScreen()
+    public function showDenunciaOcorrenciaScreen()
     {
         $ocorrencias = Ocorrencia::with('usuario')
-            ->where('status', 'denunciada')
+            ->where('status', 'denunciado')
             ->orderBy('dataPostagem', 'desc')
             ->paginate(20);
 
         return view('adm.verOcorrencia.denuncia', compact('ocorrencias'));
     }
+
+    public function ocorrenciaSelecionada($id) {
+
+        $o = Ocorrencia::with('usuario')->findOrFail($id);
+
+        return response()->json($o);
+    }
+
     // =======================
     //  COMENTARIOS
     // =======================
@@ -311,5 +319,5 @@ class AdminController extends Controller
     }
 
     
-
 }
+
