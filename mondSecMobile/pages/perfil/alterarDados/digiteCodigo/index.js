@@ -12,122 +12,101 @@ import {
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { useTheme } from "../../../../services/themes/themecontext";
-
-import { MaterialIcons as Icon } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
-
 import UrlService from "../../../../services/UrlService";
 import axios from "axios";
 
 const DigiteCodigoScreen = ({ navigation, route }) => {
   const [digitos, setDigitos] = useState(["", "", "", "", "", ""]);
-  const [direcao, setDirecao] = useState(true); // true => email, false => telefone
+  const [direcao, setDirecao] = useState(true); 
   const [email, setEmail] = useState("");
   const [telefone, setTelefone] = useState("");
   const [carregando, setCarregando] = useState(false);
   const [erroMessage, setErroMessage] = useState("");
   const [tempoRestante, setTempoRestante] = useState(0);
-  const { theme, isDarkMode } = useTheme(); // ← TEMA AQUI PABLO
+  const { theme, isDarkMode } = useTheme(); 
 
   const usuario = route.params?.usuario;
   const campo = route.params?.campo;
   const code = digitos.join("");
 
   useEffect(() => {
-    // define direcao inicial com base no campo passado
-    if (campo === 'telefone') {
-      setDirecao(false);
-    } else if (campo === 'email') {
-      setDirecao(true);
-    }
-    console.log('[DigiteCodigoScreen] route.params', route.params);
+    if (campo === 'telefone') setDirecao(false);
+    if (campo === 'email') setDirecao(true);
+
     buscarDados();
   }, []);
 
-  // Busca dados do usuário logado (se houver) ou pega os dados do "usuario" prop
   const buscarDados = async () => {
-    console.log('[DigiteCodigoScreen] buscarDados iniciado');
     const tokenUser = await AsyncStorage.getItem("userToken");
+
     try {
       if (tokenUser) {
-        console.log('[DigiteCodigoScreen] tokenUser encontrado, buscando /usuario/buscar');
         const response = await UrlService.get('/usuario/buscar', {
           headers: { Authorization: `Bearer ${tokenUser}` },
         });
-        console.log('[DigiteCodigoScreen] response /usuario/buscar', response.data);
+
         setEmail(response.data.usuario.email || "");
         setTelefone(response.data.usuario.telefone || "");
 
-        // depois de popular, automaticamente criar codigo
         if (direcao && response.data.usuario.email) {
           criarCodigo(response.data.usuario.email);
         } else if (!direcao && response.data.usuario.telefone) {
           criarCodigo(response.data.usuario.telefone);
         }
       } else if (usuario) {
-        console.log('[DigiteCodigoScreen] sem token, usando usuario passado por param', usuario);
         if (direcao && usuario.email) {
           setEmail(usuario.email);
           criarCodigo(usuario.email);
         } else if (!direcao && usuario.telefone) {
           setTelefone(usuario.telefone);
           criarCodigo(usuario.telefone);
-        } else {
-          console.log('[DigiteCodigoScreen] usuario param não possui o campo necessário', { usuario, direcao });
         }
-      } else {
-        console.log('[DigiteCodigoScreen] nem token nem usuario param disponíveis');
       }
     } catch (erro) {
-      console.log('[DigiteCodigoScreen] erro ao buscarDados:', erro.response?.data || erro.message);
-      Alert.alert('Erro', 'Falha ao buscar dados do usuário: ' + (erro.response?.data?.mensagem || erro.message));
+      Alert.alert('Erro', 'Falha ao buscar dados do usuário.');
     }
   };
 
   const criarCodigo = async (loginParam) => {
-    console.log('[DigiteCodigoScreen] criarCodigo chamado', { direcao, loginParam });
     const tokenUser = await AsyncStorage.getItem("userToken");
+
     try {
       let response;
       if (direcao) {
         if (tokenUser) {
-          console.log('[DigiteCodigoScreen] POST /codigo/auth/sendEmail via UrlService');
-          response = await UrlService.post('/codigo/auth/sendEmail', {}, { headers: { Authorization: `Bearer ${tokenUser}` } });
+          response = await UrlService.post('/codigo/auth/sendEmail', {}, { 
+            headers: { Authorization: `Bearer ${tokenUser}` } 
+          });
         } else {
           const login = loginParam || email;
-          console.log('[DigiteCodigoScreen] POST /codigo/sendEmail via axios, login:', login);
-
-          response = await axios.post('http://192.168.15.116:8000/api/codigo/sendEmail', { login });
-
+          response = await UrlService.post('/codigo/sendEmail', { login });
         }
       } else {
         if (tokenUser) {
-          console.log('[DigiteCodigoScreen] POST /codigo/auth/sendSms via UrlService');
-          response = await UrlService.post('/codigo/auth/sendSms', {}, { headers: { Authorization: `Bearer ${tokenUser}` } });
+          response = await UrlService.post('/codigo/auth/sendSms', {}, { 
+            headers: { Authorization: `Bearer ${tokenUser}` } 
+          });
         } else {
-
           const tel = loginParam || telefone;
-          console.log('[DigiteCodigoScreen] POST /codigo/sendSms via axios, telefone:', tel);
-          response = await axios.post('http://192.168.15.116:8000/api/codigo/sendSms', { telefone: tel });
-
+          response = await UrlService.post('/codigo/sendSms', { telefone: tel });
         }
       }
 
-      console.log('[DigiteCodigoScreen] criarCodigo response', response?.data);
       setTempoRestante(30);
     } catch (erro) {
-      console.log('[DigiteCodigoScreen] erro ao criar codigo', erro.response?.data || erro.message);
       if (erro.response?.status === 429) {
         setTempoRestante(erro.response.data.tempoRestante || 30);
-        Alert.alert('Aguarde', `Por favor, aguarde ${erro.response.data.tempoRestante || 30}s antes de tentar novamente.`);
+        Alert.alert('Aguarde', `Aguarde ${erro.response.data.tempoRestante || 30}s.`);
       } else {
-        Alert.alert('Erro', 'Falha ao criar código: ' + (erro.response?.data?.erro || erro.message));
+        Alert.alert('Erro', 'Falha ao enviar código.');
       }
     }
   };
 
   useEffect(() => {
     if (tempoRestante <= 0) return;
+
     const timer = setInterval(() => {
       setTempoRestante(prev => {
         if (prev <= 1) {
@@ -143,15 +122,8 @@ const DigiteCodigoScreen = ({ navigation, route }) => {
   }, [tempoRestante]);
 
   const pegarLogin = () => {
-    if (direcao) {
-      console.log('[DigiteCodigoScreen] pegarLogin -> email', email || usuario?.email);
-      setEmail(email || usuario?.email || "");
-      return email || usuario?.email || "";
-    } else {
-      console.log('[DigiteCodigoScreen] pegarLogin -> telefone', telefone || usuario?.telefone);
-      setTelefone(telefone || usuario?.telefone || "");
-      return telefone || usuario?.telefone || "";
-    }
+    if (direcao) return email || usuario?.email || "";
+    return telefone || usuario?.telefone || "";
   };
 
   const handleChange = (text, index) => {
@@ -169,7 +141,7 @@ const DigiteCodigoScreen = ({ navigation, route }) => {
     }
 
     if (!/^\d{6}$/.test(code)) {
-      setErroMessage("Digite o código com exatamente 6 números.");
+      setErroMessage("Digite o código com 6 números.");
       return false;
     }
 
@@ -184,7 +156,6 @@ const DigiteCodigoScreen = ({ navigation, route }) => {
 
     try {
       const login = pegarLogin();
-      console.log('[DigiteCodigoScreen] enviarCodigo enviando verify', { code, direcao, login, hasToken: !!tokenUser });
 
       const response = await UrlService.post(
         '/codigo/auth/verify',
@@ -192,20 +163,16 @@ const DigiteCodigoScreen = ({ navigation, route }) => {
         tokenUser ? { headers: { Authorization: `Bearer ${tokenUser}` } } : {}
       );
 
-      console.log('[DigiteCodigoScreen] enviarCodigo response', response.data);
-
       const tokenTemp = response.data.token;
       if (!tokenTemp) {
-        setErroMessage("Permissão não recebida");
-        Alert.alert('Erro', 'Permissão não recebida do servidor.');
+        Alert.alert('Erro', 'Token temporário não retornado.');
         return;
       }
 
       await AsyncStorage.setItem("tokenTemp", tokenTemp);
-      Alert.alert('Sucesso', 'Código validado. Redirecionando...');
       navigation.navigate("AlterarSenha", { direcao });
+
     } catch (err) {
-      console.log('[DigiteCodigoScreen] erro ao enviar codigo', err.response?.data || err.message);
       const mensagem = err.response?.data?.message || err.response?.data?.erro || err.message;
       setErroMessage(mensagem);
       Alert.alert('Erro', mensagem);
@@ -215,19 +182,16 @@ const DigiteCodigoScreen = ({ navigation, route }) => {
   };
 
   const handleResendPress = async () => {
-    if (tempoRestante > 0) {
-      console.log('[DigiteCodigoScreen] tentativa de reenviar bloqueado', tempoRestante);
-      return;
-    }
-    setTempoRestante(30);
-    await criarCodigo();
+    if (tempoRestante > 0) return;
+
+    const loginAtual = pegarLogin();
+    criarCodigo(loginAtual);
   };
 
   return (
     <View style={{ flex: 1, backgroundColor: theme.background }}>
       <View style={[styles.container, { backgroundColor: theme.background }]}>
 
-        {/* Cabeçalho */}
         <View style={styles.cabecalho}>
           <Pressable
             onPress={() => navigation.navigate("Menu")}
@@ -242,27 +206,25 @@ const DigiteCodigoScreen = ({ navigation, route }) => {
         </View>
 
         {/* Logo */}
-   <View style={styles.avatarContainer}>
-  <View style={styles.logoContainer}>
-    <Image
-      source={
-        isDarkMode
-          ? require("../../../../assets/logobranca.png")   // logo clara no se for modo escura 
-          : require("../../../../assets/mondSecLogo.png")       // logo escura se for modo claro 
-      }
-      style={styles.logo}
-    />
-  </View>
-</View>
+        <View style={styles.avatarContainer}>
+          <View style={styles.logoContainer}>
+            <Image
+              source={
+                isDarkMode
+                  ? require("../../../../assets/logobranca.png")
+                  : require("../../../../assets/mondSecLogo.png")
+              }
+              style={styles.logo}
+            />
+          </View>
+        </View>
 
-        {/* Texto principal */}
         <Text style={[styles.title, { color: theme.text }]}>
           {direcao
-            ? `Digite o código que enviamos para o email ${email}`
-            : `Digite o código que enviamos para o número ${telefone}`}
+            ? `Digite o código enviado ao email ${email}`
+            : `Digite o código enviado ao número ${telefone}`}
         </Text>
 
-        {/* Alternar Email/SMS */}
         {direcao ? (
           <Pressable
             onPress={() => {
@@ -271,7 +233,7 @@ const DigiteCodigoScreen = ({ navigation, route }) => {
             }}
           >
             <Text style={[styles.linkText, { color: theme.textSecondary }]}>
-              Não tenho acesso a esse email.{" "}
+              Não tenho acesso ao email.{" "}
               <Text style={[styles.linkHighlight, { color: theme.primary }]}>
                 Enviar por SMS
               </Text>
@@ -285,7 +247,7 @@ const DigiteCodigoScreen = ({ navigation, route }) => {
             }}
           >
             <Text style={[styles.linkText, { color: theme.textSecondary }]}>
-              Não tenho acesso a esse telefone.{" "}
+              Não tenho acesso ao telefone.{" "}
               <Text style={[styles.linkHighlight, { color: theme.primary }]}>
                 Enviar por email
               </Text>
@@ -293,7 +255,6 @@ const DigiteCodigoScreen = ({ navigation, route }) => {
           </Pressable>
         )}
 
-        {/* Inputs */}
         <View style={styles.inputContainer}>
           {digitos.map((d, index) => (
             <TextInput
@@ -320,8 +281,11 @@ const DigiteCodigoScreen = ({ navigation, route }) => {
           </Text>
         ) : null}
 
-        {/* Reenviar código */}
-        <TouchableOpacity disabled={tempoRestante > 0}>
+        {/* Reenviar */}
+        <TouchableOpacity
+          disabled={tempoRestante > 0}
+          onPress={handleResendPress}
+        >
           <Text
             style={[
               styles.resendLink,
@@ -337,7 +301,7 @@ const DigiteCodigoScreen = ({ navigation, route }) => {
           </Text>
         </TouchableOpacity>
 
-        {/* Botão Confirmar */}
+        {/* Confirmar */}
         <TouchableOpacity
           style={[
             styles.confirmButton,
@@ -345,6 +309,7 @@ const DigiteCodigoScreen = ({ navigation, route }) => {
             carregando && styles.disabledButton,
           ]}
           disabled={carregando}
+          onPress={enviarCodigo}
         >
           <Text style={styles.confirmButtonText}>
             {carregando ? "Enviando..." : "Confirmar"}

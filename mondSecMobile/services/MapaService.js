@@ -247,13 +247,24 @@ const MapaZonaLesteGeojson = forwardRef(({ ocorrencias = [], currentUserId = nul
           if (!isFinite(lat) || !isFinite(lng)) return null;
 
           return (
-            <Marker
-              key={oc.id ?? i}
-              coordinate={{ latitude: lat, longitude: lng }}
-              onPress={() => abrirModal(oc)}
-            >
-              <Image source={getIconForTipo(oc.tipo)} style={{ width: 40, height: 40 }} />
-            </Marker>
+          //   <Marker
+          //     key={oc.id ?? i}
+          //     coordinate={{ latitude: lat, longitude: lng }}
+          //     onPress={() => abrirModal(oc)}
+          //   >
+          //     <Image source={getIconForTipo(oc.tipo)} style={{ width: 40, height: 40 }} />
+          //   </Marker>
+          <Marker
+            key={oc.id ?? i}
+            coordinate={{ latitude: lat, longitude: lng }}
+            onPress={() => abrirModal(oc)}
+          >
+            <Image 
+              source={getIconForTipo(oc.tipo)} 
+              style={{ width: 40, height: 40, resizeMode: 'contain' }} 
+            />
+          </Marker>
+
           );
         })}
 
