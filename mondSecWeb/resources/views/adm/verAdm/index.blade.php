@@ -7,7 +7,7 @@
     <div class="parteCima">
         <div class="graficosAdministradores mb-4">
             <div id="chart-container1Administradores" style="height:45vh;"></div>
-            <div id="chart-container2Administradores" style="height:45vh;"></div>
+            <div id="chart-container2Administradores" style="height:45vh; margin-top: 20px;"></div>
         </div>
 
         <script src="https://cdn.jsdelivr.net/npm/echarts/dist/echarts.min.js"></script>
@@ -93,7 +93,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         const thead = document.createElement('thead');
         thead.innerHTML = `<tr>
-            <th>ID</th><th>Nome</th><th>Email</th><th>Telefone</th><th>Nível de Acesso</th><th>Data de Criação</th><th></th><th></th>
+            <th>ID</th><th>Nome</th><th>Email</th><th>Telefone</th><th>Nível de Acesso</th><th>Data de Criação</th><th>Status</th><th></th><th></th>
         </tr>`;
         table.appendChild(thead);
 
@@ -107,6 +107,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 <td>${a.telefone || '-'}</td>
                 <td>${a.nivelAdmin || '-'}</td>
                 <td>${a.created_at || '-'}</td>
+                <td>${a.status || '-'}</td>
+
                 <td>
                     <a href="/adm/admins/${a.id}" class="btn btn-sm btn-warning">
                         <i class="fa-solid fa-pencil btn-alterar"></i>
@@ -115,7 +117,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 <td>
                     <form action="/adm/admins/${a.id}" method="POST" onsubmit="return confirm('Tem certeza que quer excluir?');">
                         @csrf
-                        @method('DELETE')
+                        @method('PUT')
                         <button type="submit" class="btn btn-sm btn-danger">
                             <i class="fa-solid fa-trash-can btn-excluir"></i>
                         </button>

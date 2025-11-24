@@ -284,9 +284,9 @@ class AdminController extends Controller
 
     public function show($id)
     {
-        $comentario = Comentario::with(['usuario', 'ocorrencia'])->findOrFail($id);
+        $comentarios = Comentario::with(['usuario', 'ocorrencia'])->findOrFail($id);
 
-        return view('adm.verComentario.update', compact('comentario'));
+        return view('adm.verComentario.update', compact('comentarios'));
     }
 
     public function update(Request $request, $id)
@@ -316,6 +316,21 @@ class AdminController extends Controller
         return redirect()->route('adm.comentario.index')->with('success', 'Comentario deletado com sucesso');
     
 
+    }
+
+    public function selecionado($id)
+    {
+        $comentario = Comentario::with(['usuario', 'ocorrencia'])->findOrFail($id);
+        return response()->json($comentario);
+    }
+
+    public function showDenunciaComentarioScreen() {
+        $comentarios = Comentario::with(['usuario','ocorrencia'])
+            ->where('status', 'denunciado')
+            ->orderBy('data', 'desc')
+            ->paginate(20);
+
+        return view('adm.verComentario.denuncia', compact('comentarios'));
     }
 
 }
