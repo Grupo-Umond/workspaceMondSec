@@ -46,12 +46,14 @@ export const ThemeProvider = ({ children }) => {
       secundary: "#01080aff",
       button: "#093043ff", 
       icon: "#fff",
-      danger: "#ff6b6b",
+      danger: "#E53935",
       cimaDark: "#10405eff",
       baixoDark: "#2c3e50",
        buttonColor: '#0c2946ff', 
        backlegenda: '#4FC3F7', 
-      colorlegenda: '#0b0505ff'
+      colorlegenda: '#0b0505ff', 
+      cardbackground: "#14212eff", 
+      sectionbackground: '#0c2946ff', 
      
     }
   : {
@@ -65,12 +67,14 @@ export const ThemeProvider = ({ children }) => {
       border: "#ddd",
       primary: "#003366",
       icon: "#fff6f6ff",
-      danger: "#E53935",
+      danger: "#ff6b6b",
       cimaDark: "#ffffff", 
       baixoDark: "#ffffff",
-      buttonColor: '#003366',
+      buttonColor: '#073e75ff',
       backlegenda: '#e1e5eaff', 
-      colorlegenda: '#05101dff'
+      colorlegenda: '#05101dff', 
+      cardbackground: "#fefefeff", 
+         sectionbackground: '#f4f0f0ff',
     };
 
   return (

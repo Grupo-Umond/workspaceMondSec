@@ -238,7 +238,7 @@ const DigiteDadosScreen = ({ navigation }) => {
 
           {/* BOTÃO */}
           <TouchableOpacity
-            style={[styles.button, { backgroundColor: theme.button }]}
+            style={[styles.button, { backgroundColor: theme.buttonColor }]}
             onPress={alterarDados}
             disabled={carregando}
           >
@@ -335,6 +335,7 @@ const styles = StyleSheet.create({
     padding: 15,
     borderRadius: 10,
     alignItems: "center",
+    marginTop: '10%',  
   },
 
   buttonText: { color: "#fff", fontWeight: "bold", fontSize: 15 },

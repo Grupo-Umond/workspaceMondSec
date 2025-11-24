@@ -35,7 +35,6 @@ const HomeScreen = ({ navigation }) => {
   const mapaRef = useRef(null);
   const [modalSobreVisible, setModalSobreVisible] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
-  // NOVO ESTADO PARA O MODAL DE LEGENDA
   const [modalLegendaVisible, setModalLegendaVisible] = useState(false);
 
   const slides = [
@@ -48,12 +47,12 @@ const HomeScreen = ({ navigation }) => {
 
   // DADOS DA LEGENDA
   const itensLegenda = [
-    { id: "1", cor: '#FF0000', texto: "Área de alto risco" },
-    { id: "2", cor: '#FFA500', texto: "Área de médio risco" },
-    { id: "3", cor: '#00FF00', texto: "Área segura" },
-    { id: "4", cor: '#0000FF', texto: "Postos policiais" },
-    { id: "5", cor: '#800080', texto: "Hospitais" },
-    { id: "6", cor: '#FFFF00', texto: "Áreas com iluminação" },
+    { id: "1", cor: '#641e16', texto: "Área de Extremo Risco" },
+    { id: "2", cor: '#d7263d', texto: "Área de Risco" },
+    { id: "3", cor: '#f28c28', texto: "Área de Perigo Alto" },
+    { id: "4", cor: '#f5c400', texto: "Área de perigo Moderado" },
+    { id: "5", cor: '#f7e46a', texto: "Área de Perigo Pequeno" },
+    { id: "6", cor: '#0815caff', texto: "Seu local" },
   ];
 
   useEffect(() => {
@@ -222,7 +221,7 @@ const getCoordFinal = async () => {
           style={[styles.ocorrenciaButton, { backgroundColor: theme.danger }]}
           onPress={() => navigation.navigate('Registrar')}
         >
-          <Icon name="warning" size={28} color="#FFF" />
+          <Icon name="warning" size={24} color="#FFF" />
         </Pressable>
       )}
 
@@ -231,7 +230,7 @@ const getCoordFinal = async () => {
         
         <Pressable onPress={() => navigation.navigate('Home')} style={styles.navButton}>
           <Icon name="home" size={26} color={theme.icon} />
-          <Text style={[styles.navButtonInicio, { color: theme.icon }]}>Início</Text>
+          <Text style={[styles.navButtonText, { color: theme.icon }]}>Início</Text>
         </Pressable>
 
         <Pressable onPress={() => setModalSobreVisible(true)} style={styles.navButton}>
@@ -324,33 +323,149 @@ const getCoordFinal = async () => {
         </View>
       </Modal>
 
-      <Modal animationType="slide" transparent visible={modalRota}>
-        <View style={styles.modalContainer}>
-          <View style={styles.modalContent}>
-            <Pressable onPress={() => setModalRota(false)}><Text>Fechar</Text></Pressable>
-            <Text>Para onde você quer ir?</Text>
+      {/* MODAL ROTA  */}
+<Modal 
+  animationType="slide" 
+  transparent 
+  visible={modalRota}
+  statusBarTranslucent
+>
+  <View style={styles.modalRotaContainer}>
+    <View style={[
+      styles.modalRotaContent,
+      { 
+        backgroundColor: theme.cardbackground,
+        shadowColor: theme.shadow,
+      }
+    ]}>
+      {/* CABEÇALHO */}
+      <View style={[
+        styles.cabecalhoModalRota,
+        { 
+          backgroundColor: theme.navBackground,
+          borderBottomColor: theme.border,
+        }
+      ]}>
+        <View style={styles.containerTituloModalRota}>
+          <Text style={[
+            styles.tituloModalRota,
+            { color: theme.title }
+          ]}>
+            Calcular Rota
+          </Text>
+        </View>
+        
+        <Pressable 
+          onPress={() => setModalRota(false)}
+          style={[
+            styles.botaoFecharModalRota,
+            { backgroundColor: theme.border }
+          ]}
+        >
+          <Text style={[styles.textoBotaoFechar, { color: theme.text }]}>
+            ×
+          </Text>
+        </Pressable>
+      </View>
 
-            <Text>Local de início</Text>
+      {/* CONTEÚDO */}
+      <View style={styles.conteudoModalRota}>
+        <Text style={[
+          styles.subtituloModalRota,
+          { color: theme.text }
+        ]}>
+          Para onde você quer ir?
+        </Text>
+
+        {/* LOCAL DE INÍCIO */}
+        <View style={styles.secaoInput}>
+          <View style={styles.rotuloInputContainer}>
+            <Text style={[styles.iconeInput, { color: theme.primary }]}>
+              📍
+            </Text>
+            <Text style={[
+              styles.rotuloInput,
+              { color: theme.textSecondary }
+            ]}>
+              Local de início
+            </Text>
+          </View>
+          <View style={[
+            styles.containerInput,
+            { 
+              backgroundColor: theme.sectionBackground,
+              borderColor: theme.border,
+            }
+          ]}>
             <TextInput
-              
+              style={[
+                styles.inputModalRota,
+                { color: theme.text }
+              ]}
               placeholder="Digite o endereço..."
+              placeholderTextColor={theme.textSecondary}
               value={enderecoInicial}
               onChangeText={setEnderecoInicial}
             />
+          </View>
+        </View>
 
-            <Text>Destino</Text>
+        {/* DESTINO */}
+        <View style={styles.secaoInput}>
+          <View style={styles.rotuloInputContainer}>
+            <Text style={[styles.iconeInput, { color: theme.primary }]}>
+              🏁
+            </Text>
+            <Text style={[
+              styles.rotuloInput,
+              { color: theme.textSecondary }
+            ]}>
+              Destino
+            </Text>
+          </View>
+          <View style={[
+            styles.containerInput,
+            { 
+              backgroundColor: theme.sectionBackground,
+              borderColor: theme.border,
+            }
+          ]}>
             <TextInput
+              style={[
+                styles.inputModalRota,
+                { color: theme.text }
+              ]}
               placeholder="Digite o endereço..."
+              placeholderTextColor={theme.textSecondary}
               value={enderecoFinal}
               onChangeText={setEnderecoFinal}
             />
+          </View>
+        </View>
 
-            <Pressable onPress={enviarRota}>
-              <Text style={styles.modalButton}>Calcular rota</Text>
-            </Pressable>
-            </View>
-            </View>
-      </Modal>
+        {/* BOTÃO CALCULAR ROTA */}
+        <Pressable 
+          onPress={enviarRota}
+          style={[
+            styles.botaoCalcularRota,
+            { 
+              backgroundColor: theme.buttonColor,
+              shadowColor: theme.shadow,
+            }
+          ]}
+        >
+          <Text style={[styles.iconeBotao, { color: "#FFF" }]}>
+            🗺️
+          </Text>
+          <Text style={styles.textoBotaoCalcularRota}>
+            Calcular Rota
+          </Text>
+        </Pressable>
+      </View>
+    </View>
+  </View>
+</Modal>
+
       {/* MODAL CARROSSEL */}
       <Modal visible={modalSobreVisible} animationType="fade" transparent>
         <View style={styles.overlay}>
@@ -414,7 +529,7 @@ const styles = StyleSheet.create({
     zIndex: 10,
     flexDirection: "row",
     paddingHorizontal: 15,
-    paddingTop: 20,
+    paddingTop: 30,
     paddingBottom: 10,
     backgroundColor: "#FFF",
     elevation: 3,
@@ -536,7 +651,7 @@ legendaButton: {
     flex: 1,
   },
   ocorrenciaButton: {
-    position: "absolute", bottom: 140, right: 20,
+    position: "absolute", bottom: 130, right: 20,
     backgroundColor: "#df4f1f",
     padding: 15, borderRadius: 50,
   },
@@ -562,11 +677,6 @@ legendaButton: {
     color: '#FFFFFF',
     fontSize: 12,
     marginTop: 4,
-  },
-  navButtonInicio : {
-    color: '#FFFFFF',
-    fontSize: 16,
-    marginTop:4,
   }, 
   modalContainer: {
     flex: 1, justifyContent: "center",
@@ -687,6 +797,115 @@ legendaButton: {
     width: 26,
     height: 10,
     borderRadius: 6,
+  },
+    // MODAL ROTA
+  modalRotaContainer: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.6)",
+    justifyContent: "flex-end",
+  },
+  modalRotaContent: {
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    maxHeight: "80%",
+    shadowOffset: { width: 0, height: -4 },
+    shadowOpacity: 0.25,
+    shadowRadius: 16,
+    elevation: 10,
+    overflow: "hidden",
+  },
+
+  // CABEÇALHO MODAL ROTA
+  cabecalhoModalRota: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    padding: 20,
+    borderBottomWidth: 1,
+  },
+  containerTituloModalRota: {
+    flex: 1,
+  },
+  tituloModalRota: {
+    fontSize: 20,
+    fontWeight: "700",
+  },
+  botaoFecharModalRota: {
+    padding: 8,
+    borderRadius: 20,
+    width: 36,
+    height: 36,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  textoBotaoFechar: {
+    fontSize: 24,
+    fontWeight: "300",
+    lineHeight: 24,
+  },
+
+  // CONTEÚDO MODAL ROTA
+  conteudoModalRota: {
+    padding: 20,
+    gap: 24,
+  },
+  subtituloModalRota: {
+    fontSize: 16,
+    fontWeight: "600",
+    textAlign: "center",
+    marginBottom: 8,
+  },
+
+  // SEÇÃO INPUT
+  secaoInput: {
+    gap: 8,
+  },
+  rotuloInputContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+  iconeInput: {
+    fontSize: 16,
+  },
+  rotuloInput: {
+    fontSize: 14,
+    fontWeight: "600",
+    textTransform: "uppercase",
+    letterSpacing: 0.5,
+  },
+  containerInput: {
+    borderRadius: 12,
+    borderWidth: 1,
+    paddingHorizontal: 16,
+  },
+  inputModalRota: {
+    height: 50,
+    fontSize: 16,
+    fontWeight: "400",
+  },
+
+  // BOTÃO CALCULAR ROTA
+  botaoCalcularRota: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 16,
+    borderRadius: 12,
+    gap: 12,
+    marginTop: 8,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 6,
+  },
+  iconeBotao: {
+    fontSize: 18,
+  },
+  textoBotaoCalcularRota: {
+    color: "#FFF",
+    fontSize: 16,
+    fontWeight: "600",
   },
 });
 

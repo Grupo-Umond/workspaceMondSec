@@ -73,11 +73,11 @@ const DigiteCampoScreen = ({ navigation }) => {
             {/* NAV */}
             <View style={styles.nav}>
                 <Pressable style={styles.backButton} onPress={() => navigation.goBack()}>
-                    <Text style={[styles.backArrow, { color: theme.primary }]}>{"<"}</Text>
+                    <Text style={[styles.backArrow, { color: theme.title }]}>{"<"}</Text>
                 </Pressable>
 
                 <View style={styles.header}>
-                    <Text style={[styles.headerTitle, { color: theme.text }]}>Alterar Senha</Text>
+                    <Text style={[styles.headerTitle, { color: theme.title }]}>Alterar Senha</Text>
                 </View>
             </View>
 
@@ -112,7 +112,7 @@ const DigiteCampoScreen = ({ navigation }) => {
                     style={[
                         styles.input,
                         {
-                            backgroundColor: theme.card,
+                            backgroundColor: theme.sectionbackground,
                             borderColor: erroMessage ? theme.danger : theme.border,
                             color: theme.text
                         }
@@ -131,13 +131,13 @@ const DigiteCampoScreen = ({ navigation }) => {
                     style={[
                         styles.confirmButton,
                         {
-                            backgroundColor: theme.primary,
+                            backgroundColor: theme.buttonColor,
                             opacity: loading ? 0.7 : 1
                         }
                     ]}
                     disabled={loading}
                 >
-                    <Text style={[styles.confirmButtonText, { color: theme.onPrimary }]}>
+                    <Text style={[styles.confirmButtonText, { color: "#fff" }]}>
                         {loading ? 'Verificando...' : 'Enviar'}
                     </Text>
                 </Pressable>

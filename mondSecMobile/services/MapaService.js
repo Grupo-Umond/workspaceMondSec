@@ -29,6 +29,7 @@ import { buscarOcorrencias } from './MapaZonaLeste/ocorrencias.service';
 import { carregarComentarios, enviarComentarioRequest } from './MapaZonaLeste/comentarios.service';
 import { buscarUsuarioLogado } from './MapaZonaLeste/user.service';
 import { resolveIcon } from './MapaZonaLeste/iconResolver.service';
+import { useTheme } from './themes/themecontext';
 
 const local = require('./GeoJson/zonaLeste_convertido.json');
 
@@ -51,6 +52,8 @@ const MapaZonaLesteGeojson = forwardRef(({ ocorrencias = [], currentUserId = nul
   const [loadingComentarios, setLoadingComentarios] = useState(false);
   const [sendingComentario, setSendingComentario] = useState(false);
   const [loggedUserId, setLoggedUserId] = useState(currentUserId);
+
+  const { theme, isDarkMode } = useTheme();
 
   // ================== CARREGAR MAPA =====================
   useEffect(() => {
@@ -263,118 +266,304 @@ const MapaZonaLesteGeojson = forwardRef(({ ocorrencias = [], currentUserId = nul
           />
         )}
       </MapView>
+<Modal
+  visible={modalVisible}
+  transparent
+  animationType="slide"
+  onRequestClose={fecharModal}
+>
+  <View
+    style={{
+      flex: 1,
+      backgroundColor: isDarkMode ? "rgba(0,0,0,0.7)" : "rgba(0, 34, 68, 0.6)",
+      justifyContent: "center",
+      alignItems: "center",
+    }}
+  >
+    <View
+      style={{
+        width: "85%",
+        maxWidth: 420,
+        height: "85%",
+        maxHeight: 520,
+        backgroundColor: isDarkMode ? "#1C1C1E" : "#FFFFFF",
+        borderRadius: 16,
+        overflow: "hidden",
+        ...(Platform.OS === "ios"
+          ? {
+              shadowColor: isDarkMode ? "#000" : "#001A33",
+              shadowOpacity: 0.4,
+              shadowOffset: { width: 0, height: 8 },
+              shadowRadius: 14,
+            }
+          : { elevation: 10 }),
+      }}
+    >
 
-      <Modal
-        visible={modalVisible}
-        transparent
-        animationType="slide"
-        onRequestClose={fecharModal}
+      <View
+        style={{
+          flexDirection: "row",
+          justifyContent: "space-between",
+          alignItems: "center",
+          backgroundColor: isDarkMode ? "#0c2946ff" : "#012E61",
+          paddingHorizontal: 20,
+          paddingVertical: 14,
+        }}
       >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalCard}>
+        <Text
+          style={{
+            fontSize: 19,
+            fontWeight: "700",
+            color: "#FFF",
+            flex: 1,
+          }}
+        >
+          {selectedOcorrencia?.tipo || "Detalhes da Ocorrência"}
+        </Text>
 
-            <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>
-                {selectedOcorrencia?.tipo || 'Detalhes da Ocorrência'}
+        <TouchableOpacity
+          style={{
+            width: 32,
+            height: 32,
+            borderRadius: 16,
+            backgroundColor: isDarkMode
+              ? "rgba(255,255,255,0.1)"
+              : "rgba(255,255,255,0.15)",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+          onPress={fecharModal}
+        >
+          <Text style={{ color: "#FFF", fontSize: 22, fontWeight: "bold" }}>
+            ×
+          </Text>
+        </TouchableOpacity>
+      </View>
+
+      {/* BODY */}
+      <ScrollView
+        style={{
+          flex: 1,
+          paddingHorizontal: 20,
+          paddingVertical: 16,
+          backgroundColor: isDarkMode ? "#2C2C2E" : "#FAFBFD",
+        }}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* INFO SECTION */}
+        <View
+          style={{
+            marginBottom: 24,
+            backgroundColor: isDarkMode ? "#1C1C1E" : "#FFFFFF",
+            padding: 14,
+            borderRadius: 10,
+            borderWidth: 1,
+            borderColor: isDarkMode ? "#3A3A3C" : "#E5E8ED",
+          }}
+        >
+          <Text
+            style={{
+              fontSize: 16,
+              fontWeight: "700",
+              color: isDarkMode ? "#4FC3F7" : "#012E61",
+              marginBottom: 10,
+            }}
+          >
+            Informações
+          </Text>
+
+          <View style={{ marginBottom: 10 }}>
+            <Text
+              style={{
+                fontSize: 13,
+                fontWeight: "600",
+                color: isDarkMode ? "#4FC3F7" : "#012E61",
+              }}
+            >
+              Descrição:
+            </Text>
+
+            <Text
+              style={{
+                fontSize: 13,
+                color: isDarkMode ? "#E5E5E7" : "#333",
+                marginTop: 4,
+              }}
+            >
+              {selectedOcorrencia?.descricao || "Sem descrição"}
+            </Text>
+          </View>
+
+          {selectedOcorrencia?.dataAcontecimento && (
+            <View style={{ marginBottom: 10 }}>
+              <Text
+                style={{
+                  fontSize: 13,
+                  fontWeight: "600",
+                  color: isDarkMode ? "#4FC3F7" : "#012E61",
+                }}
+              >
+                Data:
               </Text>
-              <TouchableOpacity style={styles.closeButton} onPress={fecharModal}>
-                <Text style={styles.closeButtonText}>×</Text>
-              </TouchableOpacity>
+
+              <Text
+                style={{
+                  fontSize: 13,
+                  color: isDarkMode ? "#E5E5E7" : "#333",
+                  marginTop: 4,
+                }}
+              >
+                {formatDate(selectedOcorrencia.dataAcontecimento)}
+              </Text>
             </View>
+          )}
+        </View>
 
-            <ScrollView style={styles.modalBody} showsVerticalScrollIndicator={false}>
+        {/* COMMENTS SECTION */}
+        <View
+          style={{
+            marginBottom: 24,
+            backgroundColor: isDarkMode ? "#1C1C1E" : "#FFFFFF",
+            padding: 14,
+            borderRadius: 10,
+            borderWidth: 1,
+            borderColor: isDarkMode ? "#3A3A3C" : "#E5E8ED",
+          }}
+        >
+          <Text
+            style={{
+              fontSize: 16,
+              fontWeight: "700",
+              color: isDarkMode ? "#4FC3F7" : "#012E61",
+            }}
+          >
+            Comentários
+          </Text>
 
-              <View style={styles.infoSection}>
-                <Text style={styles.sectionTitle}>Informações</Text>
-
-                <View style={styles.infoItem}>
-                  <Text style={styles.infoLabel}>Descrição:</Text>
-                  <Text style={styles.infoText}>
-                    {selectedOcorrencia?.descricao || 'Sem descrição'}
-                  </Text>
-                </View>
-
-                {selectedOcorrencia?.dataAcontecimento && (
-                  <View style={styles.infoItem}>
-                    <Text style={styles.infoData}>Data:</Text>
-                    <Text style={styles.infoText}>
-                      {formatDate(selectedOcorrencia.dataAcontecimento)}
-                    </Text>
-                  </View>
-                )}
-              </View>
-
-              <View style={styles.commentsSection}>
-                <Text style={styles.sectionTitle}>Comentários</Text>
-
-                {loadingComentarios ? (
-                  <View style={{ paddingVertical: 12 }}>
-                    <ActivityIndicator size="small" color="#003366" />
-                    <Text style={{ textAlign: 'center', marginTop: 8 }}>
-                      Carregando comentários...
-                    </Text>
-                  </View>
-                ) : (
-                  <View style={styles.commentsList}>
-                    {comentarios.length === 0 ? (
-                      <Text style={styles.emptyComments}>Nenhum comentário ainda.</Text>
-                    ) : (
-                      comentarios.map((c, i) => (
-                        <View key={c.id ?? i} style={styles.commentItem}>
-                          <View style={styles.commentHeader}>
-                            <Text style={styles.commentAuthor}>
-                              {c.usuario?.name || c.usuario?.nome || 'Usuário'}
-                            </Text>
-                            <Text style={styles.commentDate}>
-                              {formatDate(c.data ?? c.created_at)}
-                            </Text>
-                          </View>
-                          <Text style={styles.commentText}>{c.mensagem}</Text>
-                        </View>
-                      ))
-                    )}
-                  </View>
-                )}
-
-                <View style={styles.commentInputContainer}>
-                  <TextInput
-                    placeholder="Escreva um comentário..."
-                    placeholderTextColor="#888"
-                    value={mensagemComentario}
-                    onChangeText={setMensagemComentario}
-                    style={styles.commentInput}
-                    multiline
-                    numberOfLines={3}
-                  />
-
-                  <TouchableOpacity
-                    onPress={enviarComentario}
-                    style={[
-                      styles.sendButton,
-                      sendingComentario && styles.sendButtonDisabled
-                    ]}
-                    disabled={sendingComentario}
+          {loadingComentarios ? (
+            <View style={{ paddingVertical: 12 }}>
+              <ActivityIndicator size="small" color="#640066ff" />
+              <Text style={{ textAlign: "center", marginTop: 8 }}>
+                Carregando comentários...
+              </Text>
+            </View>
+          ) : (
+            <View style={{ marginTop: 10 }}>
+              {comentarios.length === 0 ? (
+                <Text
+                  style={{
+                    color: isDarkMode ? "#AAA" : "#666",
+                    fontStyle: "italic",
+                    textAlign: "center",
+                  }}
+                >
+                  Nenhum comentário ainda.
+                </Text>
+              ) : (
+                comentarios.map((c, i) => (
+                  <View
+                    key={c.id ?? i}
+                    style={{
+                      backgroundColor: isDarkMode ? "#2C2C2E" : "#F2F6FA",
+                      padding: 10,
+                      borderRadius: 8,
+                      marginBottom: 12,
+                    }}
                   >
-                    {sendingComentario ? (
-                      <ActivityIndicator size="small" color="#FFFFFF" />
-                    ) : (
-                      <Text style={styles.sendButtonText}>Enviar</Text>
-                    )}
-                  </TouchableOpacity>
-                </View>
-              </View>
+                    <View
+                      style={{
+                        flexDirection: "row",
+                        justifyContent: "space-between",
+                        marginBottom: 5,
+                      }}
+                    >
+                      <Text
+                        style={{
+                          fontWeight: "700",
+                          color: isDarkMode ? "#4FC3F7" : "#012E61",
+                          fontSize: 13,
+                        }}
+                      >
+                        {c.usuario?.name || c.usuario?.nome || "Usuário"}
+                      </Text>
 
-            </ScrollView>
+                      <Text
+                        style={{
+                          fontSize: 11,
+                          color: isDarkMode ? "#CCC" : "#777",
+                        }}
+                      >
+                        {formatDate(c.data ?? c.created_at)}
+                      </Text>
+                    </View>
 
-            <View style={styles.modalFooter}>
-              <TouchableOpacity style={styles.okButton} onPress={fecharModal}>
-                <Text style={styles.okButtonText}>Fechar</Text>
-              </TouchableOpacity>
+                    <Text
+                      style={{
+                        fontSize: 13,
+                        color: isDarkMode ? "#E5E5E7" : "#333",
+                      }}
+                    >
+                      {c.mensagem}
+                    </Text>
+                  </View>
+                ))
+              )}
             </View>
+          )}
 
+          {/* INPUT COMENTÁRIO */}
+          <View style={{ marginTop: 15 }}>
+            <TextInput
+              placeholder="Escreva um comentário..."
+              placeholderTextColor="#888"
+              value={mensagemComentario}
+              onChangeText={setMensagemComentario}
+              style={{
+                borderWidth: 1,
+                borderColor: isDarkMode ? "#3A3A3C" : "#D8DDE5",
+                borderRadius: 8,
+                padding: 10,
+                backgroundColor: isDarkMode ? "#2C2C2E" : "#FFFFFF",
+                color: isDarkMode ? "#FFF" : "#333",
+                minHeight: 70,
+                textAlignVertical: "top",
+              }}
+              multiline
+              numberOfLines={3}
+            />
+
+            <TouchableOpacity
+              onPress={enviarComentario}
+              style={{
+                marginTop: 10,
+                paddingVertical: 10,
+                backgroundColor: isDarkMode ? "#0c2946ff" : "#003366",
+                borderRadius: 8,
+                alignItems: "center",
+                opacity: sendingComentario ? 0.5 : 1,
+              }}
+              disabled={sendingComentario}
+            >
+              {sendingComentario ? (
+                <ActivityIndicator size="small" color="#FFF" />
+              ) : (
+                <Text
+                  style={{
+                    color: "#FFF",
+                    fontWeight: "700",
+                    fontSize: 14,
+                  }}
+                >
+                  Enviar
+                </Text>
+              )}
+            </TouchableOpacity>
           </View>
         </View>
-      </Modal>
+      </ScrollView>
+    </View>
+  </View>
+</Modal>
     </>
   );
 });
@@ -393,7 +582,7 @@ const styles = StyleSheet.create({
     width: '85%',
     maxWidth: 420,
     height: '85%',
-    maxHeight: 620,
+    maxHeight: 520,
     backgroundColor: '#FFFFFF',
     borderRadius: 16,
     overflow: 'hidden',

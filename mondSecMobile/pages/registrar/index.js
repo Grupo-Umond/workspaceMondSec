@@ -252,16 +252,17 @@ const converterEndereco = async () => {
 
 
   return (
-    <View style={[styles.container, { backgroundColor: theme.background }]}>
+   <View style={[styles.container, { backgroundColor: theme.background }]}>
+  <SafeAreaView style={{ backgroundColor: theme.navBackground }} />
 
-      <View style={styles.cabecalho}>
-        <Pressable onPress={() => navigation.goBack()} style={styles.iconeCabecalho}>
-          <FontAwesome name="arrow-left" size={20} color={theme.title} />
-        </Pressable>
-        <Text style={[styles.tituloCabecalho, { color: theme.title}]}>
-          Registrar Ocorrência
-        </Text>
-      </View>
+  <View style={styles.cabecalho}>
+    <Pressable onPress={() => navigation.goBack()} style={styles.iconeCabecalho}>
+      <FontAwesome name="arrow-left" size={20} color={theme.title} />
+    </Pressable>
+    <Text style={[styles.tituloCabecalho, { color: theme.title}]}>
+      Registrar Ocorrência
+    </Text>
+  </View>
 
       <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
         
@@ -389,7 +390,8 @@ const converterEndereco = async () => {
         <TouchableOpacity
           style={[
             styles.botao,
-            { backgroundColor: theme.button },
+            { backgroundColor: theme.buttonColor
+             },
             carregando && styles.botaoDesabilitado
           ]}
           onPress={enviarOcorrencia}
@@ -409,7 +411,7 @@ const converterEndereco = async () => {
       {visivelInicio && (
         <Modal visible={visivelInicio} transparent animationType="slide" onRequestClose={() => setVisivelInicio(false)}>
           <View style={styles.modalContainer}>
-            <View style={[styles.modalContent, { backgroundColor: theme.card }]}>
+            <View style={[styles.modalContent, { backgroundColor: theme.cardbackground }]}>
               <Text style={[styles.modalTitle, { color: theme.text }]}>Como Funciona</Text>
 
               <Text style={[styles.modalText, { color: theme.textSecondary }]}>1. Escolha o tipo de ocorrência</Text>
@@ -417,7 +419,7 @@ const converterEndereco = async () => {
               <Text style={[styles.modalText, { color: theme.textSecondary }]}>3. Descreva o que aconteceu</Text>
               <Text style={[styles.modalText, { color: theme.textSecondary }]}>4. Envie sua ocorrência</Text>
 
-              <TouchableOpacity style={[styles.primaryButton, { backgroundColor: theme.primary }]} onPress={() => setVisivelInicio(false)}>
+              <TouchableOpacity style={[styles.primaryButton, { backgroundColor: theme.buttonColor }]} onPress={() => setVisivelInicio(false)}>
                 <Text style={styles.primaryButtonText}>Fazer Agora</Text>
               </TouchableOpacity>
 
@@ -440,60 +442,217 @@ const converterEndereco = async () => {
 
       {/* ================= MODAL DE SUCESSO ================ */}
 
-      <Modal visible={visivelSucesso} transparent animationType="slide">
-        <View style={styles.modalContainer}>
-          <View style={[styles.modalContent, { backgroundColor: theme.card }]}>
-            <Text style={[styles.modalTitle, { color: theme.text }]}>
-              Ocorrência enviada com sucesso!
-            </Text>
+      <Modal visible={visivelSucesso} transparent animationType="fade">
+  <View style={styles.modalContainer}>
+    <View style={[styles.modalContent, { backgroundColor: theme.cardbackground }]}>
+      <Text style={[styles.modalTitle, { color: theme.text }]}>
+        Ocorrência enviada com sucesso!
+      </Text>
 
-            <TouchableOpacity style={[styles.primaryButton, { backgroundColor: theme.primary }]} onPress={() => setVisivelSucesso(false)}>
-              <Text style={styles.primaryButtonText}>Fazer mais uma</Text>
-            </TouchableOpacity>
+      <View style={styles.buttonGroup}>
+        <TouchableOpacity
+          style={[styles.primaryButton, { backgroundColor: theme.buttonColor }]}
+          onPress={() => setVisivelSucesso(false)}
+        >
+          <Text style={styles.primaryButtonText}>Fazer mais uma</Text>
+        </TouchableOpacity>
 
-            <TouchableOpacity
-              style={[styles.primaryButton, { backgroundColor: theme.primary }]}
-              onPress={() => {
-                setVisivelSucesso(false);
-                navigation.navigate('Ocorrencia');
-              }}
-            >
-              <Text style={styles.primaryButtonText}>Ver minhas ocorrências</Text>
-            </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.secondaryButton, { borderColor: theme.buttonColor, backgroundColor: theme.buttonColor}]}
+          onPress={() => {
+            setVisivelSucesso(false);
+            navigation.navigate('Ocorrencia');
+          }}
+        >
+          <Text style={styles.primaryButtonText}>
+            Ver minhas ocorrências
+          </Text>
+        </TouchableOpacity>
+      </View>
 
-          </View>
-        </View>
-      </Modal>
+    </View>
+  </View>
+</Modal>
 
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 20 },
-  cabecalho: { flexDirection: 'row', alignItems: 'center', position: 'relative', marginBottom: 30, paddingHorizontal: 10 },
-  tituloCabecalho: { fontSize: 20, fontWeight: '600', position: 'absolute', left: 0, right: 0, textAlign: 'center' },
-  iconeCabecalho: { padding: 5 },
-  form: { marginBottom: 20, padding: 16, borderRadius: 12 },
-  label: { fontSize: 14, fontWeight: '600', marginBottom: 8 },
-  input: { borderWidth: 1, borderRadius: 6, padding: 12, marginBottom: 12, fontSize: 14 },
-  textArea: { borderWidth: 1, borderRadius: 6, padding: 8, minHeight: 80, marginBottom: 4, fontSize: 14 },
-  contador: { fontSize: 12, textAlign: "right", marginBottom: 12 },
-  botao: { padding: 15, borderRadius: 8, alignItems: 'center', marginBottom: 20 },
-  botaoDesabilitado: { opacity: 0.6 },
-  textoBotao: { color: '#fff', fontSize: 16, fontWeight: '600' },
-  erro: { fontSize: 13, marginBottom: 10 },
-  modalContainer: { flex: 1, backgroundColor: 'rgba(0,0,0,0.6)', justifyContent: 'center', alignItems: 'center', padding: 16 },
-  modalContent: { borderRadius: 20, width: '100%', maxWidth: 400, padding: 24, alignItems: 'center' },
-  modalTitle: { fontSize: 20, fontWeight: '700', marginBottom: 16 },
-  modalText: { fontSize: 14, textAlign: 'center', marginBottom: 12 },
-  primaryButton: { borderRadius: 12, paddingVertical: 12, paddingHorizontal: 24, alignItems: 'center', marginTop: 16 },
-  primaryButtonText: { color: '#FFFFFF', fontWeight: '600', fontSize: 16 },
-  checkboxContainer: { flexDirection: 'row', alignItems: 'center', marginTop: 12 },
-  checkboxLabel: { fontSize: 14, marginLeft: 8 },
-  dropdown: { borderWidth: 1, borderRadius: 6, maxHeight: 150, marginBottom: 12 },
-  item: { padding: 10 },
-  itemTexto: { fontSize: 14 },
-});
 
+
+  container: {
+    flex: 1,
+    paddingTop: 0,
+    
+    padding: 20, 
+  },
+
+  cabecalho: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    position: 'relative',
+    marginBottom: 30,
+    paddingHorizontal: 10,
+  },
+
+  iconeCabecalho: {
+    padding: 5,
+  },
+
+  tituloCabecalho: {
+    fontSize: 20,
+    fontWeight: '600',
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    textAlign: 'center',
+  },
+
+  form: {
+    marginBottom: 20,
+    padding: 16,
+    borderRadius: 12,
+  },
+
+  label: {
+    fontSize: 14,
+    fontWeight: '600',
+    marginBottom: 8,
+  },
+
+  input: {
+    borderWidth: 1,
+    borderRadius: 6,
+    padding: 12,
+    marginBottom: 12,
+    fontSize: 14,
+  },
+
+  textArea: {
+    borderWidth: 1,
+    borderRadius: 6,
+    padding: 8,
+    minHeight: 80,
+    marginBottom: 4,
+    fontSize: 14,
+  },
+
+  contador: {
+    fontSize: 12,
+    textAlign: "right",
+    marginBottom: 12,
+  },
+
+  erro: {
+    fontSize: 13,
+    marginBottom: 10,
+  },
+
+  botao: {
+    padding: 15,
+    borderRadius: 8,
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+
+  botaoDesabilitado: {
+    opacity: 0.6,
+  },
+
+  textoBotao: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '600',
+  },
+
+  dropdown: {
+    borderWidth: 1,
+    borderRadius: 6,
+    maxHeight: 150,
+    marginBottom: 12,
+  },
+
+  item: {
+    padding: 10,
+  },
+
+  itemTexto: {
+    fontSize: 14,
+  },
+
+
+  checkboxContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 12,
+  },
+
+  checkboxLabel: {
+    fontSize: 14,
+    marginLeft: 8,
+  },
+
+  modalContainer: {
+  flex: 1,
+  backgroundColor: 'rgba(0,0,0,0.6)',
+  justifyContent: 'center',
+  alignItems: 'center',
+  padding: 20,
+},
+
+modalContent: {
+  width: '100%',
+  maxWidth: 380,
+  paddingVertical: 30,
+  paddingHorizontal: 24,
+  borderRadius: 20,
+  alignItems: 'center',
+  elevation: 10,
+  shadowColor: '#000',
+  shadowOpacity: 0.25,
+  shadowRadius: 10,
+  shadowOffset: { width: 0, height: 4 },
+},
+
+modalTitle: {
+  fontSize: 22,
+  fontWeight: '700',
+  textAlign: 'center',
+  marginBottom: 26,
+},
+
+buttonGroup: {
+  width: '100%',
+  marginTop: 10,
+},
+
+primaryButton: {
+  width: '100%',
+  paddingVertical: 14,
+  borderRadius: 14,
+  alignItems: 'center',
+  marginBottom: 12,
+},
+
+primaryButtonText: {
+  color: '#FFFFFF',
+  fontWeight: '700',
+  fontSize: 16,
+},
+
+secondaryButton: {
+  width: '100%',
+  paddingVertical: 14,
+  borderRadius: 14,
+  alignItems: 'center',
+  borderWidth: 2,
+},
+
+secondaryButtonText: {
+  fontWeight: '700',
+  fontSize: 16,
+},
+
+});
 export default RegistrarScreen;
