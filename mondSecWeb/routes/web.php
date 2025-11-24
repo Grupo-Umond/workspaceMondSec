@@ -66,7 +66,5 @@ Route::prefix('adm')
             Route::get('/comentario/selecionado/{id}','selecionado');
             Route::get('/denuncias/comentario','showDenunciaComentarioScreen')->name('comentario.denuncia');
 
-
         });
     });
-

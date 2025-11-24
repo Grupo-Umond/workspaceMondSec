@@ -85,8 +85,9 @@ class ComentarioController extends Controller
         $comentario->mensagem = $request->textoAt;
         $comentario->save();
 
-        return response()->json(['mensagem' => 'Comentário Atualizado com sucesso']);
+        return response()->json(['mensagem' => 'Comentário atualizado com sucesso']);
     }
+
     public function delete(Request $request)
     {
         $comentario = Comentario::find($request->idco);
@@ -100,5 +101,4 @@ class ComentarioController extends Controller
 
         return response()->json(['mensagem' => 'Comentário deletado com sucesso']);
     }
-
 }

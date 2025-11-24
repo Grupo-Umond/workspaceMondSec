@@ -302,13 +302,14 @@ tbody i {
   padding: 3% 2%;
 }
 
-#formUpdate input, #formUpdate select {
+#formUpdate input, #formUpdate select, .mensagemComentario {
   width: 100%;
   padding: 2% 2% 2% 1%;
   font-size: 1.1rem;
   border: 1px solid black;
   border-radius: 5px;         
-  background-color: whitesmoke;                              
+  background-color: whitesmoke;      
+  resize: none;                        
 }
 
 #conteudo-alterar {
@@ -355,7 +356,7 @@ tbody i {
   border-radius: 5px;
 }
 
-#btnVoltar {
+#btnVoltar, #fecharDenuncia {
   width: 15%;
   display: flex;
   justify-content: center;
@@ -366,6 +367,13 @@ tbody i {
   cursor: pointer;
   text-decoration: none;
   color: white;
+  border: none;
+}
+
+.botoesFinais {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
 }
 
 @media (max-width: 1085px) {

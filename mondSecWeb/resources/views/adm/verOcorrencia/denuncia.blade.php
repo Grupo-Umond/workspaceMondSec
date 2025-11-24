@@ -105,7 +105,7 @@
             </div>
 
             <div class="modal-footer">
-                <button class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                <button id="fecharDenuncia" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
             </div>
 
         </div>
@@ -163,5 +163,4 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 });
 </script>
-
 @endsection
