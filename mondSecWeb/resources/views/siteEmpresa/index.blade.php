@@ -53,12 +53,14 @@
 
             <!-- Navbar_Mobile -->
             <div class="cabecalho__menu__itens__mobile" id="menuMobile">
-                <a href="#apresentacao1">Início</a>
-                <a href="#apresentacao2">Quem Somos</a>
-                <a href="#apresentacao3">Nossa Equipe</a>
-                <a href="#apresentacao4">Nossos Projetos</a>
-                <a href="#apresentacao5">Parceiros</a>
-                <a href="#apresentacao6">Fale Conosco</a>
+                <div class="abc"></div>
+
+                <a id="primeiroLink" href="#apresentacao1">Início <i class="fa-solid fa-house"> </i></a>
+                <a href="#apresentacao2">Quem Somos <i class="fa-solid fa-users"></i> </a>
+                <a href="#apresentacao3">Nossa Equipe <i class="fa-solid fa-people-group"></i> </a>
+                <a href="#apresentacao4">Nossos Projetos <i class="fa-solid fa-diagram-project"></i> </a>
+                <a href="#apresentacao5">Parceiros <i class="fa-solid fa-handshake"></i> </a>
+                <a id="ultimoLink" href="#apresentacao6">Fale Conosco <i class="fa-solid fa-phone"></i> </a>
             </div><!-- Fim_Navbar_Mobile -->
         </nav>
     </header><!-- Fim_Navbar -->

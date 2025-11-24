@@ -90,40 +90,60 @@ body {
 #menuMobile {
     position: absolute;
     top: 0;
-    right: 0;
+    right: 2%;
     width: 0%;
     height: 0vh;
-    padding: 0px 6%;
+    padding: 10.3% 0% 0% 0%;
     overflow: hidden;
-    background: linear-gradient(135deg, #0e0852 0%, #08043a 100%);
+    background-color: transparent;
     transition: .2s ease-in-out;
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    justify-content: start;
     align-items: end;
-    gap: 2rem;
 }
+
+.abc {
+    position: absolute;
+    width: 100%;
+    height: 8.9%;
+    color: #0e0852;
+    top: 0;
+    right: 0;
+}
+
 
 body.no-overflow {
     overflow-y: hidden;
 }
 
 #menuMobile.abrir {
-    width: 80%;
+    width: 60%;
     height: 100vh;
 }
 
 .cabecalho__menu__itens__mobile a {
+    width: 100%;
+    text-align: right;
+    padding: 5% 1%;
     font-size: 1.4rem;
     font-weight: 600;
-    color: white;
+    color: rgb(52, 49, 49);
     text-decoration: none;
     letter-spacing: 1px;
     transition: color 0.3s ease;
+    background-color: whitesmoke;
+    border-bottom: 1px solid gray;
+    border-left: 1px solid gray;
+    border-right: 1px solid gray;
 }
 
-.cabecalho__menu__itens__mobile a:hover {
-    color: #4a3aff;
+#primeiroLink {
+    border-radius: 10px 10px 0px 0px;
+}
+
+#ultimoLink {
+    border-radius: 0px 0px 10px 10px;
 }
 
 header nav .icons__menu {
