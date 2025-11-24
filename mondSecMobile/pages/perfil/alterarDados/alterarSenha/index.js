@@ -91,12 +91,12 @@ const AlterarSenhaScreen = ({ navigation, route }) => {
       </View>
 
       {/* CARD */}
-      <View style={[styles.card, { backgroundColor: theme.card }]}>
+      <View style={[styles.card, { backgroundColor: theme.cardbackground }]}>
         <Pressable style={styles.backButton} onPress={() => navigation.navigate('Menu')}>
-          <FontAwesome name="arrow-left" size={20} color={theme.primary} />
+          <FontAwesome name="arrow-left" size={20} color={theme.title} />
         </Pressable>
 
-        <Text style={[styles.title, { color: theme.text }]}>Defina sua nova senha</Text>
+        <Text style={[styles.title, { color: theme.title}]}>Defina sua nova senha</Text>
 
         <View style={styles.logoContainer}>
           <Image
@@ -118,7 +118,7 @@ const AlterarSenhaScreen = ({ navigation, route }) => {
           style={[
             styles.input,
             {
-              backgroundColor: theme.inputBackground,
+              backgroundColor: theme.sectionbackground,
               color: theme.text,
               borderColor: theme.border
             }
@@ -135,7 +135,7 @@ const AlterarSenhaScreen = ({ navigation, route }) => {
           style={[
             styles.input,
             {
-              backgroundColor: theme.inputBackground,
+              backgroundColor: theme.sectionbackground,
               color: theme.text,
               borderColor: theme.border
             }
@@ -152,11 +152,11 @@ const AlterarSenhaScreen = ({ navigation, route }) => {
         ) : null}
 
         <TouchableOpacity
-          style={[styles.button, { backgroundColor: theme.primary }]}
+          style={[styles.button, { backgroundColor: theme.buttonColor }]}
           onPress={alterarSenha}
           disabled={carregando}
         >
-          <Text style={[styles.buttonText, { color: theme.onPrimary }]}>Alterar Senha</Text>
+          <Text style={[styles.buttonText, { color: "#fff"}]}>Alterar Senha</Text>
         </TouchableOpacity>
       </View>
     </View>

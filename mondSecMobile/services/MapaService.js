@@ -20,10 +20,8 @@ import {
   ActivityIndicator,
   Pressable,
 } from 'react-native';
-
 import MapView, { Polygon, Marker, Polyline } from 'react-native-maps';
 import * as Location from 'expo-location';
-
 import { parseGeoJSON } from './MapaZonaLeste/geojsonParser.service';
 import { calculateBounds, checkAndFixRegion } from './MapaZonaLeste/regionBounds.service';
 import { buscarOcorrencias } from './MapaZonaLeste/ocorrencias.service';
@@ -31,9 +29,9 @@ import { carregarComentarios, enviarComentarioRequest } from './MapaZonaLeste/co
 import { buscarUsuarioLogado } from './MapaZonaLeste/user.service';
 import { getIconForTipo } from './IconService.js';
 import UrlService from './UrlService';
+import { useTheme } from './themes/themecontext';
 
 const local = require('./GeoJson/zonaLeste_convertido.json');
-
 const { width, height } = Dimensions.get('window');
 
 const MapaZonaLesteGeojson = forwardRef(({ ocorrencias = [], currentUserId = null }, ref) => {
@@ -54,6 +52,8 @@ const MapaZonaLesteGeojson = forwardRef(({ ocorrencias = [], currentUserId = nul
   const [sendingComentario, setSendingComentario] = useState(false);
   const [loggedUserId, setLoggedUserId] = useState(currentUserId);
   const [modalDenuncia, setModalDenuncia] = useState(false);
+
+  const { theme, isDarkMode } = useTheme();
 
   useEffect(() => {
     (async () => {
@@ -98,7 +98,6 @@ const MapaZonaLesteGeojson = forwardRef(({ ocorrencias = [], currentUserId = nul
 
   const handleRegionChangeComplete = (rgn) => {
     if (!bounds || !mapRef.current) return;
-
     const corrected = checkAndFixRegion(rgn, bounds, mapRef);
     if (corrected) {
       Alert.alert('Restrito', 'Você não pode sair da Zona Leste.');
@@ -108,18 +107,15 @@ const MapaZonaLesteGeojson = forwardRef(({ ocorrencias = [], currentUserId = nul
   const abrirModal = async (oc) => {
     setSelectedOcorrencia(oc);
     setModalVisible(true);
-
     const idOc = oc?.id ?? oc?._id;
     if (!idOc) {
       setComentarios([]);
       return;
     }
-
     setLoadingComentarios(true);
     const coms = await carregarComentarios(idOc);
     setComentarios(coms || []);
     setLoadingComentarios(false);
-
     const idUser = await buscarUsuarioLogado();
     setLoggedUserId(idUser);
   };
@@ -139,21 +135,29 @@ const MapaZonaLesteGeojson = forwardRef(({ ocorrencias = [], currentUserId = nul
       return String(iso || '');
     }
   };
+
   const denunciarOcorrencia = async (id) => {
-    const idc = id;
-    const response = await UrlService.put(`/ocorrencia/denuncia/${idc}`);
-    setModalDenuncia(false);
-  }
+    try {
+      const idc = id ?? (selectedOcorrencia?.id ?? selectedOcorrencia?._id);
+      if (!idc) {
+        Alert.alert('Erro', 'Ocorrência inválida para denúncia.');
+        return;
+      }
+      await UrlService.put(`/ocorrencia/denuncia/${idc}`);
+      setModalDenuncia(false);
+      Alert.alert('Denúncia enviada', 'Sua denúncia foi registrada.');
+    } catch (e) {
+      console.warn('Erro ao denunciar:', e);
+      Alert.alert('Erro', 'Não foi possível denunciar a ocorrência.');
+    }
+  };
 
   const enviarComentario = async () => {
     const texto = (mensagemComentario || '').trim();
     if (!texto) return;
-
     const idOc = selectedOcorrencia?.id ?? selectedOcorrencia?._id;
     if (!idOc) return Alert.alert('Erro', 'Ocorrência inválida.');
-
     setSendingComentario(true);
-
     try {
       const idUsuario = loggedUserId || (await buscarUsuarioLogado());
       if (!idUsuario) {
@@ -161,17 +165,14 @@ const MapaZonaLesteGeojson = forwardRef(({ ocorrencias = [], currentUserId = nul
         setSendingComentario(false);
         return;
       }
-
       const payload = {
         mensagem: texto,
         data: new Date().toISOString(),
         idOcorrencia: idOc,
         idUsuario,
       };
-
       const res = await enviarComentarioRequest(payload);
       const novo = res ?? null;
-
       if (novo && (novo.id || novo._id)) {
         const normalized = {
           ...novo,
@@ -204,16 +205,12 @@ const MapaZonaLesteGeojson = forwardRef(({ ocorrencias = [], currentUserId = nul
         console.log('Rota inválida:', rota);
         return;
       }
-
-      console.log('ROTA RECEBIDA ===>', rota);
-
       setRotaCoords(rota);
-
       mapRef.current?.fitToCoordinates(rota, {
         edgePadding: { top: 80, bottom: 80, left: 80, right: 80 },
         animated: true,
       });
-    }
+    },
   }));
 
   if (!region) return null;
@@ -245,274 +242,263 @@ const MapaZonaLesteGeojson = forwardRef(({ ocorrencias = [], currentUserId = nul
           const lat = Number(oc.latitude);
           const lng = Number(oc.longitude);
           if (!isFinite(lat) || !isFinite(lng)) return null;
-
           return (
-          //   <Marker
-          //     key={oc.id ?? i}
-          //     coordinate={{ latitude: lat, longitude: lng }}
-          //     onPress={() => abrirModal(oc)}
-          //   >
-          //     <Image source={getIconForTipo(oc.tipo)} style={{ width: 40, height: 40 }} />
-          //   </Marker>
-          <Marker
-            key={oc.id ?? i}
-            coordinate={{ latitude: lat, longitude: lng }}
-            onPress={() => abrirModal(oc)}
-          >
-            <Image 
-              source={getIconForTipo(oc.tipo)} 
-              style={{ width: 40, height: 40, resizeMode: 'contain' }} 
-            />
-          </Marker>
-
+            <Marker
+              key={oc.id ?? i}
+              coordinate={{ latitude: lat, longitude: lng }}
+              onPress={() => abrirModal(oc)}
+            >
+              <Image
+                source={getIconForTipo(oc.tipo)}
+                style={{ width: 40, height: 40, resizeMode: 'contain' }}
+              />
+            </Marker>
           );
         })}
 
         {rotaCoords.length > 0 && (
-          <Polyline
-            coordinates={rotaCoords}
-            strokeWidth={5}
-            strokeColor="#ff0000ff"
-          />
+          <Polyline coordinates={rotaCoords} strokeWidth={5} strokeColor="#ff0000ff" />
         )}
       </MapView>
 
-      <Modal
-        visible={modalVisible}
-        transparent
-        animationType="slide"
-        onRequestClose={fecharModal}
-      >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalCard}>
-
-            <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>
+      <Modal visible={modalVisible} transparent animationType="slide" onRequestClose={fecharModal}>
+        <View
+          style={{
+            flex: 1,
+            backgroundColor: isDarkMode ? 'rgba(0,0,0,0.7)' : 'rgba(0, 34, 68, 0.6)',
+            justifyContent: 'center',
+            alignItems: 'center',
+          }}
+        >
+          <View
+            style={{
+              width: '85%',
+              maxWidth: 420,
+              height: '85%',
+              maxHeight: 520,
+              backgroundColor: isDarkMode ? '#1C1C1E' : '#FFFFFF',
+              borderRadius: 16,
+              overflow: 'hidden',
+              ...(Platform.OS === 'ios'
+                ? {
+                    shadowColor: isDarkMode ? '#000' : '#001A33',
+                    shadowOpacity: 0.4,
+                    shadowOffset: { width: 0, height: 8 },
+                    shadowRadius: 14,
+                  }
+                : { elevation: 10 }),
+            }}
+          >
+            <View
+              style={{
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                backgroundColor: isDarkMode ? '#0c2946ff' : '#012E61',
+                paddingHorizontal: 20,
+                paddingVertical: 14,
+              }}
+            >
+              <Text
+                style={{
+                  fontSize: 19,
+                  fontWeight: '700',
+                  color: '#FFF',
+                  flex: 1,
+                }}
+              >
                 {selectedOcorrencia?.tipo || 'Detalhes da Ocorrência'}
               </Text>
-              <TouchableOpacity style={styles.closeButton} onPress={fecharModal}>
-                <Text style={styles.closeButtonText}>×</Text>
+
+              <TouchableOpacity
+                style={{
+                  width: 32,
+                  height: 32,
+                  borderRadius: 16,
+                  backgroundColor: isDarkMode ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.15)',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                }}
+                onPress={fecharModal}
+              >
+                <Text style={{ color: '#FFF', fontSize: 22, fontWeight: 'bold' }}>×</Text>
               </TouchableOpacity>
-              <Pressable onPress={() => denunciarOcorrencia()}>
-                <Text>Denunciar</Text>
-              </Pressable>
-            </View>
 
-            <ScrollView style={styles.modalBody} showsVerticalScrollIndicator={false}>
-
-              <View style={styles.infoSection}>
-                <Text style={styles.sectionTitle}>Informações</Text>
-
-                <View style={styles.infoItem}>
-                  <Text style={styles.infoLabel}>Descrição:</Text>
-                  <Text style={styles.infoText}>
-                    {selectedOcorrencia?.descricao || 'Sem descrição'}
-                  </Text>
-                </View>
-
-                {selectedOcorrencia?.dataAcontecimento && (
-                  <View style={styles.infoItem}>
-                    <Text style={styles.infoData}>Data:</Text>
-                    <Text style={styles.infoText}>
-                      {formatDate(selectedOcorrencia.dataAcontecimento)}
-                    </Text>
-                  </View>
-                )}
-              </View>
-                <Modal
-                  visible={modalDenuncia}
-                  transparent
-                  animationType="slide"
-                  onRequestClose={setModalDenuncia}
-                >
-                  <View style={styles.modalOverlay}>
-                    <View style={styles.modalCard}>
-
-                      <Text>Tem certeza que quer denunciar essa ocorrencia?</Text>
-                      <Pressable onPress={() => denunciarOcorrencia(selectedOcorrencia.id)}>
-                        <Text>Sim</Text>
-                      </Pressable>
-                      <Pressable onPress={() => setModalDenuncia(false)}>
-                        <Text>Não</Text>
-                      </Pressable>
-
-                    </View>
-                  </View>
-                </Modal>
-              <View style={styles.commentsSection}>
-                <Text style={styles.sectionTitle}>Comentários</Text>
-
-                {loadingComentarios ? (
-                  <View style={{ paddingVertical: 12 }}>
-                    <ActivityIndicator size="small" color="#003366" />
-                    <Text style={{ textAlign: 'center', marginTop: 8 }}>
-                      Carregando comentários...
-                    </Text>
-                  </View>
-                ) : (
-                  <View style={styles.commentsList}>
-                    {comentarios.length === 0 ? (
-                      <Text style={styles.emptyComments}>Nenhum comentário ainda.</Text>
-                    ) : (
-                      comentarios.map((c, i) => (
-                        <View key={c.id ?? i} style={styles.commentItem}>
-                          <View style={styles.commentHeader}>
-                            <Text style={styles.commentAuthor}>
-                              {c.usuario?.name || c.usuario?.nome || 'Usuário'}
-                            </Text>
-                            <Text style={styles.commentDate}>
-                              {formatDate(c.data ?? c.created_at)}
-                            </Text>
-                          </View>
-                          <Text style={styles.commentText}>{c.mensagem}</Text>
-                        </View>
-                      ))
-                    )}
-                  </View>
-                )}
-
-                <View style={styles.commentInputContainer}>
-                  <TextInput
-                    placeholder="Escreva um comentário..."
-                    placeholderTextColor="#888"
-                    value={mensagemComentario}
-                    onChangeText={setMensagemComentario}
-                    style={styles.commentInput}
-                    multiline
-                    numberOfLines={3}
-                  />
-
-                  <TouchableOpacity
-                    onPress={enviarComentario}
-                    style={[
-                      styles.sendButton,
-                      sendingComentario && styles.sendButtonDisabled
-                    ]}
-                    disabled={sendingComentario}
-                  >
-                    {sendingComentario ? (
-                      <ActivityIndicator size="small" color="#FFFFFF" />
-                    ) : (
-                      <Text style={styles.sendButtonText}>Enviar</Text>
-                    )}
-                  </TouchableOpacity>
-                </View>
-              </View>
-
-            </ScrollView>
-
-            <View style={styles.modalFooter}>
-              <TouchableOpacity style={styles.okButton} onPress={fecharModal}>
-                <Text style={styles.okButtonText}>Fechar</Text>
-              </TouchableOpacity>
-            </View>
-
-          </View>
-        </View>
-      </Modal>
-      <Modal
-        visible={modalVisible}
-        transparent
-        animationType="slide"
-        onRequestClose={fecharModal}
-      >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalCard}>
-
-            <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>
-                {selectedOcorrencia?.tipo || 'Detalhes da Ocorrência'}
-              </Text>
-              <TouchableOpacity style={styles.closeButton} onPress={fecharModal}>
-                <Text style={styles.closeButtonText}>×</Text>
-              </TouchableOpacity>
               <Pressable onPress={() => setModalDenuncia(true)}>
-                <Text>Denunciar</Text>
+                <Text style={{ color: '#FFF', marginLeft: 10 }}>Denunciar</Text>
               </Pressable>
             </View>
 
-            <ScrollView style={styles.modalBody} showsVerticalScrollIndicator={false}>
+            <ScrollView
+              style={{
+                flex: 1,
+                paddingHorizontal: 20,
+                paddingVertical: 16,
+                backgroundColor: isDarkMode ? '#2C2C2E' : '#FAFBFD',
+              }}
+              showsVerticalScrollIndicator={false}
+            >
+              <View
+                style={{
+                  marginBottom: 24,
+                  backgroundColor: isDarkMode ? '#1C1C1E' : '#FFFFFF',
+                  padding: 14,
+                  borderRadius: 10,
+                  borderWidth: 1,
+                  borderColor: isDarkMode ? '#3A3A3C' : '#E5E8ED',
+                }}
+              >
+                <Text
+                  style={{
+                    fontSize: 16,
+                    fontWeight: '700',
+                    color: isDarkMode ? '#4FC3F7' : '#012E61',
+                    marginBottom: 10,
+                  }}
+                >
+                  Informações
+                </Text>
 
-              <View style={styles.infoSection}>
-                <Text style={styles.sectionTitle}>Informações</Text>
+                <View style={{ marginBottom: 10 }}>
+                  <Text
+                    style={{
+                      fontSize: 13,
+                      fontWeight: '600',
+                      color: isDarkMode ? '#4FC3F7' : '#012E61',
+                    }}
+                  >
+                    Descrição:
+                  </Text>
 
-                <View style={styles.infoItem}>
-                  <Text style={styles.infoLabel}>Descrição:</Text>
-                  <Text style={styles.infoText}>
+                  <Text
+                    style={{
+                      fontSize: 13,
+                      color: isDarkMode ? '#E5E5E7' : '#333',
+                      marginTop: 4,
+                    }}
+                  >
                     {selectedOcorrencia?.descricao || 'Sem descrição'}
                   </Text>
                 </View>
 
                 {selectedOcorrencia?.dataAcontecimento && (
-                  <View style={styles.infoItem}>
-                    <Text style={styles.infoData}>Data:</Text>
-                    <Text style={styles.infoText}>
+                  <View style={{ marginBottom: 10 }}>
+                    <Text
+                      style={{
+                        fontSize: 13,
+                        fontWeight: '600',
+                        color: isDarkMode ? '#4FC3F7' : '#012E61',
+                      }}
+                    >
+                      Data:
+                    </Text>
+
+                    <Text
+                      style={{
+                        fontSize: 13,
+                        color: isDarkMode ? '#E5E5E7' : '#333',
+                        marginTop: 4,
+                      }}
+                    >
                       {formatDate(selectedOcorrencia.dataAcontecimento)}
                     </Text>
                   </View>
                 )}
               </View>
 
-              <View style={styles.commentsSection}>
-                <Text style={styles.sectionTitle}>Comentários</Text>
+              <View
+                style={{
+                  marginBottom: 24,
+                  backgroundColor: isDarkMode ? '#1C1C1E' : '#FFFFFF',
+                  padding: 14,
+                  borderRadius: 10,
+                  borderWidth: 1,
+                  borderColor: isDarkMode ? '#3A3A3C' : '#E5E8ED',
+                }}
+              >
+                <Text
+                  style={{
+                    fontSize: 16,
+                    fontWeight: '700',
+                    color: isDarkMode ? '#4FC3F7' : '#012E61',
+                  }}
+                >
+                  Comentários
+                </Text>
 
                 {loadingComentarios ? (
                   <View style={{ paddingVertical: 12 }}>
                     <ActivityIndicator size="small" color="#003366" />
-                    <Text style={{ textAlign: 'center', marginTop: 8 }}>
-                      Carregando comentários...
-                    </Text>
+                    <Text style={{ textAlign: 'center', marginTop: 8 }}>Carregando comentários...</Text>
                   </View>
                 ) : (
-                  <View style={styles.commentsList}>
+                  <View style={{ marginTop: 10 }}>
                     {comentarios.length === 0 ? (
-                      <Text style={styles.emptyComments}>Nenhum comentário ainda.</Text>
+                      <Text style={{ color: isDarkMode ? '#AAA' : '#666', fontStyle: 'italic', textAlign: 'center' }}>
+                        Nenhum comentário ainda.
+                      </Text>
                     ) : (
                       comentarios.map((c, i) => (
-                        <View key={c.id ?? i} style={styles.commentItem}>
-                          <View style={styles.commentHeader}>
-                            <Text style={styles.commentAuthor}>
+                        <View
+                          key={c.id ?? i}
+                          style={{
+                            backgroundColor: isDarkMode ? '#2C2C2E' : '#F2F6FA',
+                            padding: 10,
+                            borderRadius: 8,
+                            marginBottom: 12,
+                          }}
+                        >
+                          <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 5 }}>
+                            <Text style={{ fontWeight: '700', color: isDarkMode ? '#4FC3F7' : '#012E61', fontSize: 13 }}>
                               {c.usuario?.name || c.usuario?.nome || 'Usuário'}
                             </Text>
-                            <Text style={styles.commentDate}>
+                            <Text style={{ fontSize: 11, color: isDarkMode ? '#CCC' : '#777' }}>
                               {formatDate(c.data ?? c.created_at)}
                             </Text>
                           </View>
-                          <Text style={styles.commentText}>{c.mensagem}</Text>
+                          <Text style={{ fontSize: 13, color: isDarkMode ? '#E5E5E7' : '#333' }}>{c.mensagem}</Text>
                         </View>
                       ))
                     )}
                   </View>
                 )}
 
-                <View style={styles.commentInputContainer}>
+                <View style={{ marginTop: 15 }}>
                   <TextInput
                     placeholder="Escreva um comentário..."
                     placeholderTextColor="#888"
                     value={mensagemComentario}
                     onChangeText={setMensagemComentario}
-                    style={styles.commentInput}
+                    style={{
+                      borderWidth: 1,
+                      borderColor: isDarkMode ? '#3A3A3C' : '#D8DDE5',
+                      borderRadius: 8,
+                      padding: 10,
+                      backgroundColor: isDarkMode ? '#2C2C2E' : '#FFFFFF',
+                      color: isDarkMode ? '#FFF' : '#333',
+                      minHeight: 70,
+                      textAlignVertical: 'top',
+                    }}
                     multiline
                     numberOfLines={3}
                   />
 
                   <TouchableOpacity
                     onPress={enviarComentario}
-                    style={[
-                      styles.sendButton,
-                      sendingComentario && styles.sendButtonDisabled
-                    ]}
+                    style={{
+                      marginTop: 10,
+                      paddingVertical: 10,
+                      backgroundColor: isDarkMode ? '#0c2946ff' : '#003366',
+                      borderRadius: 8,
+                      alignItems: 'center',
+                      opacity: sendingComentario ? 0.5 : 1,
+                    }}
                     disabled={sendingComentario}
                   >
-                    {sendingComentario ? (
-                      <ActivityIndicator size="small" color="#FFFFFF" />
-                    ) : (
-                      <Text style={styles.sendButtonText}>Enviar</Text>
-                    )}
+                    {sendingComentario ? <ActivityIndicator size="small" color="#FFF" /> : <Text style={{ color: '#FFF', fontWeight: '700', fontSize: 14 }}>Enviar</Text>}
                   </TouchableOpacity>
                 </View>
               </View>
-
             </ScrollView>
 
             <View style={styles.modalFooter}>
@@ -520,11 +506,27 @@ const MapaZonaLesteGeojson = forwardRef(({ ocorrencias = [], currentUserId = nul
                 <Text style={styles.okButtonText}>Fechar</Text>
               </TouchableOpacity>
             </View>
-
           </View>
         </View>
       </Modal>
-      
+
+      <Modal visible={modalDenuncia} transparent animationType="slide" onRequestClose={() => setModalDenuncia(false)}>
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalCard}>
+            <View style={{ padding: 20 }}>
+              <Text style={{ marginBottom: 20 }}>Tem certeza que quer denunciar essa ocorrencia?</Text>
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                <Pressable onPress={() => denunciarOcorrencia(selectedOcorrencia?.id ?? selectedOcorrencia?._id)} style={{ padding: 10 }}>
+                  <Text>Sim</Text>
+                </Pressable>
+                <Pressable onPress={() => setModalDenuncia(false)} style={{ padding: 10 }}>
+                  <Text>Não</Text>
+                </Pressable>
+              </View>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </>
   );
 });
@@ -543,7 +545,7 @@ const styles = StyleSheet.create({
     width: '85%',
     maxWidth: 420,
     height: '85%',
-    maxHeight: 620,
+    maxHeight: 520,
     backgroundColor: '#FFFFFF',
     borderRadius: 16,
     overflow: 'hidden',
