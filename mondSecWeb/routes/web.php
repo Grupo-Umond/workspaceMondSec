@@ -54,7 +54,7 @@ Route::prefix('adm')
             Route::get('/ocorrencias/{id}', 'updateOcorrenciaScreen')->name('ocorrencia.edit');
             Route::put('/ocorrencias/{id}', 'updateOcorrencia')->name('ocorrencia.update');
             Route::put('/ocorrencias/excluir/{id}', 'deleteOcorrencia')->name('ocorrencia.destroy');
-            Route::get('/denuncias','showDenunciaOcorrenciaScreen')->name('ocorrencia.denuncia');
+            Route::get('/denuncias/ocorrencia','showDenunciaOcorrenciaScreen')->name('ocorrencia.denuncia');
             Route::get('/ocorrencias/selecionada/{id}','ocorrenciaSelecionada')->name('ocorrencia.selecionada');
 
 
@@ -63,6 +63,9 @@ Route::prefix('adm')
             Route::put('/{id}','update')->name('comentario.update');
             Route::get('/comentario/{id}', 'show')->name('comentario.show');
             Route::put('/comentario/excluir/{id}', 'destroy')->name('comentario.destroy');
+            Route::get('/comentario/selecionado/{id}','selecionado');
+            Route::get('/denuncias/comentario','showDenunciaComentarioScreen')->name('comentario.denuncia');
+
 
         });
     });

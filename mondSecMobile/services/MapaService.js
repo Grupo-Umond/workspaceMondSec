@@ -29,7 +29,7 @@ import { calculateBounds, checkAndFixRegion } from './MapaZonaLeste/regionBounds
 import { buscarOcorrencias } from './MapaZonaLeste/ocorrencias.service';
 import { carregarComentarios, enviarComentarioRequest } from './MapaZonaLeste/comentarios.service';
 import { buscarUsuarioLogado } from './MapaZonaLeste/user.service';
-import { resolveIcon } from './MapaZonaLeste/iconResolver.service';
+import { getIconForTipo } from './IconService.js';
 import UrlService from './UrlService';
 
 const local = require('./GeoJson/zonaLeste_convertido.json');
@@ -55,7 +55,6 @@ const MapaZonaLesteGeojson = forwardRef(({ ocorrencias = [], currentUserId = nul
   const [loggedUserId, setLoggedUserId] = useState(currentUserId);
   const [modalDenuncia, setModalDenuncia] = useState(false);
 
-  // ================== CARREGAR MAPA =====================
   useEffect(() => {
     (async () => {
       try {
@@ -84,7 +83,6 @@ const MapaZonaLesteGeojson = forwardRef(({ ocorrencias = [], currentUserId = nul
     })();
   }, []);
 
-  // ================== OCORRÊNCIAS =====================
   useEffect(() => {
     const puxar = async () => {
       try {
@@ -98,7 +96,6 @@ const MapaZonaLesteGeojson = forwardRef(({ ocorrencias = [], currentUserId = nul
     puxar();
   }, []);
 
-  // ================== BLOQUEIO DE REGIÃO =====================
   const handleRegionChangeComplete = (rgn) => {
     if (!bounds || !mapRef.current) return;
 
@@ -108,7 +105,6 @@ const MapaZonaLesteGeojson = forwardRef(({ ocorrencias = [], currentUserId = nul
     }
   };
 
-  // ================== MODAL =====================
   const abrirModal = async (oc) => {
     setSelectedOcorrencia(oc);
     setModalVisible(true);
@@ -148,7 +144,7 @@ const MapaZonaLesteGeojson = forwardRef(({ ocorrencias = [], currentUserId = nul
     const response = await UrlService.put(`/ocorrencia/denuncia/${idc}`);
     setModalDenuncia(false);
   }
-  // ================== ENVIAR COMENTÁRIO =====================
+
   const enviarComentario = async () => {
     const texto = (mensagemComentario || '').trim();
     if (!texto) return;
@@ -195,7 +191,6 @@ const MapaZonaLesteGeojson = forwardRef(({ ocorrencias = [], currentUserId = nul
     }
   };
 
-  // ================== CONTROLES EXTERNOS (REF) =====================
   useImperativeHandle(ref, () => ({
     centralizarNoEndereco(lat, lon) {
       mapRef.current?.animateCamera({
@@ -257,7 +252,7 @@ const MapaZonaLesteGeojson = forwardRef(({ ocorrencias = [], currentUserId = nul
               coordinate={{ latitude: lat, longitude: lng }}
               onPress={() => abrirModal(oc)}
             >
-              <Image source={resolveIcon(oc.tipo)} style={{ width: 40, height: 40 }} />
+              <Image source={getIconForTipo(oc.tipo)} style={{ width: 40, height: 40 }} />
             </Marker>
           );
         })}

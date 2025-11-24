@@ -2,7 +2,7 @@ import axios from "axios";
 
 export async function EnderecoService(lat, lon) {
   const api = axios.create({
-    baseURL: 'http://192.168.1.9:3000',
+    baseURL: 'http://192.168.15.116:3000',
   });
   try {
     if (!lat || !lon) throw new Error("Latitude ou longitude inválida");

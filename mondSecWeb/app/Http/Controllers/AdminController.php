@@ -318,5 +318,20 @@ class AdminController extends Controller
 
     }
 
+    public function selecionado($id)
+    {
+        $comentario = Comentario::with(['usuario', 'ocorrencia'])->findOrFail($id);
+        return response()->json($comentario);
+    }
+
+    public function showDenunciaComentarioScreen() {
+        $comentarios = Comentario::with(['usuario','ocorrencia'])
+            ->where('status', 'denunciado')
+            ->orderBy('data', 'desc')
+            ->paginate(20);
+
+        return view('adm.verComentario.denuncia', compact('comentarios'));
+    }
+
 }
 

@@ -16,6 +16,10 @@
     <a href="{{ route('adm.dashboard.index') }}" class="link-btn">
         <div id="btnVoltar" class="botao mt-4">Voltar ao Painel</div>
     </a>
+
+    <a href="{{ route('adm.comentario.denuncia') }}" class="link-btn">
+        <div id="btnVoltar" class="botao mt-4">Ver Denuncias</div>
+    </a>
 </div>
 
 <script>
