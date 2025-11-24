@@ -366,6 +366,12 @@ tbody i {
   color: white;
 }
 
+.botoesFinais {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
 @media (max-width: 1085px) {
   .graficosOcorrencia {
     width: 100%;

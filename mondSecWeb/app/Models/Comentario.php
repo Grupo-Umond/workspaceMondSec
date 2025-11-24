@@ -16,8 +16,21 @@ class Comentario extends Model
         'mensagem',
         'data',
         'idUsuario',
-        'idOcorrencia'
-        // 'status'
+        'idOcorrencia',
+        'status'
     ];
-    
+
+    protected $casts = [
+        'data' => 'datetime',
+    ];
+
+    public function usuario()
+    {
+        return $this->belongsTo(Usuario::class, 'idUsuario', 'id');
+    }
+
+    public function ocorrencia()
+    {
+        return $this->belongsTo(Ocorrencia::class, 'idOcorrencia', 'id');
+    }
 }
