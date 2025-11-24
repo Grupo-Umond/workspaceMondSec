@@ -3,7 +3,7 @@
     justify-content: center;
     align-items: center;
     padding: 0 35px;
-    min-height: 100vh;  
+    min-height: 100vh;
     background-color: black;
 }
 
@@ -24,10 +24,6 @@
     text-align: center;
 }
 
-/* .titulo span {
-    color: blue;
-} */
-
 video {
     width: 70%;
     height: 100vh;
@@ -36,12 +32,12 @@ video {
 }
 
 video {
-  pointer-events: none;
+    pointer-events: none;
 }
 
 video::-webkit-media-controls-panel {
-display: none !important;
-opacity: 1 !important;
+    display: none !important;
+    opacity: 1 !important;
 }
 
 .botao {
@@ -92,5 +88,27 @@ opacity: 1 !important;
 
     100% {
         transform: translateY(0);
+    }
+}
+
+@media screen and (max-width: 910px) {
+    .titulo {
+        font-size: 2rem;
+    }
+}
+
+@media screen and (max-width: 606px) {
+    video {
+        width: 150%;
+    }
+
+    .titulo {
+        font-size: 1.5rem;
+    }
+}
+
+@media screen and (max-width: 790px) {
+    video {
+        width: 100%;
     }
 }

@@ -67,4 +67,3 @@ Route::prefix('adm')
         });
     });
 
-
