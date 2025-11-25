@@ -18,7 +18,8 @@ import {
   TextInput,
   ScrollView,
   ActivityIndicator,
-  Pressable,
+  Pressable, 
+  Animated,
 } from 'react-native';
 import MapView, { Polygon, Marker, Polyline } from 'react-native-maps';
 import * as Location from 'expo-location';
@@ -52,6 +53,13 @@ const MapaZonaLesteGeojson = forwardRef(({ ocorrencias = [], currentUserId = nul
   const [sendingComentario, setSendingComentario] = useState(false);
   const [loggedUserId, setLoggedUserId] = useState(currentUserId);
   const [modalDenuncia, setModalDenuncia] = useState(false);
+
+    const [visible, setVisible] = useState(false);
+    const slideAnim = useRef(new Animated.Value(0)).current;
+  
+    const SCREEN_HEIGHT = Dimensions.get("window").height;
+    const SHEET_HEIGHT = SCREEN_HEIGHT * 0.25; 
+  
 
   const { theme, isDarkMode } = useTheme();
 
@@ -95,6 +103,29 @@ const MapaZonaLesteGeojson = forwardRef(({ ocorrencias = [], currentUserId = nul
     };
     puxar();
   }, []);
+
+      const openSheet = () => {
+      setVisible(true);
+      Animated.timing(slideAnim, {
+        toValue: 1,
+        duration: 300,
+        useNativeDriver: true,
+      }).start();
+    };
+  
+    const closeSheet = () => {
+      Animated.timing(slideAnim, {
+        toValue: 0,
+        duration: 250,
+        useNativeDriver: true,
+      }).start(() => setVisible(false));
+    };
+  
+    const translateY = slideAnim.interpolate({
+      inputRange: [0, 1],
+      outputRange: [SHEET_HEIGHT, 0],
+    });
+
 
   const handleRegionChangeComplete = (rgn) => {
     if (!bounds || !mapRef.current) return;
@@ -151,7 +182,10 @@ const MapaZonaLesteGeojson = forwardRef(({ ocorrencias = [], currentUserId = nul
       Alert.alert('Erro', 'Não foi possível denunciar a ocorrência.');
     }
   };
-
+  const encerrandoRota = () => {
+    setRotaCoords([]);
+    closeSheet();
+  }
   const enviarComentario = async () => {
     const texto = (mensagemComentario || '').trim();
     if (!texto) return;
@@ -200,7 +234,9 @@ const MapaZonaLesteGeojson = forwardRef(({ ocorrencias = [], currentUserId = nul
       });
     },
 
-    desenharRota(rota) {
+    desenharRota(rota, inicio, fim) {
+      setInicio(inicio);
+      setFim(fim);
       if (!rota || !Array.isArray(rota) || rota.length === 0) {
         console.log('Rota inválida:', rota);
         return;
@@ -210,6 +246,7 @@ const MapaZonaLesteGeojson = forwardRef(({ ocorrencias = [], currentUserId = nul
         edgePadding: { top: 80, bottom: 80, left: 80, right: 80 },
         animated: true,
       });
+      openSheet();
     },
   }));
 
@@ -527,6 +564,20 @@ const MapaZonaLesteGeojson = forwardRef(({ ocorrencias = [], currentUserId = nul
           </View>
         </View>
       </Modal>
+
+      <Modal transparent visible={visible} animationType="none">
+              <TouchableOpacity style={styles.overlay} onPress={closeSheet} activeOpacity={1} />
+              <Animated.View
+                style={[
+                  styles.sheet,
+                  { height: SHEET_HEIGHT, transform: [{ translateY }] }
+                ]}
+              >
+              <Pressable onPress={() => encerrandoRota()}>
+                  <Text style={styles.sheetText}>Fechar</Text>
+              </Pressable>
+          </Animated.View>
+      </Modal>
     </>
   );
 });
@@ -727,7 +778,27 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontWeight: '700',
     fontSize: 16,
+  }, 
+  button: {
+    backgroundColor: "#333",
+    padding: 12,
+    borderRadius: 8
   },
+  buttonText: { color: "#fff", fontSize: 16 },
+  overlay: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.4)",
+  },
+  sheet: {
+    width: "100%",
+    position: "absolute",
+    bottom: 0,
+    backgroundColor: "#fff",
+    borderTopRightRadius: 20,
+    borderTopLeftRadius: 20,
+    padding: 20,
+  },
+  sheetText: { fontSize: 18 },
 });
 
 export default MapaZonaLesteGeojson;
