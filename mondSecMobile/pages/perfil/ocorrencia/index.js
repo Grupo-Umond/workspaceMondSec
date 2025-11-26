@@ -303,6 +303,39 @@ useEffect(() => {
     </View>
   </ScrollView>
 
+  <SafeAreaView
+            edges={["bottom"]}
+           style={[
+  styles.navigationContainer,
+  { 
+    backgroundColor: isDarkMode ? "#01080aff" : "#003366" 
+  },
+]}
+          >
+            <Pressable
+              style={({ pressed }) => [
+                styles.navButton,
+                { opacity: pressed ? 0.6 : 1 },
+              ]}
+              onPress={() => navigation.navigate("Home")}
+            >
+              <Icon name="home" size={26} color="#fff" />
+              <Text style={styles.navButtonText}>Início</Text>
+            </Pressable>
+
+
+            <Pressable
+              style={({ pressed }) => [
+                styles.navButton,
+                { opacity: pressed ? 0.6 : 1 },
+              ]}
+              onPress={() => navigation.navigate("Menu")}
+            >
+              <Icon name="person" size={28} color="#fff" />
+              <Text style={styles.navButtonText}>Perfil</Text>
+            </Pressable>
+          </SafeAreaView>
+
   {/* MODAL */}
   <Modal 
     animationType="fade" 
@@ -479,7 +512,7 @@ useEffect(() => {
               style={[
                 styles.botaoPrincipal,
                 { 
-                  backgroundColor: theme.primary,
+                  backgroundColor: theme.buttonColor,
                   shadowColor: theme.shadow,
                 },
               ]}
@@ -783,6 +816,31 @@ textoBotaoPrincipal: {
   fontWeight: "600",
   color: "#FFF",
 },
+ navigationContainer: {
+      flexDirection: "row",
+      justifyContent: "space-between",
+      paddingVertical: 5,
+      paddingHorizontal: 60,
+    },
+
+    navButtonText: {
+      color: "#fff",
+      fontSize: 12,
+      marginTop: 4,
+    },
+
+    navButtonPerfil: {
+      color: "#fff",
+      fontSize: 16,
+      marginTop: 4,
+    },
+
+    centralButton: {
+      padding: 15,
+      borderRadius: 50,
+      elevation: 5,
+    },
+
   
 });
 

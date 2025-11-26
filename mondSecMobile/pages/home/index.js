@@ -63,6 +63,11 @@ const HomeScreen = ({ navigation }) => {
 
       const response = await AsyncStorage.getItem('permissaoLocal');
       if (response !== 'granted') setPermissao(true);
+
+         const carrossel = await AsyncStorage.getItem('carrosselSeen');
+    if (!carrossel) {
+      setModalSobreVisible(true);
+    }
     };
 
     verificarModal();
@@ -291,17 +296,7 @@ const getCoordFinal = async () => {
 
       {/* MODAL BEM VINDO  */}
 
-      <Modal animationType="slide" transparent visible={welcome}>
-        <View style={[styles.modalContainer]}>
-          <View style={[styles.modalContent, { backgroundColor: theme.background }]}>
-            <Text style={[styles.modalTitle, { color: theme.title }]}>Bem-vindo ao MondSec!</Text>
-            <Text style={[styles.modalText, { color: theme.text }]}>Seu app de rotas seguras!</Text>
-            <Pressable onPress={esconderModal}>
-              <Text style={[styles.modalButton, { color: theme.primary }]}>Ok</Text>
-            </Pressable>
-          </View>
-        </View>
-      </Modal>
+  
 
       {/* MODAL PERMISSÃO */}
       <Modal animationType="slide" transparent visible={permissao}>
@@ -471,9 +466,15 @@ const getCoordFinal = async () => {
         <View style={styles.overlay}>
           <View style={[styles.modalCarrosselContent, { backgroundColor: theme.background }]}>
             
-            <Pressable style={styles.closeButton} onPress={() => setModalSobreVisible(false)}>
-              <Text style={[styles.closeButtonText, { color: theme.primary }]}>✕</Text>
-            </Pressable>
+        <Pressable
+  style={styles.closeButton}
+  onPress={async () => {
+    await AsyncStorage.setItem('carrosselSeen', 'ok');
+    setModalSobreVisible(false);
+  }}
+>
+  <Text style={[styles.closeButtonText, { color: theme.primary }]}>✕</Text>
+</Pressable>
 
             <FlatList
               data={slides}

@@ -35,6 +35,7 @@ function AppRoutes() {
 
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
+   
       <Stack.Screen name="Home" component={HomeScreen} />
       <Stack.Screen name="Sobre" component={SobreScreen} />
       <Stack.Screen name="Configuracao" component={ConfiguracaoScreen} />
@@ -53,8 +54,8 @@ function AppRoutes() {
       ) : (
         <>
           <Stack.Screen name="DigiteCampo" component={DigiteCampoScreen} />
-          <Stack.Screen name="Login" component={LoginScreen} />
-          <Stack.Screen name="Cadastro" component={CadastroScreen} />
+             <Stack.Screen name="Login" component={LoginScreen} />
+      <Stack.Screen name="Cadastro" component={CadastroScreen} />
         </>
       )}
     </Stack.Navigator>

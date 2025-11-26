@@ -13,6 +13,7 @@ const LoginScreen = ({ navigation, route }) => {
   const [senha, setSenha] = useState('');
   const regexTelefone = /^(?:\s?)?(?:\(?\d{2}\)?\s?)?(?:9?\d{4}-?\d{4})$/;
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const [mostrarSenha, setMostrarSenha] = useState(false);
   const { logar } = useContext(AuthContext);
 
   const mensagem = route.params?.mensagem;
@@ -100,12 +101,7 @@ const LoginScreen = ({ navigation, route }) => {
         { backgroundColor: isDarkMode ? "#1a1a1a" : "whitesmoke" }
       ]}>
 
-        <Pressable
-          onPress={() => navigation.navigate('Home')}
-          style={styles.iconeCabecalho}
-        >
-          <FontAwesome name="arrow-left" size={20} color={theme.title} />
-        </Pressable>
+
 
         <View style={styles.logoContainer}>
            <Image
@@ -146,21 +142,34 @@ const LoginScreen = ({ navigation, route }) => {
 
         {/* SENHA */}
         <View style={styles.containerInput}>
-          <Text style={[styles.rotulo, { color: theme.text }]}>Senha</Text>
-          <TextInput
-            style={[
-              styles.input,
-              {
-                borderBottomColor: theme.border,
-                color: theme.text
-              }
-            ]}
-            placeholder="Digite sua senha..."
-            placeholderTextColor={theme.textSecondary}
-            secureTextEntry
-            onChangeText={setSenha}
-          />
-        </View>
+  <Text style={[styles.rotulo, { color: theme.text }]}>Senha</Text>
+
+  <View style={{ flexDirection: "row", alignItems: "center" }}>
+    <TextInput
+      style={[
+        styles.input,
+        {
+          borderBottomColor: theme.border,
+          color: theme.text,
+          flex: 1
+        }
+      ]}
+      placeholder="Digite sua senha..."
+      placeholderTextColor={theme.textSecondary}
+      secureTextEntry={!mostrarSenha}
+      onChangeText={setSenha}
+    />
+
+    <TouchableOpacity onPress={() => setMostrarSenha(!mostrarSenha)}>
+      <FontAwesome
+        name={mostrarSenha ? "eye-slash" : "eye"}
+        size={22}
+        color={theme.text}
+        style={{ marginLeft: 10, marginBottom: 10 }}
+      />
+    </TouchableOpacity>
+  </View>
+</View>
 
         {/* Recuperação */}
         <View style={styles.linhaOpcoes}>
