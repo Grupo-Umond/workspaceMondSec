@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Log;
 use Twilio\Rest\Client;
+use App\Models\Usuario;
 use Illuminate\Support\Facades\Cache;
 use App\Mail\ContatoMail;
 use App\Mail\CodigoEmail;

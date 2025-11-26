@@ -132,12 +132,12 @@ const MapaZonaLesteGeojson = forwardRef(({ ocorrencias = [], currentUserId = nul
     }, {});
   }, [ocorrenciasState]);
 
-  // Mapeia cor do badge de acordo com a densidade
+ 
   const getBadgeColor = (count) => {
     if (count >= 10) return '#E53935'; // vermelho
     if (count >= 5) return '#FB8C00'; // laranja
     if (count >= 2) return '#FDD835'; // amarelo
-    return null; // 1 => sem badge
+    return null; 
   };
 
   const openSheet = () => {
@@ -315,7 +315,6 @@ const MapaZonaLesteGeojson = forwardRef(({ ocorrencias = [], currentUserId = nul
           />
         ))}
 
-        {/* ---------- RENDERIZANDO MARCADORES AGRUPADOS ---------- */}
         {Object.entries(ocorrenciasAgrupadas).map(([key, group], idx) => {
           const first = group.items[0];
           const lat = Number(group.latitude);
@@ -337,7 +336,6 @@ const MapaZonaLesteGeojson = forwardRef(({ ocorrencias = [], currentUserId = nul
                   source={getIconForTipo(first.tipo)}
                   style={styles.markerImage}
                 />
-                {/* mostra badge só quando houver mais de 1 ocorrência no mesmo ponto */}
                 {quantidade > 1 && (
                   <View style={[styles.badge, { backgroundColor: badgeColor }]}>
                     <Text style={styles.badgeText}>{quantidade}</Text>
