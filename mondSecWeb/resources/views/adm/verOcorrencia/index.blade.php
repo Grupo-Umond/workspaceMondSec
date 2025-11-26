@@ -5,11 +5,6 @@
 @section('content')
     <div class="container py-5">
 
-        <div class="graficosOcorrencia d-flex flex-wrap justify-content-around gap-4 mb-4">
-            <div id="chart-container1Ocorrencia" style="height:45vh; width:45%; min-width:300px;"></div>
-            <div id="chart-container2Ocorrencia" style="height:45vh; width:45%; min-width:300px;"></div>
-        </div>
-
         <h1 class="mb-4 text-center">Ocorrências Cadastradas</h1>
 
         <div id="pesquisas" class="d-flex flex-wrap gap-3 mb-4 justify-content-center">
@@ -49,12 +44,9 @@
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
-
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const ocorrencias = @json($ocorrencias);
-            const ocorrenciasPorMes = @json($ocorrenciasPorMes);
 
             const container = document.getElementById('lista-ocorrencias');
             const inputPesquisa = document.getElementById('pesquisado');
@@ -74,7 +66,6 @@
                 const tipoSelecionado = filtroTipo.value;
                 const mesSelecionado = filtroMes.value;
 
-
                 const filtradas = ocorrencias.filter(o => {
                     const id = String(o.id || '').toLowerCase();
                     const titulo = (o.titulo || '').toLowerCase();
@@ -82,6 +73,7 @@
                     const tipo = o.tipo || 'Não informado';
                     const dataAcontecimento = o.dataAcontecimento ? new Date(o.dataAcontecimento) : null;
                     const mes = dataAcontecimento ? dataAcontecimento.getMonth() + 1 : null;
+
                     const matchTexto = id.includes(termo) || titulo.includes(termo) || usuario.includes(termo);
                     const matchTipo = !tipoSelecionado || tipo === tipoSelecionado;
                     const matchMes = !mesSelecionado || mes === Number(mesSelecionado);
@@ -98,7 +90,6 @@
 
                 const table = document.createElement('table');
                 table.classList.add('table', 'table-striped', 'table-bordered', 'text-center', 'align-middle');
-
 
                 const thead = document.createElement('thead');
                 thead.innerHTML = `
@@ -146,7 +137,6 @@
                             </button>
                         </form>
                     </td>
-
                 `;
                     tbody.appendChild(tr);
                 });
@@ -158,48 +148,8 @@
             inputPesquisa.addEventListener('input', renderTabela);
             filtroTipo.addEventListener('change', renderTabela);
             filtroMes.addEventListener('change', renderTabela);
+
             renderTabela();
-
-            const chartTipoDom = document.getElementById('chart-container1Ocorrencia');
-            const tiposContagem = {};
-            ocorrencias.forEach(o => {
-                const tipo = o.tipo || 'Não informado';
-                tiposContagem[tipo] = (tiposContagem[tipo] || 0) + 1;
-            });
-            const dataTipo = Object.entries(tiposContagem).map(([name, value]) => ({ name, value }));
-
-            const chartTipo = echarts.init(chartTipoDom);
-            chartTipo.setOption({
-                title: { text: 'Tipos de Ocorrências', left: 'center' },
-                tooltip: { trigger: 'item' },
-                legend: { bottom: 0 },
-                series: [{
-                    name: 'Ocorrências',
-                    type: 'pie',
-                    radius: '60%',
-                    data: dataTipo,
-                    emphasis: { itemStyle: { shadowBlur: 10, shadowOffsetX: 0, shadowColor: 'rgba(0,0,0,0.5)' } }
-                }]
-            });
-            window.addEventListener('resize', chartTipo.resize);
-
-            const chartMesDom = document.getElementById('chart-container2Ocorrencia');
-            const meses = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
-
-            const chartMes = echarts.init(chartMesDom);
-            chartMes.setOption({
-                title: { text: 'Ocorrências por Mês ({{ date("Y") }})', left: 'center' },
-                tooltip: { trigger: 'axis' },
-                xAxis: { type: 'category', data: meses },
-                yAxis: { type: 'value' },
-                series: [{
-                    data: ocorrenciasPorMes.map(v => v || 0),
-                    type: 'bar',
-                    barWidth: '60%',
-                    itemStyle: { color: '#4B91F1' }
-                }]
-            });
-            window.addEventListener('resize', chartMes.resize);
         });
     </script>
 @endsection

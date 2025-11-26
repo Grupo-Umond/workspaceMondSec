@@ -118,7 +118,7 @@ useEffect(() => {
     ]}
   >
     <Pressable
-      onPress={() => navigation.goBack()}
+      onPress={() => navigation.navigate('Home')}
       style={styles.botaoCabecalho}
     >
       <FontAwesome

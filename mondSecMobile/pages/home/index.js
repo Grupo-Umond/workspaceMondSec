@@ -1,366 +1,912 @@
-import React, { useState, useEffect } from "react";
-import {
-  View,
-  Text,
-  TextInput,
-  Pressable,
-  TouchableOpacity,
-  StyleSheet,
-  Image,
-  Alert
-} from "react-native";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import FontAwesome from '@expo/vector-icons/FontAwesome';
-import { useTheme } from "../../../../services/themes/themecontext";
-import UrlService from "../../../../services/UrlService";
+import React, { useState, useEffect, useRef, useContext } from 'react';
+import { View, Text, Pressable, TextInput, Modal, StyleSheet, Image, FlatList } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { MaterialIcons as Icon } from '@expo/vector-icons';
 
-const DigiteCodigoScreen = ({ navigation, route }) => {
-  const [digitos, setDigitos] = useState(["", "", "", "", "", ""]);
-  const [direcao, setDirecao] = useState(true);
-  const [email, setEmail] = useState("");
-  const [telefone, setTelefone] = useState("");
-  const [carregando, setCarregando] = useState(false);
-  const [erroMessage, setErroMessage] = useState("");
-  const [tempoRestante, setTempoRestante] = useState(0);
+import Mapa from "../../services/MapaService";
+import { AuthContext } from '../../services/AuthContext';
+import { CoordenadaService } from '../../services/CoordenadaService';
+import { LocalizacaoService } from '../../services/LocalizacaoService';
+import { NotificacaoService } from '../../services/NotificacaoService';
+import { RotaService } from '../../services/RotaService';
+import { OcorrenciaService } from '../../services/OcorrenciaService';
+import { gerarMultiPoligono } from '../../services/PolygonService';
+import { Dimensions } from 'react-native';
+import { SafeAreaView } from "react-native-safe-area-context";
+import { useTheme } from "../../services/themes/themecontext";
+
+const { width } = Dimensions.get('window');
+
+const HomeScreen = ({ navigation }) => {
+
   const { theme, isDarkMode } = useTheme();
 
-  const usuario = route.params?.usuario;
-  const campo = route.params?.campo;
-  const code = digitos.join("");
+  const [permissao, setPermissao] = useState(false);
+  const [welcome, setWelcome] = useState(false);
+  const [endereco, setEndereco] = useState('');
+  const [modalRota, setModalRota] = useState(false);
+
+  const { tokenUser } = useContext(AuthContext);
+
+  const [enderecoInicial, setEnderecoInicial] = useState('');
+  const [enderecoFinal, setEnderecoFinal] = useState('');
+  const [rotaCalculada, setRotaCalculada] = useState(null);
+
+  const mapaRef = useRef(null);
+  const [modalSobreVisible, setModalSobreVisible] = useState(false);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [modalLegendaVisible, setModalLegendaVisible] = useState(false);
+
+  const slides = [
+    { id: "1", titulo: "Introdução", texto: "Bem-vindo ao seu app de segurança!", imagem: require("../../assets/escudo.png") },
+    { id: "2", titulo: "Monitoramento", texto: "Acompanhe tudo em tempo real.", imagem: require("../../assets/olho.png") },
+    { id: "3", titulo: "Incidentes", texto: "Ações rápidas de emergência.", imagem: require("../../assets/Alerta.png") },
+    { id: "4", titulo: "Personalização", texto: "Escolha temas, modo escuro e mais.", imagem: require("../../assets/setting.png") },
+    { id: "5", titulo: "Aviso", texto: "Use o app de forma responsável.", imagem: require("../../assets/xis.png") }
+  ];
+
+  // DADOS DA LEGENDA
+  const itensLegenda = [
+    { id: "1", cor: '#641e16', texto: "Área de Extremo Risco" },
+    { id: "2", cor: '#d7263d', texto: "Área de Risco" },
+    { id: "3", cor: '#f28c28', texto: "Área de Perigo Alto" },
+    { id: "4", cor: '#f5c400', texto: "Área de perigo Moderado" },
+    { id: "5", cor: '#f7e46a', texto: "Área de Perigo Pequeno" },
+    { id: "6", cor: '#0815caff', texto: "Seu local" },
+  ];
 
   useEffect(() => {
-    if (campo === "telefone") setDirecao(false);
-    if (campo === "email") setDirecao(true);
+    const verificarModal = async () => {
 
-    buscarDados();
+      const vizualizacao = await AsyncStorage.getItem('welcomeSeen');
+      if (!vizualizacao) setWelcome(true);
+
+      const response = await AsyncStorage.getItem('permissaoLocal');
+      if (response !== 'granted') setPermissao(true);
+    };
+
+    verificarModal();
   }, []);
 
-  const buscarDados = async () => {
-    const tokenUser = await AsyncStorage.getItem("userToken");
+  const pedirPermissao = async (permitiu) => {
+    if (permitiu) {
+      await LocalizacaoService();
+      await NotificacaoService();
+      await AsyncStorage.setItem('permissaoLocal', 'granted');
+      setPermissao(false);
+    } else {
+      await AsyncStorage.setItem('permissaoLocal', 'denied');
+      setPermissao(false);
+    }
+    setPermissao(false);
+  };
 
+  const esconderModal = async () => {
+    await AsyncStorage.setItem('welcomeSeen', 'ok');
+    setWelcome(false);
+    setPermissao(true);
+  };
+  const buscarEndereco = async () => {
     try {
-      if (tokenUser) {
-        const response = await UrlService.get("/usuario/buscar", {
-          headers: { Authorization: `Bearer ${tokenUser}` },
-        });
-
-        setEmail(response.data.usuario.email || "");
-        setTelefone(response.data.usuario.telefone || "");
-
-        if (direcao && response.data.usuario.email) {
-          criarCodigo(response.data.usuario.email);
-        } else if (!direcao && response.data.usuario.telefone) {
-          criarCodigo(response.data.usuario.telefone);
-        }
-      } else if (usuario) {
-        if (direcao && usuario.email) {
-          setEmail(usuario.email);
-          criarCodigo(usuario.email);
-        } else if (!direcao && usuario.telefone) {
-          setTelefone(usuario.telefone);
-          criarCodigo(usuario.telefone);
-        }
-      }
-    } catch (erro) {
-      Alert.alert("Erro", "Falha ao buscar dados do usuário.");
+      const coords = await CoordenadaService(endereco);
+      mapaRef.current?.centralizarNoEndereco(coords.lat, coords.lon);
+    } catch (e) {
+      alert("Endereço não encontrado!");
     }
   };
+const getCoordInicio = async () => {
+  const r = await CoordenadaService(enderecoInicial);
 
-  const criarCodigo = async (loginParam) => {
-    const tokenUser = await AsyncStorage.getItem("userToken");
+  console.log("DEBUG CoordenadaService retorno ===>", r);
 
+  const lat = Number(r.lat || r.latitude);
+  const lon = Number(r.lon || r.longitude);
+
+  console.log("DEBUG getCoordInicio FINAL ===>", { latitude: lat, longitude: lon });
+
+  return { latitude: lat, longitude: lon };
+};
+
+
+const getCoordFinal = async () => {
+  const r = await CoordenadaService(enderecoFinal );
+
+  console.log("DEBUG CoordenadaService retorno ===>", r);
+
+  const lat = Number(r.lat || r.latitude);
+  const lon = Number(r.lon || r.longitude);
+
+  console.log("DEBUG getCoordFinal  FINAL ===>", { latitude: lat, longitude: lon });
+
+  return { latitude: lat, longitude: lon };
+};
+
+
+
+  const enviarRota = async () => {
     try {
-      let response;
+      const origem = await getCoordInicio();
+      const destino = await getCoordFinal();
+      console.log("ORIGEM ===>", origem);
+      console.log("DESTINO ===>", destino);
 
-      if (direcao) {
-        if (tokenUser) {
-          response = await UrlService.post(
-            "/codigo/auth/sendEmail",
-            {},
-            { headers: { Authorization: `Bearer ${tokenUser}` } }
-          );
-        } else {
-          const login = loginParam || email;
-          response = await UrlService.post("/codigo/sendEmail", { login });
-        }
-      } else {
-        if (tokenUser) {
-          response = await UrlService.post(
-            "/codigo/auth/sendSms",
-            {},
-            { headers: { Authorization: `Bearer ${tokenUser}` } }
-          );
-        } else {
-          const tel = loginParam || telefone;
-          response = await UrlService.post("/codigo/sendSms", { telefone: tel });
-        }
-      }
+      const ocorrencias = await OcorrenciaService();
+      console.log("RETORNO OCORRENCIAS ===>", ocorrencias);
 
-      setTempoRestante(30);
-    } catch (erro) {
-      if (erro.response?.status === 429) {
-        setTempoRestante(erro.response.data.tempoRestante || 30);
-        Alert.alert("Aguarde", `Aguarde ${erro.response.data.tempoRestante || 30}s.`);
-      } else {
-        Alert.alert("Erro", "Falha ao enviar código.");
-      }
-    }
-  };
+      const avoid = gerarMultiPoligono(ocorrencias.ocorrencias);
+      console.log("AVOID ===>", JSON.stringify(avoid, null, 2));
 
-  useEffect(() => {
-    if (tempoRestante <= 0) return;
+      const rota = await RotaService(origem, destino, avoid);
 
-    const timer = setInterval(() => {
-      setTempoRestante((prev) => {
-        if (prev <= 1) {
-          clearInterval(timer);
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
+      const geometry = rota.features[0].geometry;  
 
-    return () => clearInterval(timer);
-  }, [tempoRestante]);
+      const coordsMap = geometry.coordinates.map(c => ({
+        latitude: c[1],
+        longitude: c[0]
+      }));
 
-  const pegarLogin = () => {
-    if (direcao) return email || usuario?.email || "";
-    return telefone || usuario?.telefone || "";
-  };
+      console.log("COORDS FORMATADAS PARA O MAPA ===>", coordsMap);
 
-  const handleChange = (text, index) => {
-    const newDigitos = [...digitos];
-    newDigitos[index] = text.replace(/[^0-9]/g, "");
-    setDigitos(newDigitos);
-  };
+      setRotaCalculada(coordsMap);
 
-  const validarCodigo = () => {
-    setErroMessage("");
+      mapaRef.current?.desenharRota(coordsMap);
 
-    if (!code) {
-      setErroMessage("Digite o código.");
-      return false;
-    }
+      setModalRota(false);
 
-    if (!/^\d{6}$/.test(code)) {
-      setErroMessage("Digite o código com 6 números.");
-      return false;
-    }
-
-    return true;
-  };
-
-  const enviarCodigo = async () => {
-    if (!validarCodigo()) return;
-
-    setCarregando(true);
-
-    const tokenUser = await AsyncStorage.getItem("userToken");
-
-    try {
-      const login = pegarLogin();
-
-      const response = await UrlService.post(
-        "/codigo/auth/verify",
-        { code, direcao, login },
-        tokenUser ? { headers: { Authorization: `Bearer ${tokenUser}` } } : {}
-      );
-
-      const tokenTemp = response.data.token;
-      if (!tokenTemp) {
-        Alert.alert("Erro", "Token temporário não retornado.");
-        return;
-      }
-
-      await AsyncStorage.setItem("tokenTemp", tokenTemp);
-      navigation.navigate("AlterarSenha", { direcao });
     } catch (err) {
-      const mensagem =
-        err.response?.data?.message || err.response?.data?.erro || err.message;
-      setErroMessage(mensagem);
-      Alert.alert("Erro", mensagem);
-    } finally {
-      setCarregando(false);
+      console.log("Erro enviarRota:", err);
+      alert("Não foi possível calcular a rota segura.");
     }
-  };
 
-  const handleResendPress = () => {
-    if (tempoRestante > 0) return;
-
-    const loginAtual = pegarLogin();
-    criarCodigo(loginAtual);
   };
 
   return (
-    <View style={{ flex: 1, backgroundColor: theme.background }}>
-      <View style={[styles.container, { backgroundColor: theme.background }]}>
-        <View style={styles.cabecalho}>
-          <Pressable
-            onPress={() => navigation.navigate("Menu")}
-            style={styles.iconeCabecalho}
-          >
-            <FontAwesome name="arrow-left" size={20} color={theme.title} />
-          </Pressable>
+    <View style={[styles.container, { backgroundColor: theme.background }]}>
 
-          <Text style={[styles.tituloCabecalho, { color: theme.title }]}>
-            Verificação de Conta
-          </Text>
+      {/* NAV CIMA */}
+      <View
+        style={[
+          styles.navCima,
+          { backgroundColor: theme.background, shadowColor: theme.text }
+        ]}
+      >
+        <View style={styles.navRota}>
+          <Pressable 
+            style={({ pressed }) => [
+              styles.navButton,
+              { opacity: pressed ? 0.6 : 1 }
+            ]}
+            onPress={() => setModalRota(true)}
+          >
+            <View style={[styles.buttonRota, { backgroundColor: theme.buttonColor }]}>
+              <Icon name="directions" size={28} color={theme.icon} />
+            </View>
+          </Pressable>
         </View>
 
-        <View style={styles.avatarContainer}>
-          <View style={styles.logoContainer}>
-            <Image
-              source={
-                isDarkMode
-                  ? require("../../../../assets/logobranca.png")
-                  : require("../../../../assets/mondSecLogo.png")
-              }
-              style={styles.logo}
+        <View style={styles.searchContainer}>
+          <View style={[styles.searchInputContainer, { backgroundColor: isDarkMode ? "#222" : "#F5F5F5" }]}>
+            <TextInput
+              style={[styles.searchInput, { color: theme.text }]}
+              placeholder="Pesquise um local..."
+              placeholderTextColor={theme.textSecondary}
+              value={endereco}
+              onChangeText={setEndereco}
+            />
+            <Pressable style={styles.searchButton} onPress={buscarEndereco}>
+
+              <Icon name="search" size={24} color={theme.primary} />
+            </Pressable>
+          </View>
+        </View>
+      </View>
+
+
+      {/* BOTÃO DA LEGENDA AQUIJ PABLO */}
+      <Pressable
+        style={[styles.legendaButton, { backgroundColor: theme.backlegenda }]}
+        onPress={() => setModalLegendaVisible(true)}
+      >
+        <Icon name="arrow-right" size={30} color={theme.colorlegenda} />
+      </Pressable>
+
+      {/* MAPA */}
+      <View style={styles.mapContainer}>
+        <Mapa ref={mapaRef} style={styles.mapImage} />
+      </View>
+
+      {/* BOTÃO OCORRÊNCIA */}
+      {tokenUser && (
+        <Pressable
+          style={[styles.ocorrenciaButton, { backgroundColor: theme.danger }]}
+          onPress={() => navigation.navigate('Registrar')}
+        >
+          <Icon name="warning" size={24} color="#FFF" />
+        </Pressable>
+      )}
+
+      {/* NAV BOTTOM */}
+      <SafeAreaView edges={['bottom']} style={[styles.navigationContainer,{ backgroundColor: isDarkMode ? "#01080aff" : "#003366" },]}>
+        
+        <Pressable onPress={() => navigation.navigate('Home')} style={styles.navButton}>
+          <Icon name="home" size={26} color={theme.icon} />
+          <Text style={[styles.navButtonText, { color: theme.icon }]}>Início</Text>
+        </Pressable>
+
+        <Pressable onPress={() => setModalSobreVisible(true)} style={styles.navButton}>
+          <View style={[styles.centralButton, { backgroundColor: theme.secundary }]}>
+            <Icon name="info" size={28} color={theme.primary} />
+          </View>
+        </Pressable>
+
+        <Pressable 
+          onPress={() => navigation.navigate(tokenUser ? 'Menu' : 'Login')}
+          style={styles.navButton}
+        >
+          <Icon name="person" size={26} color={theme.icon} />
+          <Text style={[styles.navButtonText, { color: theme.icon }]}>
+            {tokenUser ? "Perfil" : "Entrar"}
+          </Text>
+        </Pressable>
+
+      </SafeAreaView>
+
+      {/* ---- MODAIS ESTÃO ABAIXO ---- */}
+
+      {/* MODAL LEGENDA */}
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={modalLegendaVisible}
+        onRequestClose={() => setModalLegendaVisible(false)}
+      >
+        <View style={styles.legendaModalContainer}>
+          <Pressable 
+            style={styles.legendaModalBackdrop}
+            onPress={() => setModalLegendaVisible(false)}
+          />
+          <View style={[styles.legendaModalContent, { backgroundColor: theme.background }]}>
+            <View style={styles.legendaHeader}>
+              <Text style={[styles.legendaTitle, { color: theme.primary }]}>Legenda do Mapa</Text>
+              <Pressable 
+                onPress={() => setModalLegendaVisible(false)}
+                style={styles.legendaCloseButton}
+              >
+                <Icon name="close" size={18} color={theme.text} />
+              </Pressable>
+            </View>
+            
+            <View style={styles.legendaList}>
+              {itensLegenda.map((item) => (
+                <View key={item.id} style={styles.legendaItem}>
+                  <View style={[styles.legendaColor, { backgroundColor: item.cor }]} />
+                  <Text style={[styles.legendaText, { color: theme.text }]}>{item.texto}</Text>
+                </View>
+              ))}
+            </View>
+
+          </View>
+        </View>
+      </Modal>
+
+      {/* MODAL BEM VINDO  */}
+
+      <Modal animationType="slide" transparent visible={welcome}>
+        <View style={[styles.modalContainer]}>
+          <View style={[styles.modalContent, { backgroundColor: theme.background }]}>
+            <Text style={[styles.modalTitle, { color: theme.title }]}>Bem-vindo ao MondSec!</Text>
+            <Text style={[styles.modalText, { color: theme.text }]}>Seu app de rotas seguras!</Text>
+            <Pressable onPress={esconderModal}>
+              <Text style={[styles.modalButton, { color: theme.primary }]}>Ok</Text>
+            </Pressable>
+          </View>
+        </View>
+      </Modal>
+
+      {/* MODAL PERMISSÃO */}
+      <Modal animationType="slide" transparent visible={permissao}>
+        <View style={styles.modalContainer}>
+          <View style={[styles.modalContent, { backgroundColor: theme.background }]}>
+            <Text style={[styles.modalTitle, { color: theme.title }]}>Aviso!</Text>
+            <Text style={[styles.modalText, { color: theme.text }]}>
+              Esse aplicativo precisa da sua localização!
+            </Text>
+
+            <Pressable onPress={() => { setPermissao(false); pedirPermissao(true); }}>
+              <Text style={[styles.modalButton, { color: theme.primary }]}>Sim</Text>
+            </Pressable>
+
+            <Pressable onPress={() => pedirPermissao(false)}>
+              <Text style={[styles.modalButton, { color: theme.primary }]}>Não</Text>
+            </Pressable>
+          </View>
+        </View>
+      </Modal>
+
+      {/* MODAL ROTA  */}
+<Modal 
+  animationType="slide" 
+  transparent 
+  visible={modalRota}
+  statusBarTranslucent
+>
+  <View style={styles.modalRotaContainer}>
+    <View style={[
+      styles.modalRotaContent,
+      { 
+        backgroundColor: theme.cardbackground,
+        shadowColor: theme.shadow,
+      }
+    ]}>
+      {/* CABEÇALHO */}
+      <View style={[
+        styles.cabecalhoModalRota,
+        { 
+          backgroundColor: theme.navBackground,
+          borderBottomColor: theme.border,
+        }
+      ]}>
+        <View style={styles.containerTituloModalRota}>
+          <Text style={[
+            styles.tituloModalRota,
+            { color: theme.title }
+          ]}>
+            Calcular Rota
+          </Text>
+        </View>
+        
+        <Pressable 
+          onPress={() => setModalRota(false)}
+          style={[
+            styles.botaoFecharModalRota,
+            { backgroundColor: theme.border }
+          ]}
+        >
+          <Text style={[styles.textoBotaoFechar, { color: theme.text }]}>
+            ×
+          </Text>
+        </Pressable>
+      </View>
+
+      {/* CONTEÚDO */}
+      <View style={styles.conteudoModalRota}>
+        <Text style={[
+          styles.subtituloModalRota,
+          { color: theme.text }
+        ]}>
+          Para onde você quer ir?
+        </Text>
+
+        {/* LOCAL DE INÍCIO */}
+        <View style={styles.secaoInput}>
+          <View style={styles.rotuloInputContainer}>
+            <Text style={[styles.iconeInput, { color: theme.primary }]}>
+              📍
+            </Text>
+            <Text style={[
+              styles.rotuloInput,
+              { color: theme.textSecondary }
+            ]}>
+              Local de início
+            </Text>
+          </View>
+          <View style={[
+            styles.containerInput,
+            { 
+              backgroundColor: theme.sectionBackground,
+              borderColor: theme.border,
+            }
+          ]}>
+            <TextInput
+              style={[
+                styles.inputModalRota,
+                { color: theme.text }
+              ]}
+              placeholder="Digite o endereço..."
+              placeholderTextColor={theme.textSecondary}
+              value={enderecoInicial}
+              onChangeText={setEnderecoInicial}
             />
           </View>
         </View>
 
-        <Text style={[styles.title, { color: theme.text }]}>
-          {direcao
-            ? `Digite o código enviado ao email ${email}`
-            : `Digite o código enviado ao número ${telefone}`}
-        </Text>
-
-        {direcao ? (
-          <Pressable
-            onPress={() => {
-              setDirecao(false);
-              setTempoRestante(0);
-            }}
-          >
-            <Text style={[styles.linkText, { color: theme.textSecondary }]}>
-              Não tenho acesso ao email.{" "}
-              <Text style={[styles.linkHighlight, { color: theme.primary }]}>
-                Enviar por SMS
-              </Text>
+        {/* DESTINO */}
+        <View style={styles.secaoInput}>
+          <View style={styles.rotuloInputContainer}>
+            <Text style={[styles.iconeInput, { color: theme.primary }]}>
+              🏁
             </Text>
-          </Pressable>
-        ) : (
-          <Pressable
-            onPress={() => {
-              setDirecao(true);
-              setTempoRestante(0);
-            }}
-          >
-            <Text style={[styles.linkText, { color: theme.textSecondary }]}>
-              Não tenho acesso ao telefone.{" "}
-              <Text style={[styles.linkHighlight, { color: theme.primary }]}>
-                Enviar por email
-              </Text>
+            <Text style={[
+              styles.rotuloInput,
+              { color: theme.textSecondary }
+            ]}>
+              Destino
             </Text>
-          </Pressable>
-        )}
-
-        <View style={styles.inputContainer}>
-          {digitos.map((d, index) => (
+          </View>
+          <View style={[
+            styles.containerInput,
+            { 
+              backgroundColor: theme.sectionBackground,
+              borderColor: theme.border,
+            }
+          ]}>
             <TextInput
-              key={index}
               style={[
-                styles.input,
-                {
-                  backgroundColor: isDarkMode ? "#1a1a1a" : "#fff",
-                  borderColor: theme.border,
-                  color: theme.text,
-                },
+                styles.inputModalRota,
+                { color: theme.text }
               ]}
-              value={d}
-              maxLength={1}
-              keyboardType="numeric"
-              onChangeText={(text) => handleChange(text, index)}
+              placeholder="Digite o endereço..."
+              placeholderTextColor={theme.textSecondary}
+              value={enderecoFinal}
+              onChangeText={setEnderecoFinal}
             />
-          ))}
+          </View>
         </View>
 
-        {erroMessage ? (
-          <Text style={[styles.errorMessage, { color: theme.danger }]}>
-            {erroMessage}
-          </Text>
-        ) : null}
-
-        <TouchableOpacity
-          disabled={tempoRestante > 0}
-          onPress={handleResendPress}
-        >
-          <Text
-            style={[
-              styles.resendLink,
-              {
-                color: theme.primary,
-                opacity: tempoRestante > 0 ? 0.5 : 1,
-              },
-            ]}
-          >
-            {tempoRestante > 0
-              ? `Reenviar em ${tempoRestante}s`
-              : "Não recebeu o código? Reenviar"}
-          </Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
+        {/* BOTÃO CALCULAR ROTA */}
+        <Pressable 
+          onPress={enviarRota}
           style={[
-            styles.confirmButton,
-            { backgroundColor: theme.buttonColor },
-            carregando && styles.disabledButton,
+            styles.botaoCalcularRota,
+            { 
+              backgroundColor: theme.buttonColor,
+              shadowColor: theme.shadow,
+            }
           ]}
-          disabled={carregando}
-          onPress={enviarCodigo}
         >
-          <Text style={styles.confirmButtonText}>
-            {carregando ? "Enviando..." : "Confirmar"}
+          <Text style={[styles.iconeBotao, { color: "#FFF" }]}>
+            🗺️
           </Text>
-        </TouchableOpacity>
+          <Text style={styles.textoBotaoCalcularRota}>
+            Calcular Rota
+          </Text>
+        </Pressable>
       </View>
+    </View>
+  </View>
+</Modal>
+
+      {/* MODAL CARROSSEL */}
+      <Modal visible={modalSobreVisible} animationType="fade" transparent>
+        <View style={styles.overlay}>
+          <View style={[styles.modalCarrosselContent, { backgroundColor: theme.background }]}>
+            
+            <Pressable style={styles.closeButton} onPress={() => setModalSobreVisible(false)}>
+              <Text style={[styles.closeButtonText, { color: theme.primary }]}>✕</Text>
+            </Pressable>
+
+            <FlatList
+              data={slides}
+              horizontal
+              pagingEnabled
+              showsHorizontalScrollIndicator={false}
+              keyExtractor={(item) => item.id}
+              renderItem={({ item }) => (
+                <View style={styles.slide}>
+                  <View style={styles.imageContainer}>
+                    <View style={[styles.imageBackground, { backgroundColor: theme.background }]}>
+                      <Image source={item.imagem} style={styles.slideImage} />
+                    </View>
+                  </View>
+                  <Text style={[styles.slideTitle, { color: theme.primary }]}>{item.titulo}</Text>
+                  <Text style={[styles.slideText, { color: theme.textSecondary }]}>{item.texto}</Text>
+                </View>
+              )}
+              onMomentumScrollEnd={(event) => {
+                const index = Math.round(event.nativeEvent.contentOffset.x / (width - 80));
+                setCurrentIndex(index);
+              }}
+            />
+
+            <View style={styles.indicatorContainer}>
+              {slides.map((_, index) => (
+                <View
+                  key={index}
+                  style={[
+                    styles.indicator,
+                    { backgroundColor: isDarkMode ? "#555" : "#E0E6EB" },
+                    index === currentIndex && {
+                      backgroundColor: theme.primary,
+                      width: 26
+                    }
+                  ]}
+                />
+              ))}
+            </View>
+          </View>
+        </View>
+      </Modal>
+
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 20, paddingTop: 50 },
-  cabecalho: {
+  container: { flex: 1, backgroundColor: "#fff" },
+  navCima: {
+    position: "absolute",
+    top: 0, left: 0, right: 0,
+    zIndex: 10,
+    flexDirection: "row",
+    paddingHorizontal: 15,
+    paddingTop: 30,
+    paddingBottom: 10,
+    backgroundColor: "#FFF",
+    elevation: 3,
+  },
+  navRota: { marginRight: 10 },
+  navButton: { alignItems: "center", justifyContent: "center" },
+  buttonRota: { backgroundColor: "#003366", padding: 10, borderRadius: 50 },
+  searchContainer: { flex: 1, marginHorizontal: 10 },
+  searchInputContainer: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 30,
-    paddingHorizontal: 10,
-    gap: 55,
-  },
-  tituloCabecalho: { fontSize: 20, fontWeight: "600" },
-  iconeCabecalho: { padding: 5 },
-  avatarContainer: { alignItems: "center", marginBottom: 10 },
-  logoContainer: { alignItems: "center" },
-  logo: { width: 200, height: 200, resizeMode: "contain" },
-  inputContainer: {
-    flexDirection: "row",
-    justifyContent: "center",
-    gap: 10,
-    marginVertical: 20,
-  },
-  input: {
-    width: 45,
-    height: 55,
-    fontSize: 20,
-    textAlign: "center",
-    borderWidth: 1,
-    borderRadius: 8,
+    backgroundColor: "#F5F5F5",
+    borderRadius: 25,
+    paddingHorizontal: 15,
+    height: 50,
     elevation: 2,
   },
-  errorMessage: { marginBottom: 10, textAlign: "center" },
-  resendLink: { fontSize: 14, textAlign: "center", marginBottom: 20 },
-  confirmButton: {
-    paddingVertical: 12,
-    paddingHorizontal: 40,
-    borderRadius: 8,
+
+  searchInput: {
+    flex: 1,
+    fontSize: 16,
+    color: '#333',
+    paddingVertical: 8,
+  },
+  searchButton: {
+    padding: 8,
+  },
+
+legendaButton: {
+  position: 'absolute',
+  left: 10,
+  top: '50%',
+  transform: [{ translateY: -20 }], 
+  width: 28, 
+  height: 100, 
+  borderRadius: 28, 
+  justifyContent: 'center',
+  alignItems: 'center',
+  elevation: 6,
+  shadowColor: '#000',
+  shadowOffset: { width: 0, height: 2 },
+  shadowOpacity: 0.2,
+  shadowRadius: 3,
+  zIndex: 999,
+},
+  legendaModalContainer: {
+    flex: 1,
+    flexDirection: 'row',
+  },
+  legendaModalBackdrop: {
+    flex: 1,
+  },
+  legendaModalContent: {
+    width: 200,
+    borderTopRightRadius: 10,
+    borderBottomRightRadius: 10,
+    elevation: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: -2, height: 0 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    marginTop: 300,
+    right: 175, 
+    marginBottom: 280,
+    paddingHorizontal: 10,
+    backgroundColor: '#FFFFFF',
+  },
+  legendaHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: '#E0E0E0',
+  },
+  legendaTitle: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: '#131212ff',
+  },
+  legendaCloseButton: {
+    padding: 4,
+  },
+  legendaList: {
+    paddingVertical: 10,
+  },
+  legendaItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  legendaColor: {
+    width: 14,
+    height: 14,
+    borderRadius: 4,
+    marginRight: 8,
+    borderWidth: 1,
+    borderColor: '#E0E0E0',
+  },
+  legendaText: {
+    fontSize: 10,
+    color: '#333333',
+  },
+  localizacaoButton: {
+    padding: 10,
+    backgroundColor: '#F5F5F5',
+    borderRadius: 25,
+    marginLeft: 5,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
+  },
+  mapContainer: { 
+    flex: 1,
+  },
+  mapImage: {
+    flex: 1,
+  },
+  ocorrenciaButton: {
+    position: "absolute", bottom: 130, right: 20,
+    backgroundColor: "#df4f1f",
+    padding: 15, borderRadius: 50,
+  },
+  navigationContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    backgroundColor: '#003366',
+    paddingVertical: 5,
+    paddingHorizontal: 60,
+  },
+  centralButton: {
+    backgroundColor: '#FFFFFF',
+    padding: 15,
+    borderRadius: 50,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+  navButtonText: {
+    color: '#FFFFFF',
+    fontSize: 12,
+    marginTop: 4,
+  }, 
+  modalContainer: {
+    flex: 1, justifyContent: "center",
+    alignItems: "center", backgroundColor: "rgba(0,0,0,0.5)"
+  },
+  modalContent: {
+    backgroundColor: "#FFF", padding: 20,
+    borderRadius: 15, width: "80%", alignItems: "center",
+  },
+  modalTitle: { fontSize: 20, fontWeight: "bold", marginBottom: 10 },
+  modalText: { fontSize: 16, marginBottom: 20, textAlign: "center" },
+  modalButton: {
+
+    fontSize: 16,
+    color: '#003366',
+    fontWeight: 'bold',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+  },
+  modalCarrosselContent: {
+    backgroundColor: '#FFFFFF',
+    width: '90%',
+    maxWidth: 380,
+    paddingVertical: 25,
+    paddingHorizontal: 0,
+    borderRadius: 24,
+    alignItems: 'center',
+    shadowColor: '#003366',
+    shadowOffset: { width: 0, height: 12 },
+    shadowOpacity: 0.15,
+    shadowRadius: 24,
+    elevation: 15,
+    borderWidth: 1,
+    borderColor: 'rgba(0, 51, 102, 0.08)',
+    overflow: 'hidden',
+  },
+  slide: {
+    width: width - 80,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: 10,
+  },
+  overlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.75)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  closeButton: {
+    alignSelf: 'flex-end',
+    padding: 10,
+    backgroundColor: '#F5F8FF',
+    borderRadius: 20,
+    width: 45,
+    height: 45,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginRight: 8,
+    marginBottom: 10,
+    borderWidth: 1,
+    borderColor: 'rgba(0, 51, 102, 0.1)',
+  },
+  closeButtonText: {
+    fontSize: 16,
+    color: '#003366',
+    fontWeight: '700',
+  },
+  imageContainer: {
+    marginBottom: 20,
+  },
+  imageBackground: {
+    backgroundColor: '#FFFFFF',
+    padding: 18,
+    borderRadius: 20,
+    shadowColor: '#003366',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.2,
+    shadowRadius: 12,
+    elevation: 8,
+  },
+  slideImage: {
+    width: 95,
+    height: 95,
+    borderRadius: 18,
+  },
+  slideTitle: {
+    fontSize: 22,
+    fontWeight: '800',
+    marginBottom: 10,
+    color: '#003366',
+    textAlign: 'center',
+    paddingHorizontal: 10,
+  },
+  slideText: {
+    fontSize: 15,
+    textAlign: 'center',
+    color: '#5A6C7D',
+    lineHeight: 20,
+    paddingHorizontal: 20,
+  },
+  indicatorContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 15,
+    gap: 8,
+  },
+  indicator: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    backgroundColor: '#E0E6EB',
+    transition: 'all 0.25s',
+  },
+  indicatorActive: {
+    backgroundColor: '#003366',
+    width: 26,
+    height: 10,
+    borderRadius: 6,
+  },
+    // MODAL ROTA
+  modalRotaContainer: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.6)",
+    justifyContent: "flex-end",
+  },
+  modalRotaContent: {
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    maxHeight: "80%",
+    shadowOffset: { width: 0, height: -4 },
+    shadowOpacity: 0.25,
+    shadowRadius: 16,
+    elevation: 10,
+    overflow: "hidden",
+  },
+
+  // CABEÇALHO MODAL ROTA
+  cabecalhoModalRota: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    padding: 20,
+    borderBottomWidth: 1,
+  },
+  containerTituloModalRota: {
+    flex: 1,
+  },
+  tituloModalRota: {
+    fontSize: 20,
+    fontWeight: "700",
+  },
+  botaoFecharModalRota: {
+    padding: 8,
+    borderRadius: 20,
+    width: 36,
+    height: 36,
+    justifyContent: "center",
     alignItems: "center",
   },
-  confirmButtonText: { color: "#fff", fontSize: 16, fontWeight: "bold" },
-  disabledButton: { opacity: 0.5 },
-  title: { fontSize: 18, fontWeight: "600", textAlign: "center", marginBottom: 20 },
-  linkText: { fontSize: 14, textAlign: "center", marginTop: 10 },
-  linkHighlight: { fontWeight: "bold" },
+  textoBotaoFechar: {
+    fontSize: 24,
+    fontWeight: "300",
+    lineHeight: 24,
+  },
+
+  // CONTEÚDO MODAL ROTA
+  conteudoModalRota: {
+    padding: 20,
+    gap: 24,
+  },
+  subtituloModalRota: {
+    fontSize: 16,
+    fontWeight: "600",
+    textAlign: "center",
+    marginBottom: 8,
+  },
+
+  // SEÇÃO INPUT
+  secaoInput: {
+    gap: 8,
+  },
+  rotuloInputContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+  iconeInput: {
+    fontSize: 16,
+  },
+  rotuloInput: {
+    fontSize: 14,
+    fontWeight: "600",
+    textTransform: "uppercase",
+    letterSpacing: 0.5,
+  },
+  containerInput: {
+    borderRadius: 12,
+    borderWidth: 1,
+    paddingHorizontal: 16,
+  },
+  inputModalRota: {
+    height: 50,
+    fontSize: 16,
+    fontWeight: "400",
+  },
+
+  // BOTÃO CALCULAR ROTA
+  botaoCalcularRota: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 16,
+    borderRadius: 12,
+    gap: 12,
+    marginTop: 8,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 8,
+    elevation: 6,
+  },
+  iconeBotao: {
+    fontSize: 18,
+  },
+  textoBotaoCalcularRota: {
+    color: "#FFF",
+    fontSize: 16,
+    fontWeight: "600",
+  },
 });
 
-export default DigiteCodigoScreen;
+export default HomeScreen;

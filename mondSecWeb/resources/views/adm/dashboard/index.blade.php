@@ -3,142 +3,128 @@
 @section('title', 'Dashboard')
 
 @section('content')
-<main class="container">
-    <section class="cards">
-        <div class="card">
-            <h3>Usuários</h3>
-            <p>{{ $usuariosHomem + $usuariosMulher + $usuariosNaoInformar }}</p>
-        </div>
-        <div class="card">
-            <h3>Com Ocorrência</h3>
-            <p>{{ $usuariosComOcorrencia ?? 0 }}</p>
-        </div>
-        <div class="card">
-            <h3>Sem Ocorrência</h3>
-            <p>{{ $usuariosSemOcorrencia ?? 0 }}</p>
-        </div>
-        <div class="card">
-            <h3>Este Mês</h3>
-            <p>{{ array_sum($usuariosPorMes['data']) }}</p>
-        </div>
-    </section>
 
-    <section class="graficos">
-        <div class="graficosEsquerda">
-            <div id="chartUsuariosMes" style="height:38.7vh;"></div>
-            <div id="chartOcorrencias" style="height:38.7vh; margin-top:20px;"></div>
+<div class="container py-4">
+
+    {{-- CARDS --}}
+    <div class="row g-4 mb-4">
+
+        <div class="col-md-3">
+            <div class="card shadow p-3 text-center">
+                <h5>Usuários</h5>
+                <h2>{{ $totalUsuarios }}</h2>
+            </div>
         </div>
 
-        <div class="graficosDireita">
-
-            <div id="chartGenero" style="height: 50vh;"></div>
-            <div id="chartRadar" style="height: 50vh; margin-top:20px;"></div>
+        <div class="col-md-3">
+            <div class="card shadow p-3 text-center">
+                <h5>Admins</h5>
+                <h2>{{ $totalAdmins }}</h2>
+            </div>
         </div>
-    </section>
 
-    <style>
-        body {
-            overflow-y: hidden;
-        }
-    </style>
-</main>
+        <div class="col-md-3">
+            <div class="card shadow p-3 text-center">
+                <h5>Ocorrências</h5>
+                <h2>{{ $totalOcorrencias }}</h2>
+            </div>
+        </div>
 
-<script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+        <div class="col-md-3">
+            <div class="card shadow p-3 text-center">
+                <h5>Comentários</h5>
+                <h2>{{ $totalComentarios }}</h2>
+            </div>
+        </div>
+
+    </div>
+
+
+    {{-- GRÁFICOS --}}
+    <div class="row g-4">
+
+        <div class="col-md-6">
+            <div class="card shadow p-3">
+                <h5 class="text-center mb-2">Usuários cadastrados por mês</h5>
+                <div id="chartUsuarios"></div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card shadow p-3">
+                <h5 class="text-center mb-2">Ocorrências por tipo</h5>
+                <div id="chartOcorrencias"></div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card shadow p-3">
+                <h5 class="text-center mb-2">Comentários por status</h5>
+                <div id="chartComentarios"></div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card shadow p-3">
+                <h5 class="text-center mb-2">Admins por nível</h5>
+                <div id="chartAdmins"></div>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+
+{{-- ApexCharts CDN --}}
+<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-
-    const chart1 = echarts.init(document.getElementById('chartUsuariosMes'));
-    chart1.setOption({
-        title: { text: 'Usuários Cadastrados por Mês', left: 'center' },
-        tooltip: { trigger: 'axis' },
-        xAxis: { type: 'category', data: @json($usuariosPorMes['labels']) },
-        yAxis: { type: 'value' },
+    // -------- GRÁFICO DE USUÁRIOS --------
+    var chartUsuarios = new ApexCharts(document.querySelector("#chartUsuarios"), {
+        chart: { type: 'line', height: 300 },
         series: [{
-            data: @json($usuariosPorMes['data']),
-            type: 'line',
-            areaStyle: {},
-            smooth: true,
-            color: '#4A90E2'
-        }]
-    });
-
-    const chart2 = echarts.init(document.getElementById('chartOcorrencias'));
-    chart2.setOption({
-        title: { text: 'Usuários com e sem Ocorrência', left: 'center' },
-        tooltip: { trigger: 'axis' },
-        xAxis: { type: 'category', data: ['Com Ocorrência', 'Sem Ocorrência'] },
-        yAxis: { type: 'value' },
-        series: [{
-            data: [{{ $usuariosComOcorrencia }}, {{ $usuariosSemOcorrencia }}],
-            type: 'bar',
-            color: ['#2ecc71']
-        }]
-    });
-
-    const chart3 = echarts.init(document.getElementById('chartGenero'));
-    chart3.setOption({
-        title: { text: 'Distribuição por Gênero', left: 'center' },
-        tooltip: { trigger: 'item' },
-        legend: { bottom: 0 },
-        series: [{
-            type: 'pie',
-            radius: ['40%', '70%'],
-            label: { formatter: '{b}: {d}%' },
-            data: [
-                { value: {{ $usuariosHomem }}, name: 'Masculino' },
-                { value: {{ $usuariosMulher }}, name: 'Feminino' },
-                { value: {{ $usuariosNaoInformar }}, name: 'Prefiro não informar' },
-            ]
-        }]
-    });
-
-const chart4 = echarts.init(document.getElementById('chartRadar'));
-
-chart4.setOption({
-    title: { 
-        text: 'Atividades',
-        left: 'center',
-        top: 0,   
-    },
-
-    legend: { 
-        bottom: 10
-    },
-
-   radar: {
-    top: 150,        
-    radius: '60%',  
-    name: {
-        textStyle: {
-            fontSize: 14
+            name: "Usuários",
+            data: @json($usuariosPorMes->pluck('total'))
+        }],
+        xaxis: {
+            categories: @json($usuariosPorMes->pluck('mes'))
         }
-    },
-    indicator: [
-        { name: 'Atividade', max: 100 },
-        { name: 'Engajamento', max: 100 },
-        { name: 'Satisfação', max: 100 },
-        { name: 'Relatórios', max: 100 },
-        { name: 'Feedbacks', max: 100 }
-    ]
-},
-
-    series: [{
-        name: 'Indicadores',
-        type: 'radar',
-        data: [
-            { value: [80, 70, 65, 90, 50], name: 'Este mês' },
-            { value: [60, 55, 70, 65, 40], name: 'Mês anterior' }
-        ]
-    }]
-});
-
-    window.addEventListener('resize', () => {
-        chart1.resize();
-        chart2.resize();
-        chart3.resize();
-        chart4.resize();
     });
-});
+    chartUsuarios.render();
+
+
+    // -------- GRÁFICO DE OCORRÊNCIAS --------
+    var chartOcorrencias = new ApexCharts(document.querySelector("#chartOcorrencias"), {
+        chart: { type: 'donut', height: 300 },
+        series: @json($ocorrenciasPorTipo->pluck('total')),
+        labels: @json($ocorrenciasPorTipo->pluck('tipo'))
+    });
+    chartOcorrencias.render();
+
+
+    // -------- GRÁFICO DE COMENTÁRIOS --------
+    var chartComentarios = new ApexCharts(document.querySelector("#chartComentarios"), {
+        chart: { type: 'bar', height: 300 },
+        series: [{
+            name: "Comentários",
+            data: @json($comentariosPorStatus->pluck('total'))
+        }],
+        xaxis: {
+            categories: @json($comentariosPorStatus->pluck('status'))
+        }
+    });
+    chartComentarios.render();
+
+
+    // -------- GRÁFICO DE ADMINS --------
+    var chartAdmins = new ApexCharts(document.querySelector("#chartAdmins"), {
+        chart: { type: 'pie', height: 300 },
+        series: @json($adminsPorNivel->pluck('total')),
+        labels: @json($adminsPorNivel->pluck('nivelAdmin'))
+    });
+    chartAdmins.render();
+
 </script>
+
 @endsection

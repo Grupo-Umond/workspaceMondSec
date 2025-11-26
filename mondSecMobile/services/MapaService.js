@@ -4,6 +4,7 @@ import React, {
   useEffect,
   forwardRef,
   useImperativeHandle,
+  useMemo,
 } from 'react';
 import {
   StyleSheet,
@@ -18,7 +19,7 @@ import {
   TextInput,
   ScrollView,
   ActivityIndicator,
-  Pressable, 
+  Pressable,
   Animated,
 } from 'react-native';
 import MapView, { Polygon, Marker, Polyline } from 'react-native-maps';
@@ -37,7 +38,8 @@ const { width, height } = Dimensions.get('window');
 
 const MapaZonaLesteGeojson = forwardRef(({ ocorrencias = [], currentUserId = null }, ref) => {
   const mapRef = useRef(null);
-
+  const [inicio, setInicio] = useState('');
+  const [fim, setFim] = useState('');
   const [region, setRegion] = useState(null);
   const [polygons, setPolygons] = useState([]);
   const [bounds, setBounds] = useState(null);
@@ -54,12 +56,11 @@ const MapaZonaLesteGeojson = forwardRef(({ ocorrencias = [], currentUserId = nul
   const [loggedUserId, setLoggedUserId] = useState(currentUserId);
   const [modalDenuncia, setModalDenuncia] = useState(false);
 
-    const [visible, setVisible] = useState(false);
-    const slideAnim = useRef(new Animated.Value(0)).current;
-  
-    const SCREEN_HEIGHT = Dimensions.get("window").height;
-    const SHEET_HEIGHT = SCREEN_HEIGHT * 0.25; 
-  
+  const [visible, setVisible] = useState(false);
+  const slideAnim = useRef(new Animated.Value(0)).current;
+
+  const SCREEN_HEIGHT = Dimensions.get("window").height;
+  const SHEET_HEIGHT = SCREEN_HEIGHT * 0.25;
 
   const { theme, isDarkMode } = useTheme();
 
@@ -104,28 +105,62 @@ const MapaZonaLesteGeojson = forwardRef(({ ocorrencias = [], currentUserId = nul
     puxar();
   }, []);
 
-      const openSheet = () => {
-      setVisible(true);
-      Animated.timing(slideAnim, {
-        toValue: 1,
-        duration: 300,
-        useNativeDriver: true,
-      }).start();
-    };
-  
-    const closeSheet = () => {
-      Animated.timing(slideAnim, {
-        toValue: 0,
-        duration: 250,
-        useNativeDriver: true,
-      }).start(() => setVisible(false));
-    };
-  
-    const translateY = slideAnim.interpolate({
-      inputRange: [0, 1],
-      outputRange: [SHEET_HEIGHT, 0],
-    });
+  // ---------- NOVO: Agrupamento por coordenada ----------
+  // Usamos useMemo para recalcular só quando ocorrenciasState mudar.
+  const ocorrenciasAgrupadas = useMemo(() => {
+    return (ocorrenciasState || []).reduce((acc, oc) => {
+      const lat = Number(oc.latitude);
+      const lng = Number(oc.longitude);
+      if (!isFinite(lat) || !isFinite(lng)) return acc;
 
+      // arredonda para 5 casas pra agrupar pontos muito próximos
+      const chave = `${lat.toFixed(5)}_${lng.toFixed(5)}`;
+
+      if (!acc[chave]) {
+        acc[chave] = {
+          count: 0,
+          items: [],
+          latitude: lat,
+          longitude: lng,
+        };
+      }
+
+      acc[chave].count += 1;
+      acc[chave].items.push(oc);
+
+      return acc;
+    }, {});
+  }, [ocorrenciasState]);
+
+  // Mapeia cor do badge de acordo com a densidade
+  const getBadgeColor = (count) => {
+    if (count >= 10) return '#E53935'; // vermelho
+    if (count >= 5) return '#FB8C00'; // laranja
+    if (count >= 2) return '#FDD835'; // amarelo
+    return null; // 1 => sem badge
+  };
+
+  const openSheet = () => {
+    setVisible(true);
+    Animated.timing(slideAnim, {
+      toValue: 1,
+      duration: 300,
+      useNativeDriver: true,
+    }).start();
+  };
+
+  const closeSheet = () => {
+    Animated.timing(slideAnim, {
+      toValue: 0,
+      duration: 250,
+      useNativeDriver: true,
+    }).start(() => setVisible(false));
+  };
+
+  const translateY = slideAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: [SHEET_HEIGHT, 0],
+  });
 
   const handleRegionChangeComplete = (rgn) => {
     if (!bounds || !mapRef.current) return;
@@ -170,11 +205,14 @@ const MapaZonaLesteGeojson = forwardRef(({ ocorrencias = [], currentUserId = nul
   const denunciarOcorrencia = async (id) => {
     try {
       const idc = id ?? (selectedOcorrencia?.id ?? selectedOcorrencia?._id);
+
       if (!idc) {
         Alert.alert('Erro', 'Ocorrência inválida para denúncia.');
         return;
       }
+
       await UrlService.put(`/ocorrencia/denuncia/${idc}`);
+
       setModalDenuncia(false);
       Alert.alert('Denúncia enviada', 'Sua denúncia foi registrada.');
     } catch (e) {
@@ -182,10 +220,12 @@ const MapaZonaLesteGeojson = forwardRef(({ ocorrencias = [], currentUserId = nul
       Alert.alert('Erro', 'Não foi possível denunciar a ocorrência.');
     }
   };
+
   const encerrandoRota = () => {
     setRotaCoords([]);
     closeSheet();
-  }
+  };
+
   const enviarComentario = async () => {
     const texto = (mensagemComentario || '').trim();
     if (!texto) return;
@@ -275,20 +315,35 @@ const MapaZonaLesteGeojson = forwardRef(({ ocorrencias = [], currentUserId = nul
           />
         ))}
 
-        {ocorrenciasState.map((oc, i) => {
-          const lat = Number(oc.latitude);
-          const lng = Number(oc.longitude);
+        {/* ---------- RENDERIZANDO MARCADORES AGRUPADOS ---------- */}
+        {Object.entries(ocorrenciasAgrupadas).map(([key, group], idx) => {
+          const first = group.items[0];
+          const lat = Number(group.latitude);
+          const lng = Number(group.longitude);
+
           if (!isFinite(lat) || !isFinite(lng)) return null;
+
+          const quantidade = group.count;
+          const badgeColor = getBadgeColor(quantidade);
+
           return (
             <Marker
-              key={oc.id ?? i}
+              key={key}
               coordinate={{ latitude: lat, longitude: lng }}
-              onPress={() => abrirModal(oc)}
+              onPress={() => abrirModal(first)}
             >
-              <Image
-                source={getIconForTipo(oc.tipo)}
-                style={{ width: 40, height: 40, resizeMode: 'contain' }}
-              />
+              <View style={styles.markerContainer}>
+                <Image
+                  source={getIconForTipo(first.tipo)}
+                  style={styles.markerImage}
+                />
+                {/* mostra badge só quando houver mais de 1 ocorrência no mesmo ponto */}
+                {quantidade > 1 && (
+                  <View style={[styles.badge, { backgroundColor: badgeColor }]}>
+                    <Text style={styles.badgeText}>{quantidade}</Text>
+                  </View>
+                )}
+              </View>
             </Marker>
           );
         })}
@@ -566,17 +621,17 @@ const MapaZonaLesteGeojson = forwardRef(({ ocorrencias = [], currentUserId = nul
       </Modal>
 
       <Modal transparent visible={visible} animationType="none">
-              <TouchableOpacity style={styles.overlay} onPress={closeSheet} activeOpacity={1} />
-              <Animated.View
-                style={[
-                  styles.sheet,
-                  { height: SHEET_HEIGHT, transform: [{ translateY }] }
-                ]}
-              >
-              <Pressable onPress={() => encerrandoRota()}>
-                  <Text style={styles.sheetText}>Fechar</Text>
-              </Pressable>
-          </Animated.View>
+        <TouchableOpacity style={styles.overlay} onPress={closeSheet} activeOpacity={1} />
+        <Animated.View
+          style={[
+            styles.sheet,
+            { height: SHEET_HEIGHT, transform: [{ translateY }] }
+          ]}
+        >
+          <Pressable onPress={() => encerrandoRota()}>
+            <Text style={styles.sheetText}>Fechar</Text>
+          </Pressable>
+        </Animated.View>
       </Modal>
     </>
   );
@@ -778,7 +833,7 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontWeight: '700',
     fontSize: 16,
-  }, 
+  },
   button: {
     backgroundColor: "#333",
     padding: 12,
@@ -799,6 +854,37 @@ const styles = StyleSheet.create({
     padding: 20,
   },
   sheetText: { fontSize: 18 },
+
+  // ---------- estilos do marcador com badge ----------
+  markerContainer: {
+    width: 44,
+    height: 44,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  markerImage: {
+    width: 40,
+    height: 40,
+    resizeMode: 'contain',
+  },
+  badge: {
+    position: 'absolute',
+    right: -6,
+    top: -6,
+    minWidth: 22,
+    height: 22,
+    borderRadius: 11,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 5,
+    borderWidth: 1,
+    borderColor: '#fff',
+  },
+  badgeText: {
+    fontSize: 12,
+    color: '#000',
+    fontWeight: '700',
+  },
 });
 
 export default MapaZonaLesteGeojson;

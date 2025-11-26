@@ -282,6 +282,34 @@ class AdminController extends Controller
         ]);
     }
 
+        public function pendentes()
+    {
+        $comentarios = Comentario::with(['usuario', 'ocorrencia'])
+            ->where('status', 'espera')
+            ->orderBy('data', 'DESC')
+            ->get();
+
+        return view('adm.comentarios.espera', compact('comentarios'));
+    }
+
+    public function aprovar($id)
+    {
+        $comentario = Comentario::findOrFail($id);
+        $comentario->status = 'aprovado';
+        $comentario->save();
+
+        return back()->with('success', 'Comentário aprovado com sucesso!');
+    }
+
+    public function negar($id)
+    {
+        $comentario = Comentario::findOrFail($id);
+        $comentario->status = 'negado';
+        $comentario->save();
+
+        return back()->with('success', 'Comentário negado!');
+    }
+    
     public function show($id)
     {
         $comentarios = Comentario::with(['usuario', 'ocorrencia'])->findOrFail($id);

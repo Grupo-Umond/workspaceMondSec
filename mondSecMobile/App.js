@@ -35,7 +35,7 @@ function AppRoutes() {
 
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="Home" component={HomeScreen} />
+      <Stack.Screen name="Login" component={LoginScreen} />
       <Stack.Screen name="Sobre" component={SobreScreen} />
       <Stack.Screen name="Configuracao" component={ConfiguracaoScreen} />
       <Stack.Screen name="DigiteCodigo" component={DigiteCodigoScreen} />
@@ -45,6 +45,7 @@ function AppRoutes() {
 
       {tokenUser ? (
         <>
+          <Stack.Screen name="Home" component={HomeScreen} />
           <Stack.Screen name="Menu" component={MenuScreen} />
           <Stack.Screen name="Ocorrencia" component={OcorrenciaScreen} />
           <Stack.Screen name="Registrar" component={RegistrarScreen} />
@@ -53,7 +54,6 @@ function AppRoutes() {
       ) : (
         <>
           <Stack.Screen name="DigiteCampo" component={DigiteCampoScreen} />
-          <Stack.Screen name="Login" component={LoginScreen} />
           <Stack.Screen name="Cadastro" component={CadastroScreen} />
         </>
       )}

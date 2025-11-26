@@ -26,12 +26,15 @@
                         <i class="fa-solid fa-circle-exclamation"></i> Ocorrencias
                     </a>
 
-                    <a href="{{ route('adm.admins.index') }}" class="btn btn-primary btn-lg flex-fill btn-nav 
-                            {{ request()->routeIs('adm.admins.*')
-                            || request()->routeIs('adm.chart.admin')
-                            ? 'active' : '' }}">
-                        <i class="fa-solid fa-user-tie"></i> Administradores
-                    </a>
+                   @if(Auth::check() && Auth::user()->nivelAdmin === 'Ouro')
+                        <a href="{{ route('adm.admins.index') }}" class="btn btn-primary btn-lg flex-fill btn-nav 
+                                {{ request()->routeIs('adm.admins.*')
+                                || request()->routeIs('adm.chart.admin')
+                                ? 'active' : '' }}">
+                            <i class="fa-solid fa-user-tie"></i> Administradores
+                        </a>
+                    @endif
+
 
                     <a href="{{ route('adm.users.index') }}" class="btn btn-secondary btn-lg flex-fill btn-nav 
                             {{ request()->routeIs('adm.users.*')

@@ -30,9 +30,6 @@ Route::prefix('adm')
 
             // Dashboard
             Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard.index');
-            Route::get('/adm/chart-admin', [DashboardController::class, 'viewAdmins'])->name('chart.admin');
-            Route::get('/usuario/chart-usuario', [DashboardCOntroller::class, 'viewUsuarios'])->name('chart.usuario');
-            Route::get('/usuario/chart-ocorrencia', [DashboardCOntroller::class, 'viewOcorrencias'])->name('chart.ocorrencia');
 
             // Admins
             Route::get('/admins', 'showAdmScreen')->name('admins.index');
@@ -47,7 +44,7 @@ Route::prefix('adm')
             Route::get('/users', 'showUserScreen')->name('users.index');
             Route::get('/users/{id}', 'updateUserScreen')->name('users.edit');
             Route::put('/users/{id}', 'updateUser')->name('users.update');
-            Route::delete('/users/excluir/{id}', 'deleteUser')->name('users.destroy');
+            Route::put('/users/excluir/{id}', 'deleteUser')->name('users.destroy');
 
             //Ocorrencia
             Route::get('/ocorrencias','showOcorrenciaScreen')->name('ocorrencia.index');
@@ -65,6 +62,13 @@ Route::prefix('adm')
             Route::put('/comentario/excluir/{id}', 'destroy')->name('comentario.destroy');
             Route::get('/comentario/selecionado/{id}','selecionado');
             Route::get('/denuncias/comentario','showDenunciaComentarioScreen')->name('comentario.denuncia');
+
+            Route::get('/comentarios/espera', 'pendentes')->name('adm.comentario.espera');
+
+            Route::put('/comentario/aprovar/{id}','aprovar')->name('adm.comentario.aprovar');
+
+            Route::put('/comentario/negar/{id}','negar')->name('adm.comentario.negar');
+
 
         });
     });
