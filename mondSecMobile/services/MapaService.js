@@ -630,6 +630,9 @@ const MapaZonaLesteGeojson = forwardRef(({ ocorrencias = [], currentUserId = nul
         >
           <Pressable onPress={() => encerrandoRota()}>
             <Text style={styles.sheetText}>Fechar</Text>
+            <Text style={styles.sheetText}>{inicio}</Text>
+            <Text style={styles.sheetText}>{fim}</Text>
+
           </Pressable>
         </Animated.View>
       </Modal>

@@ -195,7 +195,7 @@ class AdminController extends Controller
         $usuario->status = 'inativo';
         $usuario->save();
 
-        return redirect()->route('adm.users.index')->with('success', 'Usuário deletado com sucesso');
+        return redirect()->route('adm.codigo.deletando',['id' => $usuario->id])->with('success', 'Usuário deletado com sucesso');
 
     }
 
