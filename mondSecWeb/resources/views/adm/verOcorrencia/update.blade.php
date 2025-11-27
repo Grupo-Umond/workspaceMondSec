@@ -3,7 +3,7 @@
 @section('title', 'Editar Ocorrência')
 
 @section('content')
-<div class="container">
+<div id="conteudo-container" class="container">
     <h2>Alterar Dados da Ocorrência</h2>
 
     @if(session('success'))
@@ -96,7 +96,9 @@
             <div class="error">{{ $message }}</div>
         @enderror
 
-        <button type="submit">Salvar Alterações</button>
+         <div id="conteudo-alterar">
+                <button id="btn-alterar" type="submit">Alterar</button>
+            </div>
     </form>
 </div>
 @endsection

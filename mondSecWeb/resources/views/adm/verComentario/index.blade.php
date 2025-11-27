@@ -7,7 +7,7 @@
 
         <h1 class="mb-4 text-center">Comentários Registrados</h1>
 
-        <div id="pesquisas" class="d-flex flex-wrap gap-3 mb-4 justify-content-center">
+        <div id="pesquisas" class="d-flex flex-wrap gap-3 mb-4">
             <input id="pesquisaComentario" type="text" class="form-control w-auto"
                 placeholder="Pesquisar por ID, mensagem, usuário ou ocorrência">
         </div>
@@ -62,37 +62,37 @@
 
                 const thead = document.createElement('thead');
                 thead.innerHTML = `<tr>
-                <th>ID</th><th>Mensagem</th><th>Usuário</th><th>Ocorrência</th><th>Data</th><th>Status</th><th></th><th></th>
-            </tr>`;
+                    <th>ID</th><th>Mensagem</th><th>Usuário</th><th>Ocorrência</th><th>Data</th><th>Status</th><th></th><th></th>
+                </tr>`;
                 table.appendChild(thead);
 
                 const tbody = document.createElement('tbody');
                 filtrados.forEach(c => {
                     const tr = document.createElement('tr');
                     tr.innerHTML = `
-                    <td>${c.id}</td>
-                    <td>${c.mensagem}</td>
-                    <td>${c.usuario?.nome || 'Desconhecido'}</td>
-                    <td>${c.idOcorrencia}</td>
-                    <td>${c.data || '-'}</td>
-                    <td>${c.status || '-'}</td>
-                    <td>
-                        <a href="/adm/comentario/${c.id}">
-                            <i class="fa-solid fa-pencil btn-alterar"></i>
-                        </a>
-                    </td>
-                    <td>
-                        <form action="/adm/comentario/excluir/${c.id}" method="POST" onsubmit="return confirm('Tem certeza que quer excluir?');">
-                            @csrf
-                            @method('PUT')
-                            <button type="submit" class="btn-excluirComentario">
-                                <i class="fa-solid fa-trash-can btn-excluirUsuario"></i>
-                            </button>
-                        </form>
+                        <td>${c.id}</td>
+                        <td>${c.mensagem}</td>
+                        <td>${c.usuario?.nome || 'Desconhecido'}</td>
+                        <td>${c.idOcorrencia}</td>
+                        <td>${c.data || '-'}</td>
+                        <td>${c.status || '-'}</td>
+                        <td>
+                            <a href="/adm/comentario/${c.id}" class="btn btn-sm btn-warning">
+                                <i class="fa-solid fa-pencil btn-alterar"></i>
+                            </a>
+                        </td>
+                        <td>
+                            <form action="/adm/comentario/excluir/${c.id}" method="POST" onsubmit="return confirm('Tem certeza que quer excluir?');">
+                                @csrf
+                                @method('PUT')
+                                <button type="submit" class="btn btn-sm btn-danger">
+                                    <i class="fa-solid fa-trash-can btn-excluir"></i>
+                                </button>
+                            </form>
 
-                    </td>
+                        </td>
 
-                `;
+                    `;
                     tbody.appendChild(tr);
                 });
 

@@ -5,13 +5,13 @@
 @section('content')
 <div class="container py-5">
     <div class="graficosUsuarios d-flex flex-wrap justify-content-around gap-4 mb-4">
-        <div id="chart-container1Usuarios" style="height:45vh; width:45%; min-width:300px;"></div>
-        <div id="chart-container2Usuarios" style="height:45vh; width:45%; min-width:300px;"></div>
+        <div id="chart-container1Usuarios" style="height:0; width:0%; min-width:300px;"></div>
+        <div id="chart-container2Usuarios" style="height:0; width:0%; min-width:300px;"></div>
     </div>
 
     <h1 class="mb-4 text-center">Usuários Cadastrados</h1>
 
-    <div id="pesquisas" class="d-flex flex-wrap gap-3 mb-4 justify-content-center">
+    <div id="pesquisas" class="d-flex flex-wrap gap-3 mb-4">
         <input id="pesquisaUsuario" type="text" class="form-control w-auto" placeholder="Pesquisar por nome, e-mail ou ID">
         <select id="filtroGenero" class="form-select w-auto">
             <option value="">Todos os Gêneros</option>
@@ -117,9 +117,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 <td>${u.data || '-'}</td>
                 <td>${u.status || '-'}</td>
                 <td>
-                    <a href="/adm/users/${u.id}">
-                        <i class="fa-solid fa-pencil btn-alterar"></i>
-                    </a>
+                    <a href="/adm/users/${u.id}" class="btn btn-sm btn-primary"><i class="fa-solid fa-pencil"></i></a>
                 </td>
                 <td>
                     <form action="/adm/users/excluir/${u.id}" method="POST" onsubmit="return confirm('Tem certeza que quer excluir?');">

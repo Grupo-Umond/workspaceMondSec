@@ -6,6 +6,7 @@ import { ActivityIndicator, View } from 'react-native';
 import { AuthProvider, AuthContext } from './services/AuthContext';
 import { ThemeProvider } from "./services/themes/themecontext";
 
+import IntroducaoScreen from './pages/Introducao';
 import HomeScreen from './pages/home';
 import LoginScreen from './pages/login';
 import CadastroScreen from './pages/cadastro';
@@ -34,7 +35,8 @@ function AppRoutes() {
   }
 
   return (
-    <Stack.Navigator screenOptions={{ headerShown: false }}>
+    <Stack.Navigator screenOptions={{ headerShown: false }} initialRouteName="Introducao">
+      <Stack.Screen name="Introducao" component={IntroducaoScreen} />
       <Stack.Screen name="Home" component={HomeScreen} />
       <Stack.Screen name="Sobre" component={SobreScreen} />
       <Stack.Screen name="Configuracao" component={ConfiguracaoScreen} />

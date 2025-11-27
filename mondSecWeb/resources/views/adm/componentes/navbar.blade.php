@@ -33,7 +33,7 @@
                         <i class="fa-solid fa-user-tie"></i> Administradores
                     </a>
 
-                    <a href="{{ route('adm.users.index') }}" class="btn btn-secondary btn-lg flex-fill btn-nav 
+                    <a href="{{ route('adm.users.index') }}" class="btn btn-primary btn-lg flex-fill btn-nav 
                             {{ request()->routeIs('adm.users.*')
                             || request()->routeIs('adm.chart.usuario')
                             ? 'active' : '' }}">
@@ -41,7 +41,7 @@
                     </a>
 
 
-                    <a href="{{ route('adm.comentario.index') }}" class="btn btn-secondary btn-lg flex-fill btn-nav 
+                    <a href="{{ route('adm.comentario.index') }}" class="btn btn-primary btn-lg flex-fill btn-nav 
                             {{ request()->routeIs('adm.comentario.*')
                             || request()->routeIs('adm.comentario.denuncia')
                             || request()->routeIs('adm.comentario.selecionado')
