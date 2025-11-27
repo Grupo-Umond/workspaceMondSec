@@ -95,8 +95,8 @@ class AdminController extends Controller
 
     public function showAdmScreen()
     {
-        
-        return redirect()->route('adm.chart.admin');
+        $admins = Admin::all();
+        return view('adm.verAdm.index', compact('admins'));
     }
 
     public function updateAdmScreen($id)
@@ -150,7 +150,8 @@ class AdminController extends Controller
 
     public function showUserScreen()
     {
-        return redirect()->route('adm.chart.usuario');
+        $usuario = Usuario::all();
+        return view('adm.verUsuario.index', compact('usuario'));
     }
 
     public function updateUserScreen($id)
@@ -205,7 +206,8 @@ class AdminController extends Controller
 
     public function showOcorrenciaScreen() {
 
-        return redirect()->route('adm.chart.ocorrencia');
+        $ocorrencias = Ocorrencia::all();
+        return view('adm.verOcorrencia.index', compact('ocorrencias'));
     }
 
      public function updateOcorrenciaScreen($id)
@@ -289,7 +291,7 @@ class AdminController extends Controller
             ->orderBy('data', 'DESC')
             ->get();
 
-        return view('adm.comentarios.espera', compact('comentarios'));
+        return view('adm.verComentario.espera', compact('comentarios'));
     }
 
     public function aprovar($id)

@@ -19,7 +19,6 @@
 
                     <a href="{{ route('adm.ocorrencia.index') }}" class="btn btn-primary btn-lg flex-fill btn-nav 
                             {{ request()->routeIs('adm.ocorrencia.*')
-                            || request()->routeIs('adm.chart.ocorrencia')
                             || request()->routeIs('adm.ocorrencia.selecionada')
                             || request()->routeIs('adm.ocorrencia.denuncia')
                             ? 'active' : '' }}">
@@ -29,7 +28,6 @@
                    @if(Auth::check() && Auth::user()->nivelAdmin === 'Ouro')
                         <a href="{{ route('adm.admins.index') }}" class="btn btn-primary btn-lg flex-fill btn-nav 
                                 {{ request()->routeIs('adm.admins.*')
-                                || request()->routeIs('adm.chart.admin')
                                 ? 'active' : '' }}">
                             <i class="fa-solid fa-user-tie"></i> Administradores
                         </a>
@@ -38,7 +36,6 @@
 
                     <a href="{{ route('adm.users.index') }}" class="btn btn-secondary btn-lg flex-fill btn-nav 
                             {{ request()->routeIs('adm.users.*')
-                            || request()->routeIs('adm.chart.usuario')
                             ? 'active' : '' }}">
                         <i class="fa-solid fa-user"></i> Usuários
                     </a>
