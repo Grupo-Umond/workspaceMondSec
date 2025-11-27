@@ -301,9 +301,11 @@ const RegistrarScreen = ({ navigation }) => {
             placeholderTextColor={theme.textSecondary}
             value={buscaTipo}
             onChangeText={(texto) => {
-              setBuscaTipo(texto);
-              setDropdownAberto(true);
-            }}
+  setBuscaTipo(texto);
+  setTipo(texto); 
+  setDropdownAberto(true);
+}}
+
           />
 
           {dropdownAberto && (

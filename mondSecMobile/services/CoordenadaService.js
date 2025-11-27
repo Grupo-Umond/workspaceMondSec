@@ -2,32 +2,30 @@ import axios from "axios";
 
 export async function CoordenadaService(address) {
   const api = axios.create({
-
     baseURL: 'http://192.168.15.116:3000',
-
   });
+
   try {
     if (!address) throw new Error("Endereço vazio");
 
-    const response = await api.get("/geocode", {
-      params: { address }
-    });
+    const response = await api.get("/geocode", { params: { address } });
 
     console.log("Resposta Nominatim:", response.data);
 
-    let lat, lon;
-    if (Array.isArray(response.data) && response.data.length > 0) {
-      ({ lat, lon } = response.data[0]);
-    } else if (response.data.lat && response.data.lon) {
-      ({ lat, lon } = response.data);
-    } else {
-      throw new Error("Endereço não encontrado");
-    }
+    const data = Array.isArray(response.data) ? response.data[0] : response.data;
 
-    return { latitude: parseFloat(lat), longitude: parseFloat(lon) };
+    if (!data?.lat || !data?.lon) throw new Error("Endereço não encontrado");
+
+    return {
+      latitude: parseFloat(data.lat),
+      longitude: parseFloat(data.lon),
+
+      amenity: data?.address?.amenity || "",
+      display_name: data?.display_name || "",
+    };
 
   } catch (error) {
-    console.error("Erro ao buscar coordenadas:", error.message || error);
+    console.error("Erro ao buscar coordenadas:", error);
     throw error;
   }
 }

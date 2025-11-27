@@ -86,14 +86,19 @@ const HomeScreen = ({ navigation }) => {
     setWelcome(false);
     setPermissao(true);
   };
-  const buscarEndereco = async () => {
-    try {
-      const coords = await CoordenadaService(endereco);
-      mapaRef.current?.centralizarNoEndereco(coords.lat, coords.lon);
-    } catch (e) {
-      alert("Endereço não encontrado!");
-    }
-  };
+const buscarEndereco = async () => {
+  try {
+    const coords = await CoordenadaService(endereco);
+
+    mapaRef.current?.centralizarNoEndereco(
+      coords.latitude,
+      coords.longitude,
+    );
+  } catch (e) {
+    alert("Endereço não encontrado!");
+  }
+};
+
 const getCoordInicio = async () => {
   const r = await CoordenadaService(enderecoInicial);
 
@@ -120,7 +125,6 @@ const getCoordFinal = async () => {
 
   return { latitude: lat, longitude: lon };
 };
-
 
 
   const enviarRota = async () => {
