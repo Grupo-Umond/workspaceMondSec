@@ -80,11 +80,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 <td>${u.genero || '-'}</td>
                 <td>${u.data || '-'}</td>
                 <td>${u.status || '-'}</td>
-                <td>
-                    <a href="/adm/users/${u.id}">
-                        <i class="fa-solid fa-pencil btn-alterar"></i>
-                    </a>
-                </td>
+                <td><a href="/adm/ocorrencias/${u.id}" class="btn btn-sm btn-primary"><i class="fa-solid fa-pencil"></i></a></td>
                 <td>
                     <form action="/adm/users/excluir/${u.id}" method="POST" onsubmit="return confirm('Tem certeza que quer excluir?');">
                         @csrf

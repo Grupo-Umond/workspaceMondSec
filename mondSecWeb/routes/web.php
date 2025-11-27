@@ -4,10 +4,14 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ContatoController;
+use App\Http\Controllers\EmailController;
 
 Route::get('/', function () {
     return view('siteEmpresa.index');
 })->name('site.index');
+
+//Contato
+Route::post('/contato', [EmailController::class, 'enviar'])->name('email.enviar');
 
 Route::get('/adm', function () {
     return view('adm.auth.cadastro');
@@ -37,8 +41,6 @@ Route::prefix('adm')
             Route::put('/admins/{id}', 'updateAdm')->name('admins.update');
             Route::put('/admins/excluir/{id}', 'deleteAdm')->name('admins.destroy');
 
-            //Contato
-            Route::post('/contato', [EmailController::class, 'enviar'])->name('email.enviar');
             
             // Users
             Route::get('/users', 'showUserScreen')->name('users.index');
@@ -63,7 +65,7 @@ Route::prefix('adm')
             Route::get('/comentario/selecionado/{id}','selecionado');
             Route::get('/denuncias/comentario','showDenunciaComentarioScreen')->name('comentario.denuncia');
 
-            Route::get('/comentarios/espera', 'pendentes')->name('adm.comentario.espera');
+            Route::get('/comentarios/espera', 'pendentes')->name('comentario.espera');
 
             Route::put('/comentario/aprovar/{id}','aprovar')->name('adm.comentario.aprovar');
 

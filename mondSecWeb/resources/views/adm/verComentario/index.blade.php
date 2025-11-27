@@ -23,7 +23,7 @@
                 <div id="btnVoltar" class="botao mt-4">Ver Denuncias</div>
             </a>
 
-             <a href="{{ route('adm.comentario.index') }}" class="link-btn">
+             <a href="{{ route('adm.comentario.espera') }}" class="link-btn">
                 <div id="btnVoltar" class="botao mt-4">Espera de Comentarios</div>
             </a>
         </div>
