@@ -95,8 +95,8 @@ class AdminController extends Controller
 
     public function showAdmScreen()
     {
-        
-        return redirect()->route('adm.chart.admin');
+        $admins = Admin::All();
+        return view('adm.verAdm.index',compact('admins'));
     }
 
     public function updateAdmScreen($id)
@@ -150,7 +150,8 @@ class AdminController extends Controller
 
     public function showUserScreen()
     {
-        return redirect()->route('adm.chart.usuario');
+        $usuario = Usuario::all();
+        return view('adm.verUsuario.index', compact('usuario'));
     }
 
     public function updateUserScreen($id)
@@ -195,7 +196,7 @@ class AdminController extends Controller
         $usuario->status = 'inativo';
         $usuario->save();
 
-        return redirect()->route('adm.users.index')->with('success', 'Usuário deletado com sucesso');
+        return redirect()->route('adm.codigo.deletando',['id' => $usuario->id])->with('success', 'Usuário deletado com sucesso');
 
     }
 
@@ -205,7 +206,9 @@ class AdminController extends Controller
 
     public function showOcorrenciaScreen() {
 
-        return redirect()->route('adm.chart.ocorrencia');
+        $ocorrencias = Ocorrencia::all();
+        return view('adm.verOcorrencia.index', compact('ocorrencias'));
+        
     }
 
      public function updateOcorrenciaScreen($id)
@@ -282,6 +285,34 @@ class AdminController extends Controller
         ]);
     }
 
+        public function pendentes()
+    {
+        $comentarios = Comentario::with(['usuario', 'ocorrencia'])
+            ->where('status', 'espera')
+            ->orderBy('data', 'DESC')
+            ->get();
+
+        return view('adm.verComentario.espera', compact('comentarios'));
+    }
+
+    public function aprovar($id)
+    {
+        $comentario = Comentario::findOrFail($id);
+        $comentario->status = 'aprovado';
+        $comentario->save();
+
+        return back()->with('success', 'Comentário aprovado com sucesso!');
+    }
+
+    public function negar($id)
+    {
+        $comentario = Comentario::findOrFail($id);
+        $comentario->status = 'negado';
+        $comentario->save();
+
+        return back()->with('success', 'Comentário negado!');
+    }
+    
     public function show($id)
     {
         $comentarios = Comentario::with(['usuario', 'ocorrencia'])->findOrFail($id);

@@ -62,7 +62,7 @@ const LoginScreen = ({ navigation, route }) => {
 
       const mensagem = response.data.mensagem;
       await logar(token);
-      navigation.navigate('Home', { mensagem });
+      navigation.navigate('Home');
 
     } catch (err) {
 

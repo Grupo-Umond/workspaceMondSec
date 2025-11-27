@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Comentario;
 use Carbon\Carbon;
-use Validator;
+use Illuminate\Support\Facades\Validator;
 
 class ComentarioController extends Controller
 {
@@ -63,7 +63,7 @@ class ComentarioController extends Controller
             'mensagem' => $request->mensagem,
             'idOcorrencia' => $request->idOcorrencia,
             'idUsuario' => $userId,
-            'status' => 'ativo',
+            'status' => 'espera',
             'data' => $data,
         ]);
 

@@ -22,6 +22,10 @@
             <a href="{{ route('adm.comentario.denuncia') }}" class="link-btn">
                 <div id="btnVoltar" class="botao mt-4">Ver Denuncias</div>
             </a>
+
+             <a href="{{ route('adm.comentario.espera') }}" class="link-btn">
+                <div id="btnVoltar" class="botao mt-4">Espera de Comentarios</div>
+            </a>
         </div>
     </div>
 
@@ -62,7 +66,7 @@
 
                 const thead = document.createElement('thead');
                 thead.innerHTML = `<tr>
-                <th>ID</th><th>Mensagem</th><th>Usuário</th><th>Ocorrência</th><th>Data</th><th>Status</th><th></th><th></th>
+                <th>ID</th><th>Mensagem</th><th>Usuário</th><th>Ocorrência</th><th>Data</th><th>Status</th><th></th>
             </tr>`;
                 table.appendChild(thead);
 
@@ -76,11 +80,6 @@
                     <td>${c.idOcorrencia}</td>
                     <td>${c.data || '-'}</td>
                     <td>${c.status || '-'}</td>
-                    <td>
-                        <a href="/adm/comentario/${c.id}">
-                            <i class="fa-solid fa-pencil btn-alterar"></i>
-                        </a>
-                    </td>
                     <td>
                         <form action="/adm/comentario/excluir/${c.id}" method="POST" onsubmit="return confirm('Tem certeza que quer excluir?');">
                             @csrf

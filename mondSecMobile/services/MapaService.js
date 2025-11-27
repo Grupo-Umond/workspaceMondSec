@@ -4,6 +4,7 @@ import React, {
   useEffect,
   forwardRef,
   useImperativeHandle,
+  useMemo,
 } from 'react';
 import {
   StyleSheet,
@@ -19,6 +20,7 @@ import {
   ScrollView,
   ActivityIndicator,
   Pressable,
+  Animated,
 } from 'react-native';
 import MapView, { Polygon, Marker, Polyline } from 'react-native-maps';
 import * as Location from 'expo-location';
@@ -37,7 +39,8 @@ const { width, height } = Dimensions.get('window');
 
 const MapaZonaLesteGeojson = forwardRef(({ ocorrencias = [], currentUserId = null }, ref) => {
   const mapRef = useRef(null);
-
+  const [inicio, setInicio] = useState('');
+  const [fim, setFim] = useState('');
   const [region, setRegion] = useState(null);
   const [polygons, setPolygons] = useState([]);
   const [bounds, setBounds] = useState(null);
@@ -55,658 +58,667 @@ const MapaZonaLesteGeojson = forwardRef(({ ocorrencias = [], currentUserId = nul
   const [modalDenuncia, setModalDenuncia] = useState(false);
 
   const [showComentarios, setShowComentarios] = useState(false);
+  const [visible, setVisible] = useState(false);
+  const slideAnim = useRef(new Animated.Value(0)).current;
+
+  const SCREEN_HEIGHT = Dimensions.get("window").height;
+  const SHEET_HEIGHT = SCREEN_HEIGHT * 0.25;
 
   const { theme, isDarkMode } = useTheme();
 
   useEffect(() => {
-    (async () => {
-      try {
-        const { status } = await Location.requestForegroundPermissionsAsync();
-        if (status !== 'granted') {
-          Alert.alert('Permissão negada', 'Ative a localização para usar o mapa.');
-          return;
-        }
-
-        const loc = await Location.getCurrentPositionAsync({});
-        setRegion({
-          latitude: loc.coords.latitude,
-          longitude: loc.coords.longitude,
-          latitudeDelta: 0.08,
-          longitudeDelta: 0.08,
-        });
-
-        const parsed = parseGeoJSON(local);
-        setPolygons(parsed);
-
-        const b = calculateBounds(parsed);
-        setBounds(b);
-      } catch (e) {
-        console.warn('ERRO AO CARREGAR:', e);
+  (async () => {
+    try {
+      const { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== "granted") {
+        Alert.alert("Permissão negada", "Ative a localização para usar o mapa.");
+        return;
       }
-    })();
-  }, []);
 
-  useEffect(() => {
-    const puxar = async () => {
-      try {
-        const list = await buscarOcorrencias();
-        if (!Array.isArray(list)) return;
-        setOcorrencias(list);
-      } catch (e) {
-        console.warn('Erro ao puxar ocorrências:', e);
-      }
-    };
-    puxar();
-  }, []);
+      const loc = await Location.getCurrentPositionAsync({});
+      setRegion({
+        latitude: loc.coords.latitude,
+        longitude: loc.coords.longitude,
+        latitudeDelta: 0.08,
+        longitudeDelta: 0.08,
+      });
 
-  const handleRegionChangeComplete = (rgn) => {
-    if (!bounds || !mapRef.current) return;
-    const corrected = checkAndFixRegion(rgn, bounds, mapRef);
-    if (corrected) {
-      Alert.alert('Restrito', 'Você não pode sair da Zona Leste.');
+      const parsed = parseGeoJSON(local);
+      setPolygons(parsed);
+
+      const b = calculateBounds(parsed);
+      setBounds(b);
+    } catch (e) {
+      console.warn("ERRO AO CARREGAR:", e);
+    }
+  })();
+}, []);
+
+useEffect(() => {
+  const puxar = async () => {
+    try {
+      const list = await buscarOcorrencias();
+      if (!Array.isArray(list)) return;
+      setOcorrencias(list);
+    } catch (e) {
+      console.warn("Erro ao puxar ocorrências:", e);
     }
   };
+  puxar();
+}, []);
 
-  const abrirModal = async (oc) => {
-    setSelectedOcorrencia(oc);
-    setModalVisible(true);
-    const idOc = oc?.id ?? oc?._id;
-    if (!idOc) {
-      setComentarios([]);
-      return;
+// ---------- NOVO: Agrupamento por coordenada ----------
+const ocorrenciasAgrupadas = useMemo(() => {
+  return (ocorrenciasState || []).reduce((acc, oc) => {
+    const lat = Number(oc.latitude);
+    const lng = Number(oc.longitude);
+
+    if (!isFinite(lat) || !isFinite(lng)) return acc;
+
+    const chave = `${lat.toFixed(5)}_${lng.toFixed(5)}`;
+
+    if (!acc[chave]) {
+      acc[chave] = {
+        count: 0,
+        items: [],
+        latitude: lat,
+        longitude: lng,
+      };
     }
-    setLoadingComentarios(true);
-    const coms = await carregarComentarios(idOc);
-    setComentarios(coms || []);
-    setLoadingComentarios(false);
-    const idUser = await buscarUsuarioLogado();
-    setLoggedUserId(idUser);
-  };
 
-  const fecharModal = () => {
-    setModalVisible(false);
-    setSelectedOcorrencia(null);
-    setComentarios([]);
-    setMensagemComentario('');
-  };
+    acc[chave].count += 1;
+    acc[chave].items.push(oc);
 
-  const formatDate = (dateString) => {
-  try {
-    if (!dateString) return 'Data não informada';
-    
-    console.log('📅 Data recebida para formatação:', dateString); 
-    
+    return acc;
+  }, {});
+}, [ocorrenciasState]);
 
-    let date;
-    
+const getBadgeColor = (count) => {
+  if (count >= 10) return "#E53935";
+  if (count >= 5) return "#FB8C00";
+  if (count >= 2) return "#FDD835";
+  return null;
+};
 
-    if (dateString instanceof Date) {
-      date = dateString;
-    } 
-  
-    else if (typeof dateString === 'string') {
-  
-      const cleanString = dateString.trim();
-      
+const openSheet = () => {
+  setVisible(true);
+  Animated.timing(slideAnim, {
+    toValue: 1,
+    duration: 300,
+    useNativeDriver: true,
+  }).start();
+};
 
-      date = new Date(cleanString);
-      
-      if (isNaN(date.getTime())) {
-     
-        date = new Date(cleanString.replace(' ', 'T'));
-      }
-      
-      if (isNaN(date.getTime()) && cleanString.includes('/')) {
-        const [day, month, year] = cleanString.split('/');
-        date = new Date(`${year}-${month}-${day}`);
-      }
-    }
-    
-    if (!date || isNaN(date.getTime())) {
-      console.log('❌ Data inválida após tentativas:', dateString);
-      return 'Data não informada';
-    }
-    
-   
-    const formatted = date.toLocaleString('pt-BR', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-    
-    console.log('✅ Data formatada:', formatted);
-    return formatted;
-    
-  } catch (error) {
-    console.log('❌ Erro ao formatar data:', dateString, error);
-    return 'Data não informada';
+const closeSheet = () => {
+  Animated.timing(slideAnim, {
+    toValue: 0,
+    duration: 250,
+    useNativeDriver: true,
+  }).start(() => setVisible(false));
+};
+
+const translateY = slideAnim.interpolate({
+  inputRange: [0, 1],
+  outputRange: [SHEET_HEIGHT, 0],
+});
+
+const handleRegionChangeComplete = (rgn) => {
+  if (!bounds || !mapRef.current) return;
+  const corrected = checkAndFixRegion(rgn, bounds, mapRef);
+
+  if (corrected) {
+    Alert.alert("Restrito", "Você não pode sair da Zona Leste.");
   }
 };
 
+const abrirModal = async (oc) => {
+  setSelectedOcorrencia(oc);
+  setModalVisible(true);
 
+  const idOc = oc?.id ?? oc?._id;
 
-  const denunciarOcorrencia = async (id) => {
-    try {
-      const idc = id ?? (selectedOcorrencia?.id ?? selectedOcorrencia?._id);
-      if (!idc) {
-        Alert.alert('Erro', 'Ocorrência inválida para denúncia.');
-        return;
+  if (!idOc) {
+    setComentarios([]);
+    return;
+  }
+
+  setLoadingComentarios(true);
+
+  const coms = await carregarComentarios(idOc);
+
+  // 🔥 AQUI: Filtra apenas comentários ativos
+  setComentarios((coms || []).filter((c) => c.status === "ativo"));
+
+  setLoadingComentarios(false);
+
+  const idUser = await buscarUsuarioLogado();
+  setLoggedUserId(idUser);
+};
+
+const fecharModal = () => {
+  setModalVisible(false);
+  setSelectedOcorrencia(null);
+  setComentarios([]);
+  setMensagemComentario("");
+};
+
+const formatDate = (dateString) => {
+  try {
+    if (!dateString) return "Data não informada";
+
+    let date;
+
+    if (dateString instanceof Date) {
+      date = dateString;
+    } else if (typeof dateString === "string") {
+      const cleanString = dateString.trim();
+      date = new Date(cleanString);
+
+      if (isNaN(date.getTime())) {
+        date = new Date(cleanString.replace(" ", "T"));
       }
-      await UrlService.put(`/ocorrencia/denuncia/${idc}`);
-      setModalDenuncia(false);
-      Alert.alert('Denúncia enviada', 'Sua denúncia foi registrada.');
-    } catch (e) {
-      console.warn('Erro ao denunciar:', e);
-      Alert.alert('Erro', 'Não foi possível denunciar a ocorrência.');
+
+      if (isNaN(date.getTime()) && cleanString.includes("/")) {
+        const [day, month, year] = cleanString.split("/");
+        date = new Date(`${year}-${month}-${day}`);
+      }
     }
-  };
 
-  const enviarComentario = async () => {
-    const texto = (mensagemComentario || '').trim();
-    if (!texto) return;
-    const idOc = selectedOcorrencia?.id ?? selectedOcorrencia?._id;
-    if (!idOc) return Alert.alert('Erro', 'Ocorrência inválida.');
-    setSendingComentario(true);
-    try {
-      const idUsuario = loggedUserId || (await buscarUsuarioLogado());
-      if (!idUsuario) {
-        Alert.alert('Erro', 'Usuário não identificado.');
-        setSendingComentario(false);
-        return;
-      }
-      const payload = {
-        mensagem: texto,
-        data: new Date().toISOString(),
-        idOcorrencia: idOc,
-        idUsuario,
-      };
-      const res = await enviarComentarioRequest(payload);
-      const novo = res ?? null;
-      if (novo && (novo.id || novo._id)) {
-        const normalized = {
-          ...novo,
-          data: novo.data ? novo.data : new Date().toISOString(),
-        };
-        setComentarios((prev) => [normalized, ...(prev || [])]);
-        setMensagemComentario('');
-         setShowComentarios(false);
-      } else {
-        const recarregado = await carregarComentarios(idOc);
-        setComentarios(recarregado || []);
-        setMensagemComentario('');
-         setShowComentarios(false);
-      }
-    } catch (e) {
-      Alert.alert('Erro', 'Não foi possível enviar o comentário.');
-    } finally {
+    if (!date || isNaN(date.getTime())) {
+      return "Data não informada";
+    }
+
+    return date.toLocaleString("pt-BR", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  } catch (error) {
+    return "Data não informada";
+  }
+};
+
+const denunciarOcorrencia = async (id) => {
+  try {
+    const idc = id ?? (selectedOcorrencia?.id ?? selectedOcorrencia?._id);
+
+    if (!idc) {
+      Alert.alert("Erro", "Ocorrência inválida para denúncia.");
+      return;
+    }
+
+    await UrlService.put(`/ocorrencia/denuncia/${idc}`);
+    setModalDenuncia(false);
+
+    Alert.alert("Denúncia enviada", "Sua denúncia foi registrada.");
+  } catch (e) {
+    Alert.alert("Erro", "Não foi possível denunciar a ocorrência.");
+  }
+};
+
+const encerrandoRota = () => {
+  setRotaCoords([]);
+  closeSheet();
+};
+
+const enviarComentario = async () => {
+  const texto = (mensagemComentario || "").trim();
+  if (!texto) return;
+
+  const idOc = selectedOcorrencia?.id ?? selectedOcorrencia?._id;
+  if (!idOc) return Alert.alert("Erro", "Ocorrência inválida.");
+
+  setSendingComentario(true);
+
+  try {
+    const idUsuario = loggedUserId || (await buscarUsuarioLogado());
+
+    if (!idUsuario) {
+      Alert.alert("Erro", "Usuário não identificado.");
       setSendingComentario(false);
+      return;
     }
-  };
 
-  useImperativeHandle(ref, () => ({
-    centralizarNoEndereco(lat, lon) {
-      mapRef.current?.animateCamera({
-        center: { latitude: lat, longitude: lon },
-        zoom: 16,
-      });
-    },
+    const payload = {
+      mensagem: texto,
+      data: new Date().toISOString(),
+      idOcorrencia: idOc,
+      idUsuario,
+    };
 
-    desenharRota(rota) {
-      if (!rota || !Array.isArray(rota) || rota.length === 0) {
-        console.log('Rota inválida:', rota);
-        return;
-      }
-      setRotaCoords(rota);
-      mapRef.current?.fitToCoordinates(rota, {
-        edgePadding: { top: 80, bottom: 80, left: 80, right: 80 },
-        animated: true,
-      });
-    },
-  }));
+    const res = await enviarComentarioRequest(payload);
+    const novo = res ?? null;
 
-  if (!region) return null;
+    // 🔥 SÓ adiciona se status === "ativo"
+    if (novo && (novo.id || novo._id) && novo.status === "ativo") {
+      const normalized = {
+        ...novo,
+        data: novo.data ? novo.data : new Date().toISOString(),
+      };
 
-  return (
-    <>
-      <MapView
-        ref={mapRef}
-        style={styles.map}
-        initialRegion={region}
-        showsUserLocation
-        loadingEnabled
-        toolbarEnabled
-        minZoomLevel={10}
-        maxZoomLevel={19}
-        onRegionChangeComplete={handleRegionChangeComplete}
-      >
-        {polygons.map((p) => (
-          <Polygon
-            key={p.id}
-            coordinates={p.rings[0]}
-            strokeColor="#0A84FF"
-            fillColor="rgba(10,132,255,0.12)"
-            strokeWidth={2}
-          />
-        ))}
+      setComentarios((prev) => [normalized, ...(prev || [])]);
+      setMensagemComentario("");
+      setShowComentarios(false);
+    } else {
+      const recarregado = await carregarComentarios(idOc);
 
-        {ocorrenciasState.map((oc, i) => {
-          const lat = Number(oc.latitude);
-          const lng = Number(oc.longitude);
-          if (!isFinite(lat) || !isFinite(lng)) return null;
-          return (
-            <Marker
-              key={oc.id ?? i}
-              coordinate={{ latitude: lat, longitude: lng }}
-              onPress={() => abrirModal(oc)}
-            >
-              <Image
-                source={getIconForTipo(oc.tipo)}
-                style={{ width: 40, height: 40, resizeMode: 'contain' }}
-              />
-            </Marker>
-          );
-        })}
+      // 🔥 Filtra apenas ativos
+      setComentarios((recarregado || []).filter((c) => c.status === "ativo"));
 
-        {rotaCoords.length > 0 && (
-          <Polyline coordinates={rotaCoords} strokeWidth={5} strokeColor="#ff0000ff" />
-        )}
-      </MapView>
+      setMensagemComentario("");
+      setShowComentarios(false);
+    }
+  } catch (e) {
+    Alert.alert("Erro", "Não foi possível enviar o comentário.");
+  } finally {
+    setSendingComentario(false);
+  }
+};
 
-      <Modal visible={modalVisible} transparent animationType="slide" onRequestClose={fecharModal}>
-  <View
-    style={{
-      flex: 1,
-      backgroundColor: isDarkMode ? 'rgba(0,0,0,0.7)' : 'rgba(0, 34, 68, 0.6)',
-      justifyContent: 'center',
-      alignItems: 'center',
-    }}
-  >
-    <View
-      style={{
-        width: '85%',
-        maxWidth: 420,
-        height: '85%',
-        maxHeight: 520,
-        backgroundColor: isDarkMode ? '#1C1C1E' : '#FFFFFF',
-        borderRadius: 16,
-        overflow: 'hidden',
-        ...(Platform.OS === 'ios'
-          ? {
-              shadowColor: isDarkMode ? '#000' : '#001A33',
-              shadowOpacity: 0.4,
-              shadowOffset: { width: 0, height: 8 },
-              shadowRadius: 14,
-            }
-          : { elevation: 10 }),
-      }}
+useImperativeHandle(ref, () => ({
+  centralizarNoEndereco(lat, lon) {
+    mapRef.current?.animateCamera({
+      center: { latitude: lat, longitude: lon },
+      zoom: 16,
+    });
+  },
+
+  desenharRota(rota, inicio, fim) {
+    setInicio(inicio);
+    setFim(fim);
+
+    if (!rota || !Array.isArray(rota) || rota.length === 0) {
+      return;
+    }
+
+    setRotaCoords(rota);
+
+    mapRef.current?.fitToCoordinates(rota, {
+      edgePadding: { top: 80, bottom: 80, left: 80, right: 80 },
+      animated: true,
+    });
+
+    openSheet();
+  },
+}));
+
+if (!region) return null;
+
+return (
+  <>
+    {/* MAPA */}
+    <MapView
+      ref={mapRef}
+      style={styles.map}
+      initialRegion={region}
+      showsUserLocation
+      loadingEnabled
+      toolbarEnabled
+      minZoomLevel={10}
+      maxZoomLevel={19}
+      onRegionChangeComplete={handleRegionChangeComplete}
     >
-      {/* Header MODAL PRINCIPAL*/}
-      <View
-        style={{
-          flexDirection: 'row',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          backgroundColor: isDarkMode ? '#0c2946ff' : '#012E61',
-          paddingHorizontal: 20,
-          paddingVertical: 14,
-        }}
-      >
-        <Text
-          style={{
-            fontSize: 19,
-            fontWeight: '700',
-            color: '#FFF',
-            flex: 1,
-          }}
-        >
-          {selectedOcorrencia?.tipo || 'Detalhes da Ocorrência'}
-        </Text>
+      {polygons.map((p) => (
+        <Polygon
+          key={p.id}
+          coordinates={p.rings[0]}
+          strokeColor="#0A84FF"
+          fillColor="rgba(10,132,255,0.12)"
+          strokeWidth={2}
+        />
+      ))}
 
-        <TouchableOpacity
-          style={{
-            width: 32,
-            height: 32,
-            borderRadius: 16,
-            backgroundColor: isDarkMode ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.15)',
-            justifyContent: 'center',
-            alignItems: 'center',
-          }}
-          onPress={fecharModal}
-        >
-          <Text style={{ color: '#FFF', fontSize: 22, fontWeight: 'bold' }}>×</Text>
-        </TouchableOpacity>
+      {Object.entries(ocorrenciasAgrupadas).map(([key, group]) => {
+        const first = group.items[0];
+        const lat = Number(group.latitude);
+        const lng = Number(group.longitude);
 
-        <Pressable 
-          style={{ marginLeft: 10 }}
-          onPress={() => setModalDenuncia(true)}
-        >
-          <Text style={{ color: '#FFF' }}>Denunciar</Text>
-        </Pressable>
-      </View>
+        if (!isFinite(lat) || !isFinite(lng)) return null;
 
-      <ScrollView
-        style={{
-          flex: 1,
-          paddingHorizontal: 20,
-          paddingVertical: 16,
-          backgroundColor: isDarkMode ? '#2C2C2E' : '#FAFBFD',
-        }}
-        showsVerticalScrollIndicator={false}
-      >
-     
-        <View
-          style={{
-            marginBottom: 16,
-            backgroundColor: isDarkMode ? '#1C1C1E' : '#FFFFFF',
-            padding: 14,
-            borderRadius: 10,
-            borderWidth: 1,
-            borderColor: isDarkMode ? '#3A3A3C' : '#E5E8ED',
-          }}
-        >
-          <Text
-            style={{
-              fontSize: 16,
-              fontWeight: '700',
-              color: isDarkMode ? '#4FC3F7' : '#012E61',
-              marginBottom: 10,
-            }}
+        const quantidade = group.count;
+        const badgeColor = getBadgeColor(quantidade);
+
+        return (
+          <Marker
+            key={key}
+            coordinate={{ latitude: lat, longitude: lng }}
+            onPress={() => abrirModal(first)}
           >
-            Informações
-          </Text>
+            <View style={styles.markerContainer}>
+              <Image
+                source={getIconForTipo(first.tipo)}
+                style={styles.markerImage}
+              />
 
-          <View style={{ marginBottom: 10 }}>
-            <Text
-              style={{
-                fontSize: 13,
-                fontWeight: '600',
-                color: isDarkMode ? '#4FC3F7' : '#012E61',
-              }}
-            >
-              Descrição:
-            </Text>
-
-            <Text
-              style={{
-                fontSize: 13,
-                color: isDarkMode ? '#E5E5E7' : '#333',
-                marginTop: 4,
-              }}
-            >
-              {selectedOcorrencia?.descricao || 'Sem descrição'}
-            </Text>
-          </View>
-
-          {selectedOcorrencia?.dataAcontecimento && (
-            <View style={{ marginBottom: 10 }}>
-              <Text
-                style={{
-                  fontSize: 13,
-                  fontWeight: '600',
-                  color: isDarkMode ? '#4FC3F7' : '#012E61',
-                }}
-              >
-                Data de Acontecimento: 
-              </Text>
-
-              <Text
-                style={{
-                  fontSize: 13,
-                  color: isDarkMode ? '#E5E5E7' : '#333',
-                  marginTop: 4,
-                }}
-              >
-                {formatDate(selectedOcorrencia.dataAcontecimento)}
-              </Text>
-            </View>
-          )}
-        </View>
-
-        {/*ultimos comentários aqui PABLO ) */}
-        {comentarios.length > 0 && !showComentarios && (
-          <View
-            style={{
-              marginBottom: 16,
-              backgroundColor: isDarkMode ? '#1C1C1E' : '#FFFFFF',
-              padding: 14,
-              borderRadius: 10,
-              borderWidth: 1,
-              borderColor: isDarkMode ? '#3A3A3C' : '#E5E8ED',
-            }}
-          >
-            <Text
-              style={{
-                fontSize: 16,
-                fontWeight: '700',
-                color: isDarkMode ? '#4FC3F7' : '#012E61',
-                marginBottom: 10,
-              }}
-            >
-              Últimos Comentários Sobre...
-            </Text>
-            
-            {comentarios.slice(0, 2).map((c, i) => (
-              <View
-                key={c.id ?? i}
-                style={{
-                  backgroundColor: isDarkMode ? '#2C2C2E' : '#F2F6FA',
-                  padding: 10,
-                  borderRadius: 8,
-                  marginBottom: 12,
-                }}
-              >
-                <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 5 }}>
-                  <Text style={{ fontWeight: '700', color: isDarkMode ? '#4FC3F7' : '#012E61', fontSize: 13 }}>
-                    {c.usuario?.name || c.usuario?.nome || 'Usuário'}
-                  </Text>
-                  <Text style={{ fontSize: 11, color: isDarkMode ? '#CCC' : '#777' }}>
-                    {formatDate(c.data ?? c.created_at)}
-                  </Text>
+              {quantidade > 1 && (
+                <View style={[styles.badge, { backgroundColor: badgeColor }]}>
+                  <Text style={styles.badgeText}>{quantidade}</Text>
                 </View>
-                <Text style={{ fontSize: 13, color: isDarkMode ? '#E5E5E7' : '#333' }}>{c.mensagem}</Text>
-              </View>
-            ))}
-            
-            {comentarios.length > 2 && (
-              <Text style={{ 
-                fontSize: 12, 
-                color: isDarkMode ? '#4FC3F7' : '#012E61', 
-                textAlign: 'center',
-                fontStyle: 'italic'
-              }}>
-                + {comentarios.length - 2} comentários
-              </Text>
-            )}
-          </View>
-        )}
-      </ScrollView>
+              )}
+            </View>
+          </Marker>
+        );
+      })}
 
-      {/* Botão de baixo */}
-      <View
-        style={{
-          padding: 16,
-          backgroundColor: isDarkMode ? '#1C1C1E' : '#FFFFFF',
-          borderTopWidth: 1,
-          borderColor: isDarkMode ? '#3A3A3C' : '#E5E8ED',
-        }}
-      >
-        <TouchableOpacity
-          onPress={() => setShowComentarios(!showComentarios)}
-          style={{
-            flexDirection: 'row',
-            alignItems: 'center',
-            justifyContent: 'center',
-            backgroundColor: isDarkMode ? '#0c2946ff' : '#003366',
-            paddingVertical: 12,
-            borderRadius: 10,
-            gap: 8,
-          }}
-        >
-          <FontAwesome 
-            name={showComentarios ? "comments" : "comment-o"} 
-            size={18} 
-            color="#FFF" 
-          />
-          <Text style={{ color: '#FFF', fontWeight: '700', fontSize: 15 }}>
-            {showComentarios ? 'Fechar Comentários' : `Ver Comentários (${comentarios.length})`}
-          </Text>
-        </TouchableOpacity>
-      </View>
-    </View>
-  </View>
+      {rotaCoords.length > 0 && (
+        <Polyline
+          coordinates={rotaCoords}
+          strokeWidth={5}
+          strokeColor="#ff0000ff"
+        />
+      )}
+    </MapView>
 
-  {/* Modal de Comentários pablo */}
-  {showComentarios && (
+    {/* MODAL PRINCIPAL */}
     <Modal
-      visible={showComentarios}
+      visible={modalVisible}
       transparent
       animationType="slide"
-      onRequestClose={() => setShowComentarios(false)}
+      onRequestClose={fecharModal}
     >
       <View
         style={{
           flex: 1,
-          backgroundColor: isDarkMode ? 'rgba(0,0,0,0.8)' : 'rgba(0, 34, 68, 0.8)',
-          justifyContent: 'flex-end',
+          backgroundColor: isDarkMode
+            ? "rgba(0,0,0,0.7)"
+            : "rgba(0, 34, 68, 0.6)",
+          justifyContent: "center",
+          alignItems: "center",
         }}
       >
         <View
           style={{
-            height: '70%',
-            backgroundColor: isDarkMode ? '#1C1C1E' : '#FFFFFF',
-            borderTopLeftRadius: 20,
-            borderTopRightRadius: 20,
-            overflow: 'hidden',
+            width: "85%",
+            maxWidth: 420,
+            height: "85%",
+            maxHeight: 520,
+            backgroundColor: isDarkMode ? "#1C1C1E" : "#FFFFFF",
+            borderRadius: 16,
+            overflow: "hidden",
+            ...(Platform.OS === "ios"
+              ? {
+                  shadowColor: isDarkMode ? "#000" : "#001A33",
+                  shadowOpacity: 0.4,
+                  shadowOffset: { width: 0, height: 8 },
+                  shadowRadius: 14,
+                }
+              : { elevation: 10 }),
           }}
         >
-    {/* HEADER  */}
+          {/* HEADER */}
           <View
             style={{
-              flexDirection: 'row',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              backgroundColor: isDarkMode ? '#0c2946ff' : '#012E61',
+              flexDirection: "row",
+              justifyContent: "space-between",
+              alignItems: "center",
+              backgroundColor: isDarkMode ? "#0c2946ff" : "#012E61",
               paddingHorizontal: 20,
-              paddingVertical: 16,
+              paddingVertical: 14,
             }}
           >
             <Text
               style={{
-                fontSize: 18,
-                fontWeight: '700',
-                color: '#FFF',
+                fontSize: 19,
+                fontWeight: "700",
+                color: "#FFF",
+                flex: 1,
               }}
             >
-              Comentários ({comentarios.length})
+              {selectedOcorrencia?.tipo || "Detalhes da Ocorrência"}
             </Text>
 
             <TouchableOpacity
-              onPress={() => setShowComentarios(false)}
               style={{
                 width: 32,
                 height: 32,
                 borderRadius: 16,
-                backgroundColor: 'rgba(255,255,255,0.15)',
-                justifyContent: 'center',
-                alignItems: 'center',
+                backgroundColor: isDarkMode
+                  ? "rgba(255,255,255,0.1)"
+                  : "rgba(255,255,255,0.15)",
+                justifyContent: "center",
+                alignItems: "center",
               }}
+              onPress={fecharModal}
             >
-              <Text style={{ color: '#FFF', fontSize: 20, fontWeight: 'bold' }}>×</Text>
+              <Text style={{ color: "#FFF", fontSize: 22, fontWeight: "bold" }}>
+                ×
+              </Text>
             </TouchableOpacity>
+
+            <Pressable style={{ marginLeft: 10 }} onPress={() => setModalDenuncia(true)}>
+              <Text style={{ color: "#FFF" }}>Denunciar</Text>
+            </Pressable>
           </View>
 
-          {/* Lista de Comentários */}
+          {/* SCROLL DO CONTEÚDO */}
           <ScrollView
             style={{
               flex: 1,
               paddingHorizontal: 20,
               paddingVertical: 16,
+              backgroundColor: isDarkMode ? "#2C2C2E" : "#FAFBFD",
             }}
             showsVerticalScrollIndicator={false}
           >
-            {loadingComentarios ? (
-              <View style={{ paddingVertical: 20 }}>
-                <ActivityIndicator size="small" color={isDarkMode ? '#4FC3F7' : '#003366'} />
-                <Text style={{ 
-                  textAlign: 'center', 
-                  marginTop: 12, 
-                  color: isDarkMode ? '#E5E5E7' : '#333' 
-                }}>
-                  Carregando comentários...
-                </Text>
-              </View>
-            ) : comentarios.length === 0 ? (
-              <View style={{ paddingVertical: 40, alignItems: 'center' }}>
-                <FontAwesome name="comments-o" size={48} color={isDarkMode ? '#555' : '#CCC'} />
-                <Text style={{ 
-                  color: isDarkMode ? '#AAA' : '#666', 
-                  fontStyle: 'italic', 
-                  textAlign: 'center',
-                  marginTop: 12
-                }}>
-                  Nenhum comentário ainda.
-                </Text>
-                <Text style={{ 
-                  color: isDarkMode ? '#777' : '#999', 
-                  fontSize: 12,
-                  textAlign: 'center',
-                  marginTop: 8
-                }}>
-                  Seja o primeiro a comentar!
-                </Text>
-              </View>
-            ) : (
-              comentarios.map((c, i) => (
-                <View
-                  key={c.id ?? i}
+            {/* INFORMAÇÕES */}
+            <View
+              style={{
+                marginBottom: 16,
+                backgroundColor: isDarkMode ? "#1C1C1E" : "#FFFFFF",
+                padding: 14,
+                borderRadius: 10,
+                borderWidth: 1,
+                borderColor: isDarkMode ? "#3A3A3C" : "#E5E8ED",
+              }}
+            >
+              <Text
+                style={{
+                  fontSize: 16,
+                  fontWeight: "700",
+                  color: isDarkMode ? "#4FC3F7" : "#012E61",
+                  marginBottom: 10,
+                }}
+              >
+                Informações
+              </Text>
+
+              <View style={{ marginBottom: 10 }}>
+                <Text
                   style={{
-                    backgroundColor: isDarkMode ? '#2C2C2E' : '#F2F6FA',
-                    padding: 12,
-                    borderRadius: 10,
-                    marginBottom: 12,
+                    fontSize: 13,
+                    fontWeight: "600",
+                    color: isDarkMode ? "#4FC3F7" : "#012E61",
                   }}
                 >
-                  <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 6 }}>
-                    <Text style={{ fontWeight: '700', color: isDarkMode ? '#4FC3F7' : '#012E61', fontSize: 14 }}>
-                      {c.usuario?.name || c.usuario?.nome || 'Usuário'}
-                    </Text>
-                    <Text style={{ fontSize: 11, color: isDarkMode ? '#CCC' : '#777' }}>
-                      {formatDate(c.data ?? c.created_at)}
-                    </Text>
-                  </View>
-                  <Text style={{ fontSize: 14, color: isDarkMode ? '#E5E5E7' : '#333', lineHeight: 18 }}>
-                    {c.mensagem}
+                  Descrição:
+                </Text>
+                <Text
+                  style={{
+                    fontSize: 13,
+                    color: isDarkMode ? "#E5E5E7" : "#333",
+                    marginTop: 4,
+                  }}
+                >
+                  {selectedOcorrencia?.descricao || "Sem descrição"}
+                </Text>
+              </View>
+
+              {selectedOcorrencia?.dataAcontecimento && (
+                <View style={{ marginBottom: 10 }}>
+                  <Text
+                    style={{
+                      fontSize: 13,
+                      fontWeight: "600",
+                      color: isDarkMode ? "#4FC3F7" : "#012E61",
+                    }}
+                  >
+                    Data de Acontecimento:
+                  </Text>
+
+                  <Text
+                    style={{
+                      fontSize: 13,
+                      color: isDarkMode ? "#E5E5E7" : "#333",
+                      marginTop: 4,
+                    }}
+                  >
+                    {formatDate(selectedOcorrencia.dataAcontecimento)}
                   </Text>
                 </View>
-              ))
+              )}
+            </View>
+
+            {/* PREVIEW DOS COMENTÁRIOS */}
+            {comentarios.length > 0 && !showComentarios && (
+              <View
+                style={{
+                  marginBottom: 16,
+                  backgroundColor: isDarkMode ? "#1C1C1E" : "#FFFFFF",
+                  padding: 14,
+                  borderRadius: 10,
+                  borderWidth: 1,
+                  borderColor: isDarkMode ? "#3A3A3C" : "#E5E8ED",
+                }}
+              >
+                <Text
+                  style={{
+                    fontSize: 16,
+                    fontWeight: "700",
+                    color: isDarkMode ? "#4FC3F7" : "#012E61",
+                    marginBottom: 10,
+                  }}
+                >
+                  Últimos Comentários Sobre...
+                </Text>
+
+                {comentarios
+                  .filter((c) => c.status === "ativo")
+                  .slice(0, 2)
+                  .map((c, i) => (
+                    <View
+                      key={c.id ?? i}
+                      style={{
+                        backgroundColor: isDarkMode ? "#2C2C2E" : "#F2F6FA",
+                        padding: 10,
+                        borderRadius: 8,
+                        marginBottom: 12,
+                      }}
+                    >
+                      <View
+                        style={{
+                          flexDirection: "row",
+                          justifyContent: "space-between",
+                          marginBottom: 5,
+                        }}
+                      >
+                        <Text
+                          style={{
+                            fontWeight: "700",
+                            color: isDarkMode ? "#4FC3F7" : "#012E61",
+                            fontSize: 13,
+                          }}
+                        >
+                          {c.usuario?.name || c.usuario?.nome || "Usuário"}
+                        </Text>
+
+                        <Text
+                          style={{
+                            fontSize: 11,
+                            color: isDarkMode ? "#CCC" : "#777",
+                          }}
+                        >
+                          {formatDate(c.data ?? c.created_at)}
+                        </Text>
+                      </View>
+
+                      <Text
+                        style={{
+                          fontSize: 13,
+                          color: isDarkMode ? "#E5E5E7" : "#333",
+                        }}
+                      >
+                        {c.mensagem}
+                      </Text>
+                    </View>
+                  ))}
+
+                {comentarios.filter((c) => c.status === "ativo").length > 2 && (
+                  <Text
+                    style={{
+                      fontSize: 12,
+                      color: isDarkMode ? "#4FC3F7" : "#012E61",
+                      textAlign: "center",
+                      fontStyle: "italic",
+                    }}
+                  >
+                    +
+                    {comentarios.filter((c) => c.status === "ativo").length - 2} comentários
+                  </Text>
+                )}
+              </View>
             )}
           </ScrollView>
 
-          {/* Área de Input para Novo Comentário */}
+          {/* BOTÃO PARA ABRIR COMENTÁRIOS */}
           <View
             style={{
               padding: 16,
-              backgroundColor: isDarkMode ? '#2C2C2E' : '#F8F9FA',
+              backgroundColor: isDarkMode ? "#1C1C1E" : "#FFFFFF",
               borderTopWidth: 1,
-              borderColor: isDarkMode ? '#3A3A3C' : '#E5E8ED',
+              borderColor: isDarkMode ? "#3A3A3C" : "#E5E8ED",
+            }}
+          >
+            <TouchableOpacity
+              onPress={() => setShowComentarios(!showComentarios)}
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+                justifyContent: "center",
+                backgroundColor: isDarkMode ? "#0c2946ff" : "#003366",
+                paddingVertical: 12,
+                borderRadius: 10,
+                gap: 8,
+              }}
+            >
+              <FontAwesome
+                name={showComentarios ? "comments" : "comment-o"}
+                size={18}
+                color="#FFF"
+              />
+
+              <Text style={{ color: "#FFF", fontWeight: "700", fontSize: 15 }}>
+                {showComentarios
+                  ? "Fechar Comentários"
+                  : `Ver Comentários (${comentarios.length})`}
+              </Text>
+            </TouchableOpacity>
+          </View>
+
+          {/* ÁREA DE INPUT */}
+          <View
+            style={{
+              padding: 16,
+              backgroundColor: isDarkMode ? "#2C2C2E" : "#F8F9FA",
+              borderTopWidth: 1,
+              borderColor: isDarkMode ? "#3A3A3C" : "#E5E8ED",
             }}
           >
             <TextInput
               placeholder="Escreva um comentário..."
-              placeholderTextColor={isDarkMode ? '#777' : '#888'}
+              placeholderTextColor={isDarkMode ? "#777" : "#888"}
               value={mensagemComentario}
               onChangeText={setMensagemComentario}
               style={{
                 borderWidth: 1,
-                borderColor: isDarkMode ? '#3A3A3C' : '#D8DDE5',
+                borderColor: isDarkMode ? "#3A3A3C" : "#D8DDE5",
                 borderRadius: 10,
                 padding: 12,
-                backgroundColor: isDarkMode ? '#1C1C1E' : '#FFFFFF',
-                color: isDarkMode ? '#FFF' : '#333',
+                backgroundColor: isDarkMode ? "#1C1C1E" : "#FFFFFF",
+                color: isDarkMode ? "#FFF" : "#333",
                 minHeight: 80,
-                textAlignVertical: 'top',
+                textAlignVertical: "top",
                 fontSize: 14,
               }}
               multiline
@@ -718,9 +730,9 @@ const MapaZonaLesteGeojson = forwardRef(({ ocorrencias = [], currentUserId = nul
               style={{
                 marginTop: 12,
                 paddingVertical: 12,
-                backgroundColor: isDarkMode ? '#0c2946ff' : '#003366',
+                backgroundColor: isDarkMode ? "#0c2946ff" : "#003366",
                 borderRadius: 10,
-                alignItems: 'center',
+                alignItems: "center",
                 opacity: sendingComentario ? 0.5 : 1,
               }}
               disabled={sendingComentario || !mensagemComentario.trim()}
@@ -728,7 +740,9 @@ const MapaZonaLesteGeojson = forwardRef(({ ocorrencias = [], currentUserId = nul
               {sendingComentario ? (
                 <ActivityIndicator size="small" color="#FFF" />
               ) : (
-                <Text style={{ color: '#FFF', fontWeight: '700', fontSize: 15 }}>
+                <Text
+                  style={{ color: "#FFF", fontWeight: "700", fontSize: 15 }}
+                >
                   Enviar Comentário
                 </Text>
               )}
@@ -737,59 +751,254 @@ const MapaZonaLesteGeojson = forwardRef(({ ocorrencias = [], currentUserId = nul
         </View>
       </View>
     </Modal>
-  )}
-</Modal>
 
-      <Modal 
-  visible={modalDenuncia} 
-  transparent 
-  animationType="fade" 
-  onRequestClose={() => setModalDenuncia(false)}
->
-  <View style={[styles.modalOverlay, { backgroundColor: 'rgba(0,0,0,0.6)' }]}>
-    <View style={[styles.modalCard, { backgroundColor: theme.cardbackground }]}>
-      
-     
-      <View style={[styles.modalIconContainer, { backgroundColor: theme.danger + '20' }]}>
-        <FontAwesome name="exclamation-triangle" size={32} color={theme.danger} />
-      </View>
-
-   
-      <View style={styles.modalContent}>
-        <Text style={[styles.modalTitle, { color: theme.text }]}>
-          Denunciar Ocorrência
-        </Text>
-        
-        <Text style={[styles.modalMessage, { color: theme.textSecondary }]}>
-          Tem certeza que deseja denunciar esta ocorrência? 
-          Esta ação não pode ser desfeita.
-        </Text>
-
-       
-        <View style={styles.modalButtons}>
-          <Pressable 
-            style={[styles.modalButton, styles.cancelButton, { borderColor: theme.border }]}
-            onPress={() => setModalDenuncia(false)}
+    {/* MODAL DE COMENTÁRIOS */}
+    {showComentarios && (
+      <Modal
+        visible={showComentarios}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setShowComentarios(false)}
+      >
+        <View
+          style={{
+            flex: 1,
+            backgroundColor: isDarkMode ? "rgba(0,0,0,0.8)" : "rgba(0, 34, 68, 0.8)",
+            justifyContent: "flex-end",
+          }}
+        >
+          <View
+            style={{
+              height: "70%",
+              backgroundColor: isDarkMode ? "#1C1C1E" : "#FFFFFF",
+              borderTopLeftRadius: 20,
+              borderTopRightRadius: 20,
+              overflow: "hidden",
+            }}
           >
-            <Text style={[styles.cancelButtonText, { color: theme.textSecondary }]}>
-              Cancelar
-            </Text>
-          </Pressable>
+            <View
+              style={{
+                flexDirection: "row",
+                justifyContent: "space-between",
+                alignItems: "center",
+                backgroundColor: isDarkMode ? "#0c2946ff" : "#012E61",
+                paddingHorizontal: 20,
+                paddingVertical: 16,
+              }}
+            >
+              <Text
+                style={{
+                  fontSize: 18,
+                  fontWeight: "700",
+                  color: "#FFF",
+                }}
+              >
+                Comentários (
+                {comentarios.filter((c) => c.status === "ativo").length})
+              </Text>
 
-          <Pressable 
-            style={[styles.modalButton, styles.confirmButton, { backgroundColor: theme.danger }]}
-            onPress={() => denunciarOcorrencia(selectedOcorrencia?.id ?? selectedOcorrencia?._id)}
-          >
-            <Text style={styles.confirmButtonText}>
-              Sim, Denunciar
+              <TouchableOpacity
+                onPress={() => setShowComentarios(false)}
+                style={{
+                  width: 32,
+                  height: 32,
+                  borderRadius: 16,
+                  backgroundColor: "rgba(255,255,255,0.15)",
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
+              >
+                <Text
+                  style={{
+                    color: "#FFF",
+                    fontSize: 20,
+                    fontWeight: "bold",
+                  }}
+                >
+                  ×
+                </Text>
+              </TouchableOpacity>
+            </View>
+
+            <ScrollView
+              style={{
+                flex: 1,
+                paddingHorizontal: 20,
+                paddingVertical: 16,
+              }}
+              showsVerticalScrollIndicator={false}
+            >
+              {loadingComentarios ? (
+                <View style={{ paddingVertical: 20 }}>
+                  <ActivityIndicator
+                    size="small"
+                    color={isDarkMode ? "#4FC3F7" : "#003366"}
+                  />
+                  <Text
+                    style={{
+                      textAlign: "center",
+                      marginTop: 12,
+                      color: isDarkMode ? "#E5E5E7" : "#333",
+                    }}
+                  >
+                    Carregando comentários...
+                  </Text>
+                </View>
+              ) : comentarios.filter((c) => c.status === "ativo").length === 0 ? (
+                <View style={{ paddingVertical: 40, alignItems: "center" }}>
+                  <FontAwesome
+                    name="comments-o"
+                    size={48}
+                    color={isDarkMode ? "#555" : "#CCC"}
+                  />
+
+                  <Text
+                    style={{
+                      color: isDarkMode ? "#AAA" : "#666",
+                      fontStyle: "italic",
+                      textAlign: "center",
+                      marginTop: 12,
+                    }}
+                  >
+                    Nenhum comentário ativo ainda.
+                  </Text>
+                </View>
+              ) : (
+                comentarios
+                  .filter((c) => c.status === "ativo")
+                  .map((c, i) => (
+                    <View
+                      key={c.id ?? i}
+                      style={{
+                        backgroundColor: isDarkMode ? "#2C2C2E" : "#F2F6FA",
+                        padding: 12,
+                        borderRadius: 10,
+                        marginBottom: 12,
+                      }}
+                    >
+                      <View
+                        style={{
+                          flexDirection: "row",
+                          justifyContent: "space-between",
+                          marginBottom: 6,
+                        }}
+                      >
+                        <Text
+                          style={{
+                            fontWeight: "700",
+                            color: isDarkMode ? "#4FC3F7" : "#012E61",
+                            fontSize: 14,
+                          }}
+                        >
+                          {c.usuario?.name || c.usuario?.nome || "Usuário"}
+                        </Text>
+
+                        <Text
+                          style={{
+                            fontSize: 11,
+                            color: isDarkMode ? "#CCC" : "#777",
+                          }}
+                        >
+                          {formatDate(c.data ?? c.created_at)}
+                        </Text>
+                      </View>
+
+                      <Text
+                        style={{
+                          fontSize: 14,
+                          color: isDarkMode ? "#E5E5E7" : "#333",
+                          lineHeight: 18,
+                        }}
+                      >
+                        {c.mensagem}
+                      </Text>
+                    </View>
+                  ))
+              )}
+            </ScrollView>
+          </View>
+        </View>
+      </Modal>
+    )}
+
+    {/* MODAL DE DENÚNCIA */}
+    <Modal
+      visible={modalDenuncia}
+      transparent
+      animationType="fade"
+      onRequestClose={() => setModalDenuncia(false)}
+    >
+      <View style={[styles.modalOverlay, { backgroundColor: "rgba(0,0,0,0.6)" }]}>
+        <View style={[styles.modalCard, { backgroundColor: theme.cardbackground }]}>
+          <View style={[styles.modalIconContainer, { backgroundColor: theme.danger + "20" }]}>
+            <FontAwesome name="exclamation-triangle" size={32} color={theme.danger} />
+          </View>
+
+          <View style={styles.modalContent}>
+            <Text style={[styles.modalTitle, { color: theme.text }]}>
+              Denunciar Ocorrência
             </Text>
-          </Pressable>
+
+            <Text style={[styles.modalMessage, { color: theme.textSecondary }]}>
+              Tem certeza que deseja denunciar esta ocorrência? Esta ação não pode ser desfeita.
+            </Text>
+
+            <View style={styles.modalButtons}>
+              <Pressable
+                style={[
+                  styles.modalButton,
+                  styles.cancelButton,
+                  { borderColor: theme.border },
+                ]}
+                onPress={() => setModalDenuncia(false)}
+              >
+                <Text style={[styles.cancelButtonText, { color: theme.textSecondary }]}>
+                  Cancelar
+                </Text>
+              </Pressable>
+
+              <Pressable
+                style={[
+                  styles.modalButton,
+                  styles.confirmButton,
+                  { backgroundColor: theme.danger },
+                ]}
+                onPress={() =>
+                  denunciarOcorrencia(
+                    selectedOcorrencia?.id ?? selectedOcorrencia?._id
+                  )
+                }
+              >
+                <Text style={styles.confirmButtonText}>Sim, Denunciar</Text>
+              </Pressable>
+            </View>
+          </View>
         </View>
       </View>
-    </View>
-  </View>
-</Modal>
-    </>
+    </Modal>
+
+    {/* BOTTOM SHEET */}
+    <Modal transparent visible={visible} animationType="none">
+      <TouchableOpacity
+        style={styles.overlay}
+        onPress={closeSheet}
+        activeOpacity={1}
+      />
+      <Animated.View
+        style={[
+          styles.sheet,
+          { height: SHEET_HEIGHT, transform: [{ translateY }] },
+        ]}
+      >
+        <Pressable onPress={encerrandoRota}>
+          <Text style={styles.sheetText}>Fechar</Text>
+          <Text style={styles.sheetText}>{inicio}</Text>
+          <Text style={styles.sheetText}>{fim}</Text>
+        </Pressable>
+      </Animated.View>
+    </Modal>
+  </>
+
   );
 });
 
@@ -1065,6 +1274,57 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: '600',
     color: '#FFFFFF',
+  },
+  button: {
+    backgroundColor: "#333",
+    padding: 12,
+    borderRadius: 8
+  },
+  buttonText: { color: "#fff", fontSize: 16 },
+  overlay: {
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.4)",
+  },
+  sheet: {
+    width: "100%",
+    position: "absolute",
+    bottom: 0,
+    backgroundColor: "#fff",
+    borderTopRightRadius: 20,
+    borderTopLeftRadius: 20,
+    padding: 20,
+  },
+  sheetText: { fontSize: 18 },
+
+  // ---------- estilos do marcador com badge ----------
+  markerContainer: {
+    width: 44,
+    height: 44,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  markerImage: {
+    width: 40,
+    height: 40,
+    resizeMode: 'contain',
+  },
+  badge: {
+    position: 'absolute',
+    right: -6,
+    top: -6,
+    minWidth: 22,
+    height: 22,
+    borderRadius: 11,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 5,
+    borderWidth: 1,
+    borderColor: '#fff',
+  },
+  badgeText: {
+    fontSize: 12,
+    color: '#000',
+    fontWeight: '700',
   },
 });
 

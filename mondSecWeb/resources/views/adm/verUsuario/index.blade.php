@@ -4,10 +4,6 @@
 
 @section('content')
 <div class="container py-5">
-    <div class="graficosUsuarios d-flex flex-wrap justify-content-around gap-4 mb-4">
-        <div id="chart-container1Usuarios" style="height:45vh; width:45%; min-width:300px;"></div>
-        <div id="chart-container2Usuarios" style="height:45vh; width:45%; min-width:300px;"></div>
-    </div>
 
     <h1 class="mb-4 text-center">Usuários Cadastrados</h1>
 
@@ -25,46 +21,14 @@
     </a>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/echarts/dist/echarts.min.js"></script>
-
 <script>
-const meses = @json(collect($dadosPorMes)->pluck('mes'));
-const totais = @json(collect($dadosPorMes)->pluck('total'));
-
-const chart1 = echarts.init(document.getElementById('chart-container1Usuarios'));
-chart1.setOption({
-    title: { text: 'Usuários cadastrados nos últimos 12 meses', left: 'center' },
-    tooltip: { trigger: 'axis' },
-    xAxis: { type: 'category', data: meses },
-    yAxis: { type: 'value' },
-    series: [{ data: totais, type: 'line', smooth: true, itemStyle: { color: '#4B91F1' } }]
-});
-window.addEventListener('resize', chart1.resize);
-
-const generos = @json(collect($dadosGenero)->pluck('genero'));
-const totaisGenero = @json(collect($dadosGenero)->pluck('total'));
-
-const chart2 = echarts.init(document.getElementById('chart-container2Usuarios'));
-chart2.setOption({
-    title: { text: 'Distribuição por Gênero', left: 'center' },
-    tooltip: { trigger: 'item' },
-    legend: { bottom: 0 },
-    series: [{
-        name: 'Usuários',
-        type: 'pie',
-        radius: '60%',
-        data: generos.map((g, i) => ({ name: g, value: totaisGenero[i] })),
-        emphasis: { itemStyle: { shadowBlur: 10, shadowOffsetX: 0, shadowColor: 'rgba(0,0,0,0.5)' } }
-    }]
-});
-window.addEventListener('resize', chart2.resize);
-
 document.addEventListener('DOMContentLoaded', function() {
     const usuarios = @json($usuario);
     const container = document.getElementById('lista-usuarios');
     const input = document.getElementById('pesquisaUsuario');
     const filtroGenero = document.getElementById('filtroGenero');
 
+    // Popular filtro de gênero
     const generosUnicos = [...new Set(usuarios.map(u => u.genero || 'Não informado'))];
     generosUnicos.forEach(g => {
         const opt = document.createElement('option');

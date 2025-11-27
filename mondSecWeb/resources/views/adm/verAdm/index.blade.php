@@ -5,36 +5,6 @@
 @section('content')
 <div class="container py-5">
     <div class="parteCima">
-        <div class="graficosAdministradores mb-4">
-            <div id="chart-container1Administradores" style="height:45vh;"></div>
-            <div id="chart-container2Administradores" style="height:45vh; margin-top: 20px;"></div>
-        </div>
-
-        <script src="https://cdn.jsdelivr.net/npm/echarts/dist/echarts.min.js"></script>
-        <script>
-            const chart1 = echarts.init(document.getElementById('chart-container1Administradores'));
-            const meses = @json(collect($dadosPorMes)->pluck('mes'));
-            const totais = @json(collect($dadosPorMes)->pluck('total'));
-            chart1.setOption({
-                title: { text: 'Admins cadastrados nos últimos 12 meses', left: 'center' },
-                tooltip: { trigger: 'axis' },
-                xAxis: { type: 'category', data: meses },
-                yAxis: { type: 'value' },
-                series: [{ data: totais, type: 'bar', barWidth: '50%', itemStyle: { color: '#4B91F1' } }]
-            });
-            window.addEventListener('resize', chart1.resize);
-
-            const chart2 = echarts.init(document.getElementById('chart-container2Administradores'));
-            const distribuicao = @json($distribuicaoNivel);
-            const dadosPizza = Object.keys(distribuicao).map(nivel => ({ value: distribuicao[nivel], name: nivel }));
-            chart2.setOption({
-                title: { text: 'Distribuição de níveis de acesso', left: 'center' },
-                tooltip: { trigger: 'item' },
-                legend: { bottom: 0 },
-                series: [{ name: 'Nível', type: 'pie', radius: '50%', data: dadosPizza, emphasis: { itemStyle: { shadowBlur: 10, shadowOffsetX: 0, shadowColor: 'rgba(0,0,0,0.5)' } } }]
-            });
-            window.addEventListener('resize', chart2.resize);
-        </script>
 
         <h1 class="mb-4">Admins Cadastrados</h1>
 
@@ -48,8 +18,9 @@
         <div id="lista-admins"></div>
 
         <a href="{{ route('adm.dashboard.index') }}" id="btnVoltar" class="btn btn-outline-primary mt-3">Voltar ao Painel</a>
+                <a href="{{ route('adm.auth.register') }}" id="btnVoltar" class="btn btn-outline-primary mt-3">Cadastrar Adm</a>
     </div>
-</div>
+</div> 
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
@@ -108,7 +79,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 <td>${a.nivelAdmin || '-'}</td>
                 <td>${a.created_at || '-'}</td>
                 <td>${a.status || '-'}</td>
-
                 <td>
                     <a href="/adm/admins/${a.id}" class="btn btn-sm btn-warning">
                         <i class="fa-solid fa-pencil btn-alterar"></i>
