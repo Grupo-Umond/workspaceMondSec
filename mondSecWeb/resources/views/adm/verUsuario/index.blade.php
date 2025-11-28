@@ -4,7 +4,6 @@
 
 @section('content')
 <div class="container py-5">
-
     <div class="graficosUsuarios d-flex flex-wrap justify-content-around gap-4 mb-4">
         <div id="chart-container1Usuarios" style="height:0; width:0%; min-width:300px;"></div>
         <div id="chart-container2Usuarios" style="height:0; width:0%; min-width:300px;"></div>

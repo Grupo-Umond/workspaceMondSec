@@ -48,12 +48,15 @@
     }
 </style>
 
+
 <div class="container py-4">
 
     {{-- CARDS --}}
     <div class="row g-4 mb-4">
+
         <div class="col-md-3">
             <div class="card-custom text-center">
+
                 <h5>Usuários</h5>
                 <h2>{{ $totalUsuarios }}</h2>
             </div>
@@ -61,6 +64,7 @@
 
         <div class="col-md-3">
             <div class="card-custom text-center">
+
                 <h5>Admins</h5>
                 <h2>{{ $totalAdmins }}</h2>
             </div>
@@ -68,6 +72,7 @@
 
         <div class="col-md-3">
             <div class="card-custom text-center">
+
                 <h5>Ocorrências</h5>
                 <h2>{{ $totalOcorrencias }}</h2>
             </div>
@@ -75,11 +80,13 @@
 
         <div class="col-md-3">
             <div class="card-custom text-center">
+
                 <h5>Comentários</h5>
                 <h2>{{ $totalComentarios }}</h2>
             </div>
         </div>
     </div>
+
 
     {{-- GRÁFICOS --}}
     <div class="row g-4">
@@ -87,6 +94,7 @@
         <div class="col-md-6">
             <div class="card-custom chart-card">
                 <h5 class="text-center mb-3">Usuários cadastrados por mês</h5>
+
                 <div id="chartUsuarios"></div>
             </div>
         </div>
@@ -94,6 +102,7 @@
         <div class="col-md-6">
             <div class="card-custom chart-card">
                 <h5 class="text-center mb-3">Ocorrências por tipo</h5>
+
                 <div id="chartOcorrencias"></div>
             </div>
         </div>
@@ -117,6 +126,7 @@
         <div class="col-md-6">
             <div class="card-custom chart-card">
                 <h5 class="text-center mb-3">Comentários por status</h5>
+
                 <div id="chartComentarios"></div>
             </div>
         </div>
@@ -124,6 +134,7 @@
         <div class="col-md-6">
             <div class="card-custom chart-card">
                 <h5 class="text-center mb-3">Admins por nível</h5>
+
                 <div id="chartAdmins"></div>
             </div>
         </div>
@@ -179,6 +190,7 @@
         series: @json($adminsPorNivel->pluck('total')),
         labels: @json($adminsPorNivel->pluck('nivelAdmin'))
     }).render();
+
 
 </script>
 

@@ -7,6 +7,7 @@ use App\Models\Admin;
 use App\Models\Ocorrencia;
 use App\Models\Comentario;
 use Illuminate\Http\Request;
+
 use Illuminate\Support\Facades\DB;
 
 class DashboardController extends Controller
@@ -27,21 +28,23 @@ class DashboardController extends Controller
 
         // 📌 Gráfico: ocorrências por mês
         $ocorrenciasPorMes = Ocorrencia::selectRaw('MONTH(dataAcontecimento) as mes, COUNT(*) as total')
+
             ->groupBy('mes')
             ->orderBy('mes')
             ->get();
 
         // Ocorrências por tipo
+
         $ocorrenciasPorTipo = Ocorrencia::selectRaw('tipo, COUNT(*) as total')
             ->groupBy('tipo')
             ->get();
 
-        // Comentários por status
+
         $comentariosPorStatus = Comentario::selectRaw('status, COUNT(*) as total')
             ->groupBy('status')
             ->get();
 
-        // Admins por nível
+
         $adminsPorNivel = Admin::selectRaw('nivelAdmin, COUNT(*) as total')
             ->groupBy('nivelAdmin')
             ->get();
@@ -58,3 +61,4 @@ class DashboardController extends Controller
         ));
     }
 }
+

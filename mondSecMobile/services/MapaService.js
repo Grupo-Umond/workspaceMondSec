@@ -113,9 +113,6 @@ const MapaZonaLesteGeojson = forwardRef(({ ocorrencias = [], currentUserId = nul
     puxar();
   }, []);
 
-  // ---------- NOVO: Agrupamento por coordenada ----------
-  // Usamos useMemo para recalcular só quando ocorrenciasState mudar.
-// agrupa ocorrências por coordenada arredondada (5 casas)
 const ocorrenciasAgrupadas = useMemo(() => {
   return (ocorrenciasState || []).reduce((acc, oc) => {
     const lat = Number(oc.latitude);
@@ -132,9 +129,9 @@ const ocorrenciasAgrupadas = useMemo(() => {
 
   
   const getBadgeColor = (count) => {
-    if (count >= 10) return '#E53935'; // vermelho
-    if (count >= 5) return '#FB8C00'; // laranja
-    if (count >= 2) return '#FDD835'; // amarelo
+    if (count >= 10) return '#E53935';
+    if (count >= 5) return '#FB8C00';
+    if (count >= 2) return '#FDD835'; 
     return null; 
   };
 
@@ -196,12 +193,10 @@ const abrirModal = async (oc) => {
     setSelectedOcorrencia(items[idx] || items[0]);
     setModalVisible(true);
 
-    // rola para o índice correto no FlatList após um tick
     setTimeout(() => {
       try { flatListRef.current?.scrollToIndex({ index: idx, animated: true }); } catch (e) {}
     }, 40);
 
-    // carregar comentários do item inicial — adapte esta chamada à sua função real
     setLoadingComentarios(true);
     const idInicial = items[idx]?.id ?? items[idx]?._id;
     if (idInicial) {

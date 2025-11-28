@@ -72,5 +72,6 @@ Route::prefix('adm')
             Route::put('/comentario/negar/{id}','negar')->name('adm.comentario.negar');
 
 
+
         });
     });

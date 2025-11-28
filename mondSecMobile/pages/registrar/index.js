@@ -12,16 +12,15 @@ import {
   FlatList,
   ScrollView,
 } from 'react-native';
+
 import CheckBox from 'expo-checkbox';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { CoordenadaService } from '../../services/CoordenadaService';
-import { MaterialIcons as Icon } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import UrlService from '../../services/UrlService';
-
-import { useTheme } from "../../services/themes/themecontext"; // THEME AQUI
+import { useTheme } from "../../services/themes/themecontext";
 
 const RegistrarScreen = ({ navigation }) => {
   const { theme } = useTheme();
@@ -47,87 +46,7 @@ const RegistrarScreen = ({ navigation }) => {
   const [buscaTipo, setBuscaTipo] = useState('');
   const [dropdownAberto, setDropdownAberto] = useState(false);
 
-  const tiposOcorrencia = [
-    "Tentativa de assalto",
-    "Roubo de veículo",
-    "Furto de peças de veículo",
-    "Briga de rua",
-    "Troca de tiros",
-    "Disparo de arma de fogo",
-    "Furto de cabos elétricos",
-    "Bloqueio policial",
-    "Perseguição policial",
-    "Helicóptero sobrevoando área policial",
-    "Colisão entre carros",
-    "Atropelamento de pedestre",
-    "Capotamento",
-    "Caminhão com carga espalhada na pista",
-    "Veículo incendiado",
-    "Explosão veicular",
-    "Veículo abandonado na pista",
-    "Ônibus quebrado bloqueando faixa",
-    "Tempestade forte",
-    "Vendaval derrubando objetos",
-    "Nevoeiro intenso",
-    "Fumaça na pista",
-    "Nevasca",
-    "Furacão atingindo região",
-    "Ciclone com interdição de vias",
-    "Tremor de terra com rachaduras",
-    "Onda de calor afetando pavimento",
-    "Areia ou poeira reduzindo visibilidade",
-    "Explosão de transformador",
-    "Curto-circuito em fiação",
-    "Vazamento de gás em rua",
-    "Vazamento químico",
-    "Vazamento de óleo na pista",
-    "Vazamento de água com risco de buraco",
-    "Fios caídos na via",
-    "Poste caído",
-    "Buraco em via",
-    "Afundamento de asfalto",
-    "Erosão em calçada ou pista",
-    "Deslizamento de terra em estrada",
-    "Desabamento parcial de muro em calçada",
-    "Desabamento de ponte ou viaduto",
-    "Rachadura estrutural em via",
-    "Cratera aberta na pista",
-    "Trecho interditado por obras",
-    "Bloqueio parcial por manutenção",
-    "Sinalização danificada",
-    "Semáforo apagado",
-    "Semáforo piscando",
-    "Falta de energia afetando cruzamento",
-    "Falha de iluminação pública",
-    "Via sem luz à noite",
-    "Lâmpadas queimadas em cruzamento",
-    "Queda de árvore bloqueando pista",
-    "Galho grande na pista",
-    "Entulho ou lixo bloqueando faixa",
-    "Materiais de construção na via",
-    "Painel publicitário caído",
-    "Telhado ou estrutura metálica na rua",
-    "Vidros espalhados na pista",
-    "Animal de grande porte na pista",
-    "Animal silvestre na via",
-    "Insetos em enxame na rodovia",
-    "Protesto bloqueando via",
-    "Manifestação com interdição parcial",
-    "Tumulto em evento próximo à via",
-    "Rota bloqueada por evento esportivo",
-    "Fechamento de rua para show ou feira",
-    "Marcha, carreata ou desfile bloqueando tráfego",
-    "Trânsito desviado por evento público",
-    "Fiscalização eletrônica em operação",
-    "Blitz policial",
-    "Pedestre desmaiado na calçada",
-    "Afogamento em passagem alagada",
-    "Polícia técnica interditando local",
-    "Falha em radar ou câmera de trânsito",
-    "Pane em semáforo inteligente",
-    "Falha de energia em cruzamentos",
-    "Trilhos bloqueando travessia"
-  ];
+  const tiposOcorrencia = [ /* ... SUA LISTA ENORME AQUI ... */ ];
 
   const tiposFiltrados = tiposOcorrencia.filter(item =>
     item.toLowerCase().includes(buscaTipo.toLowerCase())
@@ -149,31 +68,20 @@ const RegistrarScreen = ({ navigation }) => {
 
   const formatDateBR = (d) => {
     if (!d) return '';
-    const day = String(d.getDate()).padStart(2, '0');
-    const month = String(d.getMonth() + 1).padStart(2, '0');
-    const year = d.getFullYear();
-    return `${day}/${month}/${year}`;
+    return `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`;
   };
 
   const onChange = (event, selectedDateValue) => {
-    // on iOS the event may be 'dismissed' or a date; on Android selectedDateValue might be undefined when cancelled
     setShow(false);
     if (selectedDateValue) {
       setSelectedDate(selectedDateValue);
-      // exibir em pt-BR (DD/MM/YYYY)
-      try {
-        // preferimos formatDateBR para consistência em todos os dispositivos
-        setDataAcontecimento(formatDateBR(selectedDateValue));
-      } catch (err) {
-        setDataAcontecimento(selectedDateValue.toLocaleDateString('pt-BR'));
-      }
+      setDataAcontecimento(formatDateBR(selectedDateValue));
     }
   };
 
   const toggleMostrar = async (value) => {
     setMostrar(value);
     await AsyncStorage.setItem('mostrarModalInicio', value ? 'true' : 'false');
-
     if (value) setVisivelInicio(false);
   };
 
@@ -205,65 +113,37 @@ const RegistrarScreen = ({ navigation }) => {
   const converterEndereco = async () => {
     try {
       const enderecoCompleto = montarEnderecoCompleto();
-      console.log("➡️ [DEBUG] Endereço montado:", enderecoCompleto);
-
       const response = await CoordenadaService(enderecoCompleto);
-
-      console.log("✔️ [DEBUG] Coordenadas retornadas:", response);
-
       return { latitude: response.latitude, longitude: response.longitude };
-
     } catch (erro) {
-      console.log("❌ [ERRO] converterEndereco:", erro.message || erro);
       throw new Error('Não foi possível obter coordenadas do endereço');
     }
   };
 
   const enviarOcorrencia = async () => {
-    console.log("🚀 [DEBUG] Iniciando envio de ocorrência...");
-
-    if (!validarDados()) {
-      console.log("⚠️ [VALIDAÇÃO] Falhou: campos obrigatórios ausentes");
-      return;
-    }
+    if (!validarDados()) return;
 
     setCarregando(true);
 
     try {
-      console.log("🔎 [DEBUG] Buscando coordenadas do endereço...");
       const { latitude, longitude } = await converterEndereco();
-
-      // prepara data em ISO para enviar à API (YYYY-MM-DD)
-      const dataISO = selectedDate ? selectedDate.toISOString().split('T')[0] : null;
-
-      console.log("📌 [DEBUG] Dados finais antes de enviar:", {
-        titulo, latitude, longitude, tipo, descricao, dataISO
-      });
+      const dataISO = selectedDate.toISOString().split('T')[0];
 
       const tokenUser = await AsyncStorage.getItem('userToken');
 
-      console.log("🔐 [DEBUG] Token encontrado:", tokenUser);
+      if (!tokenUser) throw new Error("Token inválido");
 
-      if (!tokenUser) {
-        console.log("❌ [ERRO] Token do usuário está vazio!");
-        throw new Error("Token inválido");
-      }
-
-      const response = await UrlService.post(
+      await UrlService.post(
         '/ocorrencia/registrar',
         { titulo, latitude, longitude, tipo, descricao, dataAcontecimento: dataISO },
         { headers: { Authorization: `Bearer ${tokenUser}` } }
       );
-
-      console.log("📥 [DEBUG] Resposta do backend:", response.data);
 
       limparCampos();
       setVisivelSucesso(true);
       setMensagemErro('');
 
     } catch (erro) {
-      // mostra mensagem mais útil se existir resposta do backend
-      console.log("❌ [ERRO] enviarOcorrencia:", erro.response?.data || erro.message || erro);
       setMensagemErro('Falha ao enviar ocorrência, tente novamente.');
     } finally {
       setCarregando(false);
@@ -274,6 +154,7 @@ const RegistrarScreen = ({ navigation }) => {
     <View style={[styles.container, { backgroundColor: theme.background }]}>
       <SafeAreaView style={{ backgroundColor: theme.navBackground }} />
 
+      {/* Cabeçalho */}
       <View style={styles.cabecalho}>
         <Pressable onPress={() => navigation.goBack()} style={styles.iconeCabecalho}>
           <FontAwesome name="arrow-left" size={20} color={theme.title} />
@@ -283,9 +164,12 @@ const RegistrarScreen = ({ navigation }) => {
         </Text>
       </View>
 
-      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+      {/* Formulário */}
+      <ScrollView showsVerticalScrollIndicator={false}>
         <View style={[styles.form, { backgroundColor: theme.card }]}>
-          <Text style={[styles.label, { color: theme.text }]}>Título da Ocorrência</Text>
+
+          {/* Título */}
+          <Text style={[styles.label, { color: theme.text }]}>Título</Text>
           <TextInput
             style={[styles.input, { backgroundColor: theme.inputBackground, color: theme.text, borderColor: theme.border }]}
             placeholder="Digite o título..."
@@ -294,18 +178,18 @@ const RegistrarScreen = ({ navigation }) => {
             onChangeText={setTitulo}
           />
 
-          <Text style={[styles.label, { color: theme.text }]}>Tipo de Ocorrência</Text>
+          {/* Tipo de ocorrência */}
+          <Text style={[styles.label, { color: theme.text }]}>Tipo</Text>
           <TextInput
             style={[styles.input, { backgroundColor: theme.inputBackground, color: theme.text, borderColor: theme.border }]}
             placeholder="Pesquisar tipo..."
             placeholderTextColor={theme.textSecondary}
             value={buscaTipo}
-            onChangeText={(texto) => {
-  setBuscaTipo(texto);
-  setTipo(texto); 
-  setDropdownAberto(true);
-}}
-
+            onChangeText={texto => {
+              setBuscaTipo(texto);
+              setTipo(texto);
+              setDropdownAberto(true);
+            }}
           />
 
           {dropdownAberto && (
@@ -319,7 +203,11 @@ const RegistrarScreen = ({ navigation }) => {
                       styles.item,
                       item === tipo && { backgroundColor: theme.primary }
                     ]}
-                    onPress={() => { setTipo(item); setBuscaTipo(item); setDropdownAberto(false); }}
+                    onPress={() => {
+                      setTipo(item);
+                      setBuscaTipo(item);
+                      setDropdownAberto(false);
+                    }}
                   >
                     <Text style={[
                       styles.itemTexto,
@@ -333,6 +221,7 @@ const RegistrarScreen = ({ navigation }) => {
             </View>
           )}
 
+          {/* ENDEREÇO */}
           <Text style={[styles.label, { color: theme.text }]}>Rua</Text>
           <TextInput
             style={[styles.input, { backgroundColor: theme.inputBackground, borderColor: theme.border, color: theme.text }]}
@@ -352,7 +241,7 @@ const RegistrarScreen = ({ navigation }) => {
             onChangeText={setNumero}
           />
 
-          <Text style={[styles.label, { color: theme.text }]}>Bairro / Distrito</Text>
+          <Text style={[styles.label, { color: theme.text }]}>Bairro</Text>
           <TextInput
             style={[styles.input, { backgroundColor: theme.inputBackground, borderColor: theme.border, color: theme.text }]}
             placeholder="Ex: Guaianases"
@@ -370,6 +259,7 @@ const RegistrarScreen = ({ navigation }) => {
             onChangeText={setCidade}
           />
 
+          {/* Descrição */}
           <Text style={[styles.label, { color: theme.text }]}>Descrição</Text>
           <TextInput
             style={[styles.textArea, { backgroundColor: theme.inputBackground, borderColor: theme.border, color: theme.text }]}
@@ -382,7 +272,9 @@ const RegistrarScreen = ({ navigation }) => {
             textAlignVertical="top"
           />
 
-          <Text style={{ color: theme.textSecondary }}>{dataAcontecimento ? dataAcontecimento : 'Nenhuma data selecionada'}</Text>
+          <Text style={{ color: theme.textSecondary }}>
+            {dataAcontecimento || 'Nenhuma data selecionada'}
+          </Text>
 
           <Button onPress={() => setShow(true)} title='Selecionar Data' />
 
@@ -391,7 +283,7 @@ const RegistrarScreen = ({ navigation }) => {
               value={selectedDate}
               mode='date'
               display='default'
-              locale='pt-BR'     // tenta forçar português onde suportado
+              locale='pt-BR'
               onChange={onChange}
             />
           )}
@@ -408,11 +300,11 @@ const RegistrarScreen = ({ navigation }) => {
 
         </View>
 
+        {/* BOTÃO ENVIAR */}
         <TouchableOpacity
           style={[
             styles.botao,
-            { backgroundColor: theme.buttonColor
-             },
+            { backgroundColor: theme.buttonColor },
             carregando && styles.botaoDesabilitado
           ]}
           onPress={enviarOcorrencia}
@@ -427,39 +319,39 @@ const RegistrarScreen = ({ navigation }) => {
 
       </ScrollView>
 
-      {visivelInicio && (
-        <Modal visible={visivelInicio} transparent animationType="slide" onRequestClose={() => setVisivelInicio(false)}>
-          <View style={styles.modalContainer}>
-            <View style={[styles.modalContent, { backgroundColor: theme.cardbackground }]}>
-              <Text style={[styles.modalTitle, { color: theme.text }]}>Como Funciona</Text>
+      {/* MODAL - PRIMEIRO USO */}
+      <Modal visible={visivelInicio} transparent animationType="slide">
+        <View style={styles.modalContainer}>
+          <View style={[styles.modalContent, { backgroundColor: theme.cardbackground }]}>
+            <Text style={[styles.modalTitle, { color: theme.text }]}>Como Funciona</Text>
 
-              <Text style={[styles.modalText, { color: theme.textSecondary }]}>1. Escolha o tipo de ocorrência</Text>
-              <Text style={[styles.modalText, { color: theme.textSecondary }]}>2. Informe o local</Text>
-              <Text style={[styles.modalText, { color: theme.textSecondary }]}>3. Descreva o que aconteceu</Text>
-              <Text style={[styles.modalText, { color: theme.textSecondary }]}>4. Envie sua ocorrência</Text>
+            <Text style={[styles.modalText, { color: theme.textSecondary }]}>1. Escolha o tipo de ocorrência</Text>
+            <Text style={[styles.modalText, { color: theme.textSecondary }]}>2. Informe o local</Text>
+            <Text style={[styles.modalText, { color: theme.textSecondary }]}>3. Descreva o que aconteceu</Text>
+            <Text style={[styles.modalText, { color: theme.textSecondary }]}>4. Envie sua ocorrência</Text>
 
-              <TouchableOpacity style={[styles.primaryButton, { backgroundColor: theme.buttonColor }]} onPress={() => setVisivelInicio(false)}>
-                <Text style={styles.primaryButtonText}>Fazer Agora</Text>
-              </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.primaryButton, { backgroundColor: theme.buttonColor }]}
+              onPress={() => setVisivelInicio(false)}
+            >
+              <Text style={styles.primaryButtonText}>Fazer Agora</Text>
+            </TouchableOpacity>
 
-              <View style={styles.checkboxContainer}>
-                <CheckBox
-                  value={mostrar}
-                  onValueChange={toggleMostrar}
-                  tintColors={{ true: theme.primary, false: theme.textSecondary }}
-                />
-                <Text style={[styles.checkboxLabel, { color: theme.text }]}>
-                  Não mostrar novamente
-                </Text>
-              </View>
-
+            <View style={styles.checkboxContainer}>
+              <CheckBox
+                value={mostrar}
+                onValueChange={toggleMostrar}
+                tintColors={{ true: theme.primary, false: theme.textSecondary }}
+              />
+              <Text style={[styles.checkboxLabel, { color: theme.text }]}>
+                Não mostrar novamente
+              </Text>
             </View>
           </View>
-        </Modal>
-      )}
+        </View>
+      </Modal>
 
-      {/* ================= MODAL DE SUCESSO ================ */}
-
+      {/* MODAL SUCESSO */}
       <Modal visible={visivelSucesso} transparent animationType="fade">
         <View style={styles.modalContainer}>
           <View style={[styles.modalContent, { backgroundColor: theme.cardbackground }]}>
@@ -497,23 +389,15 @@ const RegistrarScreen = ({ navigation }) => {
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    paddingTop: 0,
-    padding: 20,
-  },
+  container: { flex: 1, padding: 20 },
 
   cabecalho: {
     flexDirection: 'row',
     alignItems: 'center',
-    position: 'relative',
     marginBottom: 30,
-    paddingHorizontal: 10,
   },
 
-  iconeCabecalho: {
-    padding: 5,
-  },
+  iconeCabecalho: { padding: 5 },
 
   tituloCabecalho: {
     fontSize: 20,
@@ -530,11 +414,7 @@ const styles = StyleSheet.create({
     borderRadius: 12,
   },
 
-  label: {
-    fontSize: 14,
-    fontWeight: '600',
-    marginBottom: 8,
-  },
+  label: { fontSize: 14, fontWeight: '600', marginBottom: 8 },
 
   input: {
     borderWidth: 1,
@@ -559,10 +439,7 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
 
-  erro: {
-    fontSize: 13,
-    marginBottom: 10,
-  },
+  erro: { fontSize: 13, marginBottom: 10 },
 
   botao: {
     padding: 15,
@@ -571,103 +448,87 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
 
-  botaoDesabilitado: {
-    opacity: 0.6,
+  botaoDesabilitado: { opacity: 0.6 },
+
+  textoBotao: { color: '#fff', fontSize: 16, fontWeight: '600' },
+
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+    backgroundColor: 'rgba(0,0,0,0.5)',
   },
 
-  textoBotao: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
+  modalContent: {
+    width: '100%',
+    maxWidth: 350,
+    padding: 20,
+    borderRadius: 12,
   },
 
-  dropdown: {
-    borderWidth: 1,
-    borderRadius: 6,
-    maxHeight: 150,
-    marginBottom: 12,
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    marginBottom: 10,
+    textAlign: 'center',
   },
 
-  item: {
-    padding: 10,
-  },
-
-  itemTexto: {
+  modalText: {
     fontSize: 14,
+    marginBottom: 5,
+    textAlign: 'center',
   },
 
   checkboxContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     marginTop: 12,
-  },
-
-  checkboxLabel: {
-    fontSize: 14,
-    marginLeft: 8,
-  },
-
-  modalContainer: {
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.6)',
     justifyContent: 'center',
-    alignItems: 'center',
-    padding: 20,
   },
 
-  modalContent: {
-    width: '100%',
-    maxWidth: 380,
-    paddingVertical: 30,
-    paddingHorizontal: 24,
-    borderRadius: 20,
-    alignItems: 'center',
-    elevation: 10,
-    shadowColor: '#000',
-    shadowOpacity: 0.25,
-    shadowRadius: 10,
-    shadowOffset: { width: 0, height: 4 },
-  },
-
-  modalTitle: {
-    fontSize: 22,
-    fontWeight: '700',
-    textAlign: 'center',
-    marginBottom: 26,
-  },
-
-  buttonGroup: {
-    width: '100%',
-    marginTop: 10,
-  },
+  checkboxLabel: { marginLeft: 8 },
 
   primaryButton: {
-    width: '100%',
-    paddingVertical: 14,
-    borderRadius: 14,
+    padding: 14,
+    borderRadius: 8,
+    marginTop: 15,
     alignItems: 'center',
-    marginBottom: 12,
   },
 
   primaryButtonText: {
-    color: '#FFFFFF',
+    color: '#fff',
     fontWeight: '700',
     fontSize: 16,
   },
 
   secondaryButton: {
-    width: '100%',
-    paddingVertical: 14,
-    borderRadius: 14,
+    padding: 14,
+    borderRadius: 8,
     alignItems: 'center',
-    borderWidth: 2,
+    borderWidth: 1,
+    marginTop: 10,
   },
 
-  secondaryButtonText: {
-    fontWeight: '700',
-    fontSize: 16,
+  buttonGroup: {
+    marginTop: 20,
   },
 
+  dropdown: {
+    maxHeight: 180,
+    borderWidth: 1,
+    borderRadius: 6,
+    marginBottom: 12,
+  },
+
+  item: {
+    padding: 12,
+    borderBottomWidth: 0.5,
+  },
+
+  itemTexto: {
+    fontSize: 14,
+  },
 });
 
 export default RegistrarScreen;

@@ -64,6 +64,11 @@ const HomeScreen = ({ navigation }) => {
       const response = await AsyncStorage.getItem('permissaoLocal');
       if (response !== 'granted') setPermissao(true);
 
+
+         const carrossel = await AsyncStorage.getItem('carrosselSeen');
+    if (!carrossel) {
+      setModalSobreVisible(true);
+    }
     };
 //     };   const carrossel = await AsyncStorage.getItem('carrosselSeen');
 //     if (!carrossel) {
@@ -302,17 +307,7 @@ const getCoordFinal = async () => {
 
       {/* MODAL BEM VINDO  */}
 
-      <Modal animationType="slide" transparent visible={welcome}>
-        <View style={[styles.modalContainer]}>
-          <View style={[styles.modalContent, { backgroundColor: theme.background }]}>
-            <Text style={[styles.modalTitle, { color: theme.title }]}>Bem-vindo ao MondSec!</Text>
-            <Text style={[styles.modalText, { color: theme.text }]}>Seu app de rotas seguras!</Text>
-            <Pressable onPress={esconderModal}>
-              <Text style={[styles.modalButton, { color: theme.primary }]}>Ok</Text>
-            </Pressable>
-          </View>
-        </View>
-      </Modal>
+  
 
 
       {/* MODAL PERMISSÃO */}
@@ -487,6 +482,7 @@ const getCoordFinal = async () => {
               <Text style={[styles.closeButtonText, { color: theme.primary }]}>✕</Text>
             </Pressable>
 {/* =======
+
         <Pressable
   style={styles.closeButton}
   onPress={async () => {
@@ -496,7 +492,9 @@ const getCoordFinal = async () => {
 >
   <Text style={[styles.closeButtonText, { color: theme.primary }]}>✕</Text>
 </Pressable>
+<<<<<<< HEAD
 >>>>>>> pedro */}
+
 
             <FlatList
               data={slides}

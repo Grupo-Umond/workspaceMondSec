@@ -67,6 +67,9 @@
                 const thead = document.createElement('thead');
                 thead.innerHTML = `<tr>
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> pablo
                 <th>ID</th><th>Mensagem</th><th>Usuário</th><th>Ocorrência</th><th>Data</th><th>Status</th><th></th>
             </tr>`;
 =======
@@ -79,6 +82,23 @@
                 filtrados.forEach(c => {
                     const tr = document.createElement('tr');
                     tr.innerHTML = `
+<<<<<<< HEAD
+=======
+                    <td>${c.id}</td>
+                    <td>${c.mensagem}</td>
+                    <td>${c.usuario?.nome || 'Desconhecido'}</td>
+                    <td>${c.idOcorrencia}</td>
+                    <td>${c.data || '-'}</td>
+                    <td>${c.status || '-'}</td>
+                    <td>
+                        <form action="/adm/comentario/excluir/${c.id}" method="POST" onsubmit="return confirm('Tem certeza que quer excluir?');">
+                            @csrf
+                            @method('PUT')
+                            <button type="submit" class="btn-excluirComentario">
+                                <i class="fa-solid fa-trash-can btn-excluirUsuario"></i>
+                            </button>
+                        </form>
+>>>>>>> pablo
 
                         <td>${c.id}</td>
                         <td>${c.mensagem}</td>

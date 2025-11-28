@@ -150,7 +150,10 @@
             filtroMes.addEventListener('change', renderTabela);
 
             renderTabela();
+<<<<<<< HEAD
 
+=======
+>>>>>>> pablo
         });
     </script>
 @endsection

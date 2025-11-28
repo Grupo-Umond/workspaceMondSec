@@ -97,6 +97,7 @@ class AdminController extends Controller
     {
         $admins = Admin::all();
         return view('adm.verAdm.index', compact('admins'));
+
     }
 
     public function updateAdmScreen($id)
@@ -208,6 +209,7 @@ class AdminController extends Controller
 
         $ocorrencias = Ocorrencia::all();
         return view('adm.verOcorrencia.index', compact('ocorrencias'));
+
     }
 
      public function updateOcorrenciaScreen($id)
