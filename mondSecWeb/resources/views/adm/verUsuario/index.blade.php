@@ -88,6 +88,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 <td>
                     <a href="/adm/users/${u.id}" class="btn btn-sm btn-primary"><i class="fa-solid fa-pencil"></i></a>
                 </td>
+
                 <td>
                     <form action="/adm/users/excluir/${u.id}" method="POST" onsubmit="return confirm('Tem certeza que quer excluir?');">
                         @csrf
