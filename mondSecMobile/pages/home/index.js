@@ -63,7 +63,13 @@ const HomeScreen = ({ navigation }) => {
 
       const response = await AsyncStorage.getItem('permissaoLocal');
       if (response !== 'granted') setPermissao(true);
+
     };
+//     };   const carrossel = await AsyncStorage.getItem('carrosselSeen');
+//     if (!carrossel) {
+//       setModalSobreVisible(true);
+//     }
+// >>>>>>> pedro
 
     verificarModal();
   }, []);
@@ -156,6 +162,7 @@ const getCoordFinal = async () => {
       mapaRef.current?.desenharRota(coordsMap);
 
       setModalRota(false);
+
 
     } catch (err) {
       console.log("Erro enviarRota:", err);
@@ -306,6 +313,7 @@ const getCoordFinal = async () => {
           </View>
         </View>
       </Modal>
+
 
       {/* MODAL PERMISSÃO */}
       <Modal animationType="slide" transparent visible={permissao}>
@@ -478,6 +486,17 @@ const getCoordFinal = async () => {
             <Pressable style={styles.closeButton} onPress={() => setModalSobreVisible(false)}>
               <Text style={[styles.closeButtonText, { color: theme.primary }]}>✕</Text>
             </Pressable>
+{/* =======
+        <Pressable
+  style={styles.closeButton}
+  onPress={async () => {
+    await AsyncStorage.setItem('carrosselSeen', 'ok');
+    setModalSobreVisible(false);
+  }}
+>
+  <Text style={[styles.closeButtonText, { color: theme.primary }]}>✕</Text>
+</Pressable>
+>>>>>>> pedro */}
 
             <FlatList
               data={slides}

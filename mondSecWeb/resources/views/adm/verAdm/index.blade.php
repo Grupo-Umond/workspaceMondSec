@@ -8,7 +8,7 @@
 
         <h1 class="mb-4">Admins Cadastrados</h1>
 
-        <div id="pesquisas" class="d-flex flex-wrap gap-3 mb-4 justify-content-center">
+        <div id="pesquisas" class="d-flex flex-wrap gap-3 mb-4">
             <input id="pesquisaAdmin" type="text" class="form-control w-auto" placeholder="Pesquisar por nome, e-mail ou ID">
             <select id="filtroNivel" class="form-select w-auto">
                 <option value="">Todos os níveis</option>

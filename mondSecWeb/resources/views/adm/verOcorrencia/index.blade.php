@@ -7,7 +7,7 @@
 
         <h1 class="mb-4 text-center">Ocorrências Cadastradas</h1>
 
-        <div id="pesquisas" class="d-flex flex-wrap gap-3 mb-4 justify-content-center">
+        <div id="pesquisas" class="d-flex flex-wrap gap-3 mb-4">
             <input id="pesquisado" type="text" class="form-control w-auto"
                 placeholder="Pesquisar por ID, título ou usuário">
 
@@ -150,6 +150,7 @@
             filtroMes.addEventListener('change', renderTabela);
 
             renderTabela();
+
         });
     </script>
 @endsection

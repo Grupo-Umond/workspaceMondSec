@@ -254,6 +254,8 @@ const abrirModal = async (oc) => {
   };
 
   const encerrandoRota = () => {
+    setInicio('');
+    setFim('');
     setRotaCoords([]);
     closeSheet();
   };
@@ -481,7 +483,7 @@ const abrirModal = async (oc) => {
         </View>
       </Modal>
 
-      <Modal transparent visible={visible} animationType="none">
+      <Modal transparent={true} visible={visible} animationType="none">
         <TouchableOpacity style={styles.overlay} onPress={closeSheet} activeOpacity={1} />
         <Animated.View
           style={[

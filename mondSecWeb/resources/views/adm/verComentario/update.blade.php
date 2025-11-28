@@ -51,7 +51,7 @@
                 <input type="text" value="{{ $comentarios->ocorrencia->titulo ?? 'Sem título' }}" disabled>
             </div>
 
-            <div id="conteudo-alterar">
+             <div id="conteudo-alterar">
                 <button id="btn-alterar" type="submit">Alterar</button>
             </div>
 
