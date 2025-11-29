@@ -105,7 +105,17 @@ document.addEventListener('DOMContentLoaded', function() {
                 <td>${u.telefone || '-'}</td>
                 <td>${u.tokenExpo}</td>
                 <td>${u.genero || '-'}</td>
-                <td>${u.data || '-'}</td>
+                <td>${u.data ? new Intl.DateTimeFormat("pt-BR", {
+                        day: "2-digit",
+                        month: "2-digit",
+                        year: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                        second: "2-digit"
+                    }).format(new Date(u.data))
+                    : '-'}
+                </td>
+
                 <td>${u.status || '-'}</td>
                 ${btns}
             `;

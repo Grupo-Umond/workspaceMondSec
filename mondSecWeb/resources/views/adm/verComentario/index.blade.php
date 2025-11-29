@@ -111,7 +111,17 @@
                         <td>${c.mensagem}</td>
                         <td>${c.usuario?.nome || 'Desconhecido'}</td>
                         <td>${c.idOcorrencia}</td>
-                        <td>${c.data || '-'}</td>
+                        <td>${c.data ? new Intl.DateTimeFormat("pt-BR", {
+                                    day: "2-digit",
+                                    month: "2-digit",
+                                    year: "numeric",
+                                    hour: "2-digit",
+                                    minute: "2-digit",
+                                    second: "2-digit"
+                                }).format(new Date(c.data))
+                                : '-'}
+                        </td>
+
                         <td>${c.status || '-'}</td>
                         ${btns}
                     `;

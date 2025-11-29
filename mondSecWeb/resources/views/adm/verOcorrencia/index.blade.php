@@ -123,8 +123,18 @@ document.addEventListener('DOMContentLoaded', function () {
 
         filtradas.forEach(o => {
 
-            const dataP = o.dataPostagem ? new Date(o.dataPostagem).toLocaleDateString() : '-';
-            const dataA = o.dataAcontecimento ? new Date(o.dataAcontecimento).toLocaleDateString() : '-';
+            const formatter = new Intl.DateTimeFormat("pt-BR", {
+                day: "2-digit",
+                month: "2-digit",
+                year: "numeric",
+                hour: "2-digit",
+                minute: "2-digit",
+                second: "2-digit"
+            });
+
+        const dataP = o.dataPostagem ? formatter.format(new Date(o.dataPostagem)) : '-';
+        const dataA = o.dataAcontecimento ? formatter.format(new Date(o.dataAcontecimento)) : '-';
+
 
             const btns = podeEditar ? `
                 <td><a href="/adm/ocorrencias/${o.id}" class="btn btn-sm btn-primary"><i class="fa-solid fa-pencil"></i></a></td>

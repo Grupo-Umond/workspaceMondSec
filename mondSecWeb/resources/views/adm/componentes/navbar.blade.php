@@ -24,14 +24,15 @@
                             ? 'active' : '' }}">
                         <i class="fa-solid fa-circle-exclamation"></i> Ocorrencias
                     </a>
-
-                   @if(Auth::check() && Auth::user()->nivelAdmin === 'ouro')
+                    @if(Auth::guard('admin')->check() && Auth::guard('admin')->user()->nivelAdmin === 'ouro')
                         <a href="{{ route('adm.admins.index') }}" class="btn btn-primary btn-lg flex-fill btn-nav 
                                 {{ request()->routeIs('adm.admins.*')
                                 ? 'active' : '' }}">
                             <i class="fa-solid fa-user-tie"></i> Administradores
                         </a>
                     @endif
+
+                   
 
 
                     <a href="{{ route('adm.users.index') }}" class="btn btn-primary btn-lg flex-fill btn-nav 

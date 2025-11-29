@@ -69,10 +69,25 @@ document.addEventListener('DOMContentLoaded', function() {
         table.appendChild(thead);
 
         const tbody = document.createElement('tbody');
-        filtrados.forEach(a => {
+   filtrados.forEach(a => {
     const tr = document.createElement('tr');
 
     const podeEditar = ["prata", "ouro"].includes((a.nivelAdmin || "").toLowerCase());
+
+    const dataBruta = a.created_at;
+    let dataFormatada = '-';
+
+    if (dataBruta) {
+        const data = new Date(dataBruta);
+        dataFormatada = new Intl.DateTimeFormat('pt-BR', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+        }).format(data);
+    }
 
     tr.innerHTML = `
         <td>${a.id}</td>
@@ -80,7 +95,7 @@ document.addEventListener('DOMContentLoaded', function() {
         <td>${a.email}</td>
         <td>${a.telefone || '-'}</td>
         <td>${a.nivelAdmin || '-'}</td>
-        <td>${a.created_at || '-'}</td>
+        <td>${dataFormatada}</td>
         <td>${a.status || '-'}</td>
 
         <td>
