@@ -4,9 +4,10 @@ import CheckBox from 'expo-checkbox';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { MaterialIcons as Icon } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import UrlService from '../../services/UrlService'; 
+import UrlService from '../../services/UrlService';
 import { TextInputMask } from 'react-native-masked-text';
 import { useTheme } from "../../services/themes/themecontext";  // ⭐ ADICIONADO
+import Feather from '@expo/vector-icons/Feather';
 
 const CadastroScreen = ({ navigation }) => {
 
@@ -31,6 +32,8 @@ const CadastroScreen = ({ navigation }) => {
   const [erroSenhaConfirma, setErroSenhaConfirma] = useState('');
 
   const opcoesGenero = ['Masculino', 'Feminino', 'Prefiro não informar'];
+
+  const [viewPass, setViewPass] = useState(true);
 
   useEffect(() => {
     const validarSenha = () => {
@@ -133,263 +136,348 @@ const CadastroScreen = ({ navigation }) => {
     }
   };
 
+  function onViewPass() {
+    setViewPass(!viewPass)
+  }
+
   return (
 
     <View style={[
-      styles.container, 
+      styles.container,
       { backgroundColor: theme.background }  // ⭐ MODO ESCURO
     ]}>
 
-      {/* HEADER */}
-      <View style={styles.header}>
-        <Pressable onPress={() => navigation.goBack()} style={styles.iconeCabecalho}>
-          <FontAwesome name="arrow-left" size={20} color={theme.title} />
-        </Pressable>
+      {/* Fundo */}
+      <View style={styles.containerFundo}>
+        <View style={[
+          styles.metadeFundo,
+          { backgroundColor: isDarkMode ? theme.cimaDark : "#12577B" }
+        ]} />
+
+        <View style={[
+          styles.metadeFundo,
+          { backgroundColor: isDarkMode ? theme.baixoDark : "#a9cfe5" }
+        ]} />
+      </View>
+
+      {/* CARD */}
+      <View style={[
+        styles.containerConteudo,
+        { backgroundColor: isDarkMode ? "#1a1a1a" : "whitesmoke" }
+      ]}>
+
+        {/* HEADER */}
+        <View style={styles.header}>
+          <Pressable onPress={() => navigation.goBack()} style={styles.iconeCabecalho}>
+            <FontAwesome name="arrow-left" size={20} color={theme.title} />
+          </Pressable>
+        </View>
+
+        <View style={styles.logoContainer}>
+          <Image
+            source={
+              isDarkMode
+                ? require("../../assets/logobranca.png")
+                : require("../../assets/mondSecLogo.png")
+            }
+            style={styles.imagemLogo}
+          />
+        </View>
+
         <Text style={[styles.textoCabecalho, { color: theme.title }]}>
-          Cadastre-se Agora
+          Cadastrar
         </Text>
-      </View>
 
-      {/* LOGO */}
-      <View style={styles.containerLogo}>
-        <Image
-          source={
-            isDarkMode
-              ? require("../../assets/logobranca.png")
-              : require("../../assets/mondSecLogo.png")
-          }
-          style={styles.imagemLogo}
-        />
-      </View>
+        {/* FORMULÁRIO */}
+        <View style={styles.containerFormulario}>
 
-      {/* FORMULÁRIO */}
-      <View style={styles.containerFormulario}>
-
-        {/* NOME */}
-        <View style={styles.grupoInput}>
-          <Text style={[styles.rotulo, { color: theme.text }]}>Nome</Text>
-          <TextInput
-            style={[
-              styles.input,
-              {
-                backgroundColor: theme.input,
-                borderColor: theme.border,
-                color: theme.text,
-              }
-            ]}
-            placeholder="Digite seu nome..."
-            placeholderTextColor={theme.textSecondary}
-            value={nome}
-            onChangeText={setNome}
-          />
-        </View>
-
-        {/* EMAIL */}
-        <View style={styles.grupoInput}>
-          <Text style={[styles.rotulo, { color: theme.text }]}>Email</Text>
-          <TextInput
-            style={[
-              styles.input,
-              {
-                backgroundColor: theme.input,
-                borderColor: theme.border,
-                color: theme.text,
-              }
-            ]}
-            placeholder="Digite seu email..."
-            placeholderTextColor={theme.textSecondary}
-            value={email}
-            onChangeText={setEmail}
-            keyboardType="email-address"
-            autoCapitalize="none"
-            autoCorrect={false}
-          />
-        </View>
-
-        {/* TELEFONE */}
-        <View style={styles.grupoInput}>
-          <Text style={[styles.rotulo, { color: theme.text }]}>Telefone</Text>
-          <TextInputMask
-            type={'cel-phone'}
-            options={{
-              maskType: 'BRL',
-              withDDD: true,
-              dddMask: '(99) '
-            }}
-            value={telefone}
-            onChangeText={text => setTelefone(text)}
-            style={[
-              styles.input,
-              {
-                backgroundColor: theme.input,
-                borderColor: theme.border,
-                color: theme.text,
-              }
-            ]}
-            keyboardType="numeric"
-            placeholderTextColor={theme.textSecondary}
-            placeholder="Digite seu telefone..."
-          />
-        </View>
-
-        {/* SENHA */}
-        <View style={styles.grupoInput}>
-          <Text style={[styles.rotulo, { color: theme.text }]}>Senha</Text>
-          {erroSenha ? <Text style={styles.erro}>{erroSenha}</Text> : null}
-          <TextInput
-            style={[
-              styles.input,
-              {
-                backgroundColor: theme.input,
-                borderColor: theme.border,
-                color: theme.text,
-              }
-            ]}
-            placeholder="Digite sua senha..."
-            placeholderTextColor={theme.textSecondary}
-            value={senha}
-            onChangeText={setSenha}
-            secureTextEntry
-          />
-        </View>
-
-        {/* CONFIRMAR SENHA */}
-        <View style={styles.grupoInput}>
-          <Text style={[styles.rotulo, { color: theme.text }]}>Confirma Senha</Text>
-          {erroSenhaConfirma ? <Text style={styles.erro}>{erroSenhaConfirma}</Text> : null}
-          <TextInput
-            style={[
-              styles.input,
-              {
-                backgroundColor: theme.input,
-                borderColor: theme.border,
-                color: theme.text,
-              }
-            ]}
-            placeholder="Confirme a senha..."
-            placeholderTextColor={theme.textSecondary}
-            value={senhaConfirma}
-            onChangeText={setSenhaConfirma}
-            secureTextEntry
-          />
-        </View>
-
-        {/* GÊNERO */}
-        <View style={styles.grupoInput}>
-          <Text style={[styles.rotulo, { color: theme.text }]}>Gênero</Text>
-
-          <View style={styles.opcoesGenero}>
-            {opcoesGenero.map((op) => (
-              <Pressable
-                key={op}
-                style={styles.botaoOpcao}
-                onPress={() => setGenero(op)}
-              >
-                <View style={[
-                  styles.radioExterno,
-                  { borderColor: theme.text },
-                  genero === op && { borderColor: theme.buttonColor }
-                ]}>
-                  {genero === op && (
-                    <View style={[styles.radioInterno, { backgroundColor: theme.buttonColor }]} />
-                  )}
-                </View>
-                <Text style={[styles.textoOpcao, { color: theme.text }]}>{op}</Text>
-              </Pressable>
-            ))}
+          {/* NOME */}
+          <View style={styles.grupoInput}>
+            <Text style={[styles.rotulo, { color: theme.text }]}>Nome</Text>
+            <TextInput
+              style={[
+                styles.input,
+                {
+                  backgroundColor: theme.input,
+                  borderColor: theme.border,
+                  color: theme.text,
+                }
+              ]}
+              placeholder="Digite seu nome..."
+              placeholderTextColor={theme.textSecondary}
+              value={nome}
+              onChangeText={setNome}
+            />
           </View>
-        </View>
 
-        {/* TERMOS */}
-        <View style={styles.containerTermos}>
-          <CheckBox
-            value={concordoTermos}
-            onValueChange={setConcordoTermos}
-            tintColors={{
-              true: theme.buttonColor,
-              false: theme.textSecondary
-            }}
-            style={styles.checkbox}
-          />
-          <Text style={[styles.textoTermos, { color: theme.text }]}>
-            Concordo com os{' '}
-            <Text
-              style={[styles.termosLink, { color: theme.primary }]}
-              onPress={() => navigation.navigate('Politica')}
-            >
-              termos de uso
+          {/* EMAIL */}
+          <View style={styles.grupoInput}>
+            <Text style={[styles.rotulo, { color: theme.text }]}>Email</Text>
+            <TextInput
+              style={[
+                styles.input,
+                {
+                  backgroundColor: theme.input,
+                  borderColor: theme.border,
+                  color: theme.text,
+                }
+              ]}
+              placeholder="Digite seu email..."
+              placeholderTextColor={theme.textSecondary}
+              value={email}
+              onChangeText={setEmail}
+              keyboardType="email-address"
+              autoCapitalize="none"
+              autoCorrect={false}
+            />
+          </View>
+
+          {/* TELEFONE */}
+          <View style={styles.grupoInput}>
+            <Text style={[styles.rotulo, { color: theme.text }]}>Telefone</Text>
+            <TextInputMask
+              type={'cel-phone'}
+              options={{
+                maskType: 'BRL',
+                withDDD: true,
+                dddMask: '(99) '
+              }}
+              value={telefone}
+              onChangeText={text => setTelefone(text)}
+              style={[
+                styles.input,
+                {
+                  backgroundColor: theme.input,
+                  borderColor: theme.border,
+                  color: theme.text,
+                }
+              ]}
+              keyboardType="numeric"
+              placeholderTextColor={theme.textSecondary}
+              placeholder="Digite seu telefone..."
+            />
+          </View>
+
+          {/* SENHA */}
+          <View style={styles.grupoInput}>
+            <Text style={[styles.rotulo, { color: theme.text }]}>Senha</Text>
+            {erroSenha ? <Text style={styles.erro}>{erroSenha}</Text> : null}
+            <View style={styles.input}>
+              <View style={styles.campoSenha}>
+                <View style={styles.campoInput}>
+                  <TextInput
+                    style={[
+                      styles.senha,
+                      {
+                        backgroundColor: theme.input,
+                        borderColor: theme.border,
+                        color: theme.text,
+                      }
+                    ]}
+                    placeholder="Digite sua senha..."
+                    placeholderTextColor={theme.textSecondary}
+                    value={senha}
+                    onChangeText={setSenha}
+                    secureTextEntry={viewPass}
+                  />
+                </View>
+                <Pressable onPress={onViewPass}>
+                  {viewPass == true && <Feather name="eye" size={24} color="black" />}
+                  {viewPass == false && <Feather name="eye-off" size={24} color="black" />}
+                </Pressable>
+              </View>
+            </View>
+          </View>
+
+          {/* CONFIRMAR SENHA */}
+          <View style={styles.grupoInput}>
+            <Text style={[styles.rotulo, { color: theme.text }]}>Confirma Senha</Text>
+            {erroSenhaConfirma ? <Text style={styles.erro}>{erroSenhaConfirma}</Text> : null}
+            <View style={styles.input}>
+              <View style={styles.campoSenha}>
+                <View style={styles.campoInput}>
+                  <TextInput
+                    style={[
+                      styles.senha,
+                      {
+                        backgroundColor: theme.input,
+                        borderColor: theme.border,
+                        color: theme.text,
+                      }
+                    ]}
+                    placeholder="Confirme a senha..."
+                    placeholderTextColor={theme.textSecondary}
+                    value={senhaConfirma}
+                    onChangeText={setSenhaConfirma}
+                    secureTextEntry={viewPass}
+                  />
+                </View>
+                <Pressable onPress={onViewPass}>
+                  {viewPass == true && <Feather name="eye" size={24} color="black" />}
+                  {viewPass == false && <Feather name="eye-off" size={24} color="black" />}
+                </Pressable>
+              </View>
+            </View>
+          </View>
+
+          {/* GÊNERO */}
+          <View style={styles.grupoInput}>
+            <Text style={[styles.rotulo, { color: theme.text }]}>Gênero</Text>
+
+            <View style={styles.opcoesGenero}>
+              {opcoesGenero.map((op, index) => (
+                <Pressable
+                  key={op}
+                  style={[
+                    styles.botaoOpcao,
+                    index < 2 && { width: '28%' } // só 1º e 2º mudam
+                  ]}
+                  onPress={() => setGenero(op)}
+                >
+                  <View style={[
+                    styles.radioExterno,
+                    { borderColor: theme.text },
+                    genero === op && { borderColor: theme.buttonColor }
+                  ]}>
+                    {genero === op && (
+                      <View style={[styles.radioInterno, { backgroundColor: theme.buttonColor }]} />
+                    )}
+                  </View>
+
+                  <Text
+                    style={[
+                      styles.textoOpcao,
+                      { color: theme.text },
+                      index === 2 && { width: 'auto' } // só o 3º muda
+                    ]}
+                  >
+                    {op}
+                  </Text>
+                </Pressable>
+              ))}
+            </View>
+          </View>
+
+          {/* TERMOS */}
+          <View style={styles.containerTermos}>
+            <CheckBox
+              value={concordoTermos}
+              onValueChange={setConcordoTermos}
+              tintColors={{
+                true: theme.buttonColor,
+                false: theme.textSecondary
+              }}
+              style={styles.checkbox}
+            />
+            <Text style={[styles.textoTermos, { color: theme.text }]}>
+              Concordo com os{' '}
+              <Text
+                style={[styles.termosLink, { color: theme.primary }]}
+                onPress={() => navigation.navigate('Politica')}
+              >
+                termos de uso
+              </Text>
             </Text>
-          </Text>
-        </View>
+          </View>
 
-        {erroMessage ? <Text style={styles.erro}>{erroMessage}</Text> : null}
+          {erroMessage ? <Text style={styles.erro}>{erroMessage}</Text> : null}
 
-        {/* BOTÃO */}
-        <TouchableOpacity
-          style={[
-            styles.botaoPrimario,
-            { backgroundColor: theme.buttonColor },
-            carregando && styles.botaoDesativado
-          ]}
-          onPress={enviarDados}
-          disabled={carregando}
-        >
-          <Text style={styles.textoBotao}>
-            {carregando ? 'Cadastrando...' : 'Cadastrar'}
-          </Text>
-        </TouchableOpacity>
-
-        {/* LINK LOGIN */}
-        <Pressable style={styles.linkLogin} onPress={() => navigation.navigate('Login')}>
-          <Text style={[styles.textoLinkLogin, { color: theme.textSecondary }]}>
-            Já tem uma conta?{' '}
-            <Text style={[styles.textoLinkLoginNegrito, { color: theme.buttonColor }]}>
-              Faça login
+          {/* BOTÃO */}
+          <TouchableOpacity
+            style={[
+              styles.botaoPrimario,
+              { backgroundColor: theme.buttonColor },
+              carregando && styles.botaoDesativado
+            ]}
+            onPress={enviarDados}
+            disabled={carregando}
+          >
+            <Text style={styles.textoBotao}>
+              {carregando ? 'Cadastrando...' : 'Cadastrar'}
             </Text>
-          </Text>
-        </Pressable>
+          </TouchableOpacity>
 
+          {/* LINK LOGIN */}
+          <Pressable style={styles.linkLogin} onPress={() => navigation.navigate('Login')}>
+            <Text style={[styles.textoLinkLogin, { color: theme.textSecondary }]}>
+              Já tem uma conta?{' '}
+              <Text style={[styles.textoLinkLoginNegrito, { color: theme.buttonColor }]}>
+                Faça login
+              </Text>
+            </Text>
+          </Pressable>
+
+        </View>
       </View>
-    </View>
+    </View >
   );
 };
 
 const styles = StyleSheet.create({
-   container: {
+  // container: {
+  //   flex: 1,
+  //   backgroundColor: '#FFFFFF',
+  //   paddingHorizontal: 24,
+  //   justifyContent: 'center',
+  //   paddingTop: 20,
+  // },
+  container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
-    paddingHorizontal: 24,
-    justifyContent: 'center',
-    paddingTop: 20,
+  },
+  containerFundo: {
+    position: 'absolute',
+    width: '100%',
+    height: '100%',
+    zIndex: 0,
+  },
+  metadeFundo: {
+    height: '50%',
+  },
+  containerConteudo: {
+    flex: 1,
+    paddingHorizontal: 20,
+    marginHorizontal: 25,
+    paddingTop: 25,
+    marginTop: 40,
+    marginBottom: 40,
+    zIndex: 1,
+    borderRadius: 10,
+    // elevation: 3,
+    // justifyContent: 'center',
   },
   header: {
     width: "100%",
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "center", 
-    marginBottom: 20,
-    position: 'relative', 
+    justifyContent: "center",
+    // marginBottom: 20,
+    position: 'relative',
   },
   iconeCabecalho: {
-    position: 'absolute', 
-    left: 0, 
+    position: 'absolute',
+    left: 0,
     padding: 6,
   },
   textoCabecalho: {
-    fontSize: 22,
-    fontWeight: '700',
+    fontSize: 25,
+    fontWeight: 'bold',
     color: '#2D3748',
-    textAlign: 'center', 
+    textAlign: 'center',
   },
+
+  // fontSize: 25,
+  // fontWeight: 'bold',
+  // textAlign: 'center',
+  // marginBottom: 20,
+
   containerLogo: {
-    alignItems: 'center',
-    marginBottom: 16,
+    alignSelf: 'center',
+    width: '100%',
   },
   imagemLogo: {
-    width: 100,
+    width: '100%',
     height: 100,
-    resizeMode: 'contain',
-    marginBottom: 8,
+    resizeMode: 'contain'
   },
   containerFormulario: {
     width: '100%',
@@ -398,31 +486,39 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   rotulo: {
-    fontSize: 13,
+    fontSize: 16,
     fontWeight: '600',
     color: '#4A5568',
     marginBottom: 4,
   },
   input: {
     width: '100%',
-    height: 42,
-    backgroundColor: '#F7FAFC',
+    height: 45,
+    backgroundColor: 'transparent',
     borderWidth: 1,
     borderColor: '#E2E8F0',
     borderRadius: 6,
     paddingHorizontal: 12,
-    fontSize: 14,
+    fontSize: 18,
     color: '#1A202C',
   },
   opcoesGenero: {
     flexDirection: 'row',
-    justifyContent: 'flex-start',
-    marginTop: 6,
+    // justifyContent: 'flex-start',
+    // marginTop: 6,
+    // backgroundColor: "blue",
+    flexWrap: 'nowrap',
   },
   botaoOpcao: {
+    // backgroundColor: "green",
     flexDirection: 'row',
     alignItems: 'center',
-    marginRight: 20,
+    // paddingHorizontal: 6,
+    paddingVertical: 6,
+    // marginRight: 15,
+    // flexShrink: 1,
+    flexWrap: 'wrap',
+    width: '50%'
   },
   radioExterno: {
     width: 18,
@@ -432,7 +528,7 @@ const styles = StyleSheet.create({
     borderColor: '#1A202C',
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: 6,
+    marginRight: 3,
   },
   radioSelecionado: {
     borderColor: '#4299E1',
@@ -444,25 +540,28 @@ const styles = StyleSheet.create({
     backgroundColor: '#4299E1',
   },
   textoOpcao: {
-    fontSize: 11,
-    color: '#000',
+    fontSize: 12,
+    flexShrink: 1,
+    flexWrap: 'nowrap',
+    // backgroundColor: 'red',
+    width: 'auto'
   },
   containerTermos: {
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 16,
-    marginTop: 8,
-    gap: 5, 
+    // marginTop: 8,
+    gap: 5,
   },
- textoTermos: {
+  textoTermos: {
     fontSize: 14,
-    color: '#000', 
+    color: '#000',
     maeginLeft: 4,
   },
   termosLink: {
-    color: '#12577B', 
+    color: '#12577B',
     textDecorationLine: 'underline',
-    fontWeight: 'bold', 
+    fontWeight: 'bold',
   },
   erro: {
     color: '#f00',
@@ -477,8 +576,8 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   botaoPrimario: {
-    width: '100%',
-    height: 45, 
+    width: '70%',
+    height: 45,
     backgroundColor: '#12577B',
     borderRadius: 20,
     justifyContent: 'center',
@@ -486,12 +585,13 @@ const styles = StyleSheet.create({
     marginBottom: 15,
     alignSelf: 'center',
   },
+
   botaoDesativado: {
     backgroundColor: '#BEE3F8',
   },
   textoBotao: {
     color: '#FFFFFF',
-    fontSize: 15,
+    fontSize: 20,
     fontWeight: '600',
   },
   divisor: {
@@ -511,12 +611,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
   },
   conteudoBotaoGoogle: {
-    flexDirection: 'row',    
-  alignItems: 'center',   
-  justifyContent: 'center', 
-  padding: 10,
-  backgroundColor: 'transparent', 
-  }, 
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 10,
+    backgroundColor: 'transparent',
+  },
   botaoGoogle: {
     width: '100%',
     height: 44,
@@ -532,7 +632,7 @@ const styles = StyleSheet.create({
     width: 18,
     height: 18,
     marginRight: 10,
-        flexDirection: 'row',
+    flexDirection: 'row',
     justifyContent: 'flex-start',
   },
   textoBotaoGoogle: {
@@ -541,18 +641,36 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   linkLogin: {
-    marginTop: 12,
-    marginBottom: 20,
+    // marginTop: 12,
+    // marginBottom: 20,
   },
   textoLinkLogin: {
     color: '#718096',
-    fontSize: 13,
+    fontSize: 16,
     textAlign: 'center',
   },
   textoLinkLoginNegrito: {
     color: '#12577B',
     fontWeight: '600',
   },
+  senha: {
+    // width: '100%',
+    // height: 45,
+    // backgroundColor: '#F7FAFC',
+    // borderWidth: 1,
+    // borderColor: '#E2E8F0',
+    // borderRadius: 6,
+    // paddingHorizontal: 12,
+    fontSize: 18,
+    color: '#1A202C',
+  },
+  campoSenha: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  campoInput: {
+    width: '90%',
+  }
 });
 
 export default CadastroScreen;
