@@ -70,32 +70,43 @@ document.addEventListener('DOMContentLoaded', function() {
 
         const tbody = document.createElement('tbody');
         filtrados.forEach(a => {
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-                <td>${a.id}</td>
-                <td>${a.nome}</td>
-                <td>${a.email}</td>
-                <td>${a.telefone || '-'}</td>
-                <td>${a.nivelAdmin || '-'}</td>
-                <td>${a.created_at || '-'}</td>
-                <td>${a.status || '-'}</td>
-                <td>
-                    <a href="/adm/admins/${a.id}" class="btn btn-sm btn-warning">
-                        <i class="fa-solid fa-pencil btn-alterar"></i>
-                    </a>
-                </td>
-                <td>
-                    <form action="/adm/admins/${a.id}" method="POST" onsubmit="return confirm('Tem certeza que quer excluir?');">
-                        @csrf
-                        @method('PUT')
-                        <button type="submit" class="btn btn-sm btn-danger">
-                            <i class="fa-solid fa-trash-can btn-excluir"></i>
-                        </button>
-                    </form>
-                </td>
-            `;
-            tbody.appendChild(tr);
-        });
+    const tr = document.createElement('tr');
+
+    const podeEditar = ["prata", "ouro"].includes((a.nivelAdmin || "").toLowerCase());
+
+    tr.innerHTML = `
+        <td>${a.id}</td>
+        <td>${a.nome}</td>
+        <td>${a.email}</td>
+        <td>${a.telefone || '-'}</td>
+        <td>${a.nivelAdmin || '-'}</td>
+        <td>${a.created_at || '-'}</td>
+        <td>${a.status || '-'}</td>
+
+        <td>
+            ${podeEditar ? `
+                <a href="/adm/admins/${a.id}" class="btn btn-sm btn-warning">
+                    <i class="fa-solid fa-pencil btn-alterar"></i>
+                </a>
+            ` : `<span class="text-muted">—</span>`}
+        </td>
+
+        <td>
+            ${podeEditar ? `
+                <form action="/adm/admins/${a.id}" method="POST" onsubmit="return confirm('Tem certeza que quer excluir?');">
+                    @csrf
+                    @method('PUT')
+                    <button type="submit" class="btn btn-sm btn-danger">
+                        <i class="fa-solid fa-trash-can btn-excluir"></i>
+                    </button>
+                </form>
+            ` : `<span class="text-muted">—</span>`}
+        </td>
+    `;
+
+    tbody.appendChild(tr);
+});
+
         table.appendChild(tbody);
         container.appendChild(table);
     }

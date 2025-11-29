@@ -4,10 +4,10 @@
 
 @section('content')
 <div class="container py-5">
-    <div class="graficosUsuarios d-flex flex-wrap justify-content-around gap-4 mb-4">
-        <div id="chart-container1Usuarios" style="height:0; width:0%; min-width:300px;"></div>
-        <div id="chart-container2Usuarios" style="height:0; width:0%; min-width:300px;"></div>
-    </div>
+
+    @php
+        $podeEditar = in_array(auth('admin')->user()->nivelAdmin, ['prata','ouro']);
+    @endphp
 
     <h1 class="mb-4 text-center">Usuários Cadastrados</h1>
 
@@ -27,12 +27,14 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+
     const usuarios = @json($usuario);
+    const podeEditar = @json($podeEditar);
+
     const container = document.getElementById('lista-usuarios');
     const input = document.getElementById('pesquisaUsuario');
     const filtroGenero = document.getElementById('filtroGenero');
 
-    // Popular filtro de gênero
     const generosUnicos = [...new Set(usuarios.map(u => u.genero || 'Não informado'))];
     generosUnicos.forEach(g => {
         const opt = document.createElement('option');
@@ -51,13 +53,14 @@ document.addEventListener('DOMContentLoaded', function() {
             const email = (u.email || '').toLowerCase();
             const genero = u.genero || 'Não informado';
 
-            const matchTexto = id.includes(termo) || nome.includes(termo) || email.includes(termo);
-            const matchGenero = !generoSelecionado || genero === generoSelecionado;
-
-            return matchTexto && matchGenero;
+            return (
+                (id.includes(termo) || nome.includes(termo) || email.includes(termo)) &&
+                (!generoSelecionado || genero === generoSelecionado)
+            );
         });
 
         container.innerHTML = '';
+
         if(filtrados.length === 0){
             container.innerHTML = '<div class="alert alert-warning">Nenhum usuário encontrado.</div>';
             return;
@@ -67,13 +70,33 @@ document.addEventListener('DOMContentLoaded', function() {
         table.classList.add('table','table-striped','table-bordered','text-center','align-middle');
 
         const thead = document.createElement('thead');
-        thead.innerHTML = `<tr>
-            <th>ID</th><th>Nome</th><th>Email</th><th>Telefone</th><th>Token Expo</th><th>Gênero</th><th>Data de Criação</th><th>Status</th><th></th><th></th>
-        </tr>`;
+        thead.innerHTML = `
+            <tr>
+                <th>ID</th><th>Nome</th><th>Email</th><th>Telefone</th><th>Token Expo</th><th>Gênero</th><th>Data</th><th>Status</th>
+                ${podeEditar ? '<th></th><th></th>' : ''}
+            </tr>
+        `;
         table.appendChild(thead);
 
         const tbody = document.createElement('tbody');
+
         filtrados.forEach(u => {
+
+            const btns = podeEditar ? `
+                <td>
+                    <a href="/adm/users/${u.id}" class="btn btn-sm btn-primary"><i class="fa-solid fa-pencil"></i></a>
+                </td>
+                <td>
+                    <form action="/adm/users/excluir/${u.id}" method="POST" onsubmit="return confirm('Tem certeza que quer excluir?');">
+                        @csrf
+                        @method('PUT')
+                        <button type="submit" class="btn btn-sm btn-danger">
+                            <i class="fa-solid fa-trash-can btn-excluir"></i>
+                        </button>
+                    </form>
+                </td>
+            ` : '';
+
             const tr = document.createElement('tr');
             tr.innerHTML = `
                 <td>${u.id}</td>
@@ -84,28 +107,18 @@ document.addEventListener('DOMContentLoaded', function() {
                 <td>${u.genero || '-'}</td>
                 <td>${u.data || '-'}</td>
                 <td>${u.status || '-'}</td>
-                <td>
-                    <a href="/adm/users/${u.id}" class="btn btn-sm btn-primary"><i class="fa-solid fa-pencil"></i></a>
-                </td>
-
-                <td>
-                    <form action="/adm/users/excluir/${u.id}" method="POST" onsubmit="return confirm('Tem certeza que quer excluir?');">
-                        @csrf
-                        @method('PUT')
-                        <button type="submit" class="btn btn-sm btn-danger">
-                            <i class="fa-solid fa-trash-can btn-excluir"></i>
-                        </button>
-                    </form>
-                </td>
+                ${btns}
             `;
             tbody.appendChild(tr);
         });
+
         table.appendChild(tbody);
         container.appendChild(table);
     }
 
     input.addEventListener('input', renderTabela);
     filtroGenero.addEventListener('change', renderTabela);
+
     renderTabela();
 });
 </script>

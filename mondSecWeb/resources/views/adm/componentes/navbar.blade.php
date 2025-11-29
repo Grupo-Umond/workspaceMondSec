@@ -25,7 +25,7 @@
                         <i class="fa-solid fa-circle-exclamation"></i> Ocorrencias
                     </a>
 
-                   @if(Auth::check() && Auth::user()->nivelAdmin === 'Ouro')
+                   @if(Auth::check() && Auth::user()->nivelAdmin === 'ouro')
                         <a href="{{ route('adm.admins.index') }}" class="btn btn-primary btn-lg flex-fill btn-nav 
                                 {{ request()->routeIs('adm.admins.*')
                                 ? 'active' : '' }}">

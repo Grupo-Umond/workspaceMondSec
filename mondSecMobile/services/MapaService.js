@@ -61,7 +61,6 @@ const MapaZonaLesteGeojson = forwardRef(({ ocorrencias = [], currentUserId = nul
 
   const [visible, setVisible] = useState(false);
   const slideAnim = useRef(new Animated.Value(0)).current;
-  // --- estados para modal multi-ocorrência ---
   const [ocorrenciasNoEndereco, setOcorrenciasNoEndereco] = useState([]);
   const [modalIndex, setModalIndex] = useState(0);
   const flatListRef = useRef(null);
