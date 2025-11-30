@@ -4,13 +4,12 @@ import CheckBox from 'expo-checkbox';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { MaterialIcons as Icon } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import UrlService from '../../services/UrlService'; 
+import UrlService from '../../services/UrlService';
 import { TextInputMask } from 'react-native-masked-text';
-import { useTheme } from "../../services/themes/themecontext";  // ⭐ ADICIONADO
+import { useTheme } from "../../services/themes/themecontext";
 
 const CadastroScreen = ({ navigation }) => {
 
-  // ⭐ TEMA
   const { theme, isDarkMode } = useTheme();
 
   const [nome, setNome] = useState('');
@@ -19,92 +18,81 @@ const CadastroScreen = ({ navigation }) => {
   const [telefone, setTelefone] = useState('');
   const [senha, setSenha] = useState('');
   const [senhaConfirma, setSenhaConfirma] = useState('');
-
+  
   const regexTelefone = /^(?:\+55\s?)?(?:\(?\d{2}\)?\s?)?(?:9?\d{4}-?\d{4})$/;
   const regexEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
   const [concordoTermos, setConcordoTermos] = useState(false);
   const [carregando, setCarregando] = useState(false);
 
-  const [erroMessage, setErroMessage] = useState('');
   const [erroSenha, setErroSenha] = useState('');
   const [erroSenhaConfirma, setErroSenhaConfirma] = useState('');
+  const [errosLista, setErrosLista] = useState([]);
 
   const opcoesGenero = ['Masculino', 'Feminino', 'Prefiro não informar'];
 
+  // VALIDAR SENHA EM TEMPO REAL
   useEffect(() => {
-    const validarSenha = () => {
-      if (!senha) return;
-      if (senha.length < 8) {
-        setErroSenha('A senha precisa ter pelo menos 8 caracteres.');
-        return false;
-      }
-      if (!/\d/.test(senha)) {
-        setErroSenha('A senha precisa conter pelo menos um número.');
-        return false;
-      }
-      if (!/[A-Z]/.test(senha)) {
-        setErroSenha('A senha precisa conter pelo menos uma letra maiúscula.');
-        return false;
-      }
-      setErroSenha('');
-      return true;
-    };
-    validarSenha();
+    if (!senha) return;
+
+    if (senha.length < 8) return setErroSenha("A senha precisa ter pelo menos 8 caracteres.");
+    if (!/\d/.test(senha)) return setErroSenha("A senha precisa conter pelo menos um número.");
+    if (!/[A-Z]/.test(senha)) return setErroSenha("A senha precisa conter pelo menos uma letra maiúscula.");
+
+    setErroSenha('');
   }, [senha]);
 
   useEffect(() => {
-    const validarSenhaConfirma = () => {
-      if (!senhaConfirma) return;
-      if (senhaConfirma.length < 8) {
-        setErroSenhaConfirma('A senha precisa ter pelo menos 8 caracteres.');
-        return false;
-      }
-      if (!/\d/.test(senhaConfirma)) {
-        setErroSenhaConfirma('A senha precisa conter pelo menos um número.');
-        return false;
-      }
-      if (!/[A-Z]/.test(senhaConfirma)) {
-        setErroSenhaConfirma('A senha precisa conter pelo menos uma letra maiúscula.');
-        return false;
-      }
-      setErroSenhaConfirma('');
-      return true;
-    };
-    validarSenhaConfirma();
+    if (!senhaConfirma) return;
+
+    if (senhaConfirma.length < 8) return setErroSenhaConfirma("A senha precisa ter pelo menos 8 caracteres.");
+    if (!/\d/.test(senhaConfirma)) return setErroSenhaConfirma("A senha precisa conter pelo menos um número.");
+    if (!/[A-Z]/.test(senhaConfirma)) return setErroSenhaConfirma("A senha precisa conter pelo menos uma letra maiúscula.");
+
+    setErroSenhaConfirma('');
   }, [senhaConfirma]);
 
+  // ⭐ FUNÇÃO QUE COLETA TODOS OS ERROS POSSÍVEIS
   const validarCadastro = () => {
-    if (!nome || !genero || !email || !senha || !telefone) {
-      setErroMessage('Por favor, preencha todos os campos obrigatórios.');
-      return false;
-    }
-    if (senha !== senhaConfirma) {
-      setErroMessage('As senhas devem ser iguais');
-      return false;
-    }
-    if (erroSenha) {
-      setErroMessage(erroSenha);
-      return false;
-    }
-    if (!regexTelefone.test(telefone)) {
-      setErroMessage('Telefone inválido.');
-      return false;
-    }
-    if (!regexEmail.test(email)) {
-      setErroMessage('Email inválido.');
-      return false;
-    }
-    if (!concordoTermos) {
-      setErroMessage('Concorde com nossos termos de uso.');
-      return false;
-    }
-    setErroMessage('');
-    return true;
+    const erros = [];
+
+    if (!nome) erros.push("O campo nome é obrigatório.");
+    if (!email) erros.push("O campo email é obrigatório.");
+    if (!telefone) erros.push("O campo telefone é obrigatório.");
+    if (!genero) erros.push("Selecione um gênero.");
+    if (!senha) erros.push("O campo senha é obrigatório.");
+    if (!senhaConfirma) erros.push("O campo confirmar senha é obrigatório.");
+
+    if (senha && senha.length < 8)
+      erros.push("A senha precisa ter pelo menos 8 caracteres.");
+
+    if (senha && !/\d/.test(senha))
+      erros.push("A senha precisa conter pelo menos um número.");
+
+    if (senha && !/[A-Z]/.test(senha))
+      erros.push("A senha precisa conter pelo menos uma letra maiúscula.");
+
+    if (senha !== senhaConfirma)
+      erros.push("As senhas precisam ser iguais.");
+
+    if (telefone && !regexTelefone.test(telefone))
+      erros.push("Telefone inválido.");
+
+    if (email && !regexEmail.test(email))
+      erros.push("Email inválido.");
+
+    if (!concordoTermos)
+      erros.push("Você precisa concordar com os termos de uso.");
+
+    setErrosLista(erros);
+
+    return erros.length === 0;
   };
 
+  // ENVIAR DADOS
   const enviarDados = async () => {
     if (!validarCadastro()) return;
+
     setCarregando(true);
 
     try {
@@ -117,16 +105,24 @@ const CadastroScreen = ({ navigation }) => {
       });
 
       const mensagem = response.data.mensagem;
-      navigation.navigate('Login', { mensagem });
+      navigation.navigate('Foto', { mensagem });
 
     } catch (erro) {
       console.log(erro);
+
+      const errosApi = erro.response?.data?.errors;
+
+      if (Array.isArray(errosApi)) {
+        setErrosLista(errosApi);
+        return;
+      }
+
       const status = erro.response?.status;
 
-      if (status === 401) setErroMessage('Cadastro não autorizado.');
-      else if (status === 500) setErroMessage('Erro no servidor, tente mais tarde.');
-      else if (status === 422) setErroMessage('Erro, dados inválidos.');
-      else setErroMessage('Erro inesperado, tente mais tarde.');
+      if (status === 401) setErrosLista(["Cadastro não autorizado."]);
+      else if (status === 422) setErrosLista(["Dados inválidos enviados."]);
+      else if (status === 500) setErrosLista(["Erro no servidor, tente mais tarde."]);
+      else setErrosLista(["Erro inesperado, tente novamente."]);
 
     } finally {
       setCarregando(false);
@@ -134,11 +130,7 @@ const CadastroScreen = ({ navigation }) => {
   };
 
   return (
-
-    <View style={[
-      styles.container, 
-      { backgroundColor: theme.background }  // ⭐ MODO ESCURO
-    ]}>
+    <View style={[styles.container, { backgroundColor: theme.background }]}>
 
       {/* HEADER */}
       <View style={styles.header}>
@@ -169,14 +161,7 @@ const CadastroScreen = ({ navigation }) => {
         <View style={styles.grupoInput}>
           <Text style={[styles.rotulo, { color: theme.text }]}>Nome</Text>
           <TextInput
-            style={[
-              styles.input,
-              {
-                backgroundColor: theme.input,
-                borderColor: theme.border,
-                color: theme.text,
-              }
-            ]}
+            style={[styles.input, { backgroundColor: theme.input, borderColor: theme.border, color: theme.text }]}
             placeholder="Digite seu nome..."
             placeholderTextColor={theme.textSecondary}
             value={nome}
@@ -188,21 +173,13 @@ const CadastroScreen = ({ navigation }) => {
         <View style={styles.grupoInput}>
           <Text style={[styles.rotulo, { color: theme.text }]}>Email</Text>
           <TextInput
-            style={[
-              styles.input,
-              {
-                backgroundColor: theme.input,
-                borderColor: theme.border,
-                color: theme.text,
-              }
-            ]}
+            style={[styles.input, { backgroundColor: theme.input, borderColor: theme.border, color: theme.text }]}
             placeholder="Digite seu email..."
             placeholderTextColor={theme.textSecondary}
             value={email}
             onChangeText={setEmail}
             keyboardType="email-address"
             autoCapitalize="none"
-            autoCorrect={false}
           />
         </View>
 
@@ -211,24 +188,13 @@ const CadastroScreen = ({ navigation }) => {
           <Text style={[styles.rotulo, { color: theme.text }]}>Telefone</Text>
           <TextInputMask
             type={'cel-phone'}
-            options={{
-              maskType: 'BRL',
-              withDDD: true,
-              dddMask: '(99) '
-            }}
+            options={{ maskType: 'BRL', withDDD: true, dddMask: '(99) ' }}
             value={telefone}
-            onChangeText={text => setTelefone(text)}
-            style={[
-              styles.input,
-              {
-                backgroundColor: theme.input,
-                borderColor: theme.border,
-                color: theme.text,
-              }
-            ]}
+            onChangeText={setTelefone}
+            style={[styles.input, { backgroundColor: theme.input, borderColor: theme.border, color: theme.text }]}
             keyboardType="numeric"
-            placeholderTextColor={theme.textSecondary}
             placeholder="Digite seu telefone..."
+            placeholderTextColor={theme.textSecondary}
           />
         </View>
 
@@ -237,62 +203,41 @@ const CadastroScreen = ({ navigation }) => {
           <Text style={[styles.rotulo, { color: theme.text }]}>Senha</Text>
           {erroSenha ? <Text style={styles.erro}>{erroSenha}</Text> : null}
           <TextInput
-            style={[
-              styles.input,
-              {
-                backgroundColor: theme.input,
-                borderColor: theme.border,
-                color: theme.text,
-              }
-            ]}
+            style={[styles.input, { backgroundColor: theme.input, borderColor: theme.border, color: theme.text }]}
+            secureTextEntry
             placeholder="Digite sua senha..."
             placeholderTextColor={theme.textSecondary}
             value={senha}
             onChangeText={setSenha}
-            secureTextEntry
           />
         </View>
 
         {/* CONFIRMAR SENHA */}
         <View style={styles.grupoInput}>
-          <Text style={[styles.rotulo, { color: theme.text }]}>Confirma Senha</Text>
+          <Text style={[styles.rotulo, { color: theme.text }]}>Confirmar Senha</Text>
           {erroSenhaConfirma ? <Text style={styles.erro}>{erroSenhaConfirma}</Text> : null}
           <TextInput
-            style={[
-              styles.input,
-              {
-                backgroundColor: theme.input,
-                borderColor: theme.border,
-                color: theme.text,
-              }
-            ]}
+            style={[styles.input, { backgroundColor: theme.input, borderColor: theme.border, color: theme.text }]}
+            secureTextEntry
             placeholder="Confirme a senha..."
             placeholderTextColor={theme.textSecondary}
             value={senhaConfirma}
             onChangeText={setSenhaConfirma}
-            secureTextEntry
           />
         </View>
 
         {/* GÊNERO */}
         <View style={styles.grupoInput}>
           <Text style={[styles.rotulo, { color: theme.text }]}>Gênero</Text>
-
           <View style={styles.opcoesGenero}>
             {opcoesGenero.map((op) => (
-              <Pressable
-                key={op}
-                style={styles.botaoOpcao}
-                onPress={() => setGenero(op)}
-              >
+              <Pressable key={op} style={styles.botaoOpcao} onPress={() => setGenero(op)}>
                 <View style={[
                   styles.radioExterno,
                   { borderColor: theme.text },
                   genero === op && { borderColor: theme.buttonColor }
                 ]}>
-                  {genero === op && (
-                    <View style={[styles.radioInterno, { backgroundColor: theme.buttonColor }]} />
-                  )}
+                  {genero === op && <View style={[styles.radioInterno, { backgroundColor: theme.buttonColor }]} />}
                 </View>
                 <Text style={[styles.textoOpcao, { color: theme.text }]}>{op}</Text>
               </Pressable>
@@ -305,24 +250,26 @@ const CadastroScreen = ({ navigation }) => {
           <CheckBox
             value={concordoTermos}
             onValueChange={setConcordoTermos}
-            tintColors={{
-              true: theme.buttonColor,
-              false: theme.textSecondary
-            }}
+            tintColors={{ true: theme.buttonColor, false: theme.textSecondary }}
             style={styles.checkbox}
           />
           <Text style={[styles.textoTermos, { color: theme.text }]}>
             Concordo com os{' '}
-            <Text
-              style={[styles.termosLink, { color: theme.primary }]}
-              onPress={() => navigation.navigate('Politica')}
-            >
+            <Text style={[styles.termosLink, { color: theme.primary }]}
+              onPress={() => navigation.navigate('Politica')}>
               termos de uso
             </Text>
           </Text>
         </View>
 
-        {erroMessage ? <Text style={styles.erro}>{erroMessage}</Text> : null}
+        {/* ⭐ EXIBE TODOS OS ERROS */}
+        {errosLista.length > 0 && (
+          <View style={{ marginBottom: 10 }}>
+            {errosLista.map((err, index) => (
+              <Text key={index} style={styles.erro}>• {err}</Text>
+            ))}
+          </View>
+        )}
 
         {/* BOTÃO */}
         <TouchableOpacity
@@ -355,7 +302,7 @@ const CadastroScreen = ({ navigation }) => {
 };
 
 const styles = StyleSheet.create({
-   container: {
+  container: {
     flex: 1,
     backgroundColor: '#FFFFFF',
     paddingHorizontal: 24,
@@ -366,20 +313,20 @@ const styles = StyleSheet.create({
     width: "100%",
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "center", 
+    justifyContent: "center",
     marginBottom: 20,
-    position: 'relative', 
+    position: 'relative',
   },
   iconeCabecalho: {
-    position: 'absolute', 
-    left: 0, 
+    position: 'absolute',
+    left: 0,
     padding: 6,
   },
   textoCabecalho: {
     fontSize: 22,
     fontWeight: '700',
     color: '#2D3748',
-    textAlign: 'center', 
+    textAlign: 'center',
   },
   containerLogo: {
     alignItems: 'center',
@@ -400,23 +347,23 @@ const styles = StyleSheet.create({
   rotulo: {
     fontSize: 13,
     fontWeight: '600',
-    color: '#4A5568',
     marginBottom: 4,
   },
   input: {
     width: '100%',
     height: 42,
-    backgroundColor: '#F7FAFC',
     borderWidth: 1,
-    borderColor: '#E2E8F0',
     borderRadius: 6,
     paddingHorizontal: 12,
     fontSize: 14,
-    color: '#1A202C',
+  },
+  erro: {
+    color: 'red',
+    fontSize: 14,
+    marginBottom: 5,
   },
   opcoesGenero: {
     flexDirection: 'row',
-    justifyContent: 'flex-start',
     marginTop: 6,
   },
   botaoOpcao: {
@@ -429,114 +376,45 @@ const styles = StyleSheet.create({
     height: 18,
     borderRadius: 9,
     borderWidth: 1.5,
-    borderColor: '#1A202C',
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 6,
-  },
-  radioSelecionado: {
-    borderColor: '#4299E1',
   },
   radioInterno: {
     width: 8,
     height: 8,
     borderRadius: 4,
-    backgroundColor: '#4299E1',
   },
   textoOpcao: {
     fontSize: 11,
-    color: '#000',
   },
   containerTermos: {
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 16,
     marginTop: 8,
-    gap: 5, 
+    gap: 5,
   },
- textoTermos: {
+  textoTermos: {
     fontSize: 14,
-    color: '#000', 
-    maeginLeft: 4,
   },
   termosLink: {
-    color: '#12577B', 
     textDecorationLine: 'underline',
-    fontWeight: 'bold', 
-  },
-  erro: {
-    color: '#f00',
-    fontSize: 15,
-    marginBottom: 10,
-    textAlign: 'center',
-  },
-  sucess: {
-    color: '#0f0',
-    marginBottom: 10,
-    fontSize: 15,
-    textAlign: 'center',
+    fontWeight: 'bold',
   },
   botaoPrimario: {
     width: '100%',
-    height: 45, 
-    backgroundColor: '#12577B',
+    height: 45,
     borderRadius: 20,
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 15,
-    alignSelf: 'center',
   },
   botaoDesativado: {
-    backgroundColor: '#BEE3F8',
+    opacity: 0.4,
   },
   textoBotao: {
-    color: '#FFFFFF',
-    fontSize: 15,
-    fontWeight: '600',
-  },
-  divisor: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginVertical: 16,
-  },
-  linhaDivisor: {
-    flex: 1,
-    height: 1,
-    backgroundColor: '#E2E8F0',
-  },
-  textoDivisor: {
-    color: '#718096',
-    fontSize: 13,
-    fontWeight: '600',
-    paddingHorizontal: 10,
-  },
-  conteudoBotaoGoogle: {
-    flexDirection: 'row',    
-  alignItems: 'center',   
-  justifyContent: 'center', 
-  padding: 10,
-  backgroundColor: 'transparent', 
-  }, 
-  botaoGoogle: {
-    width: '100%',
-    height: 44,
-    backgroundColor: '#12577B',
-    borderRadius: 6,
-    borderWidth: 1,
-    borderColor: '#E2E8F0',
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  iconeGoogle: {
-    width: 18,
-    height: 18,
-    marginRight: 10,
-        flexDirection: 'row',
-    justifyContent: 'flex-start',
-  },
-  textoBotaoGoogle: {
-    color: '#ffffffff',
+    color: '#fff',
     fontSize: 15,
     fontWeight: '600',
   },
@@ -545,12 +423,10 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   textoLinkLogin: {
-    color: '#718096',
     fontSize: 13,
     textAlign: 'center',
   },
   textoLinkLoginNegrito: {
-    color: '#12577B',
     fontWeight: '600',
   },
 });

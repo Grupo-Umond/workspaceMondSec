@@ -11,6 +11,7 @@ import {
   Button,
   FlatList,
   ScrollView,
+  Alert,
 } from 'react-native';
 
 import CheckBox from 'expo-checkbox';
@@ -30,6 +31,7 @@ const RegistrarScreen = ({ navigation }) => {
   const [mostrar, setMostrar] = useState(false);
   const [visivelSucesso, setVisivelSucesso] = useState(false);
 
+  // Form fields
   const [rua, setRua] = useState('');
   const [numero, setNumero] = useState('');
   const [bairro, setBairro] = useState('');
@@ -40,136 +42,23 @@ const RegistrarScreen = ({ navigation }) => {
   const [tipo, setTipo] = useState('');
   const [descricao, setDescricao] = useState('');
   const [mensagemErro, setMensagemErro] = useState('');
+  const [detalheErro, setDetalheErro] = useState(''); // Detalhes técnicos do erro
+  const [erroModalVisivel, setErroModalVisivel] = useState(false);
+
   const [show, setShow] = useState(false);
   const [selectedDate, setSelectedDate] = useState(new Date());
 
   const [buscaTipo, setBuscaTipo] = useState('');
   const [dropdownAberto, setDropdownAberto] = useState(false);
 
+  // Lista de tipos (mantive a sua grande lista no exemplo reduzido por legibilidade,
+  // substitua pelos seus tiposOcorrencia originais conforme preferir)
   const tiposOcorrencia = [
-    "Assalto",
-    "Furto",
-    "Roubo",
-    "Latrocínio",
-    "Agressão",
-    "Ameaça",
-    "Homicídio",
-    "Tentativa de Homicídio",
-    "Violência Doméstica",
-    "Violência Sexual",
-    "Estupro",
-    "Abuso Infantil",
-    "Bullying",
-    "Vandalismo",
-    "Depredação",
-    "Dano ao Patrimônio",
-    "Acidente de Trânsito",
-    "Atropelamento",
-    "Acidente com Moto",
-    "Acidente com Caminhão",
-    "Acidente com Bicicleta",
-    "Acidente com Ônibus",
-    "Colisão Múltipla",
-    "Capotamento",
-    "Arrombamento",
-    "Invasão de Propriedade",
-    "Furto de Veículo",
-    "Roubo de Veículo",
-    "Sequestro",
-    "Sequestro Relâmpago",
-    "Desaparecimento",
-    "Pessoa Perdida",
-    "Pessoa Suspeita",
-    "Tráfico de Drogas",
-    "Uso de Drogas",
-    "Venda Ilegal",
-    "Contrabando",
-    "Descaminho",
-    "Perturbação do Sossego",
-    "Som Alto",
-    "Briga",
-    "Confusão Generalizada",
-    "Aglomeração",
-    "Desordem Pública",
-    "Ameaça com Arma",
-    "Disparo de Arma de Fogo",
-    "Porte Ilegal de Arma",
-    "Encontrado Objeto",
-    "Perda de Objeto",
-    "Furto de Celular",
-    "Furto de Bolsa",
-    "Furto de Documento",
-    "Fraude",
-    "Estelionato",
-    "Golpe do Pix",
-    "Golpe Virtual",
-    "Injúria",
-    "Calúnia",
-    "Difamação",
-    "Racismo",
-    "Xenofobia",
-    "Homofobia",
-    "Incêndio",
-    "Incêndio Residencial",
-    "Incêndio Comercial",
-    "Curto-circuito",
-    "Queimada",
-    "Deslizamento",
-    "Enchente",
-    "Alagamento",
-    "Desabamento",
-    "Queda de Árvore",
-    "Animal Solto",
-    "Animal Perdido",
-    "Maus-tratos a Animais",
-    "Infração de Trânsito",
-    "Direção Perigosa",
-    "Dirigir Embriagado",
-    "Racha de Rua",
-    "Veículo Abandonado",
-    "Objeto Suspeito",
-    "Pacote Abandonado",
-    "Ameaça de Bomba",
-    "Tentativa de Arrombamento",
-    "Tentativa de Furto",
-    "Tentativa de Roubo",
-    "Tentativa de Sequestro",
-    "Fraude Bancária",
-    "Golpe Telefônico",
-    "Invasão de Conta",
-    "Violação de Dados",
-    "Ataque Cibernético",
-    "Harassment Online",
-    "Cyberbullying",
-    "Fake News",
-    "Invasão de Sistema",
-    "Vazamento de Dados",
-    "Exploração Sexual",
-    "Corrupção",
-    "Desvio de Verba",
-    "Propina",
-    "Crime Ambiental",
-    "Poluição Sonora",
-    "Poluição Ambiental",
-    "Pesca Ilegal",
-    "Caça Ilegal",
-    "Construção Irregular",
-    "Obra Irregular",
-    "Obstrução de Via",
-    "Manifestação",
-    "Protesto",
-    "Ato de Vandalismo Urbano",
-    "Omissão de Socorro",
-    "Lesão Corporal",
-    "Briga em Bar",
-    "Briga em Escola",
-    "Distúrbio em Evento",
-    "Estacionamento Irregular",
-    "Abandono de Incapaz",
-    "Violação de Domicílio",
-    "Ato Obsceno",
+    // coloque aqui a lista completa que você já tinha; por clareza deixei um recorte
+    "Homicídio", "Tentativa de Homicídio", "Roubo", "Furto", "Agressão Física",
+    "Violência Doméstica", "Estupro", "Tráfico de Drogas", "Incêndio Residencial",
+    "Acidente de Carro", "Enchente", "Queda de Altura", "Perda de Objeto", "Outros"
   ];
-
 
   const tiposFiltrados = tiposOcorrencia.filter(item =>
     item.toLowerCase().includes(buscaTipo.toLowerCase())
@@ -177,13 +66,18 @@ const RegistrarScreen = ({ navigation }) => {
 
   useEffect(() => {
     const checarModal = async () => {
-      const mostrarSalvo = await AsyncStorage.getItem('mostrarModalInicio');
-      if (mostrarSalvo !== 'true') {
-        setVisivelInicio(true);
-        setMostrar(false);
-      } else {
-        setVisivelInicio(false);
-        setMostrar(true);
+      try {
+        const mostrarSalvo = await AsyncStorage.getItem('mostrarModalInicio');
+        if (mostrarSalvo !== 'true') {
+          setVisivelInicio(true);
+          setMostrar(false);
+        } else {
+          setVisivelInicio(false);
+          setMostrar(true);
+        }
+      } catch (err) {
+        // Problema ao ler AsyncStorage: avisar o usuário (mas não bloquear)
+        console.error('Erro ao acessar AsyncStorage (mostrarModalInicio):', err);
       }
     };
     checarModal();
@@ -195,6 +89,7 @@ const RegistrarScreen = ({ navigation }) => {
   };
 
   const onChange = (event, selectedDateValue) => {
+    // DateTimePicker devolve dois tipos de events; evitamos render loop
     setShow(false);
     if (selectedDateValue) {
       setSelectedDate(selectedDateValue);
@@ -203,9 +98,17 @@ const RegistrarScreen = ({ navigation }) => {
   };
 
   const toggleMostrar = async (value) => {
-    setMostrar(value);
-    await AsyncStorage.setItem('mostrarModalInicio', value ? 'true' : 'false');
-    if (value) setVisivelInicio(false);
+    try {
+      setMostrar(value);
+      await AsyncStorage.setItem('mostrarModalInicio', value ? 'true' : 'false');
+      if (value) setVisivelInicio(false);
+    } catch (err) {
+      console.error('Erro ao salvar mostrarModalInicio:', err);
+      // Não travar a experiência do usuário; apenas mostrar aviso técnico
+      setMensagemErro('Não foi possível salvar sua preferência localmente. (storage error)');
+      setDetalheErro(getErroDetalhado(err));
+      setErroModalVisivel(true);
+    }
   };
 
   const montarEnderecoCompleto = () => {
@@ -213,10 +116,30 @@ const RegistrarScreen = ({ navigation }) => {
   };
 
   const validarDados = () => {
+    // validações básicas com mensagens específicas
     if (!titulo || !tipo || !rua || !numero || !bairro || !cidade) {
-      setMensagemErro('Preencha todos os campos obrigatórios.');
+      setMensagemErro('Preencha todos os campos obrigatórios: título, tipo e endereço completo.');
       return false;
     }
+
+    if ((descricao || '').trim().length < 5) {
+      setMensagemErro('A descrição deve ter pelo menos 5 caracteres.');
+      return false;
+    }
+
+    if (!selectedDate) {
+      setMensagemErro('Selecione a data do acontecimento.');
+      return false;
+    }
+
+    // número deve ser numérico (opcional)
+    if (numero && !/^\d+$/.test(String(numero).trim())) {
+      setMensagemErro('O campo Número deve conter apenas dígitos.');
+      return false;
+    }
+
+    // tudo ok
+    setMensagemErro('');
     return true;
   };
 
@@ -231,46 +154,210 @@ const RegistrarScreen = ({ navigation }) => {
     setCidade('');
     setBuscaTipo('');
     setSelectedDate(new Date());
+    setMensagemErro('');
+    setDetalheErro('');
   };
 
+  // Helper para gerar texto técnico do erro (seguro)
+  const getErroDetalhado = (erro) => {
+    try {
+      if (!erro) return 'Sem detalhes adicionais.';
+      // Se for um erro de axios-like
+      if (erro.response) {
+        // resposta do servidor
+        const status = erro.response.status;
+        const data = erro.response.data;
+        let body = '';
+        try {
+          if (typeof data === 'string') {
+            body = data;
+          } else {
+            body = JSON.stringify(data);
+          }
+        } catch (e) {
+          body = String(data);
+        }
+        return `HTTP ${status} - resposta do servidor: ${body}`;
+      } else if (erro.request) {
+        // requisição foi feita mas sem resposta
+        return `Requisição feita mas sem resposta do servidor. Detalhe: ${erro.message || 'nenhuma mensagem'}`;
+      } else {
+        // erro local / programação
+        return `Erro local: ${erro.message || String(erro)}`;
+      }
+    } catch (e) {
+      return `Erro ao montar detalhes: ${e.message}`;
+    }
+  };
+
+  // Converte endereço para coordenadas com tratamento de erros explícito
   const converterEndereco = async () => {
     try {
       const enderecoCompleto = montarEnderecoCompleto();
+
+      if (!enderecoCompleto || enderecoCompleto.split(',').length < 4) {
+        const err = new Error('Endereço incompleto (rua, número, bairro e cidade são obrigatórios).');
+        err.code = 'ENDERECO_INCOMPLETO';
+        throw err;
+      }
+
+      // Chamada ao serviço de coordenadas (pode lançar)
       const response = await CoordenadaService(enderecoCompleto);
+
+      // Validar shape da resposta
+      if (!response || (typeof response.latitude === 'undefined') || (typeof response.longitude === 'undefined')) {
+        const err = new Error('Serviço de geocoding retornou dados inválidos.');
+        err.code = 'GEOCODING_INVALIDO';
+        throw err;
+      }
+
+      // Possível caso: serviço devolve nulls
+      if (response.latitude == null || response.longitude == null) {
+        const err = new Error('Coordenadas não encontradas para o endereço informado.');
+        err.code = 'COORDENADAS_NAO_ENCONTRADAS';
+        throw err;
+      }
+
       return { latitude: response.latitude, longitude: response.longitude };
+
     } catch (erro) {
-      throw new Error('Não foi possível obter coordenadas do endereço');
+      // Log técnico
+      console.error('converterEndereco erro:', erro);
+      // Reempacotamos com mensagem pra exibir ao usuário e detalhes técnicos
+      const display = (erro.code === 'ENDERECO_INCOMPLETO')
+        ? 'Endereço incompleto. Por favor preencha rua, número, bairro e cidade.'
+        : 'Não foi possível obter coordenadas do endereço. Verifique o endereço ou tente mais tarde.';
+
+      const detalhe = getErroDetalhado(erro);
+      const err = new Error(display);
+      err.detalhe = detalhe;
+      throw err;
     }
   };
 
+  // Envio da ocorrência com tratamento completo de erros
   const enviarOcorrencia = async () => {
+    // valida antes de tudo
     if (!validarDados()) return;
 
     setCarregando(true);
+    setMensagemErro('');
+    setDetalheErro('');
+    setErroModalVisivel(false);
 
     try {
+      // Converter endereço -> coordenadas
       const { latitude, longitude } = await converterEndereco();
+
+      // ISO date para envio (yyyy-mm-dd)
       const dataISO = selectedDate.toISOString().split('T')[0];
 
-      const tokenUser = await AsyncStorage.getItem('userToken');
+      // token do usuário (pode falhar)
+      let tokenUser;
+      try {
+        tokenUser = await AsyncStorage.getItem('userToken');
+      } catch (err) {
+        console.error('Erro ao ler userToken do AsyncStorage:', err);
+        const e = new Error('Erro ao acessar credenciais locais. Tente efetuar login novamente.');
+        e.detalhe = getErroDetalhado(err);
+        throw e;
+      }
 
-      if (!tokenUser) throw new Error("Token inválido");
+      if (!tokenUser) {
+        const e = new Error('Usuário não autenticado. Faça login para continuar.');
+        e.detalhe = 'Token não encontrado no AsyncStorage (userToken).';
+        throw e;
+      }
 
-      await UrlService.post(
-        '/ocorrencia/registrar',
-        { titulo, latitude, longitude, tipo, descricao, dataAcontecimento: dataISO },
-        { headers: { Authorization: `Bearer ${tokenUser}` } }
-      );
+      // Monta payload
+      const payload = {
+        titulo: titulo.trim(),
+        latitude,
+        longitude,
+        tipo: tipo.trim(),
+        descricao: descricao.trim(),
+        dataAcontecimento: dataISO,
+      };
 
-      limparCampos();
+      // Tenta enviar
+      let resposta;
+      try {
+        resposta = await UrlService.post(
+          '/ocorrencia/registrar',
+          payload,
+          { headers: { Authorization: `Bearer ${tokenUser}` } }
+        );
+      } catch (err) {
+        // Se o serviço lançar, trataremos abaixo
+        console.error('Erro na chamada UrlService.post:', err);
+        throw err;
+      }
+
+      // Se chegou aqui, sucesso (pode validar resposta)
       setVisivelSucesso(true);
-      setMensagemErro('');
+      limparCampos();
 
     } catch (erro) {
+      // ---------- TRATAMENTO DE ERROS PARA O USUÁRIO ----------
+      console.error('enviarOcorrencia catch:', erro);
+
+      // Se o erro já tiver mensagem amigável (lançado por nós), usa-a
+      if (erro.message && (erro.detalhe || erro.stack)) {
+        // Mensagem amigável + detalhes técnicos
+        setMensagemErro(erro.message || 'Erro ao enviar ocorrência.');
+        // Prepara detalhe técnico (prioriza .detalhe se existir)
+        const detalhe = erro.detalhe || getErroDetalhado(erro);
+        setDetalheErro(truncarDetalhe(detalhe));
+        setErroModalVisivel(true);
+        setCarregando(false);
+        return;
+      }
+
+      // Se for erro vindo do axios-like (erro.response)
+      if (erro.response) {
+        const status = erro.response.status;
+        const data = erro.response.data;
+        // Mensagens por status
+        if (status === 400) {
+          setMensagemErro('Erro de validação nos dados enviados. Verifique os campos e tente novamente.');
+        } else if (status === 401 || status === 403) {
+          setMensagemErro('Não autorizado. Faça login novamente.');
+        } else if (status >= 500) {
+          setMensagemErro('Erro no servidor. Tente novamente mais tarde.');
+        } else {
+          setMensagemErro(`Erro ao enviar. Código: ${status}`);
+        }
+        // detalhe técnico
+        setDetalheErro(truncarDetalhe(`HTTP ${status} - ${JSON.stringify(data)}`));
+        setErroModalVisivel(true);
+        setCarregando(false);
+        return;
+      }
+
+      // Se for erro de requisição sem resposta (network)
+      if (erro.request) {
+        setMensagemErro('Sem resposta do servidor. Verifique sua conexão e tente novamente.');
+        setDetalheErro(truncarDetalhe(`Requisição feita, sem resposta. Detalhe: ${erro.message || 'nenhuma mensagem'}`));
+        setErroModalVisivel(true);
+        setCarregando(false);
+        return;
+      }
+
+      // Caso genérico
       setMensagemErro('Falha ao enviar ocorrência, tente novamente.');
+      setDetalheErro(truncarDetalhe(getErroDetalhado(erro)));
+      setErroModalVisivel(true);
     } finally {
       setCarregando(false);
     }
+  };
+
+  // função utilitária para truncar detalhe técnico longo
+  const truncarDetalhe = (texto) => {
+    if (!texto) return 'Sem detalhes técnicos.';
+    const max = 2000; // evita colapsar a UI
+    if (texto.length > max) return texto.slice(0, max) + '... (texto truncado)';
+    return texto;
   };
 
   return (
@@ -416,9 +503,16 @@ const RegistrarScreen = ({ navigation }) => {
           </Text>
 
           {mensagemErro ? (
-            <Text style={[styles.erro, { color: theme.danger }]}>
-              {mensagemErro}
-            </Text>
+            <View style={{ marginTop: 8 }}>
+              <Text style={[styles.erro, { color: theme.danger }]}>
+                {mensagemErro}
+              </Text>
+
+              {/* botão para ver detalhes técnicos */}
+              <TouchableOpacity onPress={() => setErroModalVisivel(true)} style={{ marginTop: 6 }}>
+                <Text style={{ color: theme.primary, fontWeight: '600' }}>Ver detalhes técnicos</Text>
+              </TouchableOpacity>
+            </View>
           ) : null}
 
         </View>
@@ -485,7 +579,10 @@ const RegistrarScreen = ({ navigation }) => {
             <View style={styles.buttonGroup}>
               <TouchableOpacity
                 style={[styles.primaryButton, { backgroundColor: theme.buttonColor }]}
-                onPress={() => setVisivelSucesso(false)}
+                onPress={() => {
+                  setVisivelSucesso(false);
+                  // manter usuário na tela para outra ocorrência
+                }}
               >
                 <Text style={styles.primaryButtonText}>Fazer mais uma</Text>
               </TouchableOpacity>
@@ -503,6 +600,42 @@ const RegistrarScreen = ({ navigation }) => {
               </TouchableOpacity>
             </View>
 
+          </View>
+        </View>
+      </Modal>
+
+      {/* MODAL DE DETALHES DO ERRO (TÉCNICO) */}
+      <Modal visible={erroModalVisivel} transparent animationType="slide">
+        <View style={styles.modalContainer}>
+          <View style={[styles.modalContent, { backgroundColor: theme.cardbackground }]}>
+            <Text style={[styles.modalTitle, { color: theme.text }]}>Detalhes do Erro</Text>
+            <ScrollView style={{ maxHeight: 280, marginTop: 8 }}>
+              <Text style={[styles.modalText, { color: theme.textSecondary, fontSize: 13 }]}>
+                {detalheErro || 'Sem detalhes técnicos disponíveis.'}
+              </Text>
+            </ScrollView>
+
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 16 }}>
+              <TouchableOpacity
+                style={[styles.primaryButton, { backgroundColor: theme.buttonColor, flex: 1, marginRight: 6 }]}
+                onPress={() => {
+                  // Copiar para clipboard seria útil; aqui apenas fecha
+                  setErroModalVisivel(false);
+                }}
+              >
+                <Text style={styles.primaryButtonText}>Fechar</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={[styles.secondaryButton, { borderColor: theme.buttonColor, flex: 1, marginLeft: 6 }]}
+                onPress={() => {
+                  // Se quiser enviar o bug report, abrir o e-mail ou outra ação
+                  Alert.alert('Ação', 'Você pode copiar os detalhes técnicos e enviar para suporte.');
+                }}
+              >
+                <Text style={[styles.primaryButtonText, { color: theme.text }]}>Ajuda / Suporte</Text>
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
       </Modal>

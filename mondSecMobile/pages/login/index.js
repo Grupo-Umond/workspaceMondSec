@@ -2,7 +2,7 @@ import React, { useState, useEffect, useContext } from "react";
 import { View, Text, TextInput, Pressable, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import { AuthContext } from '../../services/AuthContext';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
-import { useTheme } from "../../services/themes/themecontext"; // THEME AQUI
+import { useTheme } from "../../services/themes/themecontext";
 import UrlService from '../../services/UrlService';
 
 const LoginScreen = ({ navigation, route }) => {
@@ -19,23 +19,24 @@ const LoginScreen = ({ navigation, route }) => {
   const mensagem = route.params?.mensagem;
   const [sucessMessage, setSucessMessage] = useState(mensagem);
 
-  // TEMA
   const { theme, isDarkMode } = useTheme();
 
+  // ----------------------------- VALIDAR CAMPOS ------------------------------
   const validarDados = () => {
     setSucessMessage('');
+
     if (!login || !senha) {
-      setErroMessage('Por favor, preenche todos os campos.');
+      setErroMessage('Por favor, preencha todos os campos.');
       return false;
     }
 
     if (!emailRegex.test(login) && !regexTelefone.test(login)) {
-      setErroMessage('Por favor, digite um email ou número válido.');
+      setErroMessage('Digite um email ou número de telefone válido.');
       return false;
     }
 
     if (senha.length < 8) {
-      setErroMessage('Por favor, digite uma senha com no mínimo 8 dígitos.');
+      setErroMessage('A senha deve ter pelo menos 8 dígitos.');
       return false;
     }
 
@@ -43,15 +44,24 @@ const LoginScreen = ({ navigation, route }) => {
     return true;
   };
 
+  // ----------------------------- VALIDAR LOGIN ------------------------------
   const validarLogin = async () => {
     if (!validarDados()) return;
+
     setCarregando(true);
+    setErroMessage('');
 
     try {
       const response = await UrlService.post('/usuario/login', {
         login,
         senha,
       });
+
+      // Verificação de resposta inesperada
+      if (!response || !response.data) {
+        setErroMessage("Resposta inesperada do servidor.");
+        return;
+      }
 
       const token = response.data.tokenUser;
 
@@ -60,18 +70,53 @@ const LoginScreen = ({ navigation, route }) => {
         return;
       }
 
-      const mensagem = response.data.mensagem;
       await logar(token);
       navigation.navigate('Home');
 
     } catch (err) {
 
-      if (err.response?.status === 401) {
+      console.log("ERRO LOGIN:", err);
+
+      // ----------------- ERROS COMUNS DE REDE -----------------
+      if (err.message === "Network Error") {
+        setErroMessage("Falha de conexão. Verifique sua internet.");
+        return;
+      }
+
+      if (err.code === "ECONNABORTED") {
+        setErroMessage("Tempo limite excedido. Tente novamente.");
+        return;
+      }
+
+      // ----------------- ERROS DO SERVIDOR ---------------------
+      const status = err.response?.status;
+
+      if (status === 400) {
+        setErroMessage("Requisição inválida. Verifique os dados enviados.");
+      } else if (status === 401) {
         setErroMessage("Email ou senha incorretos.");
-      } else if (err.response?.status === 403) {
-        setErroMessage("Conta deletada");
-      } else if (err.response?.status === 505) {
-        setErroMessage("Falha no servidor.");
+      } else if (status === 403) {
+        setErroMessage("Conta desativada ou sem permissão.");
+      } else if (status === 404) {
+        setErroMessage("Servidor não encontrado.");
+      } else if (status === 429) {
+        setErroMessage("Muitas tentativas. Aguarde um pouco.");
+      } else if (status === 500) {
+        setErroMessage("Erro interno no servidor.");
+      } else if (status === 503) {
+        setErroMessage("Servidor indisponível no momento.");
+      } else if (status === 505) {
+        setErroMessage("Falha no servidor (505).");
+      }
+
+      // ----------------- ERRO SEM STATUS / DESCONHECIDO ---------
+      else if (!status) {
+        setErroMessage("Erro desconhecido. Tente novamente.");
+      }
+
+      // ----------------- FALLBACK FINAL -------------------------
+      else {
+        setErroMessage("Ocorreu um erro inesperado.");
       }
 
     } finally {
@@ -79,10 +124,12 @@ const LoginScreen = ({ navigation, route }) => {
     }
   };
 
+  // ---------------------------------------------------------------------------
+
   return (
     <View style={[styles.container, { backgroundColor: theme.background }]}>
 
-      {/* Fundo */}
+      {/* FUNDO */}
       <View style={styles.containerFundo}>
         <View style={[
           styles.metadeFundo,
@@ -101,17 +148,15 @@ const LoginScreen = ({ navigation, route }) => {
         { backgroundColor: isDarkMode ? "#1a1a1a" : "whitesmoke" }
       ]}>
 
-
-
         <View style={styles.logoContainer}>
-           <Image
-                    source={
-                      isDarkMode
-                        ? require("../../assets/logobranca.png")
-                        : require("../../assets/mondSecLogo.png")
-                    }
-                    style={styles.imagemLogo}
-                  />
+          <Image
+            source={
+              isDarkMode
+                ? require("../../assets/logobranca.png")
+                : require("../../assets/mondSecLogo.png")
+            }
+            style={styles.imagemLogo}
+          />
         </View>
 
         <Text style={[styles.textoBoasVindas, { color: theme.title }]}>
@@ -122,7 +167,7 @@ const LoginScreen = ({ navigation, route }) => {
           Entrar
         </Text>
 
-        {/* EMAIL */}
+        {/* LOGIN */}
         <View style={styles.containerInput}>
           <Text style={[styles.rotulo, { color: theme.text }]}>Email</Text>
           <TextInput
@@ -142,36 +187,36 @@ const LoginScreen = ({ navigation, route }) => {
 
         {/* SENHA */}
         <View style={styles.containerInput}>
-  <Text style={[styles.rotulo, { color: theme.text }]}>Senha</Text>
+          <Text style={[styles.rotulo, { color: theme.text }]}>Senha</Text>
 
-  <View style={{ flexDirection: "row", alignItems: "center" }}>
-    <TextInput
-      style={[
-        styles.input,
-        {
-          borderBottomColor: theme.border,
-          color: theme.text,
-          flex: 1
-        }
-      ]}
-      placeholder="Digite sua senha..."
-      placeholderTextColor={theme.textSecondary}
-      secureTextEntry={!mostrarSenha}
-      onChangeText={setSenha}
-    />
+          <View style={{ flexDirection: "row", alignItems: "center" }}>
+            <TextInput
+              style={[
+                styles.input,
+                {
+                  borderBottomColor: theme.border,
+                  color: theme.text,
+                  flex: 1
+                }
+              ]}
+              placeholder="Digite sua senha..."
+              placeholderTextColor={theme.textSecondary}
+              secureTextEntry={!mostrarSenha}
+              onChangeText={setSenha}
+            />
 
-    <TouchableOpacity onPress={() => setMostrarSenha(!mostrarSenha)}>
-      <FontAwesome
-        name={mostrarSenha ? "eye-slash" : "eye"}
-        size={22}
-        color={theme.text}
-        style={{ marginLeft: 10, marginBottom: 10 }}
-      />
-    </TouchableOpacity>
-  </View>
-</View>
+            <TouchableOpacity onPress={() => setMostrarSenha(!mostrarSenha)}>
+              <FontAwesome
+                name={mostrarSenha ? "eye-slash" : "eye"}
+                size={22}
+                color={theme.text}
+                style={{ marginLeft: 10, marginBottom: 10 }}
+              />
+            </TouchableOpacity>
+          </View>
+        </View>
 
-        {/* Recuperação */}
+        {/* OPÇÕES */}
         <View style={styles.linhaOpcoes}>
           <Pressable onPress={() => navigation.navigate('DigiteCampo')}>
             <Text style={[styles.textoSenhaEsquecida, { color: theme.primary }]}>
@@ -183,7 +228,7 @@ const LoginScreen = ({ navigation, route }) => {
         {erroMessage ? <Text style={styles.erro}>{erroMessage}</Text> : null}
         {sucessMessage ? <Text style={styles.sucess}>{sucessMessage}</Text> : null}
 
-        {/* Botão Login */}
+        {/* BOTÃO LOGIN */}
         <TouchableOpacity
           style={[
             styles.botaoLogin,
@@ -197,14 +242,14 @@ const LoginScreen = ({ navigation, route }) => {
           </Text>
         </TouchableOpacity>
 
-        {/* Divisor */}
+        {/* DIVISOR */}
         <View style={styles.divisor}>
           <View style={[styles.linhaDivisor, { backgroundColor: theme.border }]} />
           <Text style={[styles.textoDivisor, { color: theme.textSecondary }]}>ou</Text>
           <View style={[styles.linhaDivisor, { backgroundColor: theme.border }]} />
         </View>
 
-        {/* Cadastro */}
+        {/* CADASTRO */}
         <Pressable
           style={styles.linkCadastro}
           onPress={() => navigation.navigate('Cadastro')}
@@ -222,7 +267,6 @@ const LoginScreen = ({ navigation, route }) => {
     </View>
   );
 };
-
 
 const styles = StyleSheet.create({
   container: {

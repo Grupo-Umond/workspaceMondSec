@@ -60,6 +60,9 @@ class UsuarioController extends Controller
         }
 
         $usuario = Usuario::where($campo, $request->login)->first();
+        if(!$usuario){
+            return response()->json(['mensagem' => 'Usuario não encontrado, credenciais invalidas'], 404);'                                 '
+        }
             if ($usuario->status === 'Inativo') {
         return response()->json([
             'mensagem' => 'Sua conta está desativada. Entre em contato com o suporte.'
