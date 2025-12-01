@@ -104,7 +104,7 @@ main.container {
   border-radius: 12px;
   background: var(--card-bg);
   box-shadow: var(--shadow-1);
-  border: 1px solid rgba(15,24,39,0.03);
+  border: 1px solid rgba(15, 24, 39, 0.03);
   margin: 0;
   box-sizing: border-box;
 }
@@ -116,7 +116,7 @@ main.container {
   border-radius: 12px;
   background: var(--card-bg);
   box-shadow: var(--shadow-1);
-  border: 1px solid rgba(15,24,39,0.03);
+  border: 1px solid rgba(15, 24, 39, 0.03);
   margin: 0;
   box-sizing: border-box;
 }
@@ -196,14 +196,20 @@ body {
 
 table {
   border-collapse: collapse;
-  width: 100%;
   margin-bottom: 1%;
+  width: 300px;
+  table-layout: fixed;
+  text-align: center;
 }
 
 td,
 th {
   border: 1px solid #ddd;
   padding: 8px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
 }
 
 th {
@@ -282,7 +288,8 @@ tbody i {
   display: flex;
 }
 
-#chart-container1Ocorrencia, #chart-container2Ocorrencia {
+#chart-container1Ocorrencia,
+#chart-container2Ocorrencia {
   width: 50%;
 }
 
@@ -303,14 +310,16 @@ tbody i {
   padding: 3% 2%;
 }
 
-#formUpdate input, #formUpdate select, .mensagemComentario {
+#formUpdate input,
+#formUpdate select,
+.mensagemComentario {
   width: 100%;
   padding: 2% 2% 2% 1%;
   font-size: 1.1rem;
   border: 1px solid black;
-  border-radius: 5px;         
-  background-color: whitesmoke;      
-  resize: none;                        
+  border-radius: 5px;
+  background-color: whitesmoke;
+  resize: none;
 }
 
 #conteudo-alterar {
@@ -331,7 +340,8 @@ tbody i {
   display: flex;
 }
 
-#chart-container1Administradores, #chart-container2Administradores {
+#chart-container1Administradores,
+#chart-container2Administradores {
   width: 50%;
 }
 
@@ -339,7 +349,8 @@ tbody i {
   display: flex;
 }
 
-#chart-container1Usuarios, #chart-container2Usuarios {
+#chart-container1Usuarios,
+#chart-container2Usuarios {
   width: 50%;
 }
 
@@ -347,9 +358,12 @@ tbody i {
   margin-bottom: 1%;
 }
 
-#pesquisaAdmin, #filtroNivel,
-#pesquisaUsuario, #filtroGenero,
-#pesquisado, #filtroTipo,
+#pesquisaAdmin,
+#filtroNivel,
+#pesquisaUsuario,
+#filtroGenero,
+#pesquisado,
+#filtroTipo,
 #pesquisaComentario,
 #filtroMes {
   padding: 1% 2% 1% 1%;
@@ -357,7 +371,8 @@ tbody i {
   border-radius: 5px;
 }
 
-#btnVoltar, #fecharDenuncia {
+#btnVoltar,
+#fecharDenuncia {
   width: 15%;
   display: flex;
   justify-content: center;
@@ -383,7 +398,8 @@ tbody i {
     flex-direction: column;
   }
 
-  #chart-container1Ocorrencia, #chart-container2Ocorrencia {
+  #chart-container1Ocorrencia,
+  #chart-container2Ocorrencia {
     width: 100%;
   }
 
@@ -392,7 +408,8 @@ tbody i {
     flex-direction: column;
   }
 
-  #chart-container1Administradores, #chart-container2Administradores {
+  #chart-container1Administradores,
+  #chart-container2Administradores {
     width: 100%;
   }
 
@@ -401,7 +418,8 @@ tbody i {
     flex-direction: column;
   }
 
-  #chart-container1Usuarios, #chart-container2Usuarios {
+  #chart-container1Usuarios,
+  #chart-container2Usuarios {
     width: 100%;
   }
 }

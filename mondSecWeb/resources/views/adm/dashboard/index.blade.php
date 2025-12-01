@@ -46,13 +46,31 @@
     #chartAdmins {
         height: 100% !important;
     }
+    
+    .cardsSuperior{
+        width: 100%;
+        display: flex;
+        gap: 10px;
+        padding-bottom: 2%;
+    }
+
+    .cardsInferiores {
+        display: flex;
+        flex-direction: column;
+        gap: 15px;
+        padding-bottom: 2%;
+    }
+
+    .col-md-3 {
+        width: 25%;
+    }
 </style>
 
 
 <div class="container py-4">
 
     {{-- CARDS --}}
-    <div class="row g-4 mb-4">
+    <div class="row g-4 mb-4 cardsSuperior">
 
         <div class="col-md-3">
             <div class="card-custom text-center">
@@ -89,7 +107,7 @@
 
 
     {{-- GRÁFICOS --}}
-    <div class="row g-4">
+    <div class="row g-4 cardsInferiores">
 
         <div class="col-md-6">
             <div class="card-custom chart-card">

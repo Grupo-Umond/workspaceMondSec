@@ -8,18 +8,23 @@
 
     <link rel="stylesheet" href="{{ asset('css/09loginADM.css') }}">
 
+    <!-- Link_FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+        integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+
 </head>
 
 <body>
 
-        <video class="videoBody" controls autoplay muted loop>
-            <source src="{{ asset('Videos/video3.mp4') }}" type="video/mp4">
-        </video>
+    <video class="videoBody" controls autoplay muted loop>
+        <source src="{{ asset('Videos/video3.mp4') }}" type="video/mp4">
+    </video>
 
     <div class="parteEsquerda">
 
         <div class="logo">
-                <img src="{{ asset('Imagens/Logos/mondseclogo.png') }}" class="logo" alt="Logo">
+            <img src="{{ asset('Imagens/Logos/mondseclogo.png') }}" class="logo" alt="Logo">
         </div>
 
         <div class="container">
@@ -38,13 +43,29 @@
                     @enderror
                 </div>
 
-                <div class="input-grupo2">
-                    <input class="campoSenha" type="password" id="senha" name="senha" required>
-                    <label class="senhaLabel" for="senha">Senha:</label>
-                    @error('senha')
-                        <div class="error">{{ $message }}</div>
-                    @enderror
+                <div class="campoMostrarSenha">
+                    <div class="input-grupo2">
+                        <input class="campoSenha" type="password" id="senha" name="senha" required>
+                        <label class="senhaLabel" for="senha">Senha:</label>
+                        @error('senha')
+                            <div class="error">{{ $message }}</div>
+                        @enderror
+                    </div>
+                    <i class="fa-regular fa-eye" id="btn-senha" onclick="mostrarSenha()"></i>
                 </div>
+
+                <style>
+                    .campoMostrarSenha {
+                        position: relative;
+                    }
+
+                    #btn-senha {
+                        position: absolute;
+                        top: 1rem;
+                        right: 1%;
+                        font-size: 1.3rem;
+                    }
+                </style>
 
                 <button type="submit">Entrar</button>
             </form>
@@ -92,6 +113,21 @@
                 alert('Digite uma senha com no minimo 8 digitos');
             }
         });
+    </script>
+
+    <script>
+        function mostrarSenha() {
+            var inputPass = document.getElementById('senha')
+            var btnShowPass = document.getElementById('btn-senha')
+
+            if (inputPass.type === 'password') {
+                inputPass.setAttribute('type', 'text')
+                btnShowPass.classList.replace('fa-eye', 'fa-eye-slash')
+            } else {
+                inputPass.setAttribute('type', 'password')
+                btnShowPass.classList.replace('fa-eye-slash', 'fa-eye')
+            }
+        }
     </script>
 </body>
 
