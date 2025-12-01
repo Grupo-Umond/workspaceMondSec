@@ -31,10 +31,14 @@ import { calculateBounds, checkAndFixRegion } from './MapaZonaLeste/regionBounds
 import { buscarOcorrencias } from './MapaZonaLeste/ocorrencias.service';
 import { carregarComentarios, enviarComentarioRequest } from './MapaZonaLeste/comentarios.service';
 import { buscarUsuarioLogado } from './MapaZonaLeste/user.service';
+import { EnderecoService } from './EnderecoService.js';
 import { getIconForTipoWithCount} from './IconService.js';
 import UrlService from './UrlService';
 import { useTheme } from './themes/themecontext';
+import DetalheOcorrencia from './DetalheOcorrencia.js';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
+const enderecoService = new EnderecoService();
+
 const local = require('./GeoJson/zonaLeste_convertido.json');
 const { width, height } = Dimensions.get('window');
 
@@ -51,6 +55,7 @@ const MapaZonaLesteGeojson = forwardRef(({ ocorrencias = [], currentUserId = nul
   const [rotaCoords, setRotaCoords] = useState([]);
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedOcorrencia, setSelectedOcorrencia] = useState(null);
+const [endereco, setEndereco] = useState(null);
 
   const [comentarios, setComentarios] = useState([]);
   const [mensagemComentario, setMensagemComentario] = useState('');
@@ -58,7 +63,7 @@ const MapaZonaLesteGeojson = forwardRef(({ ocorrencias = [], currentUserId = nul
   const [sendingComentario, setSendingComentario] = useState(false);
   const [loggedUserId, setLoggedUserId] = useState(currentUserId);
   const [modalDenuncia, setModalDenuncia] = useState(false);
- const [showComentarios, setShowComentarios] = useState(false);
+  const [showComentarios, setShowComentarios] = useState(false);
   const [visible, setVisible] = useState(false);
   const slideAnim = useRef(new Animated.Value(0)).current;
   const [ocorrenciasNoEndereco, setOcorrenciasNoEndereco] = useState([]);
@@ -112,21 +117,19 @@ const MapaZonaLesteGeojson = forwardRef(({ ocorrencias = [], currentUserId = nul
     puxar();
   }, []);
 
-const ocorrenciasAgrupadas = useMemo(() => {
-  return (ocorrenciasState || []).reduce((acc, oc) => {
-    const lat = Number(oc.latitude);
-    const lng = Number(oc.longitude);
-    if (!isFinite(lat) || !isFinite(lng)) return acc;
-    const chave = `${lat.toFixed(5)}_${lng.toFixed(5)}`;
-    if (!acc[chave]) acc[chave] = { items: [], count: 0, latitude: lat, longitude: lng };
-    acc[chave].items.push(oc);
-    acc[chave].count += 1;
-    return acc;
-  }, {});
-}, [ocorrenciasState]);
+  const ocorrenciasAgrupadas = useMemo(() => {
+    return (ocorrenciasState || []).reduce((acc, oc) => {
+      const lat = Number(oc.latitude);
+      const lng = Number(oc.longitude);
+      if (!isFinite(lat) || !isFinite(lng)) return acc;
+      const chave = `${lat.toFixed(5)}_${lng.toFixed(5)}`;
+      if (!acc[chave]) acc[chave] = { items: [], count: 0, latitude: lat, longitude: lng };
+      acc[chave].items.push(oc);
+      acc[chave].count += 1;
+      return acc;
+    }, {});
+  }, [ocorrenciasState]);
 
-
-  
   const getBadgeColor = (count) => {
     if (count >= 10) return '#E53935';
     if (count >= 5) return '#FB8C00';
@@ -164,53 +167,50 @@ const ocorrenciasAgrupadas = useMemo(() => {
     }
   };
 
-const abrirModal = async (oc) => {
-  try {
-    // chave por coordenada (5 casas)
-    const lat = Number(oc?.latitude);
-    const lng = Number(oc?.longitude);
-    const chave = isFinite(lat) && isFinite(lng) ? `${lat.toFixed(5)}_${lng.toFixed(5)}` : null;
+  const abrirModal = async (oc) => {
+    try {
+      const lat = Number(oc?.latitude);
+      const lng = Number(oc?.longitude);
+      const chave = isFinite(lat) && isFinite(lng) ? `${lat.toFixed(5)}_${lng.toFixed(5)}` : null;
 
-    let items = [];
-    if (chave && ocorrenciasAgrupadas && ocorrenciasAgrupadas[chave]) {
-      items = ocorrenciasAgrupadas[chave].items || [];
+      let items = [];
+      if (chave && ocorrenciasAgrupadas && ocorrenciasAgrupadas[chave]) {
+        items = ocorrenciasAgrupadas[chave].items || [];
+      }
+
+      if ((!items || items.length === 0) && oc?.endereco) {
+        items = (ocorrenciasState || []).filter(o => {
+          try { return String(o.endereco).trim() === String(oc.endereco).trim(); } catch { return false; }
+        });
+      }
+
+      if (!items || items.length === 0) items = [oc];
+
+      setOcorrenciasNoEndereco(items);
+
+      const idx = Math.max(0, items.findIndex(i => (i.id ?? i._id) === (oc.id ?? oc._id)));
+      setModalIndex(idx);
+      setSelectedOcorrencia(items[idx] || items[0]);
+      setModalVisible(true);
+
+      setTimeout(() => {
+        try { flatListRef.current?.scrollToIndex({ index: idx, animated: true }); } catch (e) {}
+      }, 40);
+
+      setLoadingComentarios(true);
+      const idInicial = items[idx]?.id ?? items[idx]?._id;
+      if (idInicial) {
+        const coms = await carregarComentarios(idInicial).catch(()=>[]);
+        setComentarios(coms || []);
+      } else setComentarios([]);
+      setLoadingComentarios(false);
+    } catch (e) {
+      console.warn('abrirModal erro', e);
+      setOcorrenciasNoEndereco([oc]);
+      setSelectedOcorrencia(oc);
+      setModalVisible(true);
     }
-
-    // fallback por endereço exato quando agrupamento por coord não encontrar
-    if ((!items || items.length === 0) && oc?.endereco) {
-      items = (ocorrenciasState || []).filter(o => {
-        try { return String(o.endereco).trim() === String(oc.endereco).trim(); } catch { return false; }
-      });
-    }
-
-    if (!items || items.length === 0) items = [oc];
-
-    setOcorrenciasNoEndereco(items);
-
-    const idx = Math.max(0, items.findIndex(i => (i.id ?? i._id) === (oc.id ?? oc._id)));
-    setModalIndex(idx);
-    setSelectedOcorrencia(items[idx] || items[0]);
-    setModalVisible(true);
-
-    setTimeout(() => {
-      try { flatListRef.current?.scrollToIndex({ index: idx, animated: true }); } catch (e) {}
-    }, 40);
-
-    setLoadingComentarios(true);
-    const idInicial = items[idx]?.id ?? items[idx]?._id;
-    if (idInicial) {
-      const coms = await carregarComentarios(idInicial).catch(()=>[]);
-      setComentarios(coms || []);
-    } else setComentarios([]);
-    setLoadingComentarios(false);
-  } catch (e) {
-    console.warn('abrirModal erro', e);
-    setOcorrenciasNoEndereco([oc]);
-    setSelectedOcorrencia(oc);
-    setModalVisible(true);
-  }
-};
-
+  };
 
   const fecharModal = () => {
     setModalVisible(false);
@@ -219,51 +219,48 @@ const abrirModal = async (oc) => {
     setMensagemComentario('');
   };
 
- const formatDate = (dateString) => {
-  try {
-    if (!dateString) return 'Data não informada';
-    console.log('📅 Data recebida para formatação:', dateString); 
-    let date;
-    if (dateString instanceof Date) {
-     date = dateString;
-    }
-    else if (typeof dateString === 'string') {
-      const cleanString = dateString.trim();
-      date = new Date(cleanString);
+  const formatDate = (dateString) => {
+    try {
+      if (!dateString) return 'Data não informada';
+      console.log('📅 Data recebida para formatação:', dateString); 
+      let date;
+      if (dateString instanceof Date) {
+        date = dateString;
+      }
+      else if (typeof dateString === 'string') {
+        const cleanString = dateString.trim();
+        date = new Date(cleanString);
 
-      if (isNaN(date.getTime())) {
-        date = new Date(cleanString.replace(' ', 'T'));
+        if (isNaN(date.getTime())) {
+          date = new Date(cleanString.replace(' ', 'T'));
+        }
+
+        if (isNaN(date.getTime()) && cleanString.includes('/')) {
+          const [day, month, year] = cleanString.split('/');
+          date = new Date(`${year}-${month}-${day}`);
+        }
       }
 
-      if (isNaN(date.getTime()) && cleanString.includes('/')) {
-        const [day, month, year] = cleanString.split('/');
-        date = new Date(`${year}-${month}-${day}`);
+      if (!date || isNaN(date.getTime())) {
+        console.log('❌ Data inválida após tentativas:', dateString);
+        return 'Data não informada';
       }
 
-    }
+      const formatted = date.toLocaleString('pt-BR', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+      console.log('✅ Data formatada:', formatted);
+      return formatted;
 
-    if (!date || isNaN(date.getTime())) {
-      console.log('❌ Data inválida após tentativas:', dateString);
+    } catch (error) {
+      console.log('❌ Erro ao formatar data:', dateString, error);
       return 'Data não informada';
     }
-
-    const formatted = date.toLocaleString('pt-BR', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-    console.log('✅ Data formatada:', formatted);
-    return formatted;
-
-  } catch (error) {
-    console.log('❌ Erro ao formatar data:', dateString, error);
-    return 'Data não informada';
-  }
-};
-
-
+  };
 
   const denunciarOcorrencia = async (id) => {
     try {
@@ -291,7 +288,7 @@ const abrirModal = async (oc) => {
     closeSheet();
   };
 
- const enviarComentario = async () => {
+  const enviarComentario = async () => {
     const texto = (mensagemComentario || '').trim();
     if (!texto) return;
     const idOc = selectedOcorrencia?.id ?? selectedOcorrencia?._id;
@@ -319,12 +316,12 @@ const abrirModal = async (oc) => {
         };
         setComentarios((prev) => [normalized, ...(prev || [])]);
         setMensagemComentario('');
-         setShowComentarios(false);
+        setShowComentarios(false);
       } else {
         const recarregado = await carregarComentarios(idOc);
         setComentarios(recarregado || []);
         setMensagemComentario('');
-         setShowComentarios(false);
+        setShowComentarios(false);
       }
     } catch (e) {
       Alert.alert('Erro', 'Não foi possível enviar o comentário.');
@@ -346,7 +343,6 @@ const abrirModal = async (oc) => {
 
         openSheet(); 
     },
-
 
     desenharRota(rota, inicio, fim) {
       setInicio(inicio);
@@ -390,559 +386,329 @@ const abrirModal = async (oc) => {
         ))}
 
         {Object.entries(ocorrenciasAgrupadas).map(([key, group], idx) => {
-  const first = group.items[0];
-  const lat = Number(group.latitude);
-  const lng = Number(group.longitude);
+          const first = group.items[0];
+          const lat = Number(group.latitude);
+          const lng = Number(group.longitude);
 
-  if (!isFinite(lat) || !isFinite(lng)) return null;
+          if (!isFinite(lat) || !isFinite(lng)) return null;
 
-  const quantidade = group.count;
-  const badgeColor = getBadgeColor(quantidade);
+          const quantidade = group.count;
+          const badgeColor = getBadgeColor(quantidade);
 
-  return (
-    <Marker
-      key={key}
-      coordinate={{ latitude: lat, longitude: lng }}
-      onPress={() => abrirModal(first)}
-    >
-      <View style={styles.markerContainer}>
-        <Image
-          source={getIconForTipoWithCount(first.tipo, quantidade)}
-          style={styles.markerImage}
-        />
-        {quantidade > 1 && (
-          <View style={[styles.badge, { backgroundColor: badgeColor }]}>
-            <Text style={styles.badgeText}>{quantidade}</Text>
-          </View>
-        )}
-      </View>
-    </Marker>
-  );
-})}
-
+          return (
+            <Marker
+              key={key}
+              coordinate={{ latitude: lat, longitude: lng }}
+              onPress={() => abrirModal(first)}
+            >
+              <View style={styles.markerContainer}>
+                <Image
+                  source={getIconForTipoWithCount(first.tipo, quantidade)}
+                  style={styles.markerImage}
+                />
+                {quantidade > 1 && (
+                  <View style={[styles.badge, { backgroundColor: badgeColor }]}>
+                    <Text style={styles.badgeText}>{quantidade}</Text>
+                  </View>
+                )}
+              </View>
+            </Marker>
+          );
+        })}
 
         {rotaCoords.length > 0 && (
           <Polyline coordinates={rotaCoords} strokeWidth={5} strokeColor="#2bff00b9" />
         )}
       </MapView>
- {showComentarios && (
-  <Modal
-    visible={showComentarios}
-    transparent
-    animationType="slide"
-    onRequestClose={() => setShowComentarios(false)}
-  >
-    <View
-      style={{
-        flex: 1,
-        backgroundColor: isDarkMode ? 'rgba(0,0,0,0.8)' : 'rgba(0, 34, 68, 0.8)',
-        justifyContent: 'flex-end',
-      }}
-    >
-      <View
-        style={{
-          height: '70%',
-          backgroundColor: isDarkMode ? '#1C1C1E' : '#FFFFFF',
-          borderTopLeftRadius: 20,
-          borderTopRightRadius: 20,
-          overflow: 'hidden',
-        }}
-      >
-        
-        {/* HEADER */}
-        <View
-          style={{
-            flexDirection: 'row',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            backgroundColor: isDarkMode ? '#0c2946ff' : '#012E61',
-            paddingHorizontal: 20,
-            paddingVertical: 16,
-          }}
-        >
-          <Text
-            style={{
-              fontSize: 18,
-              fontWeight: '700',
-              color: '#FFF',
-            }}
-          >
-            Comentários ({comentarios.length})
-          </Text>
 
-          <TouchableOpacity
-            onPress={() => setShowComentarios(false)}
-            style={{
-              width: 32,
-              height: 32,
-              borderRadius: 16,
-              backgroundColor: 'rgba(255,255,255,0.15)',
-              justifyContent: 'center',
-              alignItems: 'center',
-            }}
-          >
-            <Text style={{ color: '#FFF', fontSize: 20, fontWeight: 'bold' }}>×</Text>
-          </TouchableOpacity>
-        </View>
-
-        {/* DATA DA OCORRÊNCIA */}
-        {selectedOcorrencia?.dataAcontecimento && (
-          <View style={{ paddingHorizontal: 20, marginTop: 12 }}>
-            <Text
-              style={{
-                fontSize: 13,
-                fontWeight: '600',
-                color: isDarkMode ? '#4FC3F7' : '#012E61',
-              }}
-            >
-              Data:
-            </Text>
-
-            <Text
-              style={{
-                fontSize: 13,
-                color: isDarkMode ? '#E5E5E7' : '#333',
-                marginTop: 4,
-              }}
-            >
-              {formatDate(selectedOcorrencia.dataAcontecimento)}
-            </Text>
-          </View>
-        )}
-
-        {/* LISTA DE COMENTÁRIOS */}
-        <ScrollView
-          style={{
-            flex: 1,
-            paddingHorizontal: 20,
-            paddingVertical: 16,
-          }}
-          showsVerticalScrollIndicator={false}
-        >
-          {loadingComentarios ? (
-            <View style={{ paddingVertical: 20 }}>
-              <ActivityIndicator size="small" color={isDarkMode ? '#4FC3F7' : '#003366'} />
-              <Text
-                style={{
-                  textAlign: 'center',
-                  marginTop: 12,
-                  color: isDarkMode ? '#E5E5E7' : '#333',
-                }}
-              >
-                Carregando comentários...
+      {/* MODAL 1*/}
+      <Modal visible={modalVisible} transparent animationType="slide" onRequestClose={fecharModal}>
+        <View style={{ flex: 1, backgroundColor: isDarkMode ? 'rgba(0,0,0,0.7)' : 'rgba(0, 34, 68, 0.6)', justifyContent: 'center', alignItems: 'center' }}>
+          <View style={{ width: '85%', maxWidth: 420, height: '85%', maxHeight: 520, backgroundColor: isDarkMode ? '#1C1C1E' : '#FFFFFF', borderRadius: 16, overflow: 'hidden' }}>
+            
+           
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', backgroundColor: isDarkMode ? '#0c2946ff' : '#012E61', paddingHorizontal: 20, paddingVertical: 14 }}>
+              <Text style={{ fontSize: 19, fontWeight: '700', color: '#FFF', flex: 1 }}>
+                Ocorrència 
               </Text>
-            </View>
-          ) : comentarios.length === 0 ? (
-            <View style={{ paddingVertical: 40, alignItems: 'center' }}>
-              <FontAwesome name="comments-o" size={48} color={isDarkMode ? '#555' : '#CCC'} />
-              <Text
-                style={{
-                  color: isDarkMode ? '#AAA' : '#666',
-                  fontStyle: 'italic',
-                  textAlign: 'center',
-                  marginTop: 12,
-                }}
-              >
-                Nenhum comentário ainda.
-              </Text>
-              <Text
-                style={{
-                  color: isDarkMode ? '#777' : '#999',
-                  fontSize: 12,
-                  textAlign: 'center',
-                  marginTop: 8,
-                }}
-              >
-                Seja o primeiro a comentar!
-              </Text>
-            </View>
-          ) : (
-            comentarios.map((c, i) => (
-              <View
-                key={c.id ?? i}
-                style={{
-                  backgroundColor: isDarkMode ? '#2C2C2E' : '#F2F6FA',
-                  padding: 12,
-                  borderRadius: 10,
-                  marginBottom: 12,
-                }}
-              >
-                <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 6 }}>
-                  <Text style={{ fontWeight: '700', color: isDarkMode ? '#4FC3F7' : '#012E61', fontSize: 14 }}>
-                    {c.usuario?.name || c.usuario?.nome || 'Usuário'}
-                  </Text>
+              
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+                {/* BOTÃO DENUNCIAR */}
+                <TouchableOpacity 
+                  onPress={() => setModalDenuncia(true)}
+                  style={{
+                    paddingHorizontal: 12,
+                    paddingVertical: 6,
+                    backgroundColor: 'rgba(255,0,0,0.2)',
+                    borderRadius: 8,
+                    borderWidth: 1,
+                    borderColor: 'rgba(255,255,255,0.3)',
+                  }}
+                >
+                  <Text style={{ color: '#FFF', fontSize: 12, fontWeight: '600' }}>Denunciar</Text>
+                </TouchableOpacity>
 
-                  <Text style={{ fontSize: 11, color: isDarkMode ? '#CCC' : '#777' }}>
-                    {formatDate(c.data ?? c.created_at)}
-                  </Text>
-                </View>
-
-                <Text style={{ fontSize: 14, color: isDarkMode ? '#E5E5E7' : '#333', lineHeight: 18 }}>
-                  {c.mensagem}
-                </Text>
+                {/* BOTÃO FECHAR */}
+                <TouchableOpacity style={{ width: 32, height: 32, borderRadius: 16, backgroundColor: 'rgba(255,255,255,0.15)', justifyContent: 'center', alignItems: 'center' }} onPress={fecharModal}>
+                  <Text style={{ color: '#FFF', fontSize: 22, fontWeight: 'bold' }}>×</Text>
+                </TouchableOpacity>
               </View>
-            ))
-          )}
-        </ScrollView>
-
-        {/* INPUT DE NOVO COMENTÁRIO */}
-        <View
-          style={{
-            padding: 16,
-            backgroundColor: isDarkMode ? '#2C2C2E' : '#F8F9FA',
-            borderTopWidth: 1,
-            borderColor: isDarkMode ? '#3A3A3C' : '#E5E8ED',
-          }}
-        >
-          <TextInput
-            placeholder="Escreva um comentário..."
-            placeholderTextColor={isDarkMode ? '#777' : '#888'}
-            value={mensagemComentario}
-            onChangeText={setMensagemComentario}
-            style={{
-              borderWidth: 1,
-              borderColor: isDarkMode ? '#3A3A3C' : '#D8DDE5',
-              borderRadius: 10,
-              padding: 12,
-              backgroundColor: isDarkMode ? '#1C1C1E' : '#FFFFFF',
-              color: isDarkMode ? '#FFF' : '#333',
-              minHeight: 80,
-              textAlignVertical: 'top',
-              fontSize: 14,
-            }}
-            multiline
-            numberOfLines={3}
-          />
-
-          <TouchableOpacity
-            onPress={enviarComentario}
-            style={{
-              marginTop: 12,
-              paddingVertical: 12,
-              backgroundColor: isDarkMode ? '#0c2946ff' : '#003366',
-              borderRadius: 10,
-              alignItems: 'center',
-              opacity: sendingComentario ? 0.5 : 1,
-            }}
-            disabled={sendingComentario || !mensagemComentario.trim()}
-          >
-            {sendingComentario ? (
-              <ActivityIndicator size="small" color="#FFF" />
-            ) : (
-              <Text style={{ color: '#FFF', fontWeight: '700', fontSize: 15 }}>
-                Enviar Comentário
-              </Text>
-            )}
-          </TouchableOpacity>
-        </View>
-      </View>
-    </View>
-  </Modal>
-)}
-
-  <Modal visible={modalVisible} transparent animationType="slide" onRequestClose={fecharModal}>
-  <View style={{ flex: 1, backgroundColor: isDarkMode ? 'rgba(0,0,0,0.7)' : 'rgba(0, 34, 68, 0.6)', justifyContent: 'center', alignItems: 'center' }}>
-    <View style={{ width: '85%', maxWidth: 420, height: '85%', maxHeight: 520, backgroundColor: isDarkMode ? '#1C1C1E' : '#FFFFFF', borderRadius: 16, overflow: 'hidden' }}>
-      <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', backgroundColor: isDarkMode ? '#0c2946ff' : '#012E61', paddingHorizontal: 20, paddingVertical: 14 }}>
-        <Text style={{ fontSize: 19, fontWeight: '700', color: '#FFF', flex: 1 }}>{selectedOcorrencia?.tipo || 'Detalhes da Ocorrência'}</Text>
-        <TouchableOpacity style={{ width: 32, height: 32, borderRadius: 16, backgroundColor: isDarkMode ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.15)', justifyContent: 'center', alignItems: 'center' }} onPress={fecharModal}>
-          <Text style={{ color: '#FFF', fontSize: 22, fontWeight: 'bold' }}>×</Text>
-        </TouchableOpacity>
-      </View>
-
-      <View style={{ flex: 1 }}>
-        <OccurrenceCarousel
-          items={ocorrenciasNoEndereco && ocorrenciasNoEndereco.length ? ocorrenciasNoEndereco : (selectedOcorrencia ? [selectedOcorrencia] : [])}
-          initialIndex={modalIndex || 0}
-          carregarComentarios={carregarComentarios}
-          renderDetail={(item, ctx) => {
-            return (
-              <ScrollView style={{ flex: 1, paddingHorizontal: 20, paddingVertical: 16 }} showsVerticalScrollIndicator={false}>
-                <View style={{ marginBottom: 24, backgroundColor: isDarkMode ? '#1C1C1E' : '#FFFFFF', padding: 14, borderRadius: 10, borderWidth: 1, borderColor: isDarkMode ? '#3A3A3C' : '#E5E8ED' }}>
-                  <Text style={{ fontSize: 16, fontWeight: '700', color: isDarkMode ? '#4FC3F7' : '#012E61', marginBottom: 10 }}>Informações</Text>
-                  <View style={{ marginBottom: 10 }}>
-                    <Text style={{ fontSize: 13, fontWeight: '600', color: isDarkMode ? '#4FC3F7' : '#012E61' }}>Descrição:</Text>
-                    <Text style={{ fontSize: 13, color: isDarkMode ? '#E5E5E7' : '#333', marginTop: 4 }}>{item?.descricao || item?.descricao_curta || item?.texto || '—'}</Text>
-                  </View>
-                  <View style={{ marginBottom: 10 }}>
-                    <Text style={{ fontSize: 13, fontWeight: '600', color: isDarkMode ? '#4FC3F7' : '#012E61' }}>Endereço:</Text>
-                    <Text style={{ fontSize: 13, color: isDarkMode ? '#E5E5E7' : '#333', marginTop: 4 }}>{item?.endereco || `${item?.street || ''} ${item?.numero || ''}` || '—'}</Text>
-                  </View>
-                  <View style={{ marginBottom: 10 }}>
-                    <Text style={{ fontSize: 13, fontWeight: '600', color: isDarkMode ? '#4FC3F7' : '#012E61' }}>Data:</Text>
-                    <Text style={{ fontSize: 13, color: isDarkMode ? '#E5E5E7' : '#333', marginTop: 4 }}>{item?.dataAcontecimento}</Text>
-                  </View>
-                </View>
-              </ScrollView>
-            );
-          }}
-        />
-      {showComentarios && (
-  <Modal
-    visible={showComentarios}
-    transparent
-    animationType="slide"
-    onRequestClose={() => setShowComentarios(false)}
-  >
-    <View
-      style={{
-        flex: 1,
-        backgroundColor: isDarkMode ? 'rgba(0,0,0,0.8)' : 'rgba(0, 34, 68, 0.8)',
-        justifyContent: 'flex-end',
-      }}
-    >
-      <View
-        style={{
-          height: '70%',
-          backgroundColor: isDarkMode ? '#1C1C1E' : '#FFFFFF',
-          borderTopLeftRadius: 20,
-          borderTopRightRadius: 20,
-          overflow: 'hidden',
-        }}
-      >
-        
-        {/* HEADER */}
-        <View
-          style={{
-            flexDirection: 'row',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            backgroundColor: isDarkMode ? '#0c2946ff' : '#012E61',
-            paddingHorizontal: 20,
-            paddingVertical: 16,
-          }}
-        >
-          <Text
-            style={{
-              fontSize: 18,
-              fontWeight: '700',
-              color: '#FFF',
-            }}
-          >
-            Comentários ({comentarios.length})
-          </Text>
-
-          <TouchableOpacity
-            onPress={() => setShowComentarios(false)}
-            style={{
-              width: 32,
-              height: 32,
-              borderRadius: 16,
-              backgroundColor: 'rgba(255,255,255,0.15)',
-              justifyContent: 'center',
-              alignItems: 'center',
-            }}
-          >
-            <Text style={{ color: '#FFF', fontSize: 20, fontWeight: 'bold' }}>×</Text>
-          </TouchableOpacity>
-        </View>
-
-        {/* DATA DA OCORRÊNCIA */}
-        {selectedOcorrencia?.dataAcontecimento && (
-          <View style={{ paddingHorizontal: 20, marginTop: 12 }}>
-            <Text
-              style={{
-                fontSize: 13,
-                fontWeight: '600',
-                color: isDarkMode ? '#4FC3F7' : '#012E61',
-              }}
-            >
-              Data:
-            </Text>
-
-            <Text
-              style={{
-                fontSize: 13,
-                color: isDarkMode ? '#E5E5E7' : '#333',
-                marginTop: 4,
-              }}
-            >
-              {formatDate(selectedOcorrencia.dataAcontecimento)}
-            </Text>
-          </View>
-        )}
-
-        {/* LISTA DE COMENTÁRIOS */}
-        <ScrollView
-          style={{
-            flex: 1,
-            paddingHorizontal: 20,
-            paddingVertical: 16,
-          }}
-          showsVerticalScrollIndicator={false}
-        >
-          {loadingComentarios ? (
-            <View style={{ paddingVertical: 20 }}>
-              <ActivityIndicator size="small" color={isDarkMode ? '#4FC3F7' : '#003366'} />
-              <Text
-                style={{
-                  textAlign: 'center',
-                  marginTop: 12,
-                  color: isDarkMode ? '#E5E5E7' : '#333',
-                }}
-              >
-                Carregando comentários...
-              </Text>
             </View>
-          ) : comentarios.length === 0 ? (
-            <View style={{ paddingVertical: 40, alignItems: 'center' }}>
-              <FontAwesome name="comments-o" size={48} color={isDarkMode ? '#555' : '#CCC'} />
-              <Text
-                style={{
-                  color: isDarkMode ? '#AAA' : '#666',
-                  fontStyle: 'italic',
-                  textAlign: 'center',
-                  marginTop: 12,
+
+            <View style={{ flex: 1 }}>
+              <OccurrenceCarousel
+                items={ocorrenciasNoEndereco && ocorrenciasNoEndereco.length ? ocorrenciasNoEndereco : (selectedOcorrencia ? [selectedOcorrencia] : [])}
+                initialIndex={modalIndex || 0}
+                carregarComentarios={carregarComentarios}
+                onIndexChange={(index) => {
+              
+                  const currentItem = ocorrenciasNoEndereco && ocorrenciasNoEndereco.length 
+                    ? ocorrenciasNoEndereco[index] 
+                    : (selectedOcorrencia ? [selectedOcorrencia][index] : null);
+                  
+                  if (currentItem) {
+                  
+                    setSelectedOcorrencia(currentItem);
+                    
+                
+                    if (carregarComentarios) {
+                      carregarComentarios(currentItem.id ?? currentItem._id);
+                    }
+                  }
                 }}
-              >
-                Nenhum comentário ainda.
-              </Text>
-              <Text
-                style={{
-                  color: isDarkMode ? '#777' : '#999',
-                  fontSize: 12,
-                  textAlign: 'center',
-                  marginTop: 8,
+                renderDetail={(item, ctx) => {
+                  return (
+                
+
+                    <ScrollView style={{ flex: 1, paddingHorizontal: 20, paddingVertical: 16 }} showsVerticalScrollIndicator={false}>
+                      
+                      {/* INFORMAÇÕES DA OCORRÊNCIA PABLO  */}
+                      <View style={{ marginBottom: 24, backgroundColor: isDarkMode ? '#1C1C1E' : '#FFFFFF', padding: 14, borderRadius: 10, borderWidth: 1, borderColor: isDarkMode ? '#3A3A3C' : '#E5E8ED' }}>
+                        <Text style={{ fontSize: 16, fontWeight: '700', color: isDarkMode ? '#4FC3F7' : '#012E61', marginBottom: 10 }}>Informações</Text>
+                        
+                        {/* CARROSSEL PARA TIPOS DE OCORRÊNCIA PABLO*/}
+                        <View style={{ marginBottom: 16 }}>
+                          <Text style={{ fontSize: 13, fontWeight: '600', color: isDarkMode ? '#4FC3F7' : '#012E61', marginBottom: 8 }}>Tipo:</Text>
+                          <ScrollView 
+                            horizontal 
+                            showsHorizontalScrollIndicator={false}
+                            style={{ flexDirection: 'row' }}
+                          >
+                            <View style={{
+                              backgroundColor: isDarkMode ? '#2C2C2E' : '#F2F6FA',
+                              paddingHorizontal: 16,
+                              paddingVertical: 8,
+                              borderRadius: 20,
+                              marginRight: 8,
+                              borderWidth: 1,
+                              borderColor: isDarkMode ? '#4FC3F7' : '#012E61',
+                            }}>
+                              <Text style={{ 
+                                fontSize: 13, 
+                                fontWeight: '600',
+                                color: isDarkMode ? '#4FC3F7' : '#012E61',
+                              }}>
+                                {item?.tipo || '—'}
+                              </Text>
+                            </View>
+                            
+                      
+                            {ocorrenciasNoEndereco?.filter(oc => oc.tipo !== item?.tipo).slice(0, 3).map((oc, index) => (
+                              <View 
+                                key={index}
+                                style={{
+                                  backgroundColor: isDarkMode ? '#2C2C2E' : '#F8F9FA',
+                                  paddingHorizontal: 12,
+                                  paddingVertical: 6,
+                                  borderRadius: 16,
+                                  marginRight: 6,
+                                  borderWidth: 1,
+                                  borderColor: isDarkMode ? '#555' : '#DDD',
+                                }}
+                              >
+                                <Text style={{ 
+                                  fontSize: 12, 
+                                  color: isDarkMode ? '#AAA' : '#666',
+                                }}>
+                                  {oc.tipo}
+                                </Text>
+                              </View>
+                            ))}
+                          </ScrollView>
+                        </View>
+                        
+                        <View style={{ marginBottom: 10 }}>
+                          <Text style={{ fontSize: 13, fontWeight: '600', color: isDarkMode ? '#4FC3F7' : '#012E61' }}>Descrição:</Text>
+                          <Text style={{ fontSize: 13, color: isDarkMode ? '#E5E5E7' : '#333', marginTop: 4 }}>{item?.descricao || item?.descricao_curta || item?.texto || '—'}</Text>
+                        </View>
+                        
+                        <View style={{ marginBottom: 10 }}>
+                          <Text style={{ fontSize: 13, fontWeight: '600', color: isDarkMode ? '#4FC3F7' : '#012E61' }}>Endereço:</Text>
+                          <DetalheOcorrencia 
+                            item={item}
+                            isDarkMode={isDarkMode}
+                            enderecoService={enderecoService}
+                            ocorrenciasNoEndereco={ocorrenciasNoEndereco}
+                            comentarios={comentarios}
+                            loadingComentarios={loadingComentarios}
+                          />
+
+
+                        </View>
+                        
+                        <View style={{ marginBottom: 10 }}>
+                          <Text style={{ fontSize: 13, fontWeight: '600', color: isDarkMode ? '#4FC3F7' : '#012E61' }}>Data:</Text>
+                          <Text style={{ fontSize: 13, color: isDarkMode ? '#E5E5E7' : '#333', marginTop: 4 }}>{item?.dataAcontecimento}</Text>
+                        </View>
+                      </View>
+
+                      {/* ÚLTIMOS 2 COMENTÁRIOS DO LOCAL PABLO */}
+                      <View style={{ marginBottom: 24, backgroundColor: isDarkMode ? '#1C1C1E' : '#FFFFFF', padding: 14, borderRadius: 10, borderWidth: 1, borderColor: isDarkMode ? '#3A3A3C' : '#E5E8ED' }}>
+                        <Text style={{ fontSize: 16, fontWeight: '700', color: isDarkMode ? '#4FC3F7' : '#012E61', marginBottom: 10 }}>
+                          Comentários do Local ({comentarios.length})
+                        </Text>
+
+                        {loadingComentarios ? (
+                          <View style={{ paddingVertical: 10, alignItems: 'center' }}>
+                            <ActivityIndicator size="small" color={isDarkMode ? '#4FC3F7' : '#003366'} />
+                            <Text style={{ color: isDarkMode ? '#E5E5E7' : '#333', marginTop: 8, fontSize: 12 }}>
+                              Carregando comentários...
+                            </Text>
+                          </View>
+                        ) : comentarios.length === 0 ? (
+                          <Text style={{ color: isDarkMode ? '#AAA' : '#666', fontStyle: 'italic', textAlign: 'center', fontSize: 13 }}>
+                            Nenhum comentário ainda.
+                          </Text>
+                        ) : (
+                          <ScrollView style={{ maxHeight: 200 }} showsVerticalScrollIndicator={false}>
+                            {comentarios.slice(0, 2).map((c, i) => (
+                              <View
+                                key={c.id ?? i}
+                                style={{
+                                  backgroundColor: isDarkMode ? '#2C2C2E' : '#F2F6FA',
+                                  padding: 10,
+                                  borderRadius: 8,
+                                  marginBottom: 8,
+                                }}
+                              >
+                                <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 4 }}>
+                                  <Text style={{ fontWeight: '700', color: isDarkMode ? '#4FC3F7' : '#012E61', fontSize: 12 }}>
+                                    {c.usuario?.name || c.usuario?.nome || 'Usuário'}
+                                  </Text>
+                                  <Text style={{ fontSize: 10, color: isDarkMode ? '#CCC' : '#777' }}>
+                                    {formatDate(c.data ?? c.created_at)}
+                                  </Text>
+                                </View>
+                                <Text style={{ fontSize: 12, color: isDarkMode ? '#E5E5E7' : '#333', lineHeight: 16 }}>
+                                  {c.mensagem}
+                                </Text>
+                              </View>
+                            ))}
+                            
+                            {comentarios.length > 2 && (
+                              <Text style={{ color: isDarkMode ? '#4FC3F7' : '#012E61', fontSize: 12, textAlign: 'center', marginTop: 8, fontStyle: 'italic' }}>
+                                +{comentarios.length - 2} comentários
+                              </Text>
+                            )}
+                          </ScrollView>
+                        )}
+                      </View>
+                    </ScrollView>
+                  );
                 }}
-              >
-                Seja o primeiro a comentar!
-              </Text>
-            </View>
-          ) : (
-            comentarios.map((c, i) => (
+              />
+
+              {/* BOTÃO VER COMENTÁRIOS AQUI PABLO */}
               <View
-                key={c.id ?? i}
                 style={{
-                  backgroundColor: isDarkMode ? '#2C2C2E' : '#F2F6FA',
-                  padding: 12,
-                  borderRadius: 10,
-                  marginBottom: 12,
+                  padding: 16,
+                  backgroundColor: isDarkMode ? '#1C1C1E' : '#FFFFFF',
+                  borderTopWidth: 1,
+                  borderColor: isDarkMode ? '#3A3A3C' : '#E5E8ED',
                 }}
               >
-                <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 6 }}>
-                  <Text style={{ fontWeight: '700', color: isDarkMode ? '#4FC3F7' : '#012E61', fontSize: 14 }}>
-                    {c.usuario?.name || c.usuario?.nome || 'Usuário'}
+                <TouchableOpacity
+                  onPress={() => setShowComentarios(true)}
+                  style={{
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    backgroundColor: isDarkMode ? '#0c2946ff' : '#003366',
+                    paddingVertical: 12,
+                    borderRadius: 10,
+                    gap: 8,
+                  }}
+                >
+                  <FontAwesome 
+                    name="comment-o" 
+                    size={18} 
+                    color="#FFF" 
+                  />
+                  <Text style={{ color: '#FFF', fontWeight: '700', fontSize: 15 }}>
+                    Ver Comentários ({comentarios.length})
                   </Text>
-
-                  <Text style={{ fontSize: 11, color: isDarkMode ? '#CCC' : '#777' }}>
-                    {formatDate(c.data ?? c.created_at)}
-                  </Text>
-                </View>
-
-                <Text style={{ fontSize: 14, color: isDarkMode ? '#E5E5E7' : '#333', lineHeight: 18 }}>
-                  {c.mensagem}
-                </Text>
+                </TouchableOpacity>
               </View>
-            ))
-          )}
-        </ScrollView>
-
-        {/* INPUT DE NOVO COMENTÁRIO */}
-        <View
-          style={{
-            padding: 16,
-            backgroundColor: isDarkMode ? '#2C2C2E' : '#F8F9FA',
-            borderTopWidth: 1,
-            borderColor: isDarkMode ? '#3A3A3C' : '#E5E8ED',
-          }}
-        >
-          <TextInput
-            placeholder="Escreva um comentário..."
-            placeholderTextColor={isDarkMode ? '#777' : '#888'}
-            value={mensagemComentario}
-            onChangeText={setMensagemComentario}
-            style={{
-              borderWidth: 1,
-              borderColor: isDarkMode ? '#3A3A3C' : '#D8DDE5',
-              borderRadius: 10,
-              padding: 12,
-              backgroundColor: isDarkMode ? '#1C1C1E' : '#FFFFFF',
-              color: isDarkMode ? '#FFF' : '#333',
-              minHeight: 80,
-              textAlignVertical: 'top',
-              fontSize: 14,
-            }}
-            multiline
-            numberOfLines={3}
-          />
-
-          <TouchableOpacity
-            onPress={enviarComentario}
-            style={{
-              marginTop: 12,
-              paddingVertical: 12,
-              backgroundColor: isDarkMode ? '#0c2946ff' : '#003366',
-              borderRadius: 10,
-              alignItems: 'center',
-              opacity: sendingComentario ? 0.5 : 1,
-            }}
-            disabled={sendingComentario || !mensagemComentario.trim()}
-          >
-            {sendingComentario ? (
-              <ActivityIndicator size="small" color="#FFF" />
-            ) : (
-              <Text style={{ color: '#FFF', fontWeight: '700', fontSize: 15 }}>
-                Enviar Comentário
-              </Text>
-            )}
-          </TouchableOpacity>
+            </View>
+          </View>
         </View>
-      </View>
-    </View>
-  </Modal>
-)}
+      </Modal>
 
-      </View>
-      <View
-        style={{
-          padding: 16,
-          backgroundColor: isDarkMode ? '#1C1C1E' : '#FFFFFF',
-          borderTopWidth: 1,
-          borderColor: isDarkMode ? '#3A3A3C' : '#E5E8ED',
-        }}
-      >
-        <TouchableOpacity
-          onPress={() => setShowComentarios(!showComentarios)}
-          style={{
-            flexDirection: 'row',
-            alignItems: 'center',
-            justifyContent: 'center',
-            backgroundColor: isDarkMode ? '#0c2946ff' : '#003366',
-            paddingVertical: 12,
-            borderRadius: 10,
-            gap: 8,
-          }}
-        >
-          <FontAwesome 
-            name={showComentarios ? "comments" : "comment-o"} 
-            size={18} 
-            color="#FFF" 
-          />
-          <Text style={{ color: '#FFF', fontWeight: '700', fontSize: 15 }}>
-            {showComentarios ? 'Fechar Comentários' : `Ver Comentários (${comentarios.length})`}
-          </Text>
-        </TouchableOpacity>
-        </View>
-      <View style={{ padding: 12, backgroundColor: 'transparent' }}>
-        <TouchableOpacity style={{ backgroundColor: '#003366', paddingHorizontal: 20, paddingVertical: 10, borderRadius: 8 }} onPress={fecharModal}><Text style={{ color: '#fff', fontWeight: '700' }}>Fechar</Text></TouchableOpacity>
-      </View>
-    </View>
-  </View>
-</Modal>
-
-
-
+      {/* MODAL 2 - o de DENÚNCIA */}
       <Modal visible={modalDenuncia} transparent animationType="slide" onRequestClose={() => setModalDenuncia(false)}>
         <View style={styles.modalOverlay}>
-          <View style={styles.modalCard}>
-            <View style={{ padding: 20 }}>
-              <Text style={{ marginBottom: 20 }}>Tem certeza que quer denunciar essa ocorrencia?</Text>
-              <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                <Pressable onPress={() => denunciarOcorrencia(selectedOcorrencia?.id ?? selectedOcorrencia?._id)} style={{ padding: 10 }}>
-                  <Text>Sim</Text>
+          <View style={[styles.modalCard, { 
+            backgroundColor: isDarkMode ? '#1C1C1E' : '#FFFFFF',
+            paddingVertical: 24 
+          }]}>
+            <View style={{ padding: 20, alignItems: 'center' }}>
+              <Text style={{ 
+                fontSize: 18, 
+                fontWeight: '700', 
+                marginBottom: 16,
+                color: isDarkMode ? '#FFF' : '#000',
+                textAlign: 'center'
+              }}>
+                Denunciar Ocorrência
+              </Text>
+              
+              <Text style={{ 
+                marginBottom: 20, 
+                textAlign: 'center',
+                color: isDarkMode ? '#E5E5E7' : '#333',
+                lineHeight: 20
+              }}>
+                Tem certeza que quer denunciar esta ocorrência?
+              </Text>
+              
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', width: '100%', gap: 12 }}>
+                <Pressable 
+                  onPress={() => setModalDenuncia(false)} 
+                  style={{ 
+                    flex: 1, 
+                    padding: 12, 
+                    backgroundColor: isDarkMode ? '#2C2C2E' : '#F0F0F0',
+                    borderRadius: 8,
+                    alignItems: 'center'
+                  }}
+                >
+                  <Text style={{ color: isDarkMode ? '#FFF' : '#333', fontWeight: '600' }}>Cancelar</Text>
                 </Pressable>
-                <Pressable onPress={() => setModalDenuncia(false)} style={{ padding: 10 }}>
-                  <Text>Não</Text>
+                
+                <Pressable 
+                  onPress={() => {
+                    denunciarOcorrencia(selectedOcorrencia?.id ?? selectedOcorrencia?._id);
+                    setModalDenuncia(false);
+                  }} 
+                  style={{ 
+                    flex: 1, 
+                    padding: 12, 
+                    backgroundColor: '#FF3B30',
+                    borderRadius: 8,
+                    alignItems: 'center'
+                  }}
+                >
+                  <Text style={{ color: '#FFF', fontWeight: '600' }}>Denunciar</Text>
                 </Pressable>
               </View>
             </View>
@@ -950,7 +716,223 @@ const abrirModal = async (oc) => {
         </View>
       </Modal>
 
-      <Modal transparent={true} visible={visible} animationType="none">
+      {/* MODAL 3 - COMENTÁRIOS COMPLETOS */}
+      {showComentarios && (
+        <Modal
+          visible={showComentarios}
+          transparent
+          animationType="slide"
+          onRequestClose={() => setShowComentarios(false)}
+        >
+          <View
+            style={{
+              flex: 1,
+              backgroundColor: isDarkMode ? 'rgba(0,0,0,0.8)' : 'rgba(0, 34, 68, 0.8)',
+              justifyContent: 'flex-end',
+            }}
+          >
+            <View
+              style={{
+                height: '70%',
+                backgroundColor: isDarkMode ? '#1C1C1E' : '#FFFFFF',
+                borderTopLeftRadius: 20,
+                borderTopRightRadius: 20,
+                overflow: 'hidden',
+              }}
+            >
+              
+              {/* HEADER */}
+              <View
+                style={{
+                  flexDirection: 'row',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  backgroundColor: isDarkMode ? '#0c2946ff' : '#012E61',
+                  paddingHorizontal: 20,
+                  paddingVertical: 16,
+                }}
+              >
+                <Text
+                  style={{
+                    fontSize: 18,
+                    fontWeight: '700',
+                    color: '#FFF',
+                  }}
+                >
+                  Comentários ({comentarios.length})
+                </Text>
+
+                <TouchableOpacity
+                  onPress={() => setShowComentarios(false)}
+                  style={{
+                    width: 32,
+                    height: 32,
+                    borderRadius: 16,
+                    backgroundColor: 'rgba(255,255,255,0.15)',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                  }}
+                >
+                  <Text style={{ color: '#FFF', fontSize: 20, fontWeight: 'bold' }}>×</Text>
+                </TouchableOpacity>
+              </View>
+
+              {/* DATA DA OCORRÊNCIA */}
+              {selectedOcorrencia?.dataAcontecimento && (
+                <View style={{ paddingHorizontal: 20, marginTop: 12 }}>
+                  <Text
+                    style={{
+                      fontSize: 13,
+                      fontWeight: '600',
+                      color: isDarkMode ? '#4FC3F7' : '#012E61',
+                    }}
+                  >
+                    Data:
+                  </Text>
+
+                  <Text
+                    style={{
+                      fontSize: 13,
+                      color: isDarkMode ? '#E5E5E7' : '#333',
+                      marginTop: 4,
+                    }}
+                  >
+                    {formatDate(selectedOcorrencia.dataAcontecimento)}
+                  </Text>
+                </View>
+              )}
+
+              {/* LISTA DE COMENTÁRIOS */}
+              <ScrollView
+                style={{
+                  flex: 1,
+                  paddingHorizontal: 20,
+                  paddingVertical: 16,
+                }}
+                showsVerticalScrollIndicator={false}
+              >
+                {loadingComentarios ? (
+                  <View style={{ paddingVertical: 20 }}>
+                    <ActivityIndicator size="small" color={isDarkMode ? '#4FC3F7' : '#003366'} />
+                    <Text
+                      style={{
+                        textAlign: 'center',
+                        marginTop: 12,
+                        color: isDarkMode ? '#E5E5E7' : '#333',
+                      }}
+                    >
+                      Carregando comentários...
+                    </Text>
+                  </View>
+                ) : comentarios.length === 0 ? (
+                  <View style={{ paddingVertical: 40, alignItems: 'center' }}>
+                    <FontAwesome name="comments-o" size={48} color={isDarkMode ? '#555' : '#CCC'} />
+                    <Text
+                      style={{
+                        color: isDarkMode ? '#AAA' : '#666',
+                        fontStyle: 'italic',
+                        textAlign: 'center',
+                        marginTop: 12,
+                      }}
+                    >
+                      Nenhum comentário ainda.
+                    </Text>
+                    <Text
+                      style={{
+                        color: isDarkMode ? '#777' : '#999',
+                        fontSize: 12,
+                        textAlign: 'center',
+                        marginTop: 8,
+                      }}
+                    >
+                      Seja o primeiro a comentar!
+                    </Text>
+                  </View>
+                ) : (
+                  comentarios.map((c, i) => (
+                    <View
+                      key={c.id ?? i}
+                      style={{
+                        backgroundColor: isDarkMode ? '#2C2C2E' : '#F2F6FA',
+                        padding: 12,
+                        borderRadius: 10,
+                        marginBottom: 12,
+                      }}
+                    >
+                      <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: 6 }}>
+                        <Text style={{ fontWeight: '700', color: isDarkMode ? '#4FC3F7' : '#012E61', fontSize: 14 }}>
+                          {c.usuario?.name || c.usuario?.nome || 'Usuário'}
+                        </Text>
+
+                        <Text style={{ fontSize: 11, color: isDarkMode ? '#CCC' : '#777' }}>
+                          {formatDate(c.data ?? c.created_at)}
+                        </Text>
+                      </View>
+
+                      <Text style={{ fontSize: 14, color: isDarkMode ? '#E5E5E7' : '#333', lineHeight: 18 }}>
+                        {c.mensagem}
+                      </Text>
+                    </View>
+                  ))
+                )}
+              </ScrollView>
+
+              {/* ENVIAR COMENTÁRIO */}
+              <View
+                style={{
+                  padding: 16,
+                  backgroundColor: isDarkMode ? '#2C2C2E' : '#F8F9FA',
+                  borderTopWidth: 1,
+                  borderColor: isDarkMode ? '#3A3A3C' : '#E5E8ED',
+                }}
+              >
+                <TextInput
+                  placeholder="Escreva um comentário..."
+                  placeholderTextColor={isDarkMode ? '#777' : '#888'}
+                  value={mensagemComentario}
+                  onChangeText={setMensagemComentario}
+                  style={{
+                    borderWidth: 1,
+                    borderColor: isDarkMode ? '#3A3A3C' : '#D8DDE5',
+                    borderRadius: 10,
+                    padding: 12,
+                    backgroundColor: isDarkMode ? '#1C1C1E' : '#FFFFFF',
+                    color: isDarkMode ? '#FFF' : '#333',
+                    minHeight: 80,
+                    textAlignVertical: 'top',
+                    fontSize: 14,
+                  }}
+                  multiline
+                  numberOfLines={3}
+                />
+
+                <TouchableOpacity
+                  onPress={enviarComentario}
+                  style={{
+                    marginTop: 12,
+                    paddingVertical: 12,
+                    backgroundColor: isDarkMode ? '#0c2946ff' : '#003366',
+                    borderRadius: 10,
+                    alignItems: 'center',
+                    opacity: sendingComentario ? 0.5 : 1,
+                  }}
+                  disabled={sendingComentario || !mensagemComentario.trim()}
+                >
+                  {sendingComentario ? (
+                    <ActivityIndicator size="small" color="#FFF" />
+                  ) : (
+                    <Text style={{ color: '#FFF', fontWeight: '700', fontSize: 15 }}>
+                      Enviar Comentário
+                    </Text>
+                  )}
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+        </Modal>
+      )}
+
+      <Modal transparent={true} visible={visible} onBackdropPress={() => {}} backdropOpacity={0.5} propagateSwipe={true} useNativeDriverForBackdrop coverScreen={false}        >
         <TouchableOpacity style={styles.overlay} onPress={closeSheet} activeOpacity={1} />
         <Animated.View
           style={[
@@ -959,21 +941,15 @@ const abrirModal = async (oc) => {
           ]}
         >
           <Pressable onPress={() => encerrandoRota()}>
-    <Text style={styles.sheetText}>Fechar</Text>
-</Pressable>
-    {amenity ? (
-        <Text style={styles.sheetText}>Local: {amenity}</Text>
-    ) : null}
+            <Text style={styles.sheetText}>Fechar</Text>
+          </Pressable>
+          {inicio ? (
+            <Text style={styles.sheetText}>Origem: {inicio}</Text>
+          ) : null}
 
-    {inicio ? (
-        <Text style={styles.sheetText}>Origem: {inicio}</Text>
-    ) : null}
-
-    {fim ? (
-        <Text style={styles.sheetText}>Destino: {fim}</Text>
-    ) : null}
-
-
+          {fim ? (
+            <Text style={styles.sheetText}>Destino: {fim}</Text>
+          ) : null}
         </Animated.View>
       </Modal>
     </>
@@ -1114,7 +1090,8 @@ const styles = StyleSheet.create({
     color: '#012E61',
     fontSize: 13,
   },
-    modalCard: {
+
+  modalCard: {
     width: '100%',
     maxWidth: 400,
     borderRadius: 20,
@@ -1129,6 +1106,7 @@ const styles = StyleSheet.create({
     shadowRadius: 20,
     elevation: 10,
   },
+
   modalIconContainer: {
     width: 70,
     height: 70,
@@ -1137,29 +1115,34 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 16,
   },
+
   modalContent: {
     width: '100%',
     paddingHorizontal: 24,
     alignItems: 'center',
   },
+
   modalTitle: {
     fontSize: 20,
     fontWeight: '700',
     marginBottom: 12,
     textAlign: 'center',
   },
+
   modalMessage: {
     fontSize: 15,
     lineHeight: 22,
     textAlign: 'center',
     marginBottom: 24,
   },
+
   modalButtons: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     width: '100%',
     gap: 12,
   },
+
   modalButton: {
     flex: 1,
     paddingVertical: 14,
@@ -1167,10 +1150,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+
   cancelButton: {
     borderWidth: 2,
     backgroundColor: 'transparent',
   },
+
   confirmButton: {
     shadowColor: '#000',
     shadowOffset: {
@@ -1181,10 +1166,12 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 4,
   },
+
   cancelButtonText: {
     fontSize: 15,
     fontWeight: '600',
   },
+
   confirmButtonText: {
     fontSize: 15,
     fontWeight: '600',
@@ -1253,16 +1240,20 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     fontSize: 16,
   },
+
   button: {
     backgroundColor: "#333",
     padding: 12,
     borderRadius: 8
   },
+
   buttonText: { color: "#fff", fontSize: 16 },
+
   overlay: {
     flex: 1,
     backgroundColor: "rgba(0,0,0,0.4)",
   },
+
   sheet: {
     width: "100%",
     position: "absolute",
@@ -1272,20 +1263,22 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 20,
     padding: 20,
   },
-  sheetText: { fontSize: 18 },
 
-  // ---------- estilos do marcador com badge ----------
+  sheetText: { fontSize: 18 },
+  
   markerContainer: {
     width: 44,
     height: 44,
     alignItems: 'center',
     justifyContent: 'center',
   },
+
   markerImage: {
     width: 40,
     height: 40,
     resizeMode: 'contain',
   },
+
   badge: {
     position: 'absolute',
     right: -6,
@@ -1299,6 +1292,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#fff',
   },
+
   badgeText: {
     fontSize: 12,
     color: '#000',

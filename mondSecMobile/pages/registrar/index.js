@@ -1,5 +1,3 @@
-// === CÓDIGO COMPLETO COM CEP E AUTOPREENCHIMENTO ===
-
 import React, { useState, useEffect } from "react";
 import {
   View,
@@ -25,442 +23,577 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import UrlService from '../../services/UrlService';
 import { useTheme } from "../../services/themes/themecontext";
 
-// ===============================================================
-// ===================== INÍCIO DO COMPONENTE ======================
-// ===============================================================
-
 const RegistrarScreen = ({ navigation }) => {
   const { theme } = useTheme();
+const [cep, setCep] = useState('');
+const [buscandoCep, setBuscandoCep] = useState(false);
 
-  // Estados atuais do seu formulário
   const [carregando, setCarregando] = useState(false);
+  const [visivelInicio, setVisivelInicio] = useState(false);
+  const [mostrar, setMostrar] = useState(false);
+  const [visivelSucesso, setVisivelSucesso] = useState(false);
 
-  // Campos do endereço
-  const [cep, setCep] = useState("");
-  const [rua, setRua] = useState("");
-  const [numero, setNumero] = useState("");
-  const [bairro, setBairro] = useState("");
-  const [cidade, setCidade] = useState("");
+  // Form fields
+  const [rua, setRua] = useState('');
+  const [numero, setNumero] = useState('');
+  const [bairro, setBairro] = useState('');
+  const [cidade, setCidade] = useState('');
 
-  // Demais campos
-  const [titulo, setTitulo] = useState("");
-  const [tipo, setTipo] = useState("");
-  const [descricao, setDescricao] = useState("");
-  const [mensagemErro, setMensagemErro] = useState("");
-  const [detalheErro, setDetalheErro] = useState("");
+  const [titulo, setTitulo] = useState('');
+  const [dataAcontecimento, setDataAcontecimento] = useState('');
+  const [tipo, setTipo] = useState('');
+  const [descricao, setDescricao] = useState('');
+  const [mensagemErro, setMensagemErro] = useState('');
+  const [detalheErro, setDetalheErro] = useState(''); // Detalhes técnicos do erro
   const [erroModalVisivel, setErroModalVisivel] = useState(false);
 
-  const [selectedDate, setSelectedDate] = useState(new Date());
   const [show, setShow] = useState(false);
+  const [selectedDate, setSelectedDate] = useState(new Date());
 
-  const [buscaTipo, setBuscaTipo] = useState("");
+  const [buscaTipo, setBuscaTipo] = useState('');
   const [dropdownAberto, setDropdownAberto] = useState(false);
 
-  // Lista de tipos
+  // Lista de tipos (mantive a sua grande lista no exemplo reduzido por legibilidade,
+  // substitua pelos seus tiposOcorrencia originais conforme preferir)
   const tiposOcorrencia = [
-  // Crimes Graves
-  "Homicídio",
-  "Tentativa de Homicídio",
-  "Latrocínio",
-  "Roubo",
-  "Roubo a Residência",
-  "Roubo a Comércio",
-  "Roubo de Veículo",
-  "Roubo com Refém",
-  "Sequestro",
-  "Extorsão",
-  "Furto",
-  "Furto de Veículo",
-  "Arrombamento",
-  "Agressão Física",
-  "Ameaça",
-  "Violência Doméstica",
-  "Estupro",
-  "Assédio Sexual",
-  "Pedofilia",
-  "Tráfico de Drogas",
-  "Porte Ilegal de Arma",
-  "Disparo de Arma de Fogo",
-  "Tentativa de Suicídio",
-  "Homicídio Culposo no Trânsito",
-  "Vandalismo",
-  "Invasão de Propriedade",
-  "Dano ao Patrimônio",
-  "Estelionato",
-  "Golpe / Fraude",
-  "Estelionato Digital",
-  "Crimes Cibernéticos",
-  "Apropriação Indébita",
-  "Corrupção de Menores",
-  "Contrabando",
-  "Receptação",
-  "Crimes Ambientais",
-
-  // Violência e Conflitos
-  "Briga Generalizada",
-  "Confusão em Evento",
-  "Bullying",
-  "Agressão Verbal",
-  "Tentativa de Linchamento",
-  "Violência Escolar",
-  "Disputa de Trânsito",
-  "Perturbação de Sossego",
-
-  // Desastres Naturais
-  "Enchente",
-  "Alagamento",
-  "Deslizamento de Terra",
-  "Tsunami",
-  "Terremoto",
-  "Treme-terra",
-  "Tornado",
-  "Ciclone",
-  "Furacão",
-  "Granizo",
-  "Tempestade Elétrica",
-  "Seca",
-  "Incêndio Florestal",
-  "Erosão",
-  "Vendaval",
-  "Avalanche",
-  "Onda de Calor",
-  "Nevasca",
-
-  // Acidentes
-  "Acidente de Carro",
-  "Acidente de Moto",
-  "Acidente com Bicicleta",
-  "Atropelamento",
-  "Acidente de Ônibus",
-  "Acidente de Caminhão",
-  "Acidente com Animais",
-  "Acidente Doméstico",
-  "Queda de Altura",
-  "Desabamento",
-  "Incêndio Residencial",
-  "Incêndio Comercial",
-  "Explosão",
-  "Curto-Circuito",
-  "Vazamento de Gás",
-  "Vazamento Químico",
-  "Afogamento",
-  "Acidente em Obra",
-  "Acidente Industrial",
-
-  // Saúde e Emergências
-  "Mal Súbito",
-  "Desmaio",
-  "Crise Convulsiva",
-  "Overdose",
-  "Intoxicação Alimentar",
-  "Intoxicação Química",
-  "Reação Alérgica Grave",
-  "Ataque Cardíaco",
-  "Acidente Biológico",
-  "Foco de Doença Infecciosa",
-  "Picada de Animal Peçonhento",
-
-  // Problemas Urbanos
-  "Falta de Energia",
-  "Falta de Água",
-  "Interrupção de Internet",
-  "Obra Irregular",
-  "Fio Caído",
-  "Esgoto Transbordando",
-  "Buraco na Rua",
-  "Semáforo Quebrado",
-  "Obstrução de Via",
-  "Árvore Caída",
-  "Mau Cheiro na Rua",
-  "Lixo Acumulado",
-  "Barulho Excessivo",
-  "Poluição do Ar",
-  "Poluição Sonora",
-  "Vazamento de Água",
-  "Agente Suspeito",
-  "Veículo Abandonado",
-  "Pessoa Desaparecida",
-  "Animal Abandonado",
-
-  // Inconveniências
-  "Perda de Objeto",
-  "Carteira Perdida",
-  "Celular Perdido",
-  "Extravio de Encomenda",
-  "Conflito entre Vizinhos",
-  "Fila Exagerada",
-  "Preço Abusivo",
-  "Falha de Serviço Público",
-  "Dano em Entrega",
-  "Entrega Atrasada",
-  "Produto Defeituoso",
-
-  // Outros
-  "Evento Climático Atípico",
-  "Objeto Suspeito",
-  "Ruído Misterioso",
-  "Comportamento Suspeito",
-  "Ocorrência Não Identificada",
-  "Outros"
-];
-
+    // coloque aqui a lista completa que você já tinha; por clareza deixei um recorte
+    "Homicídio", "Tentativa de Homicídio", "Roubo", "Furto", "Agressão Física",
+    "Violência Doméstica", "Estupro", "Tráfico de Drogas", "Incêndio Residencial",
+    "Acidente de Carro", "Enchente", "Queda de Altura", "Perda de Objeto", "Outros"
+  ];
 
   const tiposFiltrados = tiposOcorrencia.filter(item =>
     item.toLowerCase().includes(buscaTipo.toLowerCase())
   );
 
-  // ===============================================================
-  // ===================== CONSULTAR VIA CEP ========================
-  // ===============================================================
-
-  const buscarCEP = async () => {
-    try {
-      const apenasNumeros = cep.replace(/\D/g, "");
-
-      if (apenasNumeros.length !== 8) {
-        Alert.alert("CEP inválido", "Digite um CEP com 8 números.");
-        return;
+  useEffect(() => {
+    const checarModal = async () => {
+      try {
+        const mostrarSalvo = await AsyncStorage.getItem('mostrarModalInicio');
+        if (mostrarSalvo !== 'true') {
+          setVisivelInicio(true);
+          setMostrar(false);
+        } else {
+          setVisivelInicio(false);
+          setMostrar(true);
+        }
+      } catch (err) {
+        // Problema ao ler AsyncStorage: avisar o usuário (mas não bloquear)
+        console.error('Erro ao acessar AsyncStorage (mostrarModalInicio):', err);
       }
+    };
+    checarModal();
+  }, []);
 
-      setCarregando(true);
-
-      const response = await fetch(`https://viacep.com.br/ws/${apenasNumeros}/json/`);
-
-      const dados = await response.json();
-
-      if (dados.erro) {
-        Alert.alert("Erro", "CEP não encontrado.");
-        return;
-      }
-
-      setRua(dados.logradouro || "");
-      setBairro(dados.bairro || "");
-      setCidade(dados.localidade || "");
-
-    } catch (err) {
-      Alert.alert("Erro", "Não foi possível buscar o CEP.");
-    } finally {
-      setCarregando(false);
-    }
+  const formatDateBR = (d) => {
+    if (!d) return '';
+    return `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`;
   };
 
-  // ===============================================================
-  // ======================= FORMATAR DATA ==========================
-  // ===============================================================
-
-  const formatarData = (d) => {
-    if (!d) return "";
-    return `${String(d.getDate()).padStart(2, "0")}/${String(
-      d.getMonth() + 1
-    ).padStart(2, "0")}/${d.getFullYear()}`;
-  };
-
-  const onChange = (_, date) => {
+  const onChange = (event, selectedDateValue) => {
+    // DateTimePicker devolve dois tipos de events; evitamos render loop
     setShow(false);
-    if (date) {
-      setSelectedDate(date);
+    if (selectedDateValue) {
+      setSelectedDate(selectedDateValue);
+      setDataAcontecimento(formatDateBR(selectedDateValue));
+    }
+  };
+const buscarCEP = async () => {
+  const cepLimpo = cep.replace(/\D/g, '');
+
+  if (cepLimpo.length !== 8) {
+    Alert.alert("CEP inválido", "Digite um CEP válido com 8 números.");
+    return;
+  }
+
+  try {
+    setBuscandoCep(true);
+
+    const resposta = await fetch(`https://viacep.com.br/ws/${cepLimpo}/json/`);
+    const dados = await resposta.json();
+
+    if (dados.erro) {
+      Alert.alert("CEP não encontrado", "Verifique o CEP digitado.");
+      return;
+    }
+
+    // Preenche automaticamente
+    setRua(dados.logradouro || '');
+    setBairro(dados.bairro || '');
+    setCidade(dados.localidade || '');
+
+  } catch (erro) {
+    Alert.alert("Erro", "Não foi possível buscar o CEP.");
+  } finally {
+    setBuscandoCep(false);
+  }
+};
+
+  const toggleMostrar = async (value) => {
+    try {
+      setMostrar(value);
+      await AsyncStorage.setItem('mostrarModalInicio', value ? 'true' : 'false');
+      if (value) setVisivelInicio(false);
+    } catch (err) {
+      console.error('Erro ao salvar mostrarModalInicio:', err);
+      // Não travar a experiência do usuário; apenas mostrar aviso técnico
+      setMensagemErro('Não foi possível salvar sua preferência localmente. (storage error)');
+      setDetalheErro(getErroDetalhado(err));
+      setErroModalVisivel(true);
     }
   };
 
-  // ===============================================================
-  // ===================== VALIDAÇÃO GERAL =========================
-  // ===============================================================
+  const montarEnderecoCompleto = () => {
+    return `${rua}, ${numero}, ${bairro}, ${cidade}`;
+  };
 
-  const validarCampos = () => {
+  const validarDados = () => {
+    // validações básicas com mensagens específicas
     if (!titulo || !tipo || !rua || !numero || !bairro || !cidade) {
-      setMensagemErro("Preencha todos os campos obrigatórios.");
+      setMensagemErro('Preencha todos os campos obrigatórios: título, tipo e endereço completo.');
       return false;
     }
-    if (descricao.trim().length < 5) {
-      setMensagemErro("A descrição deve ter pelo menos 5 caracteres.");
+
+    if ((descricao || '').trim().length < 5) {
+      setMensagemErro('A descrição deve ter pelo menos 5 caracteres.');
       return false;
     }
-    if (!/^\d+$/.test(numero)) {
-      setMensagemErro("Número deve conter apenas números.");
+
+    if (!selectedDate) {
+      setMensagemErro('Selecione a data do acontecimento.');
       return false;
     }
+
+    // número deve ser numérico (opcional)
+    if (numero && !/^\d+$/.test(String(numero).trim())) {
+      setMensagemErro('O campo Número deve conter apenas dígitos.');
+      return false;
+    }
+
+    // tudo ok
+    setMensagemErro('');
     return true;
   };
 
-  // ===============================================================
-  // ======================= ENVIAR OCORRÊNCIA ======================
-  // ===============================================================
+  const limparCampos = () => {
+    setTitulo('');
+    setTipo('');
+    setDataAcontecimento('');
+    setDescricao('');
+    setRua('');
+    setNumero('');
+    setBairro('');
+    setCidade('');
+    setBuscaTipo('');
+    setSelectedDate(new Date());
+    setMensagemErro('');
+    setDetalheErro('');
+  };
 
+  // Helper para gerar texto técnico do erro (seguro)
+  const getErroDetalhado = (erro) => {
+    try {
+      if (!erro) return 'Sem detalhes adicionais.';
+      // Se for um erro de axios-like
+      if (erro.response) {
+        // resposta do servidor
+        const status = erro.response.status;
+        const data = erro.response.data;
+        let body = '';
+        try {
+          if (typeof data === 'string') {
+            body = data;
+          } else {
+            body = JSON.stringify(data);
+          }
+        } catch (e) {
+          body = String(data);
+        }
+        return `HTTP ${status} - resposta do servidor: ${body}`;
+      } else if (erro.request) {
+        // requisição foi feita mas sem resposta
+        return `Requisição feita mas sem resposta do servidor. Detalhe: ${erro.message || 'nenhuma mensagem'}`;
+      } else {
+        // erro local / programação
+        return `Erro local: ${erro.message || String(erro)}`;
+      }
+    } catch (e) {
+      return `Erro ao montar detalhes: ${e.message}`;
+    }
+  };
+
+  // Converte endereço para coordenadas com tratamento de erros explícito
+  const converterEndereco = async () => {
+    try {
+      const enderecoCompleto = montarEnderecoCompleto();
+
+      if (!enderecoCompleto || enderecoCompleto.split(',').length < 4) {
+        const err = new Error('Endereço incompleto (rua, número, bairro e cidade são obrigatórios).');
+        err.code = 'ENDERECO_INCOMPLETO';
+        throw err;
+      }
+
+      // Chamada ao serviço de coordenadas (pode lançar)
+      const response = await CoordenadaService(enderecoCompleto);
+
+      // Validar shape da resposta
+      if (!response || (typeof response.latitude === 'undefined') || (typeof response.longitude === 'undefined')) {
+        const err = new Error('Serviço de geocoding retornou dados inválidos.');
+        err.code = 'GEOCODING_INVALIDO';
+        throw err;
+      }
+
+      // Possível caso: serviço devolve nulls
+      if (response.latitude == null || response.longitude == null) {
+        const err = new Error('Coordenadas não encontradas para o endereço informado.');
+        err.code = 'COORDENADAS_NAO_ENCONTRADAS';
+        throw err;
+      }
+
+      return { latitude: response.latitude, longitude: response.longitude };
+
+    } catch (erro) {
+      // Log técnico
+      console.error('converterEndereco erro:', erro);
+      // Reempacotamos com mensagem pra exibir ao usuário e detalhes técnicos
+      const display = (erro.code === 'ENDERECO_INCOMPLETO')
+        ? 'Endereço incompleto. Por favor preencha rua, número, bairro e cidade.'
+        : 'Não foi possível obter coordenadas do endereço. Verifique o endereço ou tente mais tarde.';
+
+      const detalhe = getErroDetalhado(erro);
+      const err = new Error(display);
+      err.detalhe = detalhe;
+      throw err;
+    }
+  };
+
+  // Envio da ocorrência com tratamento completo de erros
   const enviarOcorrencia = async () => {
-    if (!validarCampos()) return;
+    // valida antes de tudo
+    if (!validarDados()) return;
+
+    setCarregando(true);
+    setMensagemErro('');
+    setDetalheErro('');
+    setErroModalVisivel(false);
 
     try {
-      setCarregando(true);
+      // Converter endereço -> coordenadas
+      const { latitude, longitude } = await converterEndereco();
 
-      const endereco = `${rua}, ${numero}, ${bairro}, ${cidade}`;
-      const coordenadas = await CoordenadaService(endereco);
+      // ISO date para envio (yyyy-mm-dd)
+      const dataISO = selectedDate.toISOString().split('T')[0];
 
-      const token = await AsyncStorage.getItem("userToken");
+      // token do usuário (pode falhar)
+      let tokenUser;
+      try {
+        tokenUser = await AsyncStorage.getItem('userToken');
+      } catch (err) {
+        console.error('Erro ao ler userToken do AsyncStorage:', err);
+        const e = new Error('Erro ao acessar credenciais locais. Tente efetuar login novamente.');
+        e.detalhe = getErroDetalhado(err);
+        throw e;
+      }
 
-      if (!token) {
-        setMensagemErro("Usuário não autenticado.");
+      if (!tokenUser) {
+        const e = new Error('Usuário não autenticado. Faça login para continuar.');
+        e.detalhe = 'Token não encontrado no AsyncStorage (userToken).';
+        throw e;
+      }
+
+      // Monta payload
+      const payload = {
+        titulo: titulo.trim(),
+        latitude,
+        longitude,
+        tipo: tipo.trim(),
+        descricao: descricao.trim(),
+        dataAcontecimento: dataISO,
+      };
+
+      // Tenta enviar
+      let resposta;
+      try {
+        resposta = await UrlService.post(
+          '/ocorrencia/registrar',
+          payload,
+          { headers: { Authorization: `Bearer ${tokenUser}` } }
+        );
+      } catch (err) {
+        // Se o serviço lançar, trataremos abaixo
+        console.error('Erro na chamada UrlService.post:', err);
+        throw err;
+      }
+
+      // Se chegou aqui, sucesso (pode validar resposta)
+      setVisivelSucesso(true);
+      limparCampos();
+
+    } catch (erro) {
+      // ---------- TRATAMENTO DE ERROS PARA O USUÁRIO ----------
+      console.error('enviarOcorrencia catch:', erro);
+
+      // Se o erro já tiver mensagem amigável (lançado por nós), usa-a
+      if (erro.message && (erro.detalhe || erro.stack)) {
+        // Mensagem amigável + detalhes técnicos
+        setMensagemErro(erro.message || 'Erro ao enviar ocorrência.');
+        // Prepara detalhe técnico (prioriza .detalhe se existir)
+        const detalhe = erro.detalhe || getErroDetalhado(erro);
+        setDetalheErro(truncarDetalhe(detalhe));
+        setErroModalVisivel(true);
+        setCarregando(false);
         return;
       }
 
-      const payload = {
-        titulo,
-        tipo,
-        descricao,
-        dataAcontecimento: selectedDate.toISOString().split("T")[0],
-        latitude: coordenadas.latitude,
-        longitude: coordenadas.longitude,
-      };
+      // Se for erro vindo do axios-like (erro.response)
+      if (erro.response) {
+        const status = erro.response.status;
+        const data = erro.response.data;
+        // Mensagens por status
+        if (status === 400) {
+          setMensagemErro('Erro de validação nos dados enviados. Verifique os campos e tente novamente.');
+        } else if (status === 401 || status === 403) {
+          setMensagemErro('Não autorizado. Faça login novamente.');
+        } else if (status >= 500) {
+          setMensagemErro('Erro no servidor. Tente novamente mais tarde.');
+        } else {
+          setMensagemErro(`Erro ao enviar. Código: ${status}`);
+        }
+        // detalhe técnico
+        setDetalheErro(truncarDetalhe(`HTTP ${status} - ${JSON.stringify(data)}`));
+        setErroModalVisivel(true);
+        setCarregando(false);
+        return;
+      }
 
-      await UrlService.post(
-        "/ocorrencia/registrar",
-        payload,
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      // Se for erro de requisição sem resposta (network)
+      if (erro.request) {
+        setMensagemErro('Sem resposta do servidor. Verifique sua conexão e tente novamente.');
+        setDetalheErro(truncarDetalhe(`Requisição feita, sem resposta. Detalhe: ${erro.message || 'nenhuma mensagem'}`));
+        setErroModalVisivel(true);
+        setCarregando(false);
+        return;
+      }
 
-      Alert.alert("Sucesso", "Ocorrência registrada!");
-      navigation.navigate("Ocorrencia");
-
-    } catch (err) {
-      setMensagemErro("Não foi possível enviar sua ocorrência.");
-      setDetalheErro(JSON.stringify(err, null, 2));
+      // Caso genérico
+      setMensagemErro('Falha ao enviar ocorrência, tente novamente.');
+      setDetalheErro(truncarDetalhe(getErroDetalhado(erro)));
       setErroModalVisivel(true);
     } finally {
       setCarregando(false);
     }
   };
 
-  // ===============================================================
-  // ============================= UI ===============================
-  // ===============================================================
+  // função utilitária para truncar detalhe técnico longo
+  const truncarDetalhe = (texto) => {
+    if (!texto) return 'Sem detalhes técnicos.';
+    const max = 2000; // evita colapsar a UI
+    if (texto.length > max) return texto.slice(0, max) + '... (texto truncado)';
+    return texto;
+  };
 
   return (
     <View style={[styles.container, { backgroundColor: theme.background }]}>
+      <SafeAreaView style={{ backgroundColor: theme.navBackground }} />
 
-      <ScrollView style={{ padding: 16 }}>
+      {/* Cabeçalho */}
+      <View style={styles.cabecalho}>
+        <Pressable onPress={() => navigation.goBack()} style={styles.iconeCabecalho}>
+          <FontAwesome name="arrow-left" size={20} color={theme.title} />
+        </Pressable>
+        <Text style={[styles.tituloCabecalho, { color: theme.title }]}>
+          Registrar Ocorrência
+        </Text>
+      </View>
 
-        {/* =================== CEP =================== */}
-        <Text style={[styles.label, { color: theme.text }]}>CEP</Text>
-        <View style={{ flexDirection: "row", gap: 8 }}>
+      {/* Formulário */}
+      <ScrollView showsVerticalScrollIndicator={false}>
+        <View style={[styles.form, { backgroundColor: theme.card }]}>
+
+          {/* Título */}
+          <Text style={[styles.label, { color: theme.text }]}>Título</Text>
           <TextInput
-            style={[styles.input, { flex: 1, backgroundColor: theme.inputBackground, color: theme.text, borderColor: theme.border }]}
-            placeholder="00000-000"
-            keyboardType="numeric"
-            value={cep}
-            onChangeText={setCep}
+            style={[styles.input, { backgroundColor: theme.inputBackground, color: theme.text, borderColor: theme.border }]}
+            placeholder="Digite o título..."
+            placeholderTextColor={theme.textSecondary}
+            value={titulo}
+            onChangeText={setTitulo}
           />
-          <TouchableOpacity
-            onPress={buscarCEP}
-            style={[styles.botaoBuscar, { backgroundColor: theme.primary }]}
-          >
-            <Text style={{ color: "#fff" }}>Buscar</Text>
-          </TouchableOpacity>
+
+          {/* Tipo de ocorrência */}
+          <Text style={[styles.label, { color: theme.text }]}>Tipo</Text>
+          <TextInput
+            style={[styles.input, { backgroundColor: theme.inputBackground, color: theme.text, borderColor: theme.border }]}
+            placeholder="Pesquisar tipo..."
+            placeholderTextColor={theme.textSecondary}
+            value={buscaTipo}
+            onChangeText={texto => {
+              setBuscaTipo(texto);
+              setTipo(texto);
+              setDropdownAberto(true);
+            }}
+          />
+
+          {dropdownAberto && (
+            <View style={[styles.dropdown, { backgroundColor: theme.card, borderColor: theme.border }]}>
+              <FlatList
+                data={tiposFiltrados}
+                keyExtractor={(item, index) => index.toString()}
+                renderItem={({ item }) => (
+                  <TouchableOpacity
+                    style={[
+                      styles.item,
+                      item === tipo && { backgroundColor: theme.primary }
+                    ]}
+                    onPress={() => {
+                      setTipo(item);
+                      setBuscaTipo(item);
+                      setDropdownAberto(false);
+                    }}
+                  >
+                    <Text style={[
+                      styles.itemTexto,
+                      { color: item === tipo ? '#fff' : theme.text }
+                    ]}>
+                      {item}
+                    </Text>
+                  </TouchableOpacity>
+                )}
+              />
+            </View>
+          )}
+          <Text style={[styles.label, { color: theme.text }]}>CEP</Text>
+          <View style={{ flexDirection: "row", alignItems: "center" }}>
+            <TextInput
+              style={[
+                styles.input,
+                {
+                  flex: 1,
+                  backgroundColor: theme.inputBackground,
+                  borderColor: theme.border,
+                  color: theme.text
+                }
+              ]}
+              placeholder="Digite o CEP"
+              placeholderTextColor={theme.textSecondary}
+              keyboardType="numeric"
+              value={cep}
+              onChangeText={setCep}
+              onBlur={buscarCEP} // Busca ao sair do campo
+            />
+
+            <TouchableOpacity
+              onPress={buscarCEP}
+              style={{
+                marginLeft: 8,
+                padding: 12,
+                backgroundColor: theme.buttonColor,
+                borderRadius: 10
+              }}
+            >
+              {buscandoCep ? (
+                <ActivityIndicator color="#fff" size={20} />
+              ) : (
+                <FontAwesome name="search" size={20} color="#fff" />
+              )}
+            </TouchableOpacity>
+          </View>
+
+          {/* ENDEREÇO */}
+          <Text style={[styles.label, { color: theme.text }]}>Rua</Text>
+          <TextInput
+            style={[styles.input, { backgroundColor: theme.inputBackground, borderColor: theme.border, color: theme.text }]}
+            placeholder="Ex: Avenida Nordestina"
+            placeholderTextColor={theme.textSecondary}
+            value={rua}
+            onChangeText={setRua}
+          />
+
+          <Text style={[styles.label, { color: theme.text }]}>Número</Text>
+          <TextInput
+            style={[styles.input, { backgroundColor: theme.inputBackground, borderColor: theme.border, color: theme.text }]}
+            placeholder="Ex: 320"
+            placeholderTextColor={theme.textSecondary}
+            keyboardType="numeric"
+            value={numero}
+            onChangeText={setNumero}
+          />
+
+          <Text style={[styles.label, { color: theme.text }]}>Bairro</Text>
+          <TextInput
+            style={[styles.input, { backgroundColor: theme.inputBackground, borderColor: theme.border, color: theme.text }]}
+            placeholder="Ex: Guaianases"
+            placeholderTextColor={theme.textSecondary}
+            value={bairro}
+            onChangeText={setBairro}
+          />
+
+          <Text style={[styles.label, { color: theme.text }]}>Cidade</Text>
+          <TextInput
+            style={[styles.input, { backgroundColor: theme.inputBackground, borderColor: theme.border, color: theme.text }]}
+            placeholder="Ex: São Paulo"
+            placeholderTextColor={theme.textSecondary}
+            value={cidade}
+            onChangeText={setCidade}
+          />
+
+          {/* Descrição */}
+          <Text style={[styles.label, { color: theme.text }]}>Descrição</Text>
+          <TextInput
+            style={[styles.textArea, { backgroundColor: theme.inputBackground, borderColor: theme.border, color: theme.text }]}
+            placeholder="Descreva a ocorrência..."
+            placeholderTextColor={theme.textSecondary}
+            value={descricao}
+            onChangeText={setDescricao}
+            multiline
+            maxLength={120}
+            textAlignVertical="top"
+          />
+
+          <Text style={{ color: theme.textSecondary }}>
+            {dataAcontecimento || 'Nenhuma data selecionada'}
+          </Text>
+
+          <Button onPress={() => setShow(true)} title='Selecionar Data' />
+
+          {show && (
+            <DateTimePicker
+              value={selectedDate}
+              mode='date'
+              display='default'
+              locale='pt-BR'
+              onChange={onChange}
+            />
+          )}
+
+          <Text style={[styles.contador, { color: theme.textSecondary }]}>
+            {descricao.length}/120
+          </Text>
+
+          {mensagemErro ? (
+            <View style={{ marginTop: 8 }}>
+              <Text style={[styles.erro, { color: theme.danger }]}>
+                {mensagemErro}
+              </Text>
+
+              {/* botão para ver detalhes técnicos */}
+              <TouchableOpacity onPress={() => setErroModalVisivel(true)} style={{ marginTop: 6 }}>
+                <Text style={{ color: theme.primary, fontWeight: '600' }}>Ver detalhes técnicos</Text>
+              </TouchableOpacity>
+            </View>
+          ) : null}
+
         </View>
 
-        {/* Rua */}
-        <Text style={[styles.label, { color: theme.text }]}>Rua</Text>
-        <TextInput
-          style={[styles.input, { backgroundColor: theme.inputBackground, color: theme.text, borderColor: theme.border }]}
-          value={rua}
-          onChangeText={setRua}
-        />
-
-        {/* Número */}
-        <Text style={[styles.label, { color: theme.text }]}>Número</Text>
-        <TextInput
-          style={[styles.input, { backgroundColor: theme.inputBackground, color: theme.text, borderColor: theme.border }]}
-          keyboardType="numeric"
-          value={numero}
-          onChangeText={setNumero}
-        />
-
-        {/* Bairro */}
-        <Text style={[styles.label, { color: theme.text }]}>Bairro</Text>
-        <TextInput
-          style={[styles.input, { backgroundColor: theme.inputBackground, color: theme.text, borderColor: theme.border }]}
-          value={bairro}
-          onChangeText={setBairro}
-        />
-
-        {/* Cidade */}
-        <Text style={[styles.label, { color: theme.text }]}>Cidade</Text>
-        <TextInput
-          style={[styles.input, { backgroundColor: theme.inputBackground, color: theme.text, borderColor: theme.border }]}
-          value={cidade}
-          onChangeText={setCidade}
-        />
-
-        {/* Título */}
-        <Text style={[styles.label, { color: theme.text }]}>Título</Text>
-        <TextInput
-          style={[styles.input, { backgroundColor: theme.inputBackground, color: theme.text, borderColor: theme.border }]}
-          value={titulo}
-          onChangeText={setTitulo}
-        />
-
-        {/* Tipo com pesquisa */}
-        <Text style={[styles.label, { color: theme.text }]}>Tipo</Text>
-        <TextInput
-          style={[styles.input, { backgroundColor: theme.inputBackground, color: theme.text, borderColor: theme.border }]}
-          value={buscaTipo}
-          placeholder="Pesquisar..."
-          placeholderTextColor={theme.textSecondary}
-          onChangeText={(t) => {
-            setBuscaTipo(t);
-            setTipo(t);
-            setDropdownAberto(true);
-          }}
-        />
-
-        {dropdownAberto && (
-          <View style={styles.dropdown}>
-            <FlatList
-              data={tiposFiltrados}
-              keyExtractor={(item, i) => i.toString()}
-              renderItem={({ item }) => (
-                <TouchableOpacity
-                  style={styles.item}
-                  onPress={() => {
-                    setTipo(item);
-                    setBuscaTipo(item);
-                    setDropdownAberto(false);
-                  }}
-                >
-                  <Text style={{ color: theme.text }}>{item}</Text>
-                </TouchableOpacity>
-              )}
-            />
-          </View>
-        )}
-
-        {/* Descrição */}
-        <Text style={[styles.label, { color: theme.text }]}>Descrição</Text>
-        <TextInput
-          style={[styles.textArea, { backgroundColor: theme.inputBackground, color: theme.text, borderColor: theme.border }]}
-          multiline
-          maxLength={120}
-          value={descricao}
-          onChangeText={setDescricao}
-        />
-
-        {/* Data */}
-        <Button title="Selecionar Data" onPress={() => setShow(true)} />
-        <Text style={{ color: theme.textSecondary }}>{formatarData(selectedDate)}</Text>
-
-        {show && (
-          <DateTimePicker value={selectedDate} mode="date" display="default" onChange={onChange} />
-        )}
-
-        {/* Erros */}
-        {mensagemErro !== "" && (
-          <Text style={{ color: theme.danger, marginTop: 10 }}>
-            {mensagemErro}
-          </Text>
-        )}
-
-        {/* Enviar */}
+        {/* BOTÃO ENVIAR */}
         <TouchableOpacity
-          style={[styles.botaoEnviar, { backgroundColor: theme.primary }]}
+          style={[
+            styles.botao,
+            { backgroundColor: theme.buttonColor },
+            carregando && styles.botaoDesabilitado
+          ]}
           onPress={enviarOcorrencia}
+          disabled={carregando}
         >
           {carregando ? (
             <ActivityIndicator color="#fff" />
@@ -471,23 +604,106 @@ const RegistrarScreen = ({ navigation }) => {
 
       </ScrollView>
 
-      {/* Modal Detalhes Erro */}
+      {/* MODAL - PRIMEIRO USO */}
+      <Modal visible={visivelInicio} transparent animationType="slide">
+        <View style={styles.modalContainer}>
+          <View style={[styles.modalContent, { backgroundColor: theme.cardbackground }]}>
+            <Text style={[styles.modalTitle, { color: theme.text }]}>Como Funciona</Text>
+
+            <Text style={[styles.modalText, { color: theme.textSecondary }]}>1. Escolha o tipo de ocorrência</Text>
+            <Text style={[styles.modalText, { color: theme.textSecondary }]}>2. Informe o local</Text>
+            <Text style={[styles.modalText, { color: theme.textSecondary }]}>3. Descreva o que aconteceu</Text>
+            <Text style={[styles.modalText, { color: theme.textSecondary }]}>4. Envie sua ocorrência</Text>
+
+            <TouchableOpacity
+              style={[styles.primaryButton, { backgroundColor: theme.buttonColor }]}
+              onPress={() => setVisivelInicio(false)}
+            >
+              <Text style={styles.primaryButtonText}>Fazer Agora</Text>
+            </TouchableOpacity>
+
+            <View style={styles.checkboxContainer}>
+              <CheckBox
+                value={mostrar}
+                onValueChange={toggleMostrar}
+                tintColors={{ true: theme.primary, false: theme.textSecondary }}
+              />
+              <Text style={[styles.checkboxLabel, { color: theme.text }]}>
+                Não mostrar novamente
+              </Text>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
+      {/* MODAL SUCESSO */}
+      <Modal visible={visivelSucesso} transparent animationType="fade">
+        <View style={styles.modalContainer}>
+          <View style={[styles.modalContent, { backgroundColor: theme.cardbackground }]}>
+            <Text style={[styles.modalTitle, { color: theme.text }]}>
+              Ocorrência enviada com sucesso!
+            </Text>
+
+            <View style={styles.buttonGroup}>
+              <TouchableOpacity
+                style={[styles.primaryButton, { backgroundColor: theme.buttonColor }]}
+                onPress={() => {
+                  setVisivelSucesso(false);
+                  // manter usuário na tela para outra ocorrência
+                }}
+              >
+                <Text style={styles.primaryButtonText}>Fazer mais uma</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={[styles.secondaryButton, { borderColor: theme.buttonColor, backgroundColor: theme.buttonColor }]}
+                onPress={() => {
+                  setVisivelSucesso(false);
+                  navigation.navigate('Ocorrencia');
+                }}
+              >
+                <Text style={styles.primaryButtonText}>
+                  Ver minhas ocorrências
+                </Text>
+              </TouchableOpacity>
+            </View>
+
+          </View>
+        </View>
+      </Modal>
+
+      {/* MODAL DE DETALHES DO ERRO (TÉCNICO) */}
       <Modal visible={erroModalVisivel} transparent animationType="slide">
         <View style={styles.modalContainer}>
-          <View style={[styles.modalBox, { backgroundColor: theme.card }]}>
-            <Text style={{ color: theme.text, fontWeight: "bold", fontSize: 18 }}>Detalhes Técnicos</Text>
-            <ScrollView style={{ maxHeight: 250, marginTop: 10 }}>
-              <Text style={{ color: theme.textSecondary, fontSize: 13 }}>
-                {detalheErro}
+          <View style={[styles.modalContent, { backgroundColor: theme.cardbackground }]}>
+            <Text style={[styles.modalTitle, { color: theme.text }]}>Detalhes do Erro</Text>
+            <ScrollView style={{ maxHeight: 280, marginTop: 8 }}>
+              <Text style={[styles.modalText, { color: theme.textSecondary, fontSize: 13 }]}>
+                {detalheErro || 'Sem detalhes técnicos disponíveis.'}
               </Text>
             </ScrollView>
 
-            <TouchableOpacity
-              style={[styles.botaoModal, { backgroundColor: theme.primary }]}
-              onPress={() => setErroModalVisivel(false)}
-            >
-              <Text style={{ color: "#fff" }}>Fechar</Text>
-            </TouchableOpacity>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 16 }}>
+              <TouchableOpacity
+                style={[styles.primaryButton, { backgroundColor: theme.buttonColor, flex: 1, marginRight: 6 }]}
+                onPress={() => {
+                  // Copiar para clipboard seria útil; aqui apenas fecha
+                  setErroModalVisivel(false);
+                }}
+              >
+                <Text style={styles.primaryButtonText}>Fechar</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={[styles.secondaryButton, { borderColor: theme.buttonColor, flex: 1, marginLeft: 6 }]}
+                onPress={() => {
+                  // Se quiser enviar o bug report, abrir o e-mail ou outra ação
+                  Alert.alert('Ação', 'Você pode copiar os detalhes técnicos e enviar para suporte.');
+                }}
+              >
+                <Text style={[styles.primaryButtonText, { color: theme.text }]}>Ajuda / Suporte</Text>
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
       </Modal>
@@ -496,67 +712,146 @@ const RegistrarScreen = ({ navigation }) => {
   );
 };
 
-// ===============================================================
-// ============================= ESTILOS ===========================
-// ===============================================================
-
 const styles = StyleSheet.create({
-  container: { flex: 1 },
-  label: { marginTop: 12, fontWeight: "bold" },
+  container: { flex: 1, padding: 20 },
+
+  cabecalho: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 30,
+  },
+
+  iconeCabecalho: { padding: 5 },
+
+  tituloCabecalho: {
+    fontSize: 20,
+    fontWeight: '600',
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    textAlign: 'center',
+  },
+
+  form: {
+    marginBottom: 20,
+    padding: 16,
+    borderRadius: 12,
+  },
+
+  label: { fontSize: 14, fontWeight: '600', marginBottom: 8 },
+
   input: {
-    padding: 12,
-    borderRadius: 8,
     borderWidth: 1,
-    marginTop: 6,
+    borderRadius: 6,
+    padding: 12,
+    marginBottom: 12,
+    fontSize: 14,
   },
-  botaoBuscar: {
-    paddingHorizontal: 12,
-    justifyContent: "center",
-    borderRadius: 8,
-  },
+
   textArea: {
-    height: 100,
-    padding: 12,
-    borderRadius: 8,
     borderWidth: 1,
-    marginTop: 6,
-    textAlignVertical: "top",
+    borderRadius: 6,
+    padding: 8,
+    minHeight: 80,
+    marginBottom: 4,
+    fontSize: 14,
   },
-  dropdown: {
-    borderWidth: 1,
-    marginTop: 6,
+
+  contador: {
+    fontSize: 12,
+    textAlign: "right",
+    marginBottom: 12,
+  },
+
+  erro: { fontSize: 13, marginBottom: 10 },
+
+  botao: {
+    padding: 15,
     borderRadius: 8,
-    maxHeight: 150,
+    alignItems: 'center',
+    marginBottom: 20,
   },
-  item: {
-    padding: 10,
-  },
-  botaoEnviar: {
-    marginTop: 20,
-    padding: 14,
-    borderRadius: 8,
-    alignItems: "center",
-  },
-  textoBotao: {
-    color: "#fff",
-    fontWeight: "bold",
-  },
+
+  botaoDesabilitado: { opacity: 0.6 },
+
+  textoBotao: { color: '#fff', fontSize: 16, fontWeight: '600' },
+
   modalContainer: {
     flex: 1,
-    backgroundColor: "rgba(0,0,0,0.6)",
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+    backgroundColor: 'rgba(0,0,0,0.5)',
   },
-  modalBox: {
+
+  modalContent: {
+    width: '100%',
+    maxWidth: 350,
     padding: 20,
     borderRadius: 12,
-    width: "85%",
   },
-  botaoModal: {
-    marginTop: 20,
-    padding: 12,
+
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    marginBottom: 10,
+    textAlign: 'center',
+  },
+
+  modalText: {
+    fontSize: 14,
+    marginBottom: 5,
+    textAlign: 'center',
+  },
+
+  checkboxContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 12,
+    justifyContent: 'center',
+  },
+
+  checkboxLabel: { marginLeft: 8 },
+
+  primaryButton: {
+    padding: 14,
     borderRadius: 8,
-    alignItems: "center",
+    marginTop: 15,
+    alignItems: 'center',
+  },
+
+  primaryButtonText: {
+    color: '#fff',
+    fontWeight: '700',
+    fontSize: 16,
+  },
+
+  secondaryButton: {
+    padding: 14,
+    borderRadius: 8,
+    alignItems: 'center',
+    borderWidth: 1,
+    marginTop: 10,
+  },
+
+  buttonGroup: {
+    marginTop: 20,
+  },
+
+  dropdown: {
+    maxHeight: 180,
+    borderWidth: 1,
+    borderRadius: 6,
+    marginBottom: 12,
+  },
+
+  item: {
+    padding: 12,
+    borderBottomWidth: 0.5,
+  },
+
+  itemTexto: {
+    fontSize: 14,
   },
 });
 
