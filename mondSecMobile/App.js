@@ -6,7 +6,7 @@ import { ActivityIndicator, View } from 'react-native';
 import { AuthProvider, AuthContext } from './services/AuthContext';
 import { ThemeProvider } from "./services/themes/themecontext";
 
-import IntroducaoScreen from './pages/Introducao';
+import IntroducaoScreen from './pages/introducao';
 import HomeScreen from './pages/home';
 import LoginScreen from './pages/login';
 import CadastroScreen from './pages/cadastro';
@@ -20,6 +20,7 @@ import DigiteDadosScreen from './pages/perfil/alterarDados/digiteDados';
 import DigiteCodigoScreen from './pages/perfil/alterarDados/digiteCodigo';
 import AlterarSenhaScreen from './pages/perfil/alterarDados/alterarSenha';
 import DigiteCampoScreen from './pages/perfil/alterarDados/digiteCampo';
+import FotoPerfilScreen from './pages/foto';
 
 const Stack = createStackNavigator();
 
@@ -35,30 +36,39 @@ function AppRoutes() {
   }
 
   return (
-    <Stack.Navigator screenOptions={{ headerShown: false }} initialRouteName="Introducao">
-      <Stack.Screen name="Introducao" component={IntroducaoScreen} />
-      <Stack.Screen name="Home" component={HomeScreen} />
-      <Stack.Screen name="Sobre" component={SobreScreen} />
-      <Stack.Screen name="Configuracao" component={ConfiguracaoScreen} />
-      <Stack.Screen name="DigiteCodigo" component={DigiteCodigoScreen} />
-      <Stack.Screen name="AlterarSenha" component={AlterarSenhaScreen} />
-      <Stack.Screen name="Politica" component={PoliticaScreen} />
 
 
-      {tokenUser ? (
+    <Stack.Navigator
+      screenOptions={{ headerShown: false }}
+      initialRouteName={tokenUser ? "Home" : "Login"}
+    >
+      {!tokenUser ? (
+
         <>
+          <Stack.Screen name='Introducao' component={IntroducaoScreen} />
+          <Stack.Screen name="Login" component={LoginScreen} />
+          <Stack.Screen name="Cadastro" component={CadastroScreen} />
+          <Stack.Screen name="Foto" component={FotoPerfilScreen} />
+          <Stack.Screen name="DigiteCampo" component={DigiteCampoScreen} />
+        </>
+      ) : (
+        <>
+
+          <Stack.Screen name="Home" component={HomeScreen} />
           <Stack.Screen name="Menu" component={MenuScreen} />
           <Stack.Screen name="Ocorrencia" component={OcorrenciaScreen} />
           <Stack.Screen name="Registrar" component={RegistrarScreen} />
           <Stack.Screen name="DigiteDados" component={DigiteDadosScreen} />
         </>
-      ) : (
-        <>
-          <Stack.Screen name="DigiteCampo" component={DigiteCampoScreen} />
-          <Stack.Screen name="Login" component={LoginScreen} />
-          <Stack.Screen name="Cadastro" component={CadastroScreen} />
-        </>
+
+
       )}
+
+      <Stack.Screen name="Sobre" component={SobreScreen} />
+      <Stack.Screen name="Configuracao" component={ConfiguracaoScreen} />
+      <Stack.Screen name="DigiteCodigo" component={DigiteCodigoScreen} />
+      <Stack.Screen name="AlterarSenha" component={AlterarSenhaScreen} />
+      <Stack.Screen name="Politica" component={PoliticaScreen} />
     </Stack.Navigator>
   );
 }

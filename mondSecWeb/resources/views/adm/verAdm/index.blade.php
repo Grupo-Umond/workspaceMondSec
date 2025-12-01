@@ -5,36 +5,6 @@
 @section('content')
 <div class="container py-5">
     <div class="parteCima">
-        <div class="graficosAdministradores mb-4">
-            <div id="chart-container1Administradores" style="height:45vh;"></div>
-            <div id="chart-container2Administradores" style="height:45vh; margin-top: 20px;"></div>
-        </div>
-
-        <script src="https://cdn.jsdelivr.net/npm/echarts/dist/echarts.min.js"></script>
-        <script>
-            const chart1 = echarts.init(document.getElementById('chart-container1Administradores'));
-            const meses = @json(collect($dadosPorMes)->pluck('mes'));
-            const totais = @json(collect($dadosPorMes)->pluck('total'));
-            chart1.setOption({
-                title: { text: 'Admins cadastrados nos últimos 12 meses', left: 'center' },
-                tooltip: { trigger: 'axis' },
-                xAxis: { type: 'category', data: meses },
-                yAxis: { type: 'value' },
-                series: [{ data: totais, type: 'bar', barWidth: '50%', itemStyle: { color: '#4B91F1' } }]
-            });
-            window.addEventListener('resize', chart1.resize);
-
-            const chart2 = echarts.init(document.getElementById('chart-container2Administradores'));
-            const distribuicao = @json($distribuicaoNivel);
-            const dadosPizza = Object.keys(distribuicao).map(nivel => ({ value: distribuicao[nivel], name: nivel }));
-            chart2.setOption({
-                title: { text: 'Distribuição de níveis de acesso', left: 'center' },
-                tooltip: { trigger: 'item' },
-                legend: { bottom: 0 },
-                series: [{ name: 'Nível', type: 'pie', radius: '50%', data: dadosPizza, emphasis: { itemStyle: { shadowBlur: 10, shadowOffsetX: 0, shadowColor: 'rgba(0,0,0,0.5)' } } }]
-            });
-            window.addEventListener('resize', chart2.resize);
-        </script>
 
         <h1 class="mb-4">Admins Cadastrados</h1>
 
@@ -48,8 +18,9 @@
         <div id="lista-admins"></div>
 
         <a href="{{ route('adm.dashboard.index') }}" id="btnVoltar" class="btn btn-outline-primary mt-3">Voltar ao Painel</a>
+                <a href="{{ route('adm.auth.register') }}" id="btnVoltar" class="btn btn-outline-primary mt-3">Cadastrar Adm</a>
     </div>
-</div>
+</div> 
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
@@ -98,34 +69,59 @@ document.addEventListener('DOMContentLoaded', function() {
         table.appendChild(thead);
 
         const tbody = document.createElement('tbody');
-        filtrados.forEach(a => {
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-                <td>${a.id}</td>
-                <td>${a.nome}</td>
-                <td>${a.email}</td>
-                <td>${a.telefone || '-'}</td>
-                <td>${a.nivelAdmin || '-'}</td>
-                <td>${a.created_at || '-'}</td>
-                <td>${a.status || '-'}</td>
+   filtrados.forEach(a => {
+    const tr = document.createElement('tr');
 
-                <td>
-                    <a href="/adm/admins/${a.id}" class="btn btn-sm btn-warning">
-                        <i class="fa-solid fa-pencil btn-alterar"></i>
-                    </a>
-                </td>
-                <td>
-                    <form action="/adm/admins/${a.id}" method="POST" onsubmit="return confirm('Tem certeza que quer excluir?');">
-                        @csrf
-                        @method('PUT')
-                        <button type="submit" class="btn btn-sm btn-danger">
-                            <i class="fa-solid fa-trash-can btn-excluir"></i>
-                        </button>
-                    </form>
-                </td>
-            `;
-            tbody.appendChild(tr);
-        });
+    const podeEditar = ["prata", "ouro"].includes((a.nivelAdmin || "").toLowerCase());
+
+    const dataBruta = a.created_at;
+    let dataFormatada = '-';
+
+    if (dataBruta) {
+        const data = new Date(dataBruta);
+        dataFormatada = new Intl.DateTimeFormat('pt-BR', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit',
+        }).format(data);
+    }
+
+    tr.innerHTML = `
+        <td>${a.id}</td>
+        <td>${a.nome}</td>
+        <td>${a.email}</td>
+        <td>${a.telefone || '-'}</td>
+        <td>${a.nivelAdmin || '-'}</td>
+        <td>${dataFormatada}</td>
+        <td>${a.status || '-'}</td>
+
+        <td>
+            ${podeEditar ? `
+                <a href="/adm/admins/${a.id}" class="btn btn-sm btn-warning">
+                    <i class="fa-solid fa-pencil btn-alterar"></i>
+                </a>
+            ` : `<span class="text-muted">—</span>`}
+        </td>
+
+        <td>
+            ${podeEditar ? `
+                <form action="/adm/admins/${a.id}" method="POST" onsubmit="return confirm('Tem certeza que quer excluir?');">
+                    @csrf
+                    @method('PUT')
+                    <button type="submit" class="btn btn-sm btn-danger">
+                        <i class="fa-solid fa-trash-can btn-excluir"></i>
+                    </button>
+                </form>
+            ` : `<span class="text-muted">—</span>`}
+        </td>
+    `;
+
+    tbody.appendChild(tr);
+});
+
         table.appendChild(tbody);
         container.appendChild(table);
     }

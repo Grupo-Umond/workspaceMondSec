@@ -81,17 +81,22 @@ const AlterarSenhaScreen = ({ navigation, route }) => {
      <View style={[styles.container, { backgroundColor: theme.background }]}>
       {/* Fundo dividido */}
       <View style={styles.containerFundo}>
-        <View style={[styles.metadeFundo, { backgroundColor: theme.primary }]} />
-        <View
-          style={[
-            styles.metadeFundo,
-            { backgroundColor: isDarkMode ? theme.card : '#a9cfe5' }
-          ]}
-        />
-      </View>
+                <View
+                  style={[
+                    styles.metadeFundo,
+                    { backgroundColor: isDarkMode ? theme.cimaDark : theme.primary }
+                  ]}
+                />
+                <View
+                  style={[
+                    styles.metadeFundo,
+                    { backgroundColor: isDarkMode ? theme.baixoDark : "#9db7c6ff" }
+                  ]}
+                />
+              </View>
 
       {/* CARD */}
-      <View style={[styles.card, { backgroundColor: theme.cardbackground }]}>
+      <View style={[styles.card, { backgroundColor: theme.background }]}>
         <Pressable style={styles.backButton} onPress={() => navigation.navigate('Menu')}>
           <FontAwesome name="arrow-left" size={20} color={theme.title} />
         </Pressable>
@@ -164,10 +169,13 @@ const AlterarSenhaScreen = ({ navigation, route }) => {
   );
 };
 
+
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: 'center',
+    justifyContent: 'center', // Centraliza o conteúdo verticalmente
+    backgroundColor: '#f5f5f5', // Cor de fundo padrão para evitar contraste excessivo
   },
   containerFundo: {
     position: 'absolute',
@@ -179,43 +187,49 @@ const styles = StyleSheet.create({
     height: '50%',
   },
   card: {
-    marginLeft: 30,
-    marginRight: 30,
-    borderRadius: 20,
+    marginHorizontal: 20, // Substitui marginLeft e marginRight por margem horizontal
+    borderRadius: 16, // Bordas mais suaves
     padding: 20,
-    elevation: 5,
+    elevation: 6, // Aumenta a elevação para um efeito mais pronunciado
+    backgroundColor: '#fff', // Garante um fundo claro para o card
+    shadowColor: '#000', // Adiciona sombra para iOS
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
     zIndex: 2,
   },
   backButton: {
     position: 'absolute',
     top: 15,
     left: 15,
+    padding: 10, // Adiciona padding para facilitar o toque
   },
   title: {
-    fontSize: 18,
-    fontWeight: '600',
+    fontSize: 20, // Aumenta o tamanho da fonte para melhor leitura
+    fontWeight: 'bold', // Usa "bold" em vez de "600" para compatibilidade
     textAlign: 'center',
-    marginLeft: 15,
-    marginBottom: 5,
+    marginBottom: 15,
   },
   logoContainer: {
     alignItems: 'center',
-    marginBottom: 5,
+    marginBottom: 20, // Espaçamento maior para separar do título
   },
   logo: {
-    width: 140,
-    height: 140,
+    width: 120, // Ajusta o tamanho para caber melhor em telas menores
+    height: 120,
     resizeMode: 'contain',
   },
   subtitle: {
     fontSize: 14,
     textAlign: 'center',
+    color: '#666', // Cor mais suave para contraste
     marginBottom: 20,
+    paddingHorizontal: 10, // Adiciona padding horizontal para evitar texto muito próximo das bordas
   },
   sectionTitle: {
-    fontSize: 14,
+    fontSize: 16, // Aumenta o tamanho da fonte para acessibilidade
     fontWeight: '600',
-    marginBottom: 5,
+    marginBottom: 8,
   },
   input: {
     borderWidth: 1,
@@ -223,18 +237,30 @@ const styles = StyleSheet.create({
     padding: 12,
     fontSize: 14,
     marginBottom: 15,
+    backgroundColor: '#f9f9f9', // Fundo consistente com o design
+    borderColor: '#ddd', // Cor de borda mais suave
   },
   button: {
-    padding: 15,
+    paddingVertical: 15, // Define padding vertical para botões
+    paddingHorizontal: 20,
     borderRadius: 10,
     alignItems: 'center',
+    backgroundColor: '#007bff', // Azul padrão para botões
     marginTop: 10,
+    shadowColor: '#000', // Adiciona sombra para iOS
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 5, // Sombra visível no Android
   },
   buttonText: {
     fontWeight: 'bold',
-    fontSize: 15,
+    fontSize: 16, // Legibilidade melhorada
+    color: '#fff',
   },
   error: {
+    fontSize: 14,
+    color: '#ff4d4f', // Tom de vermelho para mensagens de erro
     marginBottom: 10,
     textAlign: 'center',
   },

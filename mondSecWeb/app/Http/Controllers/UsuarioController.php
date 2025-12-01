@@ -12,18 +12,7 @@ use Illuminate\Support\Facades\Storage;
 class UsuarioController extends Controller
 {
     
-public function buscarUsuario(Request $request)
-{
-    $usuario = $request->user();
 
-    if ($usuario->foto) {
-        $usuario->foto = config('app.url') . $usuario->foto;
-    }
-
-    return response()->json([
-        'usuario' => $usuario
-    ]);
-}
 
 
     public function store(Request $request)
@@ -71,6 +60,9 @@ public function buscarUsuario(Request $request)
         }
 
         $usuario = Usuario::where($campo, $request->login)->first();
+        if(!$usuario){
+            return response()->json(['mensagem' => 'Usuario não encontrado, credenciais invalidas'], 404);'                                 '
+        }
             if ($usuario->status === 'Inativo') {
         return response()->json([
             'mensagem' => 'Sua conta está desativada. Entre em contato com o suporte.'
@@ -217,6 +209,11 @@ public function buscarUsuario(Request $request)
     $usuario = $request->user();
 
     if ($request->hasFile('foto')) {
+        // Deleta foto anterior se existir
+        if ($usuario->foto && Storage::exists(str_replace('/storage', 'public', $usuario->foto))) {
+            Storage::delete(str_replace('/storage', 'public', $usuario->foto));
+        }
+
         $path = $request->file('foto')->store('public/fotos');
         $url = Storage::url($path);
 
@@ -225,13 +222,26 @@ public function buscarUsuario(Request $request)
 
         return response()->json([
             'success' => true,
-            'foto' => $url,
+            'foto' => config('app.url') . Storage::url($path),
         ]);
     }
 
     return response()->json([
         'success' => false,
         'message' => 'Nenhuma foto enviada',
+    ]);
+}
+
+public function buscarUsuario(Request $request)
+{
+    $usuario = $request->user();
+
+    if ($usuario->foto) {
+        $usuario->foto = config('app.url') . $usuario->foto;
+    }
+
+    return response()->json([
+        'usuario' => $usuario
     ]);
 }
 

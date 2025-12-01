@@ -1,3 +1,5 @@
+// === CÓDIGO COMPLETO COM CEP E AUTOPREENCHIMENTO ===
+
 import React, { useState, useEffect } from "react";
 import {
   View,
@@ -10,392 +12,455 @@ import {
   StyleSheet,
   Button,
   FlatList,
+  ScrollView,
+  Alert,
 } from 'react-native';
+
 import CheckBox from 'expo-checkbox';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { CoordenadaService } from '../../services/CoordenadaService';
-import { MaterialIcons as Icon } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import UrlService from '../../services/UrlService';
-import { ScrollView } from "react-native-gesture-handler";
+import { useTheme } from "../../services/themes/themecontext";
 
-import { useTheme } from "../../services/themes/themecontext"; // THEME AQUI
+// ===============================================================
+// ===================== INÍCIO DO COMPONENTE ======================
+// ===============================================================
 
 const RegistrarScreen = ({ navigation }) => {
-  const { theme } = useTheme(); // 👈 USA O TEMA
+  const { theme } = useTheme();
 
+  // Estados atuais do seu formulário
   const [carregando, setCarregando] = useState(false);
-  const [visivelInicio, setVisivelInicio] = useState(false);
-  const [mostrar, setMostrar] = useState(false);
-  const [visivelSucesso, setVisivelSucesso] = useState(false);
 
-  const [rua, setRua] = useState('');
-  const [numero, setNumero] = useState('');
-  const [bairro, setBairro] = useState('');
-  const [cidade, setCidade] = useState('');
+  // Campos do endereço
+  const [cep, setCep] = useState("");
+  const [rua, setRua] = useState("");
+  const [numero, setNumero] = useState("");
+  const [bairro, setBairro] = useState("");
+  const [cidade, setCidade] = useState("");
 
-  const [titulo, setTitulo] = useState('');
-  const [dataAcontecimento, setDataAcontecimento] = useState('');
-  const [tipo, setTipo] = useState('');
-  const [descricao, setDescricao] = useState('');
-  const [mensagemErro, setMensagemErro] = useState('');
-  const [show, setShow] = useState(false);
+  // Demais campos
+  const [titulo, setTitulo] = useState("");
+  const [tipo, setTipo] = useState("");
+  const [descricao, setDescricao] = useState("");
+  const [mensagemErro, setMensagemErro] = useState("");
+  const [detalheErro, setDetalheErro] = useState("");
+  const [erroModalVisivel, setErroModalVisivel] = useState(false);
+
   const [selectedDate, setSelectedDate] = useState(new Date());
+  const [show, setShow] = useState(false);
 
-  const [buscaTipo, setBuscaTipo] = useState('');
+  const [buscaTipo, setBuscaTipo] = useState("");
   const [dropdownAberto, setDropdownAberto] = useState(false);
 
+  // Lista de tipos
   const tiposOcorrencia = [
-    "Tentativa de assalto",
-    "Roubo de veículo",
-    "Furto de peças de veículo",
-    "Briga de rua",
-    "Troca de tiros",
-    "Disparo de arma de fogo",
-    "Furto de cabos elétricos",
-    "Bloqueio policial",
-    "Perseguição policial",
-    "Helicóptero sobrevoando área policial",
-    "Colisão entre carros",
-    "Atropelamento de pedestre",
-    "Capotamento",
-    "Caminhão com carga espalhada na pista",
-    "Veículo incendiado",
-    "Explosão veicular",
-    "Veículo abandonado na pista",
-    "Ônibus quebrado bloqueando faixa",
-    "Tempestade forte",
-    "Vendaval derrubando objetos",
-    "Nevoeiro intenso",
-    "Fumaça na pista",
-    "Nevasca",
-    "Furacão atingindo região",
-    "Ciclone com interdição de vias",
-    "Tremor de terra com rachaduras",
-    "Onda de calor afetando pavimento",
-    "Areia ou poeira reduzindo visibilidade",
-    "Explosão de transformador",
-    "Curto-circuito em fiação",
-    "Vazamento de gás em rua",
-    "Vazamento químico",
-    "Vazamento de óleo na pista",
-    "Vazamento de água com risco de buraco",
-    "Fios caídos na via",
-    "Poste caído",
-    "Buraco em via",
-    "Afundamento de asfalto",
-    "Erosão em calçada ou pista",
-    "Deslizamento de terra em estrada",
-    "Desabamento parcial de muro em calçada",
-    "Desabamento de ponte ou viaduto",
-    "Rachadura estrutural em via",
-    "Cratera aberta na pista",
-    "Trecho interditado por obras",
-    "Bloqueio parcial por manutenção",
-    "Sinalização danificada",
-    "Semáforo apagado",
-    "Semáforo piscando",
-    "Falta de energia afetando cruzamento",
-    "Falha de iluminação pública",
-    "Via sem luz à noite",
-    "Lâmpadas queimadas em cruzamento",
-    "Queda de árvore bloqueando pista",
-    "Galho grande na pista",
-    "Entulho ou lixo bloqueando faixa",
-    "Materiais de construção na via",
-    "Painel publicitário caído",
-    "Telhado ou estrutura metálica na rua",
-    "Vidros espalhados na pista",
-    "Animal de grande porte na pista",
-    "Animal silvestre na via",
-    "Insetos em enxame na rodovia",
-    "Protesto bloqueando via",
-    "Manifestação com interdição parcial",
-    "Tumulto em evento próximo à via",
-    "Rota bloqueada por evento esportivo",
-    "Fechamento de rua para show ou feira",
-    "Marcha, carreata ou desfile bloqueando tráfego",
-    "Trânsito desviado por evento público",
-    "Fiscalização eletrônica em operação",
-    "Blitz policial",
-    "Pedestre desmaiado na calçada",
-    "Afogamento em passagem alagada",
-    "Polícia técnica interditando local",
-    "Falha em radar ou câmera de trânsito",
-    "Pane em semáforo inteligente",
-    "Falha de energia em cruzamentos",
-    "Trilhos bloqueando travessia"
-  ];
+  // Crimes Graves
+  "Homicídio",
+  "Tentativa de Homicídio",
+  "Latrocínio",
+  "Roubo",
+  "Roubo a Residência",
+  "Roubo a Comércio",
+  "Roubo de Veículo",
+  "Roubo com Refém",
+  "Sequestro",
+  "Extorsão",
+  "Furto",
+  "Furto de Veículo",
+  "Arrombamento",
+  "Agressão Física",
+  "Ameaça",
+  "Violência Doméstica",
+  "Estupro",
+  "Assédio Sexual",
+  "Pedofilia",
+  "Tráfico de Drogas",
+  "Porte Ilegal de Arma",
+  "Disparo de Arma de Fogo",
+  "Tentativa de Suicídio",
+  "Homicídio Culposo no Trânsito",
+  "Vandalismo",
+  "Invasão de Propriedade",
+  "Dano ao Patrimônio",
+  "Estelionato",
+  "Golpe / Fraude",
+  "Estelionato Digital",
+  "Crimes Cibernéticos",
+  "Apropriação Indébita",
+  "Corrupção de Menores",
+  "Contrabando",
+  "Receptação",
+  "Crimes Ambientais",
+
+  // Violência e Conflitos
+  "Briga Generalizada",
+  "Confusão em Evento",
+  "Bullying",
+  "Agressão Verbal",
+  "Tentativa de Linchamento",
+  "Violência Escolar",
+  "Disputa de Trânsito",
+  "Perturbação de Sossego",
+
+  // Desastres Naturais
+  "Enchente",
+  "Alagamento",
+  "Deslizamento de Terra",
+  "Tsunami",
+  "Terremoto",
+  "Treme-terra",
+  "Tornado",
+  "Ciclone",
+  "Furacão",
+  "Granizo",
+  "Tempestade Elétrica",
+  "Seca",
+  "Incêndio Florestal",
+  "Erosão",
+  "Vendaval",
+  "Avalanche",
+  "Onda de Calor",
+  "Nevasca",
+
+  // Acidentes
+  "Acidente de Carro",
+  "Acidente de Moto",
+  "Acidente com Bicicleta",
+  "Atropelamento",
+  "Acidente de Ônibus",
+  "Acidente de Caminhão",
+  "Acidente com Animais",
+  "Acidente Doméstico",
+  "Queda de Altura",
+  "Desabamento",
+  "Incêndio Residencial",
+  "Incêndio Comercial",
+  "Explosão",
+  "Curto-Circuito",
+  "Vazamento de Gás",
+  "Vazamento Químico",
+  "Afogamento",
+  "Acidente em Obra",
+  "Acidente Industrial",
+
+  // Saúde e Emergências
+  "Mal Súbito",
+  "Desmaio",
+  "Crise Convulsiva",
+  "Overdose",
+  "Intoxicação Alimentar",
+  "Intoxicação Química",
+  "Reação Alérgica Grave",
+  "Ataque Cardíaco",
+  "Acidente Biológico",
+  "Foco de Doença Infecciosa",
+  "Picada de Animal Peçonhento",
+
+  // Problemas Urbanos
+  "Falta de Energia",
+  "Falta de Água",
+  "Interrupção de Internet",
+  "Obra Irregular",
+  "Fio Caído",
+  "Esgoto Transbordando",
+  "Buraco na Rua",
+  "Semáforo Quebrado",
+  "Obstrução de Via",
+  "Árvore Caída",
+  "Mau Cheiro na Rua",
+  "Lixo Acumulado",
+  "Barulho Excessivo",
+  "Poluição do Ar",
+  "Poluição Sonora",
+  "Vazamento de Água",
+  "Agente Suspeito",
+  "Veículo Abandonado",
+  "Pessoa Desaparecida",
+  "Animal Abandonado",
+
+  // Inconveniências
+  "Perda de Objeto",
+  "Carteira Perdida",
+  "Celular Perdido",
+  "Extravio de Encomenda",
+  "Conflito entre Vizinhos",
+  "Fila Exagerada",
+  "Preço Abusivo",
+  "Falha de Serviço Público",
+  "Dano em Entrega",
+  "Entrega Atrasada",
+  "Produto Defeituoso",
+
+  // Outros
+  "Evento Climático Atípico",
+  "Objeto Suspeito",
+  "Ruído Misterioso",
+  "Comportamento Suspeito",
+  "Ocorrência Não Identificada",
+  "Outros"
+];
+
 
   const tiposFiltrados = tiposOcorrencia.filter(item =>
     item.toLowerCase().includes(buscaTipo.toLowerCase())
   );
 
-  useEffect(() => {
-    const checarModal = async () => {
-      const mostrarSalvo = await AsyncStorage.getItem('mostrarModalInicio');
-      if (mostrarSalvo !== 'true') {
-        setVisivelInicio(true);
-        setMostrar(false);
-      } else {
-        setVisivelInicio(false);
-        setMostrar(true);
-      }
-    };
-    checarModal();
-  }, []);
+  // ===============================================================
+  // ===================== CONSULTAR VIA CEP ========================
+  // ===============================================================
 
-  const onChange = (event, selectedDateValue) => {
-    setShow(false);
-    if (selectedDateValue) {
-      setSelectedDate(selectedDateValue);
-      setDataAcontecimento(selectedDateValue.toISOString().split('T')[0]);
+  const buscarCEP = async () => {
+    try {
+      const apenasNumeros = cep.replace(/\D/g, "");
+
+      if (apenasNumeros.length !== 8) {
+        Alert.alert("CEP inválido", "Digite um CEP com 8 números.");
+        return;
+      }
+
+      setCarregando(true);
+
+      const response = await fetch(`https://viacep.com.br/ws/${apenasNumeros}/json/`);
+
+      const dados = await response.json();
+
+      if (dados.erro) {
+        Alert.alert("Erro", "CEP não encontrado.");
+        return;
+      }
+
+      setRua(dados.logradouro || "");
+      setBairro(dados.bairro || "");
+      setCidade(dados.localidade || "");
+
+    } catch (err) {
+      Alert.alert("Erro", "Não foi possível buscar o CEP.");
+    } finally {
+      setCarregando(false);
     }
   };
 
-  const toggleMostrar = async (value) => {
-    setMostrar(value);
-    await AsyncStorage.setItem('mostrarModalInicio', value ? 'true' : 'false');
+  // ===============================================================
+  // ======================= FORMATAR DATA ==========================
+  // ===============================================================
 
-    if (value) setVisivelInicio(false);
-  };
-  const montarEnderecoCompleto = () => {
-    return `${rua}, ${numero}, ${bairro}, ${cidade}`;
+  const formatarData = (d) => {
+    if (!d) return "";
+    return `${String(d.getDate()).padStart(2, "0")}/${String(
+      d.getMonth() + 1
+    ).padStart(2, "0")}/${d.getFullYear()}`;
   };
 
-  const validarDados = () => {
+  const onChange = (_, date) => {
+    setShow(false);
+    if (date) {
+      setSelectedDate(date);
+    }
+  };
+
+  // ===============================================================
+  // ===================== VALIDAÇÃO GERAL =========================
+  // ===============================================================
+
+  const validarCampos = () => {
     if (!titulo || !tipo || !rua || !numero || !bairro || !cidade) {
-      setMensagemErro('Preencha todos os campos obrigatórios.');
+      setMensagemErro("Preencha todos os campos obrigatórios.");
+      return false;
+    }
+    if (descricao.trim().length < 5) {
+      setMensagemErro("A descrição deve ter pelo menos 5 caracteres.");
+      return false;
+    }
+    if (!/^\d+$/.test(numero)) {
+      setMensagemErro("Número deve conter apenas números.");
       return false;
     }
     return true;
   };
 
-  const limparCampos = () => {
-    setTitulo('');
-    setTipo('');
-    setDataAcontecimento('');
-    setDescricao('');
-    setRua('');
-    setNumero('');
-    setBairro('');
-    setCidade('');
-    setBuscaTipo('');
-  };
-
-const converterEndereco = async () => {
-  try {
-    const enderecoCompleto = montarEnderecoCompleto();
-    console.log("➡️ [DEBUG] Endereço montado:", enderecoCompleto);
-
-    const response = await CoordenadaService(enderecoCompleto);
-
-    console.log("✔️ [DEBUG] Coordenadas retornadas:", response);
-
-    return { latitude: response.latitude, longitude: response.longitude };
-
-  } catch (erro) {
-    console.log("❌ [ERRO] converterEndereco:", erro.message);
-    throw new Error('Não foi possível obter coordenadas do endereço');
-  }
-};
-
+  // ===============================================================
+  // ======================= ENVIAR OCORRÊNCIA ======================
+  // ===============================================================
 
   const enviarOcorrencia = async () => {
-  console.log("🚀 [DEBUG] Iniciando envio de ocorrência...");
+    if (!validarCampos()) return;
 
-  if (!validarDados()) {
-    console.log("⚠️ [VALIDAÇÃO] Falhou: campos obrigatórios ausentes");
-    return;
-  }
+    try {
+      setCarregando(true);
 
-  setCarregando(true);
+      const endereco = `${rua}, ${numero}, ${bairro}, ${cidade}`;
+      const coordenadas = await CoordenadaService(endereco);
 
-  try {
-    console.log("🔎 [DEBUG] Buscando coordenadas do endereço...");
-    const { latitude, longitude } = await converterEndereco();
+      const token = await AsyncStorage.getItem("userToken");
 
-    console.log("📌 [DEBUG] Dados finais antes de enviar:", {
-      titulo, latitude, longitude, tipo, descricao, dataAcontecimento
-    });
+      if (!token) {
+        setMensagemErro("Usuário não autenticado.");
+        return;
+      }
 
-    const tokenUser = await AsyncStorage.getItem('userToken');
+      const payload = {
+        titulo,
+        tipo,
+        descricao,
+        dataAcontecimento: selectedDate.toISOString().split("T")[0],
+        latitude: coordenadas.latitude,
+        longitude: coordenadas.longitude,
+      };
 
-    console.log("🔐 [DEBUG] Token encontrado:", tokenUser);
+      await UrlService.post(
+        "/ocorrencia/registrar",
+        payload,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
 
-    if (!tokenUser) {
-      console.log("❌ [ERRO] Token do usuário está vazio!");
-      throw new Error("Token inválido");
+      Alert.alert("Sucesso", "Ocorrência registrada!");
+      navigation.navigate("Ocorrencia");
+
+    } catch (err) {
+      setMensagemErro("Não foi possível enviar sua ocorrência.");
+      setDetalheErro(JSON.stringify(err, null, 2));
+      setErroModalVisivel(true);
+    } finally {
+      setCarregando(false);
     }
+  };
 
-    const response = await UrlService.post(
-      '/ocorrencia/registrar',
-      { titulo, latitude, longitude, tipo, descricao, dataAcontecimento },
-      { headers: { Authorization: `Bearer ${tokenUser}` } }
-    );
-
-    console.log("📥 [DEBUG] Resposta do backend:", response.data);
-
-    limparCampos();
-    setVisivelSucesso(true);
-    setMensagemErro('');
-
-  } catch (erro) {
-    console.log("❌ [ERRO] enviarOcorrencia:", erro.response?.data || erro.message);
-    setMensagemErro('Falha ao enviar ocorrência, tente novamente.');
-  } finally {
-    setCarregando(false);
-  }
-};
-
+  // ===============================================================
+  // ============================= UI ===============================
+  // ===============================================================
 
   return (
-   <View style={[styles.container, { backgroundColor: theme.background }]}>
-  <SafeAreaView style={{ backgroundColor: theme.navBackground }} />
+    <View style={[styles.container, { backgroundColor: theme.background }]}>
 
-  <View style={styles.cabecalho}>
-    <Pressable onPress={() => navigation.goBack()} style={styles.iconeCabecalho}>
-      <FontAwesome name="arrow-left" size={20} color={theme.title} />
-    </Pressable>
-    <Text style={[styles.tituloCabecalho, { color: theme.title}]}>
-      Registrar Ocorrência
-    </Text>
-  </View>
+      <ScrollView style={{ padding: 16 }}>
 
-      <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
-        
-        <View style={[styles.form, { backgroundColor: theme.card }]}>
-          <Text style={[styles.label, { color: theme.text }]}>Título da Ocorrência</Text>
+        {/* =================== CEP =================== */}
+        <Text style={[styles.label, { color: theme.text }]}>CEP</Text>
+        <View style={{ flexDirection: "row", gap: 8 }}>
           <TextInput
-            style={[styles.input, { backgroundColor: theme.inputBackground, color: theme.text, borderColor: theme.border }]}
-            placeholder="Digite o título..."
-            placeholderTextColor={theme.textSecondary}
-            value={titulo}
-            onChangeText={setTitulo}
-          />
-
-          <Text style={[styles.label, { color: theme.text }]}>Tipo de Ocorrência</Text>
-          <TextInput
-            style={[styles.input, { backgroundColor: theme.inputBackground, color: theme.text, borderColor: theme.border }]}
-            placeholder="Pesquisar tipo..."
-            placeholderTextColor={theme.textSecondary}
-            value={buscaTipo}
-            onChangeText={(texto) => {
-              setBuscaTipo(texto);
-              setDropdownAberto(true);
-            }}
-          />
-
-          {dropdownAberto && (
-            <View style={[styles.dropdown, { backgroundColor: theme.card, borderColor: theme.border }]}>
-              <FlatList
-                data={tiposFiltrados}
-                keyExtractor={(item, index) => index.toString()}
-                renderItem={({ item }) => (
-                  <TouchableOpacity
-                    style={[
-                      styles.item,
-                      item === tipo && { backgroundColor: theme.primary }
-                    ]}
-                    onPress={() => { setTipo(item); setBuscaTipo(item); setDropdownAberto(false); }}
-                  >
-                    <Text style={[
-                      styles.itemTexto, 
-                      { color: item === tipo ? '#fff' : theme.text }
-                    ]}>
-                      {item}
-                    </Text>
-                  </TouchableOpacity>
-                )}
-              />
-            </View>
-          )}
-
-          <Text style={[styles.label, { color: theme.text }]}>Rua</Text>
-          <TextInput
-            style={[styles.input, { backgroundColor: theme.inputBackground, borderColor: theme.border, color: theme.text }]}
-            placeholder="Ex: Avenida Nordestina"
-            placeholderTextColor={theme.textSecondary}
-            value={rua}
-            onChangeText={setRua}
-          />
-
-          <Text style={[styles.label, { color: theme.text }]}>Número</Text>
-          <TextInput
-            style={[styles.input, { backgroundColor: theme.inputBackground, borderColor: theme.border, color: theme.text }]}
-            placeholder="Ex: 320"
-            placeholderTextColor={theme.textSecondary}
+            style={[styles.input, { flex: 1, backgroundColor: theme.inputBackground, color: theme.text, borderColor: theme.border }]}
+            placeholder="00000-000"
             keyboardType="numeric"
-            value={numero}
-            onChangeText={setNumero}
+            value={cep}
+            onChangeText={setCep}
           />
-
-          <Text style={[styles.label, { color: theme.text }]}>Bairro / Distrito</Text>
-          <TextInput
-            style={[styles.input, { backgroundColor: theme.inputBackground, borderColor: theme.border, color: theme.text }]}
-            placeholder="Ex: Guaianases"
-            placeholderTextColor={theme.textSecondary}
-            value={bairro}
-            onChangeText={setBairro}
-          />
-
-          <Text style={[styles.label, { color: theme.text }]}>Cidade</Text>
-          <TextInput
-            style={[styles.input, { backgroundColor: theme.inputBackground, borderColor: theme.border, color: theme.text }]}
-            placeholder="Ex: São Paulo"
-            placeholderTextColor={theme.textSecondary}
-            value={cidade}
-            onChangeText={setCidade}
-          />
-
-          <Text style={[styles.label, { color: theme.text }]}>Descrição</Text>
-          <TextInput
-            style={[styles.textArea, { backgroundColor: theme.inputBackground, borderColor: theme.border, color: theme.text }]}
-            placeholder="Descreva a ocorrência..."
-            placeholderTextColor={theme.textSecondary}
-            value={descricao}
-            onChangeText={setDescricao}
-            multiline
-            maxLength={120}
-            textAlignVertical="top"
-          />
-
-          <Text style={{ color: theme.textSecondary }}>{dataAcontecimento}</Text>
-
-          <Button onPress={() => setShow(true)} title='Selecionar Data'/>
-
-          {show && (
-            <DateTimePicker
-              value={selectedDate}
-              mode='date'
-              display='default'
-              onChange={onChange}
-            />
-          )}
-
-          <Text style={[styles.contador, { color: theme.textSecondary }]}>
-            {descricao.length}/120
-          </Text>
-
-          {mensagemErro ? (
-            <Text style={[styles.erro, { color: theme.danger }]}>
-              {mensagemErro}
-            </Text>
-          ) : null}
-
+          <TouchableOpacity
+            onPress={buscarCEP}
+            style={[styles.botaoBuscar, { backgroundColor: theme.primary }]}
+          >
+            <Text style={{ color: "#fff" }}>Buscar</Text>
+          </TouchableOpacity>
         </View>
 
+        {/* Rua */}
+        <Text style={[styles.label, { color: theme.text }]}>Rua</Text>
+        <TextInput
+          style={[styles.input, { backgroundColor: theme.inputBackground, color: theme.text, borderColor: theme.border }]}
+          value={rua}
+          onChangeText={setRua}
+        />
+
+        {/* Número */}
+        <Text style={[styles.label, { color: theme.text }]}>Número</Text>
+        <TextInput
+          style={[styles.input, { backgroundColor: theme.inputBackground, color: theme.text, borderColor: theme.border }]}
+          keyboardType="numeric"
+          value={numero}
+          onChangeText={setNumero}
+        />
+
+        {/* Bairro */}
+        <Text style={[styles.label, { color: theme.text }]}>Bairro</Text>
+        <TextInput
+          style={[styles.input, { backgroundColor: theme.inputBackground, color: theme.text, borderColor: theme.border }]}
+          value={bairro}
+          onChangeText={setBairro}
+        />
+
+        {/* Cidade */}
+        <Text style={[styles.label, { color: theme.text }]}>Cidade</Text>
+        <TextInput
+          style={[styles.input, { backgroundColor: theme.inputBackground, color: theme.text, borderColor: theme.border }]}
+          value={cidade}
+          onChangeText={setCidade}
+        />
+
+        {/* Título */}
+        <Text style={[styles.label, { color: theme.text }]}>Título</Text>
+        <TextInput
+          style={[styles.input, { backgroundColor: theme.inputBackground, color: theme.text, borderColor: theme.border }]}
+          value={titulo}
+          onChangeText={setTitulo}
+        />
+
+        {/* Tipo com pesquisa */}
+        <Text style={[styles.label, { color: theme.text }]}>Tipo</Text>
+        <TextInput
+          style={[styles.input, { backgroundColor: theme.inputBackground, color: theme.text, borderColor: theme.border }]}
+          value={buscaTipo}
+          placeholder="Pesquisar..."
+          placeholderTextColor={theme.textSecondary}
+          onChangeText={(t) => {
+            setBuscaTipo(t);
+            setTipo(t);
+            setDropdownAberto(true);
+          }}
+        />
+
+        {dropdownAberto && (
+          <View style={styles.dropdown}>
+            <FlatList
+              data={tiposFiltrados}
+              keyExtractor={(item, i) => i.toString()}
+              renderItem={({ item }) => (
+                <TouchableOpacity
+                  style={styles.item}
+                  onPress={() => {
+                    setTipo(item);
+                    setBuscaTipo(item);
+                    setDropdownAberto(false);
+                  }}
+                >
+                  <Text style={{ color: theme.text }}>{item}</Text>
+                </TouchableOpacity>
+              )}
+            />
+          </View>
+        )}
+
+        {/* Descrição */}
+        <Text style={[styles.label, { color: theme.text }]}>Descrição</Text>
+        <TextInput
+          style={[styles.textArea, { backgroundColor: theme.inputBackground, color: theme.text, borderColor: theme.border }]}
+          multiline
+          maxLength={120}
+          value={descricao}
+          onChangeText={setDescricao}
+        />
+
+        {/* Data */}
+        <Button title="Selecionar Data" onPress={() => setShow(true)} />
+        <Text style={{ color: theme.textSecondary }}>{formatarData(selectedDate)}</Text>
+
+        {show && (
+          <DateTimePicker value={selectedDate} mode="date" display="default" onChange={onChange} />
+        )}
+
+        {/* Erros */}
+        {mensagemErro !== "" && (
+          <Text style={{ color: theme.danger, marginTop: 10 }}>
+            {mensagemErro}
+          </Text>
+        )}
+
+        {/* Enviar */}
         <TouchableOpacity
-          style={[
-            styles.botao,
-            { backgroundColor: theme.buttonColor
-             },
-            carregando && styles.botaoDesabilitado
-          ]}
+          style={[styles.botaoEnviar, { backgroundColor: theme.primary }]}
           onPress={enviarOcorrencia}
-          disabled={carregando}
         >
           {carregando ? (
             <ActivityIndicator color="#fff" />
@@ -406,253 +471,93 @@ const converterEndereco = async () => {
 
       </ScrollView>
 
-      {/* ================= MODAL INICIAL ================ */}
+      {/* Modal Detalhes Erro */}
+      <Modal visible={erroModalVisivel} transparent animationType="slide">
+        <View style={styles.modalContainer}>
+          <View style={[styles.modalBox, { backgroundColor: theme.card }]}>
+            <Text style={{ color: theme.text, fontWeight: "bold", fontSize: 18 }}>Detalhes Técnicos</Text>
+            <ScrollView style={{ maxHeight: 250, marginTop: 10 }}>
+              <Text style={{ color: theme.textSecondary, fontSize: 13 }}>
+                {detalheErro}
+              </Text>
+            </ScrollView>
 
-      {visivelInicio && (
-        <Modal visible={visivelInicio} transparent animationType="slide" onRequestClose={() => setVisivelInicio(false)}>
-          <View style={styles.modalContainer}>
-            <View style={[styles.modalContent, { backgroundColor: theme.cardbackground }]}>
-              <Text style={[styles.modalTitle, { color: theme.text }]}>Como Funciona</Text>
-
-              <Text style={[styles.modalText, { color: theme.textSecondary }]}>1. Escolha o tipo de ocorrência</Text>
-              <Text style={[styles.modalText, { color: theme.textSecondary }]}>2. Informe o local</Text>
-              <Text style={[styles.modalText, { color: theme.textSecondary }]}>3. Descreva o que aconteceu</Text>
-              <Text style={[styles.modalText, { color: theme.textSecondary }]}>4. Envie sua ocorrência</Text>
-
-              <TouchableOpacity style={[styles.primaryButton, { backgroundColor: theme.buttonColor }]} onPress={() => setVisivelInicio(false)}>
-                <Text style={styles.primaryButtonText}>Fazer Agora</Text>
-              </TouchableOpacity>
-
-              <View style={styles.checkboxContainer}>
-                <CheckBox
-                  value={mostrar}
-                  onValueChange={toggleMostrar}
-                  tintColors={{ true: theme.primary, false: theme.textSecondary }}
-                />
-                <Text style={[styles.checkboxLabel, { color: theme.text }]}>
-
-                  Não mostrar novamente
-                </Text>
-              </View>
-
-            </View>
+            <TouchableOpacity
+              style={[styles.botaoModal, { backgroundColor: theme.primary }]}
+              onPress={() => setErroModalVisivel(false)}
+            >
+              <Text style={{ color: "#fff" }}>Fechar</Text>
+            </TouchableOpacity>
           </View>
-        </Modal>
-      )}
-
-      {/* ================= MODAL DE SUCESSO ================ */}
-
-      <Modal visible={visivelSucesso} transparent animationType="fade">
-  <View style={styles.modalContainer}>
-    <View style={[styles.modalContent, { backgroundColor: theme.cardbackground }]}>
-      <Text style={[styles.modalTitle, { color: theme.text }]}>
-        Ocorrência enviada com sucesso!
-      </Text>
-
-      <View style={styles.buttonGroup}>
-        <TouchableOpacity
-          style={[styles.primaryButton, { backgroundColor: theme.buttonColor }]}
-          onPress={() => setVisivelSucesso(false)}
-        >
-          <Text style={styles.primaryButtonText}>Fazer mais uma</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={[styles.secondaryButton, { borderColor: theme.buttonColor, backgroundColor: theme.buttonColor}]}
-          onPress={() => {
-            setVisivelSucesso(false);
-            navigation.navigate('Ocorrencia');
-          }}
-        >
-          <Text style={styles.primaryButtonText}>
-            Ver minhas ocorrências
-          </Text>
-        </TouchableOpacity>
-      </View>
-
-    </View>
-  </View>
-</Modal>
+        </View>
+      </Modal>
 
     </View>
   );
 };
 
+// ===============================================================
+// ============================= ESTILOS ===========================
+// ===============================================================
+
 const styles = StyleSheet.create({
-
-
-  container: {
-    flex: 1,
-    paddingTop: 0,
-    
-    padding: 20, 
-  },
-
-  cabecalho: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    position: 'relative',
-    marginBottom: 30,
-    paddingHorizontal: 10,
-  },
-
-  iconeCabecalho: {
-    padding: 5,
-  },
-
-  tituloCabecalho: {
-    fontSize: 20,
-    fontWeight: '600',
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    textAlign: 'center',
-  },
-
-  form: {
-    marginBottom: 20,
-    padding: 16,
-    borderRadius: 12,
-  },
-
-  label: {
-    fontSize: 14,
-    fontWeight: '600',
-    marginBottom: 8,
-  },
-
+  container: { flex: 1 },
+  label: { marginTop: 12, fontWeight: "bold" },
   input: {
-    borderWidth: 1,
-    borderRadius: 6,
     padding: 12,
-    marginBottom: 12,
-    fontSize: 14,
-  },
-
-  textArea: {
-    borderWidth: 1,
-    borderRadius: 6,
-    padding: 8,
-    minHeight: 80,
-    marginBottom: 4,
-    fontSize: 14,
-  },
-
-  contador: {
-    fontSize: 12,
-    textAlign: "right",
-    marginBottom: 12,
-  },
-
-  erro: {
-    fontSize: 13,
-    marginBottom: 10,
-  },
-
-  botao: {
-    padding: 15,
     borderRadius: 8,
-    alignItems: 'center',
-    marginBottom: 20,
+    borderWidth: 1,
+    marginTop: 6,
   },
-
-  botaoDesabilitado: {
-    opacity: 0.6,
+  botaoBuscar: {
+    paddingHorizontal: 12,
+    justifyContent: "center",
+    borderRadius: 8,
   },
-
-  textoBotao: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
+  textArea: {
+    height: 100,
+    padding: 12,
+    borderRadius: 8,
+    borderWidth: 1,
+    marginTop: 6,
+    textAlignVertical: "top",
   },
-
   dropdown: {
     borderWidth: 1,
-    borderRadius: 6,
+    marginTop: 6,
+    borderRadius: 8,
     maxHeight: 150,
-    marginBottom: 12,
   },
-
   item: {
     padding: 10,
   },
-
-  itemTexto: {
-    fontSize: 14,
+  botaoEnviar: {
+    marginTop: 20,
+    padding: 14,
+    borderRadius: 8,
+    alignItems: "center",
   },
-
-
-  checkboxContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 12,
+  textoBotao: {
+    color: "#fff",
+    fontWeight: "bold",
   },
-
-  checkboxLabel: {
-    fontSize: 14,
-    marginLeft: 8,
-  },
-
   modalContainer: {
-  flex: 1,
-  backgroundColor: 'rgba(0,0,0,0.6)',
-  justifyContent: 'center',
-  alignItems: 'center',
-  padding: 20,
-},
-
-modalContent: {
-  width: '100%',
-  maxWidth: 380,
-  paddingVertical: 30,
-  paddingHorizontal: 24,
-  borderRadius: 20,
-  alignItems: 'center',
-  elevation: 10,
-  shadowColor: '#000',
-  shadowOpacity: 0.25,
-  shadowRadius: 10,
-  shadowOffset: { width: 0, height: 4 },
-},
-
-modalTitle: {
-  fontSize: 22,
-  fontWeight: '700',
-  textAlign: 'center',
-  marginBottom: 26,
-},
-
-buttonGroup: {
-  width: '100%',
-  marginTop: 10,
-},
-
-primaryButton: {
-  width: '100%',
-  paddingVertical: 14,
-  borderRadius: 14,
-  alignItems: 'center',
-  marginBottom: 12,
-},
-
-primaryButtonText: {
-  color: '#FFFFFF',
-  fontWeight: '700',
-  fontSize: 16,
-},
-
-secondaryButton: {
-  width: '100%',
-  paddingVertical: 14,
-  borderRadius: 14,
-  alignItems: 'center',
-  borderWidth: 2,
-},
-
-secondaryButtonText: {
-  fontWeight: '700',
-  fontSize: 16,
-},
-
+    flex: 1,
+    backgroundColor: "rgba(0,0,0,0.6)",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  modalBox: {
+    padding: 20,
+    borderRadius: 12,
+    width: "85%",
+  },
+  botaoModal: {
+    marginTop: 20,
+    padding: 12,
+    borderRadius: 8,
+    alignItems: "center",
+  },
 });
+
 export default RegistrarScreen;

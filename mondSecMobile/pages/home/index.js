@@ -64,11 +64,17 @@ const HomeScreen = ({ navigation }) => {
       const response = await AsyncStorage.getItem('permissaoLocal');
       if (response !== 'granted') setPermissao(true);
 
+
          const carrossel = await AsyncStorage.getItem('carrosselSeen');
     if (!carrossel) {
       setModalSobreVisible(true);
     }
     };
+//     };   const carrossel = await AsyncStorage.getItem('carrosselSeen');
+//     if (!carrossel) {
+//       setModalSobreVisible(true);
+//     }
+// >>>>>>> pedro
 
     verificarModal();
   }, []);
@@ -91,14 +97,19 @@ const HomeScreen = ({ navigation }) => {
     setWelcome(false);
     setPermissao(true);
   };
-  const buscarEndereco = async () => {
-    try {
-      const coords = await CoordenadaService(endereco);
-      mapaRef.current?.centralizarNoEndereco(coords.lat, coords.lon);
-    } catch (e) {
-      alert("Endereço não encontrado!");
-    }
-  };
+const buscarEndereco = async () => {
+  try {
+    const coords = await CoordenadaService(endereco);
+
+    mapaRef.current?.centralizarNoEndereco(
+      coords.latitude,
+      coords.longitude,
+    );
+  } catch (e) {
+    alert("Endereço não encontrado!");
+  }
+};
+
 const getCoordInicio = async () => {
   const r = await CoordenadaService(enderecoInicial);
 
@@ -125,7 +136,6 @@ const getCoordFinal = async () => {
 
   return { latitude: lat, longitude: lon };
 };
-
 
 
   const enviarRota = async () => {
@@ -157,6 +167,7 @@ const getCoordFinal = async () => {
       mapaRef.current?.desenharRota(coordsMap);
 
       setModalRota(false);
+
 
     } catch (err) {
       console.log("Erro enviarRota:", err);
@@ -297,6 +308,7 @@ const getCoordFinal = async () => {
       {/* MODAL BEM VINDO  */}
 
   
+
 
       {/* MODAL PERMISSÃO */}
       <Modal animationType="slide" transparent visible={permissao}>
@@ -466,6 +478,11 @@ const getCoordFinal = async () => {
         <View style={styles.overlay}>
           <View style={[styles.modalCarrosselContent, { backgroundColor: theme.background }]}>
             
+            <Pressable style={styles.closeButton} onPress={() => setModalSobreVisible(false)}>
+              <Text style={[styles.closeButtonText, { color: theme.primary }]}>✕</Text>
+            </Pressable>
+{/* =======
+
         <Pressable
   style={styles.closeButton}
   onPress={async () => {
@@ -475,6 +492,9 @@ const getCoordFinal = async () => {
 >
   <Text style={[styles.closeButtonText, { color: theme.primary }]}>✕</Text>
 </Pressable>
+<<<<<<< HEAD
+>>>>>>> pedro */}
+
 
             <FlatList
               data={slides}

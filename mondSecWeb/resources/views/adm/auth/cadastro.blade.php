@@ -6,15 +6,33 @@
     <title>Cadastro</title>
 
     <link rel="stylesheet" href="{{ asset('css/11cadastroADM.css') }}">
-    
+
+    <!-- Link_FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+        integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+
 </head>
 
 <body>
 
+    <style>
+        .campoMostrarSenha {
+            position: relative;
+        }
+
+        #btn-senha, #btn-senha-dois {
+            position: absolute;
+            top: 1rem;
+            right: 1%;
+            font-size: 1.3rem;
+        }
+    </style>
+
     <div class="parteEsquerda">
 
-            <div class="logo">
-                <img src="{{ asset('Imagens/Logos/mondseclogo.png') }}" class="logo" alt="Logo">
+        <div class="logo">
+            <img src="{{ asset('Imagens/Logos/mondseclogo.png') }}" class="logo" alt="Logo">
         </div>
 
         <div class="container">
@@ -52,17 +70,24 @@
                     @enderror
                 </div>
 
-                <div class="input-grupo4">
-                    <input required class="campoSenha" type="password" id="senha" name="senha">
-                    <label class="senhaLabel" for="senha">Senha:</label>
-                    @error('senha')
-                        <div class="error">{{ $message }}</div>
-                    @enderror
+                <div class="campoMostrarSenha">
+                    <div class="input-grupo4">
+                        <input required class="campoSenha" type="password" id="senha" name="senha">
+                        <label class="senhaLabel" for="senha">Senha:</label>
+                        @error('senha')
+                            <div class="error">{{ $message }}</div>
+                        @enderror
+                    </div>
+                    <i class="fa-regular fa-eye" id="btn-senha" onclick="mostrarSenha()"></i>
                 </div>
 
-                <div class="input-grupo5">
-                    <input required class="campoConfirmarSenha" type="password" id="senhaConfirma" name="senhaConfirma">
-                    <label class="senhaConfirmarLabel" for="senhaConfirma">Confirme a Senha:</label>
+                <div class="campoMostrarSenha">
+                    <div class="input-grupo5">
+                        <input required class="campoConfirmarSenha" type="password" id="senhaConfirma"
+                            name="senhaConfirma">
+                        <label class="senhaConfirmarLabel" for="senhaConfirma">Confirme a Senha:</label>
+                    </div>
+                    <i class="fa-regular fa-eye" id="btn-senha-dois" onclick="mostrarSenhaConfirmada()"></i>
                 </div>
 
                 <div class="select-grupo6">
@@ -116,6 +141,34 @@
                 alert('Senha deve ter mais de 8 digitos');
             }
         });
+    </script>
+
+    <script>
+        function mostrarSenha() {
+            var inputPass = document.getElementById('senha')
+            var btnShowPass = document.getElementById('btn-senha')
+
+            if (inputPass.type === 'password') {
+                inputPass.setAttribute('type', 'text')
+                btnShowPass.classList.replace('fa-eye', 'fa-eye-slash')
+            } else {
+                inputPass.setAttribute('type', 'password')
+                btnShowPass.classList.replace('fa-eye-slash', 'fa-eye')
+            }
+        }
+
+        function mostrarSenhaConfirmada() {
+            var inputPassDois = document.getElementById('senhaConfirma')
+            var btnShowPassDois = document.getElementById('btn-senha-dois')
+
+            if (inputPassDois.type === 'password') {
+                inputPassDois.setAttribute('type', 'text')
+                btnShowPassDois.classList.replace('fa-eye', 'fa-eye-slash')
+            } else {
+                inputPassDois.setAttribute('type', 'password')
+                btnShowPassDois.classList.replace('fa-eye-slash', 'fa-eye')
+            }
+        }
     </script>
 </body>
 

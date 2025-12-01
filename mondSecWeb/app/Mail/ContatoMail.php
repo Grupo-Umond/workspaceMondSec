@@ -20,7 +20,7 @@ class ContatoMail extends Mailable
     public function build()
     {
         return $this->subject($this->dados['assunto'])
-                    ->markdown('emails.contato')
+                    ->markdown('email.contato')
                     ->with('dados', $this->dados);
     }
 }

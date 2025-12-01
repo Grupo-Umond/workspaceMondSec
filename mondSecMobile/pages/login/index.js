@@ -1,21 +1,9 @@
 import React, { useState, useEffect, useContext } from "react";
-import { 
-  View, 
-  Text, 
-  TextInput, 
-  Pressable, 
-  StyleSheet, 
-  TouchableOpacity, 
-  Image,
-  Modal 
-} from 'react-native';
-
+import { View, Text, TextInput, Pressable, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import { AuthContext } from '../../services/AuthContext';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { useTheme } from "../../services/themes/themecontext";
 import UrlService from '../../services/UrlService';
-import Feather from '@expo/vector-icons/Feather';
-import { MaterialIcons } from "@expo/vector-icons";
 
 const LoginScreen = ({ navigation, route }) => {
 
@@ -23,94 +11,120 @@ const LoginScreen = ({ navigation, route }) => {
   const [carregando, setCarregando] = useState(false);
   const [login, setLogin] = useState('');
   const [senha, setSenha] = useState('');
-  const [viewPass, setViewPass] = useState(true);
-
   const regexTelefone = /^(?:\s?)?(?:\(?\d{2}\)?\s?)?(?:9?\d{4}-?\d{4})$/;
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  const [mostrarSenha, setMostrarSenha] = useState(false);
+  const { logar } = useContext(AuthContext);
 
   const mensagem = route.params?.mensagem;
   const [sucessMessage, setSucessMessage] = useState(mensagem);
 
-  const { logar } = useContext(AuthContext);
   const { theme, isDarkMode } = useTheme();
 
-  // -----------------------------
-  // 🔔 ESTADOS DO MODAL
-  // -----------------------------
-  const [modalVisible, setModalVisible] = useState(false);
-  const [modalTipo, setModalTipo] = useState("sucesso");
-  const [modalTexto, setModalTexto] = useState("");
-
-  const abrirModal = (tipo, texto) => {
-    setModalTipo(tipo);
-    setModalTexto(texto);
-    setModalVisible(true);
-
-    setTimeout(() => {
-      setModalVisible(false);
-    }, 2500);
-  };
-
+  // ----------------------------- VALIDAR CAMPOS ------------------------------
   const validarDados = () => {
     setSucessMessage('');
 
     if (!login || !senha) {
-      abrirModal("erro", "Preencha todos os campos.");
+      setErroMessage('Por favor, preencha todos os campos.');
       return false;
     }
 
     if (!emailRegex.test(login) && !regexTelefone.test(login)) {
-      abrirModal("erro", "Digite um email ou número válido.");
+      setErroMessage('Digite um email ou número de telefone válido.');
       return false;
     }
 
     if (senha.length < 8) {
-      abrirModal("erro", "A senha deve ter pelo menos 8 dígitos.");
+      setErroMessage('A senha deve ter pelo menos 8 dígitos.');
       return false;
     }
 
+    setErroMessage('');
     return true;
   };
 
+  // ----------------------------- VALIDAR LOGIN ------------------------------
   const validarLogin = async () => {
     if (!validarDados()) return;
 
     setCarregando(true);
+    setErroMessage('');
 
     try {
-      const response = await UrlService.post('/usuario/login', { login, senha });
+      const response = await UrlService.post('/usuario/login', {
+        login,
+        senha,
+      });
+
+      // Verificação de resposta inesperada
+      if (!response || !response.data) {
+        setErroMessage("Resposta inesperada do servidor.");
+        return;
+      }
 
       const token = response.data.tokenUser;
 
       if (!token) {
-        abrirModal("erro", "Erro ao autenticar!");
+        setErroMessage("Erro ao autenticar. Token não recebido.");
         return;
       }
 
-      abrirModal("sucesso", "Login realizado!");
-
-      const mensagem = response.data.mensagem;
-
       await logar(token);
-
-      setTimeout(() => {
-        navigation.navigate('Home', { mensagem });
-      }, 800);
+      navigation.navigate('Home');
 
     } catch (err) {
-      if (err.response?.status === 401) {
-        abrirModal("erro", "Email ou senha incorretos.");
-      } else if (err.response?.status === 403) {
-        abrirModal("erro", "Conta deletada.");
-      } else if (err.response?.status === 505) {
-        abrirModal("erro", "Erro no servidor.");
-      } else {
-        abrirModal("erro", "Falha de conexão.");
+
+      console.log("ERRO LOGIN:", err);
+
+      // ----------------- ERROS COMUNS DE REDE -----------------
+      if (err.message === "Network Error") {
+        setErroMessage("Falha de conexão. Verifique sua internet.");
+        return;
       }
+
+      if (err.code === "ECONNABORTED") {
+        setErroMessage("Tempo limite excedido. Tente novamente.");
+        return;
+      }
+
+      // ----------------- ERROS DO SERVIDOR ---------------------
+      const status = err.response?.status;
+
+      if (status === 400) {
+        setErroMessage("Requisição inválida. Verifique os dados enviados.");
+      } else if (status === 401) {
+        setErroMessage("Email ou senha incorretos.");
+      } else if (status === 403) {
+        setErroMessage("Conta desativada ou sem permissão.");
+      } else if (status === 404) {
+        setErroMessage("Servidor não encontrado.");
+      } else if (status === 429) {
+        setErroMessage("Muitas tentativas. Aguarde um pouco.");
+      } else if (status === 500) {
+        setErroMessage("Erro interno no servidor.");
+      } else if (status === 503) {
+        setErroMessage("Servidor indisponível no momento.");
+      } else if (status === 505) {
+        setErroMessage("Falha no servidor (505).");
+      }
+
+      // ----------------- ERRO SEM STATUS / DESCONHECIDO ---------
+      else if (!status) {
+        setErroMessage("Erro desconhecido. Tente novamente.");
+      }
+
+      // ----------------- FALLBACK FINAL -------------------------
+      else {
+        setErroMessage("Ocorreu um erro inesperado.");
+      }
+
     } finally {
       setCarregando(false);
     }
   };
+
+  // ---------------------------------------------------------------------------
 
   return (
     <View style={[styles.container, { backgroundColor: theme.background }]}>
@@ -134,13 +148,6 @@ const LoginScreen = ({ navigation, route }) => {
         { backgroundColor: isDarkMode ? "#1a1a1a" : "whitesmoke" }
       ]}>
 
-        <Pressable
-          onPress={() => navigation.navigate('Home')}
-          style={styles.iconeCabecalho}
-        >
-          <FontAwesome name="arrow-left" size={20} color={theme.title} />
-        </Pressable>
-
         <View style={styles.logoContainer}>
           <Image
             source={
@@ -156,16 +163,20 @@ const LoginScreen = ({ navigation, route }) => {
           Bem-vindo à MondSec!
         </Text>
 
-        <Text style={[styles.textoEntrar, { color: theme.title }]}>Entrar</Text>
+        <Text style={[styles.textoEntrar, { color: theme.title }]}>
+          Entrar
+        </Text>
 
-        {/* EMAIL */}
-        <View style={styles.containerInput} marginBottom={20}>
+        {/* LOGIN */}
+        <View style={styles.containerInput}>
           <Text style={[styles.rotulo, { color: theme.text }]}>Email</Text>
-
           <TextInput
             style={[
               styles.input,
-              { borderBottomColor: theme.border, color: theme.text }
+              {
+                borderBottomColor: theme.border,
+                color: theme.text
+              }
             ]}
             placeholder="Digite seu email..."
             placeholderTextColor={theme.textSecondary}
@@ -175,34 +186,37 @@ const LoginScreen = ({ navigation, route }) => {
         </View>
 
         {/* SENHA */}
-        <View style={styles.containerInput} marginBottom={2}>
+        <View style={styles.containerInput}>
           <Text style={[styles.rotulo, { color: theme.text }]}>Senha</Text>
 
-          <View style={styles.campoSenha}>
-            <View style={styles.campoInput}>
-              <TextInput
-                style={[
-                  styles.input,
-                  { borderBottomColor: theme.border, color: theme.text }
-                ]}
-                placeholder="Digite sua senha..."
-                placeholderTextColor={theme.textSecondary}
-                secureTextEntry={viewPass}
-                onChangeText={setSenha}
-              />
-            </View>
+          <View style={{ flexDirection: "row", alignItems: "center" }}>
+            <TextInput
+              style={[
+                styles.input,
+                {
+                  borderBottomColor: theme.border,
+                  color: theme.text,
+                  flex: 1
+                }
+              ]}
+              placeholder="Digite sua senha..."
+              placeholderTextColor={theme.textSecondary}
+              secureTextEntry={!mostrarSenha}
+              onChangeText={setSenha}
+            />
 
-            <Pressable onPress={() => setViewPass(!viewPass)}>
-              {viewPass ? (
-                <Feather name="eye" size={24} color="black" />
-              ) : (
-                <Feather name="eye-off" size={24} color="black" />
-              )}
-            </Pressable>
+            <TouchableOpacity onPress={() => setMostrarSenha(!mostrarSenha)}>
+              <FontAwesome
+                name={mostrarSenha ? "eye-slash" : "eye"}
+                size={22}
+                color={theme.text}
+                style={{ marginLeft: 10, marginBottom: 10 }}
+              />
+            </TouchableOpacity>
           </View>
         </View>
 
-        {/* Recuperação */}
+        {/* OPÇÕES */}
         <View style={styles.linhaOpcoes}>
           <Pressable onPress={() => navigation.navigate('DigiteCampo')}>
             <Text style={[styles.textoSenhaEsquecida, { color: theme.primary }]}>
@@ -211,25 +225,31 @@ const LoginScreen = ({ navigation, route }) => {
           </Pressable>
         </View>
 
-        {/* Botão Login */}
+        {erroMessage ? <Text style={styles.erro}>{erroMessage}</Text> : null}
+        {sucessMessage ? <Text style={styles.sucess}>{sucessMessage}</Text> : null}
+
+        {/* BOTÃO LOGIN */}
         <TouchableOpacity
-          style={[styles.botaoLogin, { backgroundColor: theme.buttonColor }]}
+          style={[
+            styles.botaoLogin,
+            { backgroundColor: theme.buttonColor }
+          ]}
           onPress={validarLogin}
           disabled={carregando}
         >
-          <Text style={styles.textoBotaoLogin}>
+          <Text style={[styles.textoBotaoLogin, { color: "#fff" }]}>
             {carregando ? "Entrando..." : "Entrar"}
           </Text>
         </TouchableOpacity>
 
-        {/* Divisor */}
+        {/* DIVISOR */}
         <View style={styles.divisor}>
           <View style={[styles.linhaDivisor, { backgroundColor: theme.border }]} />
           <Text style={[styles.textoDivisor, { color: theme.textSecondary }]}>ou</Text>
           <View style={[styles.linhaDivisor, { backgroundColor: theme.border }]} />
         </View>
 
-        {/* Cadastro */}
+        {/* CADASTRO */}
         <Pressable
           style={styles.linkCadastro}
           onPress={() => navigation.navigate('Cadastro')}
@@ -244,116 +264,93 @@ const LoginScreen = ({ navigation, route }) => {
 
       </View>
 
-      {/* -------------------------------- */}
-      {/* 🔔 MODAL DE SUCESSO / ERRO */}
-      {/* -------------------------------- */}
-      <Modal transparent animationType="fade" visible={modalVisible}>
-        <View style={styles.modalContainer}>
-          <View style={[
-            styles.modalBox,
-            { backgroundColor: modalTipo === "sucesso" ? "#2ecc71" : "#e74c3c" }
-          ]}>
-            <MaterialIcons
-              name={modalTipo === "sucesso" ? "check-circle" : "error"}
-              size={55}
-              color="#fff"
-            />
-            <Text style={styles.modalTexto}>{modalTexto}</Text>
-          </View>
-        </View>
-      </Modal>
-
     </View>
   );
 };
 
-
-// --------------------------------
-// ESTILOS
-// --------------------------------
 const styles = StyleSheet.create({
-  container: { flex: 1 },
-
+  container: {
+    flex: 1,
+  },
   containerFundo: {
     position: 'absolute',
     width: '100%',
     height: '100%',
     zIndex: 0,
   },
-
   metadeFundo: {
     height: '50%',
   },
-
   containerConteudo: {
     flex: 1,
     paddingHorizontal: 20,
     marginHorizontal: 25,
-    paddingTop: 25,
-    marginTop: 115,
-    marginBottom: 115,
-    borderRadius: 10,
+    marginTop: 80,
+    marginBottom: 80,
     zIndex: 1,
+    borderRadius: 10,
+    elevation: 3,
+    justifyContent: 'center',
   },
-
   logoContainer: {
     alignSelf: 'center',
-    width: '100%',
+    paddingVertical: 12,
+    paddingHorizontal: 30,
+    width: '80%'
   },
-
   imagemLogo: {
     width: '100%',
-    height: 100,
+    height: 80,
     resizeMode: 'contain'
   },
-
   textoBoasVindas: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    textAlign: 'center',
-    marginBottom: 20,
-  },
-
-  textoEntrar: {
-    fontSize: 25,
-    fontWeight: 'bold',
-    textAlign: 'center',
-    marginBottom: 20,
-  },
-
-  rotulo: {
     fontSize: 16,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    marginBottom: 20,
+    marginTop: 10,
+  },
+  textoEntrar: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    marginBottom: 20,
+  },
+  containerInput: {
+    marginBottom: 5,
+  },
+  rotulo: {
+    fontSize: 14,
     fontWeight: '600',
     marginBottom: -12,
   },
-
   input: {
     width: '100%',
     height: 60,
     backgroundColor: 'transparent',
     borderBottomWidth: 0.8,
-    fontSize: 18,
+    fontSize: 16,
   },
-
-  campoSenha: {
-    flexDirection: 'row',
-    alignItems: 'center'
-  },
-
-  campoInput: {
-    width: '90%',
-  },
-
   linhaOpcoes: {
     flexDirection: 'row',
     marginBottom: 20,
   },
-
   textoSenhaEsquecida: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: '600',
   },
-
+  erro: {
+    color: '#f00',
+    marginBottom: 10,
+    textAlign: 'center',
+    fontSize: 15,
+  },
+  sucess: {
+    color: '#008000',
+    marginBottom: 10,
+    textAlign: 'center',
+    fontSize: 15,
+  },
   botaoLogin: {
     width: '70%',
     height: 45,
@@ -363,65 +360,32 @@ const styles = StyleSheet.create({
     marginBottom: 15,
     alignSelf: 'center',
   },
-
   textoBotaoLogin: {
-    fontSize: 20,
+    fontSize: 16,
     fontWeight: '600',
-    color: "#fff",
   },
-
   divisor: {
     flexDirection: 'row',
     alignItems: 'center',
   },
-
   linhaDivisor: {
     flex: 1,
     height: 1,
   },
-
   textoDivisor: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: '600',
+    paddingHorizontal: 10,
   },
-
   linkCadastro: {
     marginTop: 10,
   },
-
   textoLinkCadastro: {
-    fontSize: 16,
+    fontSize: 14,
     textAlign: 'center',
   },
-
   destaqueLinkCadastro: {
     fontWeight: '600',
-  },
-
-  // ------------------
-  // 🔔 ESTILOS DO MODAL
-  // ------------------
-  modalContainer: {
-    flex: 1,
-    backgroundColor: "rgba(0,0,0,0.35)",
-    justifyContent: "center",
-    alignItems: "center",
-  },
-
-  modalBox: {
-    width: "75%",
-    padding: 25,
-    borderRadius: 15,
-    alignItems: "center",
-    elevation: 5,
-  },
-
-  modalTexto: {
-    color: "#fff",
-    marginTop: 12,
-    fontSize: 18,
-    fontWeight: "600",
-    textAlign: "center",
   },
 });
 

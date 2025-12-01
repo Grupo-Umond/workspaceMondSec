@@ -6,12 +6,47 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Log;
 use Twilio\Rest\Client;
+use App\Models\Usuario;
 use Illuminate\Support\Facades\Cache;
 use App\Mail\ContatoMail;
 use App\Mail\CodigoEmail;
 
 class EmailController extends Controller
 {
+
+  public function alertDelete($id)
+{
+    try {
+        $usuario = Usuario::find($id);
+
+        if (!$usuario) {
+            Log::warning('Usuário não encontrado.');
+            return back()->with('error', 'Usuário não encontrado.');
+        }
+
+        if (!$usuario->email) {
+            Log::warning('Usuário sem email cadastrado.');
+            return back()->with('error', 'Email ausente.');
+        }
+
+        $mensagem = "Avisamos através deste email a reconfirmação da exclusão da sua conta. 
+        Caso essa ação não tenha sido feita por você, entre em contato com nossa equipe.";
+
+        Log::info("Enviando email para {$usuario->email}");
+
+        Mail::to($usuario->email)->send(new WarningMail($usuario, $mensagem));
+
+        Log::info('Email enviado com sucesso.');
+
+        return redirect()->route('adm.users.index')->with('success', 'Mensagem enviada com sucesso!');
+
+    } catch (\Exception $e) {
+        Log::error('Erro ao enviar email', ['exception' => $e->getMessage()]);
+        return back()->with('error', 'Erro ao enviar mensagem: ' . $e->getMessage());
+    }
+}
+
+
     public function enviar(Request $request)
     {
         Log::info('[EmailController@enviar] entrada', ['body' => $request->all()]);
