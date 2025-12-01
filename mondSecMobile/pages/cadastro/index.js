@@ -121,7 +121,7 @@ const CadastroScreen = ({ navigation }) => {
 
       if (status === 401) setErrosLista(["Cadastro não autorizado."]);
       else if (status === 422) setErrosLista(["Dados inválidos enviados."]);
-      else if (status === 500) setErrosLista(["Erro no servidor, tente mais tarde."]);
+      else if (status === 500) setErrosLista(["Dados ja cadastrados."]);
       else setErrosLista(["Erro inesperado, tente novamente."]);
 
     } finally {

@@ -98,7 +98,7 @@ const LoginScreen = ({ navigation, route }) => {
       } else if (status === 403) {
         setErroMessage("Conta desativada ou sem permissão.");
       } else if (status === 404) {
-        setErroMessage("Servidor não encontrado.");
+        setErroMessage("Usuario não encontrado.");
       } else if (status === 429) {
         setErroMessage("Muitas tentativas. Aguarde um pouco.");
       } else if (status === 500) {

@@ -9,7 +9,6 @@ const FotoPerfilScreen = ({ navigation, route }) => {
   const [loading, setLoading] = useState(true);
   const [erroMessage, setErroMessage] = useState("");
   const mensagem = route.params?.mensagem;
-  const [sucessMessage, setSucessMessage] = useState(mensagem);
 
   const currentImageRef = useRef(null);
   const imageVersionRef = useRef(1);
@@ -26,9 +25,7 @@ const FotoPerfilScreen = ({ navigation, route }) => {
           return;
         }
 
-        const response = await UrlService.get("/usuario/buscar", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const response = await UrlService.get("/usuario/buscar");
 
         const usuario = response.data.usuario;
 
@@ -73,12 +70,7 @@ const FotoPerfilScreen = ({ navigation, route }) => {
         name: "foto.jpg",
       });
 
-      const uploadResponse = await UrlService.post("/usuario/upload", formData, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "multipart/form-data",
-        },
-      });
+      const uploadResponse = await UrlService.post("/usuario/upload", formData);
 
       if (uploadResponse.data.success && uploadResponse.data.foto) {
         let fotoUrl = uploadResponse.data.foto;
@@ -131,7 +123,7 @@ const FotoPerfilScreen = ({ navigation, route }) => {
 
   // FINALIZAR CADASTRO
   const finalizarCadastro = () => {
-    navigation.navigate("Login", { mensagem: sucessMessage });
+    navigation.navigate("Login", { mensagem });
   };
 
   return (

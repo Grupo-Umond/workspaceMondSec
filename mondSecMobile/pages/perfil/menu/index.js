@@ -98,10 +98,10 @@ const OptionButton = useMemo(
         const response = await UrlService.get("/usuario/buscar", {
           headers: { Authorization: `Bearer ${token}` },
         });
-
+        console.log('fudido churrasqueiro', response);
 
         const usuario = response.data.usuario;
-
+        
         setNome(usuario.nome);
         setEmail(usuario.email);
 
@@ -149,7 +149,7 @@ const OptionButton = useMemo(
           "Content-Type": "multipart/form-data",
         },
       });
-
+      console.log('responsivo', uploadResponse);
       if (uploadResponse.data.success && uploadResponse.data.foto) {
         const fotoUrl = uploadResponse.data.foto;
         
