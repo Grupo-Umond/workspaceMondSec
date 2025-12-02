@@ -371,7 +371,6 @@ tbody i {
   border-radius: 5px;
 }
 
-#btnVoltar,
 #fecharDenuncia {
   width: 15%;
   display: flex;
@@ -386,10 +385,35 @@ tbody i {
   border: none;
 }
 
-.botoesFinais {
+/* .botoesFinais {
   display: flex;
   flex-direction: column;
   gap: 3px;
+} */
+
+.botoesFinais {
+  display: grid;
+  width: 30%;
+  grid-template-columns: 1fr 1fr;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.botoesFinais a {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 5% 4%;
+  background-color: #0B0D25;
+  border-radius: 5px;
+  cursor: pointer;
+  text-decoration: none;
+  color: white;
+  border: none;
+}
+
+#btnVoltar {
+  width: 100%;
 }
 
 @media (max-width: 1085px) {

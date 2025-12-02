@@ -12,6 +12,7 @@ body {
     align-items: center;
     font-family: sans-serif;
     background-color: whitesmoke;
+    overflow-y: hidden;
 }
 
 header {

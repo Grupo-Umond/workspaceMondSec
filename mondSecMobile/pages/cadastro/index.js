@@ -152,19 +152,153 @@ const CadastroScreen = ({ navigation }) => {
   };
 
   return (
-    <KeyboardAvoidingView 
-      style={[styles.container, { backgroundColor: theme.background }]}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-    >
-      <SafeAreaView style={styles.safeArea}>
-        
-        {/* HEADER */}
-        <View style={styles.header}>
-          <Pressable onPress={() => navigation.goBack()} style={styles.iconeCabecalho}>
-            <FontAwesome name="arrow-left" size={20} color={theme.title} />
-          </Pressable>
-          <Text style={[styles.textoCabecalho, { color: theme.title }]}>
-            Cadastre-se Agora
+
+    <View style={[styles.container, { backgroundColor: theme.background }]}>
+
+      {/* HEADER */}
+      <View style={styles.header}>
+        <Pressable onPress={() => navigation.goBack()} style={styles.iconeCabecalho}>
+          <FontAwesome name="arrow-left" size={20} color={theme.title} />
+        </Pressable>
+        <Text style={[styles.textoCabecalho, { color: theme.title }]}>
+          Cadastre-se Agora
+        </Text>
+      </View>
+
+      {/* LOGO */}
+      <View style={styles.containerLogo}>
+        <Image
+          source={
+            isDarkMode
+              ? require("../../assets/logobranca.png")
+              : require("../../assets/mondSecLogo.png")
+          }
+          style={styles.imagemLogo}
+        />
+      </View>
+
+      {/* FORMULÁRIO */}
+      <View style={styles.containerFormulario}>
+
+        {/* NOME */}
+        <View style={styles.grupoInput}>
+          <Text style={[styles.rotulo, { color: theme.text }]}>Nome</Text>
+          <TextInput
+            style={[styles.input, { backgroundColor: theme.input, borderColor: theme.border, color: theme.text }]}
+            placeholder="Digite seu nome..."
+            placeholderTextColor={theme.textSecondary}
+            value={nome}
+            onChangeText={setNome}
+          />
+        </View>
+
+        {/* EMAIL */}
+        <View style={styles.grupoInput}>
+          <Text style={[styles.rotulo, { color: theme.text }]}>Email</Text>
+          <TextInput
+            style={[styles.input, { backgroundColor: theme.input, borderColor: theme.border, color: theme.text }]}
+            placeholder="Digite seu email..."
+            placeholderTextColor={theme.textSecondary}
+            value={email}
+            onChangeText={setEmail}
+            keyboardType="email-address"
+            autoCapitalize="none"
+          />
+        </View>
+
+        {/* TELEFONE */}
+        <View style={styles.grupoInput}>
+          <Text style={[styles.rotulo, { color: theme.text }]}>Telefone</Text>
+          <TextInputMask
+            type={'cel-phone'}
+            options={{ maskType: 'BRL', withDDD: true, dddMask: '(99) ' }}
+            value={telefone}
+            onChangeText={setTelefone}
+            style={[styles.input, { backgroundColor: theme.input, borderColor: theme.border, color: theme.text }]}
+            keyboardType="numeric"
+            placeholder="Digite seu telefone..."
+            placeholderTextColor={theme.textSecondary}
+          />
+        </View>
+
+        {/* SENHA */}
+        <View style={styles.grupoInput}>
+          <Text style={[styles.rotulo, { color: theme.text }]}>Senha</Text>
+          {erroSenha ? <Text style={styles.erro}>{erroSenha}</Text> : null}
+          <View style={{ flexDirection: "row", alignItems: "center" }}>
+            <TextInput
+              style={[styles.input, { backgroundColor: theme.input, borderColor: theme.border, color: theme.text }]}
+
+              value={senha}
+              placeholder="Digite sua senha..."
+              placeholderTextColor={theme.textSecondary}
+              secureTextEntry={viewPass}
+              onChangeText={setSenha}
+              // keyboardType={typeKeyBoard}
+            />
+
+            <TouchableOpacity onPress={onViewPass} style={{ marginLeft: -35 }}>
+              {viewPass == true && <Feather name="eye" size={24} color="black" />}
+              {viewPass == false && <Feather name="eye-off" size={24} color="black" />}
+            </TouchableOpacity>
+
+          </View>
+        </View>
+
+        {/* CONFIRMAR SENHA */}
+        <View style={styles.grupoInput}>
+          <Text style={[styles.rotulo, { color: theme.text }]}>Confirmar Senha</Text>
+          {erroSenhaConfirma ? <Text style={styles.erro}>{erroSenhaConfirma}</Text> : null}
+          <View style={{ flexDirection: "row", alignItems: "center" }}>
+            <TextInput
+              style={[styles.input, { backgroundColor: theme.input, borderColor: theme.border, color: theme.text }]}
+              placeholder="Confirme a senha..."
+              placeholderTextColor={theme.textSecondary}
+              value={senhaConfirma}
+              secureTextEntry={viewPassConfirma}
+              onChangeText={setSenhaConfirma}
+            />
+
+            <TouchableOpacity onPress={onViewPassConfirmar} style={{ marginLeft: -35 }}>
+              {viewPassConfirma == true && <Feather name="eye" size={24} color="black" />}
+              {viewPassConfirma == false && <Feather name="eye-off" size={24} color="black" />}
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        {/* GÊNERO */}
+        <View style={styles.grupoInput}>
+          <Text style={[styles.rotulo, { color: theme.text }]}>Gênero</Text>
+          <View style={styles.opcoesGenero}>
+            {opcoesGenero.map((op) => (
+              <Pressable key={op} style={styles.botaoOpcao} onPress={() => setGenero(op)}>
+                <View style={[
+                  styles.radioExterno,
+                  { borderColor: theme.text },
+                  genero === op && { borderColor: theme.buttonColor }
+                ]}>
+                  {genero === op && <View style={[styles.radioInterno, { backgroundColor: theme.buttonColor }]} />}
+                </View>
+                <Text style={[styles.textoOpcao, { color: theme.text }]}>{op}</Text>
+              </Pressable>
+            ))}
+          </View>
+        </View>
+
+        {/* TERMOS */}
+        <View style={styles.containerTermos}>
+          <CheckBox
+            value={concordoTermos}
+            onValueChange={setConcordoTermos}
+            tintColors={{ true: theme.buttonColor, false: theme.textSecondary }}
+            style={styles.checkbox}
+          />
+          <Text style={[styles.textoTermos, { color: theme.text }]}>
+            Concordo com os{' '}
+            <Text style={[styles.termosLink, { color: theme.primary }]}
+              onPress={() => navigation.navigate('Politica')}>
+              termos de uso
+            </Text>
           </Text>
         </View>
 
@@ -344,8 +478,8 @@ const CadastroScreen = ({ navigation }) => {
 
           </View>
         </ScrollView>
-      </SafeAreaView>
-    </KeyboardAvoidingView>
+        </View>
+        </View>
   );
 };
 
