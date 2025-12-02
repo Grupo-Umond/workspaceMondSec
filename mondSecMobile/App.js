@@ -40,7 +40,7 @@ function AppRoutes() {
 
     <Stack.Navigator
       screenOptions={{ headerShown: false }}
-      initialRouteName={tokenUser ? "Home" : "Login"}
+      initialRouteName={tokenUser ? "Home" : "Introducao"}
     >
       {!tokenUser ? (
 

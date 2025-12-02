@@ -542,23 +542,11 @@ const [endereco, setEndereco] = useState(null);
                           <Text style={{ fontSize: 13, color: isDarkMode ? '#E5E5E7' : '#333', marginTop: 4 }}>{item?.descricao || item?.descricao_curta || item?.texto || '—'}</Text>
                         </View>
                         
-                        <View style={{ marginBottom: 10 }}>
-                          <Text style={{ fontSize: 13, fontWeight: '600', color: isDarkMode ? '#4FC3F7' : '#012E61' }}>Endereço:</Text>
-                          <DetalheOcorrencia 
-                            item={item}
-                            isDarkMode={isDarkMode}
-                            enderecoService={enderecoService}
-                            ocorrenciasNoEndereco={ocorrenciasNoEndereco}
-                            comentarios={comentarios}
-                            loadingComentarios={loadingComentarios}
-                          />
-
-
-                        </View>
-                        
+                        {/* /// MEXI IMPORTANTE AQUI ANDRE */}
+                
                         <View style={{ marginBottom: 10 }}>
                           <Text style={{ fontSize: 13, fontWeight: '600', color: isDarkMode ? '#4FC3F7' : '#012E61' }}>Data:</Text>
-                          <Text style={{ fontSize: 13, color: isDarkMode ? '#E5E5E7' : '#333', marginTop: 4 }}>{item?.dataAcontecimento}</Text>
+                          <Text style={{ fontSize: 13, color: isDarkMode ? '#E5E5E7' : '#333', marginTop: 4 }}>{formatDate(item?.dataAcontecimento)}</Text>
                         </View>
                       </View>
 
@@ -777,31 +765,10 @@ const [endereco, setEndereco] = useState(null);
                 </TouchableOpacity>
               </View>
 
-              {/* DATA DA OCORRÊNCIA */}
-              {selectedOcorrencia?.dataAcontecimento && (
-                <View style={{ paddingHorizontal: 20, marginTop: 12 }}>
-                  <Text
-                    style={{
-                      fontSize: 13,
-                      fontWeight: '600',
-                      color: isDarkMode ? '#4FC3F7' : '#012E61',
-                    }}
-                  >
-                    Data:
-                  </Text>
+              {/* /// RETIREI UM BGLH IMPORTANTE no CSS AQUI ANDRE */}
 
-                  <Text
-                    style={{
-                      fontSize: 13,
-                      color: isDarkMode ? '#E5E5E7' : '#333',
-                      marginTop: 4,
-                    }}
-                  >
-                    {formatDate(selectedOcorrencia.dataAcontecimento)}
-                  </Text>
-                </View>
-              )}
-
+             
+            
               {/* LISTA DE COMENTÁRIOS */}
               <ScrollView
                 style={{

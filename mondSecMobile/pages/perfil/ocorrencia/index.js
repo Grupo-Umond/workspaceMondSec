@@ -73,6 +73,34 @@ const OcorrenciaScreen = ({ navigation }) => {
     setInformacao(true);
   };
 
+  const formatarData = (dataString) => {
+  if (!dataString) return 'Data não informada';
+  
+  try {
+    // Se a data já estiver no formato brasileiro, retorna como está
+    if (dataString.includes('/')) {
+      return dataString;
+    }
+    
+    // Para datas no formato ISO (yyyy-mm-dd) ou similares
+    const data = new Date(dataString);
+    
+    // Verifica se é uma data válida
+    if (isNaN(data.getTime())) {
+      return dataString; // Retorna o original se não for data válida
+    }
+    
+    const dia = String(data.getDate()).padStart(2, '0');
+    const mes = String(data.getMonth() + 1).padStart(2, '0');
+    const ano = data.getFullYear();
+    
+    return `${dia}/${mes}/${ano}`;
+  } catch (erro) {
+    console.log('Erro ao formatar data:', erro);
+    return dataString; // Retorna o original em caso de erro
+  }
+};
+
   return (
     <SafeAreaView style={[styles.container, { backgroundColor: theme.background }]}>
       <StatusBar
@@ -152,10 +180,12 @@ const OcorrenciaScreen = ({ navigation }) => {
                   </Text>
                 </View>
 
+                {/* /// MEXI IMPORTANTE no CSS AQUI ANDRE */}
+
                 <View style={styles.linhaInfo}>
                   <FontAwesome name="calendar" size={12} color={theme.textSecondary} />
                   <Text style={[styles.textoInfo, { color: theme.textSecondary }]}>
-                    Ocorrido em: {ocorrencia.dataAcontecimento}
+                    Ocorrido em: {formatarData(ocorrencia.dataAcontecimento)}
                   </Text>
                 </View>
               </View>
@@ -233,13 +263,15 @@ const OcorrenciaScreen = ({ navigation }) => {
                     </View>
                   </View>
 
+                  {/* /// MEXI IMPORTANTE no CSS AQUI ANDRE */}
+
                   <View style={styles.linhaInfoModal}>
                     <View style={styles.containerIconeInfo}>
                       <FontAwesome name="calendar" size={14} color={theme.primary} />
                     </View>
                     <View style={styles.containerTextoInfo}>
                       <Text style={[styles.rotuloInfo, { color: theme.textSecondary }]}>Data do Ocorrido</Text>
-                      <Text style={[styles.valorInfo, { color: theme.text }]}>{selecionada.dataAcontecimento}</Text>
+                      <Text style={[styles.valorInfo, { color: theme.text }]}>{formatarData(selecionada.dataAcontecimento)}</Text>
                     </View>
                   </View>
 

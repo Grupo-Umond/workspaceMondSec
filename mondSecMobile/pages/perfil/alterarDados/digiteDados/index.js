@@ -146,7 +146,7 @@ const DigiteDadosScreen = ({ navigation }) => {
             <Image
               source={
                 isDarkMode
-                  ? require("../../../../assets/logobranca.png")
+                  ? require("../../../../assets/logobrancaof.png")
                   : require("../../../../assets/mondSecLogo.png")
               }
               style={styles.logo}

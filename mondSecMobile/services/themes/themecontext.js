@@ -53,6 +53,7 @@ export const ThemeProvider = ({ children }) => {
        backlegenda: '#4FC3F7', 
       colorlegenda: '#0b0505ff', 
       cardbackground: "#14212eff", 
+      fotobackground: '#14212eff',
       sectionbackground: '#0c2946ff', 
      
     }
@@ -74,6 +75,7 @@ export const ThemeProvider = ({ children }) => {
       backlegenda: '#e1e5eaff', 
       colorlegenda: '#05101dff', 
       cardbackground: "#fefefeff", 
+      fotobackground: 'whitesmoke',
          sectionbackground: '#f4f0f0ff',
     };
 

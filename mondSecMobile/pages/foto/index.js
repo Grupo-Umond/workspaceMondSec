@@ -3,12 +3,16 @@ import { View, Text, Image, TouchableOpacity, StyleSheet, ActivityIndicator } fr
 import * as ImagePicker from "expo-image-picker";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import UrlService from "../../services/UrlService";
+import { useTheme } from "../../services/themes/themecontext";
+import FontAwesome from '@expo/vector-icons/FontAwesome';
 
 const FotoPerfilScreen = ({ navigation, route }) => {
   const [foto, setFoto] = useState(null);
   const [loading, setLoading] = useState(true);
   const [erroMessage, setErroMessage] = useState("");
   const mensagem = route.params?.mensagem;
+   const { theme, isDarkMode } = useTheme();
+  
 
   const currentImageRef = useRef(null);
   const imageVersionRef = useRef(1);
@@ -126,96 +130,253 @@ const FotoPerfilScreen = ({ navigation, route }) => {
     navigation.navigate("Login", { mensagem });
   };
 
-  return (
-    <View style={styles.container}>
-      <Text style={styles.titulo}>Coloque uma foto bem bonita sua 😁</Text>
+return (
+  <View style={[styles.container, { backgroundColor: theme.fotobackground }]}>
+    <View style={styles.header}>
+      <Text style={[styles.titulo, { color: theme.title }]}>
+       Por favor, selecione uma foto de boa qualidade
+      </Text>
+      <Text style={[styles.subtitulo, { color: theme.textSecondary }]}>
+        Escolha uma foto que te represente
+      </Text>
+    </View>
 
+    <View style={styles.photoSection}>
       {loading ? (
-        <ActivityIndicator size="large" color="#3B59F3" style={{ marginBottom: 30 }} />
+        <View style={[styles.circle, styles.loadingCircle]}>
+          <ActivityIndicator size="large" color={theme.primary} />
+        </View>
       ) : (
-        <View style={styles.circle}>
+        <View style={[
+          styles.circle, 
+          { borderColor: theme.primary, backgroundColor: theme.inputBackground }
+        ]}>
           {foto ? (
             <Image source={{ uri: foto }} style={styles.foto} />
           ) : (
-            <Text style={styles.placeholderTexto}>Sem foto</Text>
+            <View style={styles.placeholderContainer}>
+              <FontAwesome name="user-circle" size={60} color={theme.textSecondary} />
+              <Text style={[styles.placeholderTexto, { color: theme.textSecondary }]}>
+                Sem foto
+              </Text>
+            </View>
           )}
         </View>
       )}
 
-      {erroMessage ? <Text style={{ color: "red", marginBottom: 15 }}>{erroMessage}</Text> : null}
+      {foto && (
+        <TouchableOpacity 
+          style={[styles.botaoRemover, { backgroundColor: theme.border }]}
+          onPress={() => setFoto(null)}
+        >
+          <FontAwesome name="trash" size={16} color={theme.text} />
+          <Text style={[styles.textoRemover, { color: theme.text }]}>Remover foto</Text>
+        </TouchableOpacity>
+      )}
+    </View>
 
-      <TouchableOpacity style={styles.botao} onPress={selecionarFoto}>
-        <Text style={styles.botaoTexto}>Adicionar Foto</Text>
+    <View style={styles.actionsContainer}>
+      <TouchableOpacity 
+        style={[
+          styles.botao, 
+          { backgroundColor: theme.buttonColor },
+          loading && styles.botaoDesabilitado
+        ]} 
+        onPress={selecionarFoto}
+        disabled={loading}
+      >
+        <FontAwesome name="camera" size={20} color="#FFF" style={styles.botaoIcone} />
+        <Text style={styles.botaoTexto}>Escolher Foto</Text>
       </TouchableOpacity>
 
       {/* BOTÃO FINALIZAR CADASTRO — só aparece quando há foto */}
       {foto && (
-        <TouchableOpacity style={styles.botaoFinalizar} onPress={finalizarCadastro}>
+        <TouchableOpacity 
+          style={[
+            styles.botaoFinalizar, 
+            { backgroundColor: theme.success || '#28A745' }
+          ]} 
+          onPress={finalizarCadastro}
+        >
+          <FontAwesome name="check-circle" size={20} color="#FFF" style={styles.botaoIcone} />
           <Text style={styles.textoFinalizar}>Finalizar Cadastro</Text>
         </TouchableOpacity>
       )}
     </View>
+
+    {/* Dicas */}
+    <View style={[styles.dicasContainer, { backgroundColor: theme.buttonColor }]}>
+      <FontAwesome name="lightbulb-o" size={18} color={theme.icon} style={styles.dicaIcone} />
+      <Text style={[styles.dicaTexto, { color: theme.icon}]}>
+        Para melhor qualidade, use uma foto quadrada com boa iluminação
+      </Text>
+    </View>
+  </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#0A0F24",
     alignItems: "center",
-    justifyContent: "center",
-    padding: 20,
+    paddingHorizontal: 24,
+    paddingTop: 200,
+    paddingBottom: 30,
+  },
+  header: {
+    alignItems: "center",
+    marginBottom: 40,
   },
   titulo: {
-    fontSize: 22,
-    color: "white",
-    marginBottom: 30,
+    fontSize: 24,
+    fontWeight: "700",
+    marginBottom: 8,
     textAlign: "center",
-    fontWeight: "600",
+    lineHeight: 32,
   },
-  circle: {
-    width: 160,
-    height: 160,
-    borderRadius: 80,
-    backgroundColor: "#1A2238",
-    borderWidth: 3,
-    borderColor: "#3B59F3",
-    justifyContent: "center",
+  subtitulo: {
+    fontSize: 15,
+    textAlign: "center",
+    opacity: 0.8,
+  },
+  photoSection: {
     alignItems: "center",
     marginBottom: 30,
+  },
+  circle: {
+    width: 150,
+    height: 150,
+    borderRadius: 90,
+    borderWidth: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 16,
     overflow: "hidden",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
+    elevation: 5,
+  },
+  loadingCircle: {
+    borderColor: 'transparent',
   },
   foto: {
     width: "100%",
     height: "100%",
+    resizeMode: "cover",
+  },
+  placeholderContainer: {
+    alignItems: "center",
+    justifyContent: "center",
   },
   placeholderTexto: {
-    color: "#8A93B0",
+    marginTop: 12,
+    fontSize: 15,
+    fontWeight: "500",
+  },
+  botaoRemover: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderRadius: 20,
+    gap: 6,
+  },
+  textoRemover: {
+    fontSize: 14,
+    fontWeight: "500",
+  },
+  erroContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderRadius: 12,
+    marginBottom: 24,
+    gap: 10,
+    width: '100%',
+    maxWidth: 400,
+  },
+  erroMessage: {
+    fontSize: 14,
+    color: "#D32F2F",
+    flex: 1,
+  },
+  actionsContainer: {
+    width: '100%',
+    maxWidth: 400,
+    gap: 12,
+    marginBottom: 30,
   },
   botao: {
-    backgroundColor: "#3B59F3",
-    paddingVertical: 14,
-    paddingHorizontal: 30,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 16,
+    paddingHorizontal: 24,
     borderRadius: 12,
-    marginBottom: 15,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  botaoDesabilitado: {
+    opacity: 0.6,
+  },
+  botaoIcone: {
+    marginRight: 10,
   },
   botaoTexto: {
     color: "white",
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: "600",
   },
-
   botaoFinalizar: {
-    backgroundColor: "#28A745",
-    paddingVertical: 14,
-    paddingHorizontal: 30,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    paddingVertical: 16,
+    paddingHorizontal: 24,
     borderRadius: 12,
-    marginTop: 10,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
   },
   textoFinalizar: {
     color: "white",
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: "600",
+  },
+  dicasContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 18,
+    paddingVertical: 14,
+    borderRadius: 12,
+    width: '100%',
+    maxWidth: 400,
+    marginTop: 'auto',
+  },
+  dicaIcone: {
+    marginRight: 12,
+  },
+  dicaTexto: {
+    fontSize: 13,
+    flex: 1,
+    lineHeight: 18,
   },
 });
 
