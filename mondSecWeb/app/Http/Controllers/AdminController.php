@@ -145,6 +145,19 @@ class AdminController extends Controller
         return redirect()->route('adm.admins.index')->with('success', 'Adm deletado com sucesso');
     }
 
+    public function reativarAdm($id)
+    {
+        $admin = Admin::find($id);
+        if (!$admin) {
+            return redirect()->back()->with('Error', 'O adm não foi encontrado');
+        }
+        $admin->status = 'ativo';
+        $admin->save();
+
+
+        return redirect()->route('adm.admins.index')->with('success', 'Adm reativado com sucesso');
+    }
+
     // =======================
     //  USERS
     // =======================
@@ -201,13 +214,28 @@ class AdminController extends Controller
 
     }
 
+    public function reativarUser($id)
+    {
+        $usuario = Usuario::find($id);
+        if (!$usuario) {
+            return redirect()->back()->with('Error', 'O usuário não foi encontrado');
+        }
+        $usuario->status = 'ativo';
+        $usuario->save();
+
+        return redirect()->route('adm.users.index')->with('success', 'Usuário reativado com sucesso');
+
+    }
+
     // =======================
     //  OCORRENCIAS
     // =======================
 
     public function showOcorrenciaScreen() {
 
-        $ocorrencias = Ocorrencia::all();
+        $ocorrencias = Ocorrencia::with('usuario')
+            ->orderBy('dataPostagem', 'DESC')
+            ->get();
         return view('adm.verOcorrencia.index', compact('ocorrencias'));
 
     }
@@ -256,6 +284,17 @@ class AdminController extends Controller
         return redirect()->route('adm.ocorrencia.index')->with('success', 'Ocorrencia deletado com sucesso');
     }
 
+    public function reativarOcorrencia($id) {
+        $ocorrencia = Ocorrencia::find($id);
+        if (!$ocorrencia) {
+            return redirect()->back()->with('Error', 'O ocorrencia não foi encontrado');
+        }
+        $ocorrencia->status = 'ativo';
+        $ocorrencia->save();
+
+        return redirect()->route('adm.ocorrencia.index')->with('success', 'Ocorrencia reativada com sucesso');
+    }
+
     public function showDenunciaOcorrenciaScreen()
     {
         $ocorrencias = Ocorrencia::with('usuario')
@@ -299,7 +338,7 @@ class AdminController extends Controller
     public function aprovar($id)
     {
         $comentario = Comentario::findOrFail($id);
-        $comentario->status = 'aprovado';
+        $comentario->status = 'ativo';
         $comentario->save();
 
         return back()->with('success', 'Comentário aprovado com sucesso!');
@@ -346,6 +385,19 @@ class AdminController extends Controller
         $comentario->save();
 
         return redirect()->route('adm.comentario.index')->with('success', 'Comentario deletado com sucesso');
+    
+
+    }
+
+     public function reativaComentario($id) {
+        $comentario= Comentario::find($id);
+        if (!$comentario) {
+            return redirect()->back()->with('Error', 'O comentario não foi encontrado');
+        }
+        $comentario->status = 'ativo';
+        $comentario->save();
+
+        return redirect()->route('adm.comentario.index')->with('success', 'Comentario reativado com sucesso');
     
 
     }

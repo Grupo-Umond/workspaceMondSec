@@ -9,6 +9,8 @@ use Twilio\Rest\Client;
 use App\Models\Usuario;
 use Illuminate\Support\Facades\Cache;
 use App\Mail\ContatoMail;
+use App\Mail\WarningMail;
+
 use App\Mail\CodigoEmail;
 
 class EmailController extends Controller

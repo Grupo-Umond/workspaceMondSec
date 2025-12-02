@@ -13,8 +13,16 @@
 
     <div id="pesquisas" class="d-flex flex-wrap gap-3 mb-4">
         <input id="pesquisaUsuario" type="text" class="form-control w-auto" placeholder="Pesquisar por nome, e-mail ou ID">
+
         <select id="filtroGenero" class="form-select w-auto">
             <option value="">Todos os Gêneros</option>
+        </select>
+
+        <!-- NOVO FILTRO STATUS -->
+        <select id="filtroStatus" class="form-select w-auto">
+            <option value="">Todos os Status</option>
+            <option value="ativo">Ativo</option>
+            <option value="inativo">Inativo</option>
         </select>
     </div>
 
@@ -34,7 +42,9 @@ document.addEventListener('DOMContentLoaded', function() {
     const container = document.getElementById('lista-usuarios');
     const input = document.getElementById('pesquisaUsuario');
     const filtroGenero = document.getElementById('filtroGenero');
+    const filtroStatus = document.getElementById('filtroStatus');
 
+    // Preencher filtro de gênero automaticamente
     const generosUnicos = [...new Set(usuarios.map(u => u.genero || 'Não informado'))];
     generosUnicos.forEach(g => {
         const opt = document.createElement('option');
@@ -46,16 +56,19 @@ document.addEventListener('DOMContentLoaded', function() {
     function renderTabela() {
         const termo = input.value.toLowerCase();
         const generoSelecionado = filtroGenero.value;
+        const statusSelecionado = filtroStatus.value;
 
         const filtrados = usuarios.filter(u => {
             const id = String(u.id).toLowerCase();
             const nome = (u.nome || '').toLowerCase();
             const email = (u.email || '').toLowerCase();
             const genero = u.genero || 'Não informado';
+            const status = u.status || '';
 
             return (
                 (id.includes(termo) || nome.includes(termo) || email.includes(termo)) &&
-                (!generoSelecionado || genero === generoSelecionado)
+                (!generoSelecionado || genero === generoSelecionado) &&
+                (!statusSelecionado || status === statusSelecionado)
             );
         });
 
@@ -69,37 +82,51 @@ document.addEventListener('DOMContentLoaded', function() {
         const table = document.createElement('table');
         table.classList.add('table','table-striped','table-bordered','text-center','align-middle');
 
-        const thead = document.createElement('thead');
-        thead.innerHTML = `
-            <tr>
-                <th>ID</th><th>Nome</th><th>Email</th><th>Telefone</th><th>Token Expo</th><th>Gênero</th><th>Data</th><th>Status</th>
-                ${podeEditar ? '<th></th><th></th>' : ''}
-            </tr>
+        table.innerHTML = `
+            <thead>
+                <tr>
+                    <th>ID</th><th>Nome</th><th>Email</th><th>Telefone</th><th>Token Expo</th><th>Gênero</th><th>Data</th><th>Status</th>
+                    ${podeEditar ? '<th></th>' : ''}
+                </tr>
+            </thead>
         `;
-        table.appendChild(thead);
 
         const tbody = document.createElement('tbody');
 
         filtrados.forEach(u => {
 
-            const btns = podeEditar ? `
-                <td>
-                    <a href="/adm/users/${u.id}" class="btn btn-sm btn-warning">
-                        <i class="fa-solid fa-pencil btn-alterar"></i>
-                    </a>
-                </td>
-                <td>
-                    <form action="/adm/users/excluir/${u.id}" method="POST" onsubmit="return confirm('Tem certeza que quer excluir?');">
-                        @csrf
-                        @method('PUT')
-                        <button type="submit" class="btn btn-sm btn-danger">
-                            <i class="fa-solid fa-trash-can btn-excluir"></i>
-                        </button>
-                    </form>
-                </td>
-            ` : '';
+            let btns = '';
+
+            if (podeEditar) {
+                if (u.status === 'inativo') {
+                    btns = `
+                        <td>
+                            <form action="/adm/users/reativar/${u.id}" method="POST" onsubmit="return confirm('Tem certeza que quer reativar?');">
+                                @csrf
+                                @method('PUT')
+                                <button type="submit" class="btn btn-sm btn-danger">
+                                    <i>Ativar</i>
+                                </button>
+                            </form>
+                        </td>
+                    `;
+                } else {
+                    btns = `
+                        <td>
+                            <form action="/adm/users/excluir/${u.id}" method="POST" onsubmit="return confirm('Tem certeza que quer excluir?');">
+                                @csrf
+                                @method('PUT')
+                                <button type="submit" class="btn btn-sm btn-danger">
+                                    <i class="fa-solid fa-trash-can btn-excluir"></i>
+                                </button>
+                            </form>
+                        </td>
+                    `;
+                }
+            }
 
             const tr = document.createElement('tr');
+
             tr.innerHTML = `
                 <td>${u.id}</td>
                 <td>${u.nome}</td>
@@ -117,10 +144,10 @@ document.addEventListener('DOMContentLoaded', function() {
                     }).format(new Date(u.data))
                     : '-'}
                 </td>
-
                 <td>${u.status || '-'}</td>
                 ${btns}
             `;
+
             tbody.appendChild(tr);
         });
 
@@ -130,6 +157,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     input.addEventListener('input', renderTabela);
     filtroGenero.addEventListener('change', renderTabela);
+    filtroStatus.addEventListener('change', renderTabela);
 
     renderTabela();
 });

@@ -40,6 +40,7 @@ Route::prefix('adm')
             Route::get('/admins/{id}', 'updateAdmScreen')->name('admins.edit');
             Route::put('/admins/{id}', 'updateAdm')->name('admins.update');
             Route::put('/admins/excluir/{id}', 'deleteAdm')->name('admins.destroy');
+            Route::put('/admins/reativar/{id}', 'reativarAdm')->name('admins.restaurar');
 
             
             // Users
@@ -47,7 +48,10 @@ Route::prefix('adm')
             Route::get('/users/{id}', 'updateUserScreen')->name('users.edit');
             Route::put('/users/{id}', 'updateUser')->name('users.update');
             Route::put('/users/excluir/{id}', 'deleteUser')->name('users.destroy');
+            Route::get('/users/aviso/deletando/{id}',[EmailController::class,'alertDelete'])->name('codigo.deletando');
+            Route::put('/users/reativar/{id}', 'reativarUser')->name('users.restaurar');
 
+            
             //Ocorrencia
             Route::get('/ocorrencias','showOcorrenciaScreen')->name('ocorrencia.index');
             Route::get('/ocorrencias/{id}', 'updateOcorrenciaScreen')->name('ocorrencia.edit');
@@ -55,6 +59,7 @@ Route::prefix('adm')
             Route::put('/ocorrencias/excluir/{id}', 'deleteOcorrencia')->name('ocorrencia.destroy');
             Route::get('/denuncias/ocorrencia','showDenunciaOcorrenciaScreen')->name('ocorrencia.denuncia');
             Route::get('/ocorrencias/selecionada/{id}','ocorrenciaSelecionada')->name('ocorrencia.selecionada');
+            Route::put('/ocorrencias/reativar/{id}', 'reativarOcorrencia')->name('ocorrencia.restaurar');
 
 
             //Comentario
@@ -64,12 +69,13 @@ Route::prefix('adm')
             Route::put('/comentario/excluir/{id}', 'destroy')->name('comentario.destroy');
             Route::get('/comentario/selecionado/{id}','selecionado');
             Route::get('/denuncias/comentario','showDenunciaComentarioScreen')->name('comentario.denuncia');
+            Route::put('/comentario/reativar/{id}', 'reativaComentario')->name('comentario.restaurar');
 
             Route::get('/comentarios/espera', 'pendentes')->name('comentario.espera');
 
-            Route::put('/comentario/aprovar/{id}','aprovar')->name('adm.comentario.aprovar');
+            Route::put('/comentario/aprovar/{id}','aprovar')->name('comentario.aprovar');
 
-            Route::put('/comentario/negar/{id}','negar')->name('adm.comentario.negar');
+            Route::put('/comentario/negar/{id}','negar')->name('comentario.negar');
 
 
 

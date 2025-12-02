@@ -12,6 +12,7 @@
     @endphp
 
     <div id="pesquisas" class="d-flex flex-wrap gap-3 mb-4">
+
         <input id="pesquisado" type="text" class="form-control w-auto"
             placeholder="Pesquisar por ID, título ou usuário">
 
@@ -34,6 +35,14 @@
             <option value="11">Novembro</option>
             <option value="12">Dezembro</option>
         </select>
+
+        <!-- 🔥 NOVO FILTRO DE STATUS -->
+        <select id="filtroStatus" class="form-select w-auto">
+            <option value="">Todos os Status</option>
+            <option value="ativo">Ativo</option>
+            <option value="inativo">Inativo</option>
+        </select>
+
     </div>
 
     <div id="lista-ocorrencias"></div>
@@ -58,6 +67,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const inputPesquisa = document.getElementById('pesquisado');
     const filtroTipo = document.getElementById('filtroTipo');
     const filtroMes = document.getElementById('filtroMes');
+    const filtroStatus = document.getElementById('filtroStatus'); // ⭐ novo
 
     const tiposUnicos = [...new Set(ocorrencias.map(o => o.tipo || 'Não informado'))];
     tiposUnicos.forEach(t => {
@@ -72,6 +82,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const termo = inputPesquisa.value.toLowerCase();
         const tipoSelecionado = filtroTipo.value;
         const mesSelecionado = filtroMes.value;
+        const statusSelecionado = filtroStatus.value; // ⭐ novo
 
         const filtradas = ocorrencias.filter(o => {
 
@@ -80,13 +91,15 @@ document.addEventListener('DOMContentLoaded', function () {
             const usuario = (o.usuario?.nome || '').toLowerCase();
 
             const tipo = o.tipo || 'Não informado';
+
             const dataAco = o.dataAcontecimento ? new Date(o.dataAcontecimento) : null;
             const mes = dataAco ? dataAco.getMonth() + 1 : null;
 
             return (
                 (id.includes(termo) || titulo.includes(termo) || usuario.includes(termo)) &&
                 (!tipoSelecionado || tipo === tipoSelecionado) &&
-                (!mesSelecionado || mes === Number(mesSelecionado))
+                (!mesSelecionado || mes === Number(mesSelecionado)) &&
+                (!statusSelecionado || o.status === statusSelecionado) // ⭐ novo
             );
         });
 
@@ -132,25 +145,40 @@ document.addEventListener('DOMContentLoaded', function () {
                 second: "2-digit"
             });
 
-        const dataP = o.dataPostagem ? formatter.format(new Date(o.dataPostagem)) : '-';
-        const dataA = o.dataAcontecimento ? formatter.format(new Date(o.dataAcontecimento)) : '-';
-
+            const dataP = o.dataPostagem ? formatter.format(new Date(o.dataPostagem)) : '-';
+            const dataA = o.dataAcontecimento ? formatter.format(new Date(o.dataAcontecimento)) : '-';
 
             const btns = podeEditar ? `
-                
                 <td>
                     <a href="/adm/ocorrencias/${o.id}" class="btn btn-sm btn-warning">
                         <i class="fa-solid fa-pencil btn-alterar"></i>
                     </a>
                 </td>
+
                 <td>
-                    <form action="/adm/ocorrencias/excluir/${o.id}" method="POST" onsubmit="return confirm('Tem certeza?');">
-                        @csrf
-                        @method('PUT')
-                        <button type="submit" class="btn btn-sm btn-danger">
-                            <i class="fa-solid fa-trash-can"></i>
-                        </button>
-                    </form>
+                    ${
+                        o.status === "inativo"
+                        ? `
+                            <form action="/adm/ocorrencias/reativar/${o.id}" method="POST"
+                                  onsubmit="return confirm('Tem certeza?');">
+                                @csrf
+                                @method('PUT')
+                                <button type="submit" class="btn btn-sm btn-danger">
+                                    <i>Ativar</i>
+                                </button>
+                            </form>
+                          `
+                        : `
+                            <form action="/adm/ocorrencias/excluir/${o.id}" method="POST"
+                                  onsubmit="return confirm('Tem certeza?');">
+                                @csrf
+                                @method('PUT')
+                                <button type="submit" class="btn btn-sm btn-danger">
+                                    <i class="fa-solid fa-trash-can"></i>
+                                </button>
+                            </form>
+                          `
+                    }
                 </td>
             ` : '';
 
@@ -179,6 +207,7 @@ document.addEventListener('DOMContentLoaded', function () {
     inputPesquisa.addEventListener('input', renderTabela);
     filtroTipo.addEventListener('change', renderTabela);
     filtroMes.addEventListener('change', renderTabela);
+    filtroStatus.addEventListener('change', renderTabela); // ⭐ novo
 
     renderTabela();
 
