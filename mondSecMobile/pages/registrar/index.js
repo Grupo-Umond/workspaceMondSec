@@ -482,21 +482,25 @@ const buscarCEP = async () => {
               onBlur={buscarCEP} // Busca ao sair do campo
             />
 
+              {/* /// MEXI IMPORTANTE AQUI ANDRE */}
             <TouchableOpacity
-              onPress={buscarCEP}
-              style={{
-                marginLeft: 8,
-                padding: 12,
-                backgroundColor: theme.buttonColor,
-                borderRadius: 10
-              }}
-            >
-              {buscandoCep ? (
-                <ActivityIndicator color="#fff" size={20} />
-              ) : (
-                <FontAwesome name="search" size={20} color="#fff" />
-              )}
-            </TouchableOpacity>
+  onPress={buscarCEP}
+  style={{
+    marginLeft: 8,
+    marginTop: 2, 
+    padding: 12,
+    backgroundColor: theme.buttonColor,
+    borderRadius: 10,
+    alignSelf: 'flex-start', 
+  }}
+>
+  {buscandoCep ? (
+    <ActivityIndicator color="#fff" size={20} />
+  ) : (
+    <FontAwesome name="search" size={20} color="#fff" />
+  )}
+</TouchableOpacity>
+
           </View>
 
           {/* ENDEREÇO */}
@@ -549,10 +553,19 @@ const buscarCEP = async () => {
             maxLength={120}
             textAlignVertical="top"
           />
-
-          <Text style={{ color: theme.textSecondary }}>
-            {dataAcontecimento || 'Nenhuma data selecionada'}
-          </Text>
+  
+       {/* /// MEXI IMPORTANTE AQUI ANDRE */}
+          
+          <Text style={[
+  styles.textoData,
+  { 
+    color: dataAcontecimento ? theme.text : theme.textSecondary,
+    backgroundColor: theme.inputBackground,
+    borderColor: theme.border
+  }
+]}>
+  {dataAcontecimento || 'Nenhuma data selecionada'}
+</Text>
 
           <Button onPress={() => setShow(true)} title='Selecionar Data' />
 
@@ -710,7 +723,9 @@ const buscarCEP = async () => {
 
     </View>
   );
-};
+}; 
+
+
 
 const styles = StyleSheet.create({
   container: { flex: 1, padding: 20 },
@@ -719,6 +734,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginBottom: 30,
+    marginTop: -20 
   },
 
   iconeCabecalho: { padding: 5 },
@@ -775,6 +791,23 @@ const styles = StyleSheet.create({
   botaoDesabilitado: { opacity: 0.6 },
 
   textoBotao: { color: '#fff', fontSize: 16, fontWeight: '600' },
+
+  // ESTILOS PARA O TEXTO DE DATA
+  textoData: {
+    fontSize: 16,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 8,
+    borderWidth: 1,
+    marginTop: 4,
+    marginBottom: 12,
+    textAlign: 'center',
+  },
+
+  // Estilos opcionais para o container da data (se necessário)
+  containerData: {
+    marginBottom: 12,
+  },
 
   modalContainer: {
     flex: 1,

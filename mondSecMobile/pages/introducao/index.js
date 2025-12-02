@@ -140,7 +140,7 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   startButton: {
-    backgroundColor: "#5A0CED",
+    backgroundColor: "#0c2946ff",
     paddingHorizontal: 40,
     paddingVertical: 14,
     borderRadius: 10,

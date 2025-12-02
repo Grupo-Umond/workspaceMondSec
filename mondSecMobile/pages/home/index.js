@@ -45,14 +45,12 @@ const HomeScreen = ({ navigation }) => {
     { id: "5", titulo: "Aviso", texto: "Use o app de forma responsável.", imagem: require("../../assets/xis.png") }
   ];
 
-  // DADOS DA LEGENDA
+  // DADOS DA LEGENDA 
   const itensLegenda = [
-    { id: "1", cor: '#641e16', texto: "Área de Extremo Risco" },
-    { id: "2", cor: '#d7263d', texto: "Área de Risco" },
-    { id: "3", cor: '#f28c28', texto: "Área de Perigo Alto" },
-    { id: "4", cor: '#f5c400', texto: "Área de perigo Moderado" },
-    { id: "5", cor: '#f7e46a', texto: "Área de Perigo Pequeno" },
-    { id: "6", cor: '#0815caff', texto: "Seu local" },
+    { id: "1", cor: '#E53935', texto: "Área de Perigo Alto" },
+    { id: "2", cor: '#FB8C00', texto: "Área de perigo Moderado" },
+    { id: "3", cor: '#fdd835', texto: "Área de Perigo Pequeno" },
+    { id: "4", cor: '#0815caff', texto: "Seu local" },
   ];
 
   useEffect(() => {
@@ -67,14 +65,14 @@ const HomeScreen = ({ navigation }) => {
 
          const carrossel = await AsyncStorage.getItem('carrosselSeen');
     if (!carrossel) {
-      setModalSobreVisible(true);
+      setModalSobreVisible(false);
     }
     };
 //     };   const carrossel = await AsyncStorage.getItem('carrosselSeen');
 //     if (!carrossel) {
 //       setModalSobreVisible(true);
 //     }
-// >>>>>>> pedro
+
 
     verificarModal();
   }, []);
