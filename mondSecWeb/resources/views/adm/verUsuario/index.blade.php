@@ -1,137 +1,229 @@
 @extends('adm.layouts.admin')
 
-@section('title', 'View')
+@section('title', 'Usuários')
 
 @section('content')
-<div class="container py-5">
+    <div class="container py-5">
 
-    @php
-        $podeEditar = in_array(auth('admin')->user()->nivelAdmin, ['prata','ouro']);
-    @endphp
+        @php
+            $podeEditar = in_array(auth('admin')->user()->nivelAdmin, ['prata', 'ouro']);
+        @endphp
 
-    <h1 class="mb-4 text-center">Usuários Cadastrados</h1>
+        <h1 class="mb-4 text-center">Usuários Cadastrados</h1>
 
-    <div id="pesquisas" class="d-flex flex-wrap gap-3 mb-4">
-        <input id="pesquisaUsuario" type="text" class="form-control w-auto" placeholder="Pesquisar por nome, e-mail ou ID">
-        <select id="filtroGenero" class="form-select w-auto">
-            <option value="">Todos os Gêneros</option>
-        </select>
+        <div id="pesquisas" class="d-flex flex-wrap gap-3 mb-4">
+            <input id="pesquisaUsuario" type="text" class="form-control w-auto"
+                placeholder="Pesquisar por nome, e-mail ou ID">
+            <select id="filtroGenero" class="form-select w-auto">
+                <option value="">Todos os Gêneros</option>
+            </select>
+        </div>
+
+        <div id="lista-usuarios"></div>
+
+        <div class="botoesFinais">
+            <a href="{{ route('adm.dashboard.index') }}" class="link-btn">
+                <div id="btnVoltar" class="botao mt-4">Voltar ao Painel</div>
+            </a>
+        </div>
     </div>
 
-    <div id="lista-usuarios"></div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
 
-    <a href="{{ route('adm.dashboard.index') }}" class="link-btn">
-        <div id="btnVoltar" class="botao mt-4">Voltar ao Painel</div>
-    </a>
-</div>
+            const usuarios = @json($usuario);
+            const podeEditar = @json($podeEditar);
 
-<script>
-document.addEventListener('DOMContentLoaded', function() {
+            const container = document.getElementById('lista-usuarios');
+            const input = document.getElementById('pesquisaUsuario');
+            const filtroGenero = document.getElementById('filtroGenero');
 
-    const usuarios = @json($usuario);
-    const podeEditar = @json($podeEditar);
+            const itensPorPagina = 10;
+            let paginaAtual = 1;
 
-    const container = document.getElementById('lista-usuarios');
-    const input = document.getElementById('pesquisaUsuario');
-    const filtroGenero = document.getElementById('filtroGenero');
+            const generosUnicos = [...new Set(usuarios.map(u => u.genero || 'Não informado'))];
+            generosUnicos.forEach(g => {
+                const opt = document.createElement('option');
+                opt.value = g;
+                opt.textContent = g;
+                filtroGenero.appendChild(opt);
+            });
 
-    const generosUnicos = [...new Set(usuarios.map(u => u.genero || 'Não informado'))];
-    generosUnicos.forEach(g => {
-        const opt = document.createElement('option');
-        opt.value = g;
-        opt.textContent = g;
-        filtroGenero.appendChild(opt);
-    });
+            function criarBotao(texto, pagina, ativo = false, disabled = false) {
+                const btn = document.createElement("button");
+                btn.type = "button";
+                btn.textContent = texto;
 
-    function renderTabela() {
-        const termo = input.value.toLowerCase();
-        const generoSelecionado = filtroGenero.value;
+                btn.style.padding = "8px 14px";
+                btn.style.borderRadius = "6px";
+                btn.style.border = "none";
+                btn.style.background = ativo ? "#2ecc71" : "#111";
+                btn.style.color = "#fff";
+                btn.style.opacity = disabled ? 0.5 : 1;
+                btn.style.cursor = disabled ? "default" : "pointer";
 
-        const filtrados = usuarios.filter(u => {
-            const id = String(u.id).toLowerCase();
-            const nome = (u.nome || '').toLowerCase();
-            const email = (u.email || '').toLowerCase();
-            const genero = u.genero || 'Não informado';
+                if (!disabled) {
+                    btn.addEventListener("click", () => mudarPagina(pagina));
+                }
 
-            return (
-                (id.includes(termo) || nome.includes(termo) || email.includes(termo)) &&
-                (!generoSelecionado || genero === generoSelecionado)
-            );
-        });
+                return btn;
+            }
 
-        container.innerHTML = '';
+            function gerarPaginacao(totalPaginas) {
+                const wrapper = document.createElement("div");
+                wrapper.style.display = "flex";
+                wrapper.style.justifyContent = "center";
+                wrapper.style.alignItems = "center";
+                wrapper.style.gap = "8px";
+                wrapper.style.marginTop = "20px";
 
-        if(filtrados.length === 0){
-            container.innerHTML = '<div class="alert alert-warning">Nenhum usuário encontrado.</div>';
-            return;
-        }
+                wrapper.appendChild(
+                    criarBotao("‹", paginaAtual - 1, false, paginaAtual === 1)
+                );
 
-        const table = document.createElement('table');
-        table.classList.add('table','table-striped','table-bordered','text-center','align-middle');
+                const maxButtons = 5;
+                let start = Math.max(1, paginaAtual - 2);
+                let end = Math.min(totalPaginas, start + maxButtons - 1);
 
-        const thead = document.createElement('thead');
-        thead.innerHTML = `
-            <tr>
-                <th>ID</th><th>Nome</th><th>Email</th><th>Telefone</th><th>Token Expo</th><th>Gênero</th><th>Data</th><th>Status</th>
-                ${podeEditar ? '<th></th><th></th>' : ''}
-            </tr>
-        `;
-        table.appendChild(thead);
+                if (end - start < maxButtons - 1) {
+                    start = Math.max(1, end - maxButtons + 1);
+                }
 
-        const tbody = document.createElement('tbody');
+                if (start > 1) {
+                    wrapper.appendChild(criarBotao("1", 1));
+                }
 
-        filtrados.forEach(u => {
+                if (start > 2) {
+                    const span = document.createElement("span");
+                    span.textContent = "...";
+                    span.style.color = "#fff";
+                    wrapper.appendChild(span);
+                }
 
-            const btns = podeEditar ? `
-                <td>
-                    <a href="/adm/users/${u.id}" class="btn btn-sm btn-warning">
-                        <i class="fa-solid fa-pencil btn-alterar"></i>
-                    </a>
-                </td>
-                <td>
-                    <form action="/adm/users/excluir/${u.id}" method="POST" onsubmit="return confirm('Tem certeza que quer excluir?');">
-                        @csrf
-                        @method('PUT')
-                        <button type="submit" class="btn btn-sm btn-danger">
-                            <i class="fa-solid fa-trash-can btn-excluir"></i>
-                        </button>
-                    </form>
-                </td>
-            ` : '';
+                for (let i = start; i <= end; i++) {
+                    wrapper.appendChild(
+                        criarBotao(i, i, i === paginaAtual)
+                    );
+                }
 
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-                <td>${u.id}</td>
-                <td>${u.nome}</td>
-                <td>${u.email}</td>
-                <td>${u.telefone || '-'}</td>
-                <td>${u.tokenExpo}</td>
-                <td>${u.genero || '-'}</td>
-                <td>${u.data ? new Intl.DateTimeFormat("pt-BR", {
-                        day: "2-digit",
-                        month: "2-digit",
-                        year: "numeric",
-                        hour: "2-digit",
-                        minute: "2-digit",
-                        second: "2-digit"
-                    }).format(new Date(u.data))
-                    : '-'}
-                </td>
+                if (end < totalPaginas - 1) {
+                    const span = document.createElement("span");
+                    span.textContent = "...";
+                    span.style.color = "#fff";
+                    wrapper.appendChild(span);
+                }
 
-                <td>${u.status || '-'}</td>
-                ${btns}
+                if (end < totalPaginas) {
+                    wrapper.appendChild(
+                        criarBotao(totalPaginas, totalPaginas)
+                    );
+                }
+
+                wrapper.appendChild(
+                    criarBotao("›", paginaAtual + 1, false, paginaAtual === totalPaginas)
+                );
+
+                return wrapper;
+            }
+
+            function renderTabela() {
+                const termo = input.value.toLowerCase();
+                const generoSelecionado = filtroGenero.value;
+
+                let filtrados = usuarios.filter(u => {
+                    const id = String(u.id).toLowerCase();
+                    const nome = (u.nome || '').toLowerCase();
+                    const email = (u.email || '').toLowerCase();
+                    const genero = u.genero || 'Não informado';
+
+                    return (
+                        (id.includes(termo) || nome.includes(termo) || email.includes(termo)) &&
+                        (!generoSelecionado || genero === generoSelecionado)
+                    );
+                });
+
+                container.innerHTML = '';
+
+                if (filtrados.length === 0) {
+                    container.innerHTML = '<div class="alert alert-warning">Nenhum usuário encontrado.</div>';
+                    return;
+                }
+
+                const totalPaginas = Math.ceil(filtrados.length / itensPorPagina);
+                if (paginaAtual > totalPaginas) paginaAtual = 1;
+
+                const inicio = (paginaAtual - 1) * itensPorPagina;
+                const pagina = filtrados.slice(inicio, inicio + itensPorPagina);
+
+                const table = document.createElement('table');
+                table.classList.add('table', 'table-striped', 'table-bordered', 'text-center', 'align-middle');
+
+                const thead = document.createElement('thead');
+                thead.innerHTML = `
+                <tr>
+                    <th>ID</th><th>Nome</th><th>Email</th><th>Telefone</th>
+                    <th>Token Expo</th><th>Gênero</th><th>Data</th><th>Status</th>
+                    ${podeEditar ? '<th></th><th></th>' : ''}
+                </tr>
             `;
-            tbody.appendChild(tr);
+                table.appendChild(thead);
+
+                const tbody = document.createElement('tbody');
+
+                pagina.forEach(u => {
+                    const tr = document.createElement('tr');
+
+                    const botoes = podeEditar ? `
+                    <td>
+                        <a href="/adm/users/${u.id}" class="btn btn-sm btn-warning">
+                            <i class="fa-solid fa-pencil"></i>
+                        </a>
+                    </td>
+                    <td>
+                        <form action="/adm/users/excluir/${u.id}" method="POST"
+                              onsubmit="return confirm('Tem certeza que quer excluir?');">
+                            @csrf
+                            @method('PUT')
+                            <button type="submit" class="btn btn-sm btn-danger">
+                                <i class="fa-solid fa-trash-can"></i>
+                            </button>
+                        </form>
+                    </td>
+                ` : '';
+
+                    tr.innerHTML = `
+                    <td>${u.id}</td>
+                    <td>${u.nome}</td>
+                    <td>${u.email}</td>
+                    <td>${u.telefone || '-'}</td>
+                    <td>${u.tokenExpo}</td>
+                    <td>${u.genero || '-'}</td>
+                    <td>${u.data ? new Intl.DateTimeFormat("pt-BR", {
+                        day: "2-digit", month: "2-digit", year: "numeric",
+                        hour: "2-digit", minute: "2-digit", second: "2-digit"
+                    }).format(new Date(u.data)) : '-'}</td>
+                    <td>${u.status || '-'}</td>
+                    ${botoes}
+                `;
+
+                    tbody.appendChild(tr);
+                });
+
+                table.appendChild(tbody);
+                container.appendChild(table);
+
+                container.appendChild(gerarPaginacao(totalPaginas));
+            }
+
+            window.mudarPagina = function (num) {
+                paginaAtual = num;
+                renderTabela();
+            };
+
+            input.addEventListener('input', () => { paginaAtual = 1; renderTabela(); });
+            filtroGenero.addEventListener('change', () => { paginaAtual = 1; renderTabela(); });
+
+            renderTabela();
         });
-
-        table.appendChild(tbody);
-        container.appendChild(table);
-    }
-
-    input.addEventListener('input', renderTabela);
-    filtroGenero.addEventListener('change', renderTabela);
-
-    renderTabela();
-});
-</script>
+    </script>
 @endsection

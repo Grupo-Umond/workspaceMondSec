@@ -111,7 +111,7 @@
 
         <div class="col-md-6">
             <div class="card-custom chart-card">
-                <h5 class="text-center mb-3">Usuários cadastrados por mês</h5>
+                <h5 class="text-center mb-3" id="textoGrafico">Usuários cadastrados por mês</h5>
 
                 <div id="chartUsuarios"></div>
             </div>
@@ -119,7 +119,7 @@
 
         <div class="col-md-6">
             <div class="card-custom chart-card">
-                <h5 class="text-center mb-3">Ocorrências por tipo</h5>
+                <h5 class="text-center mb-3" id="textoGrafico">Ocorrências por tipo</h5>
 
                 <div id="chartOcorrencias"></div>
             </div>
@@ -128,7 +128,7 @@
         {{-- Pizza --}}
         <div class="col-md-6">
             <div class="card-custom chart-card">
-                <h5 class="text-center mb-3">Distribuição de Ocorrências (Pizza)</h5>
+                <h5 class="text-center mb-3" id="textoGrafico">Distribuição de Ocorrências (Pizza)</h5>
                 <div id="chartOcorrenciasPizza"></div>
             </div>
         </div>
@@ -136,14 +136,14 @@
         {{-- Ocorrências por mês --}}
         <div class="col-md-6">
             <div class="card-custom chart-card">
-                <h5 class="text-center mb-3">Ocorrências por mês</h5>
+                <h5 class="text-center mb-3" id="textoGrafico">Ocorrências por mês</h5>
                 <div id="chartOcorrenciasMes"></div>
             </div>
         </div>
 
         <div class="col-md-6">
             <div class="card-custom chart-card">
-                <h5 class="text-center mb-3">Comentários por status</h5>
+                <h5 class="text-center mb-3" id="textoGrafico">Comentários por status</h5>
 
                 <div id="chartComentarios"></div>
             </div>
@@ -151,7 +151,7 @@
 
         <div class="col-md-6">
             <div class="card-custom chart-card">
-                <h5 class="text-center mb-3">Admins por nível</h5>
+                <h5 class="text-center mb-3" id="textoGrafico">Admins por nível</h5>
 
                 <div id="chartAdmins"></div>
             </div>

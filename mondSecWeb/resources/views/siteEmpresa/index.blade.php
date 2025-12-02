@@ -293,7 +293,6 @@
                 });
             });
     </script>
->>>>>>> pedro
 </body>
 
 </html>

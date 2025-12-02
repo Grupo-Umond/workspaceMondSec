@@ -3,83 +3,85 @@
 @section('title', 'Ocorrências Cadastradas')
 
 @section('content')
-<div class="container py-5">
+    <div class="container py-5">
 
-    <h1 class="mb-4 text-center">Ocorrências Cadastradas</h1>
+        <h1 class="mb-4 text-center">Ocorrências Cadastradas</h1>
 
-    @php
-        $podeEditar = in_array(auth('admin')->user()->nivelAdmin, ['prata','ouro']);
-    @endphp
+        @php
+            $podeEditar = in_array(auth('admin')->user()->nivelAdmin, ['prata', 'ouro']);
+        @endphp
 
-    <div id="pesquisas" class="d-flex flex-wrap gap-3 mb-4">
-        <input id="pesquisado" type="text" class="form-control w-auto"
-            placeholder="Pesquisar por ID, título ou usuário">
+        <div id="pesquisas" class="d-flex flex-wrap gap-3 mb-4">
+            <input id="pesquisado" type="text" class="form-control w-auto"
+                placeholder="Pesquisar por ID, título ou usuário">
 
-        <select id="filtroTipo" class="form-select w-auto">
-            <option value="">Todos os Tipos</option>
-        </select>
+            <select id="filtroTipo" class="form-select w-auto">
+                <option value="">Todos os Tipos</option>
+            </select>
 
-        <select id="filtroMes" class="form-select w-auto">
-            <option value="">Todos os Meses</option>
-            <option value="1">Janeiro</option>
-            <option value="2">Fevereiro</option>
-            <option value="3">Março</option>
-            <option value="4">Abril</option>
-            <option value="5">Maio</option>
-            <option value="6">Junho</option>
-            <option value="7">Julho</option>
-            <option value="8">Agosto</option>
-            <option value="9">Setembro</option>
-            <option value="10">Outubro</option>
-            <option value="11">Novembro</option>
-            <option value="12">Dezembro</option>
-        </select>
+            <select id="filtroMes" class="form-select w-auto">
+                <option value="">Todos os Meses</option>
+                <option value="1">Janeiro</option>
+                <option value="2">Fevereiro</option>
+                <option value="3">Março</option>
+                <option value="4">Abril</option>
+                <option value="5">Maio</option>
+                <option value="6">Junho</option>
+                <option value="7">Julho</option>
+                <option value="8">Agosto</option>
+                <option value="9">Setembro</option>
+                <option value="10">Outubro</option>
+                <option value="11">Novembro</option>
+                <option value="12">Dezembro</option>
+            </select>
+        </div>
+
+        <div id="lista-ocorrencias"></div>
+
+        <div class="botoesFinais">
+            <a href="{{ route('adm.dashboard.index') }}" class="link-btn">
+                <div id="btnVoltar" class="botao mt-4">Voltar ao Painel</div>
+            </a>
+            <a href="{{ route('adm.ocorrencia.denuncia') }}" class="link-btn">
+                <div id="btnVoltar" class="botao mt-4">Denuncias</div>
+            </a>
+        </div>
     </div>
-
-    <div id="lista-ocorrencias"></div>
-
-    <div class="botoesFinais">
-        <a href="{{ route('adm.dashboard.index') }}" class="link-btn">
-            <div id="btnVoltar" class="botao mt-4">Voltar ao Painel</div>
-        </a>
-        <a href="{{ route('adm.ocorrencia.denuncia') }}" class="link-btn">
-            <div id="btnVoltar" class="botao mt-4">Denuncias</div>
-        </a>
-    </div>
-</div>
 
 <script>
-document.addEventListener('DOMContentLoaded', function () {
+document.addEventListener("DOMContentLoaded", function () {
 
     const ocorrencias = @json($ocorrencias);
     const podeEditar = @json($podeEditar);
 
-    const container = document.getElementById('lista-ocorrencias');
-    const inputPesquisa = document.getElementById('pesquisado');
-    const filtroTipo = document.getElementById('filtroTipo');
-    const filtroMes = document.getElementById('filtroMes');
+    const container = document.getElementById("lista-ocorrencias");
+    const inputPesquisa = document.getElementById("pesquisado");
+    const filtroTipo = document.getElementById("filtroTipo");
+    const filtroMes = document.getElementById("filtroMes");
 
-    const tiposUnicos = [...new Set(ocorrencias.map(o => o.tipo || 'Não informado'))];
+    let paginaAtual = 1;
+    const itensPorPagina = 10;
+    let filtradas = [];
+
+    const tiposUnicos = [...new Set(ocorrencias.map(o => o.tipo || "Não informado"))];
     tiposUnicos.forEach(t => {
-        const opt = document.createElement('option');
+        const opt = document.createElement("option");
         opt.value = t;
         opt.textContent = t;
         filtroTipo.appendChild(opt);
     });
 
-    function renderTabela() {
-
+    function aplicarFiltros() {
         const termo = inputPesquisa.value.toLowerCase();
         const tipoSelecionado = filtroTipo.value;
         const mesSelecionado = filtroMes.value;
 
-        const filtradas = ocorrencias.filter(o => {
-
+        filtradas = ocorrencias.filter(o => {
             const id = String(o.id).toLowerCase();
-            const titulo = (o.titulo || '').toLowerCase();
-            const usuario = (o.usuario?.nome || '').toLowerCase();
+            const titulo = (o.titulo || "").toLowerCase();
+            const usuario = (o.usuario?.nome || "").toLowerCase();
+            const tipo = o.tipo || "Não informado";
 
-            const tipo = o.tipo || 'Não informado';
             const dataAco = o.dataAcontecimento ? new Date(o.dataAcontecimento) : null;
             const mes = dataAco ? dataAco.getMonth() + 1 : null;
 
@@ -89,76 +91,87 @@ document.addEventListener('DOMContentLoaded', function () {
                 (!mesSelecionado || mes === Number(mesSelecionado))
             );
         });
+    }
 
-        container.innerHTML = '';
+    function criarBotao(texto, pagina, ativo = false, disabled = false) {
+        const btn = document.createElement("button");
+
+        btn.type = "button";
+        btn.textContent = texto;
+
+        btn.style.padding = "8px 14px";
+        btn.style.borderRadius = "6px";
+        btn.style.border = "none";
+        btn.style.background = ativo ? "#2ecc71" : "#111";
+        btn.style.color = "#fff";
+        btn.style.opacity = disabled ? 0.5 : 1;
+        btn.style.cursor = disabled ? "default" : "pointer";
+
+        if (!disabled && pagina !== null) {
+            btn.addEventListener("click", () => {
+                paginaAtual = pagina;
+                renderTabela();
+            });
+        }
+
+        return btn;
+    }
+
+    function renderTabela() {
+        aplicarFiltros();
+
+        paginaAtual = Math.min(paginaAtual, Math.ceil(filtradas.length / itensPorPagina) || 1);
+
+        container.innerHTML = "";
 
         if (filtradas.length === 0) {
-            container.innerHTML = '<div class="alert alert-warning">Nenhuma ocorrência encontrada.</div>';
+            container.innerHTML = `<div class="alert alert-warning">Nenhuma ocorrência encontrada.</div>`;
             return;
         }
 
-        const table = document.createElement('table');
-        table.classList.add('table', 'table-striped', 'table-bordered', 'text-center', 'align-middle');
+        const totalPaginas = Math.ceil(filtradas.length / itensPorPagina);
 
-        const thead = document.createElement('thead');
-        thead.innerHTML = `
-        <tr>
-            <th>ID</th>
-            <th>Título</th>
-            <th>Usuário</th>
-            <th>Tipo</th>
-            <th>Data Postagem</th>
-            <th>Data Acontecimento</th>
-            <th>Latitude</th>
-            <th>Longitude</th>
-            <th>Descrição</th>
-            <th>Status</th>
-            ${podeEditar ? '<th></th><th></th>' : ''}
-        </tr>
+        const inicio = (paginaAtual - 1) * itensPorPagina;
+        const dadosPagina = filtradas.slice(inicio, inicio + itensPorPagina);
+
+        const table = document.createElement("table");
+        table.classList.add("table", "table-bordered", "table-striped", "text-center");
+
+        table.innerHTML = `
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Título</th>
+                    <th>Usuário</th>
+                    <th>Tipo</th>
+                    <th>Data Postagem</th>
+                    <th>Data Acontecimento</th>
+                    <th>Latitude</th>
+                    <th>Longitude</th>
+                    <th>Descrição</th>
+                    <th>Status</th>
+                    ${podeEditar ? "<th></th><th></th>" : ""}
+                </tr>
+            </thead>
         `;
 
-        table.appendChild(thead);
+        const tbody = document.createElement("tbody");
 
-        const tbody = document.createElement('tbody');
-
-        filtradas.forEach(o => {
-
+        dadosPagina.forEach(o => {
             const formatter = new Intl.DateTimeFormat("pt-BR", {
-                day: "2-digit",
-                month: "2-digit",
-                year: "numeric",
-                hour: "2-digit",
-                minute: "2-digit",
-                second: "2-digit"
+                day: "2-digit", month: "2-digit", year: "numeric",
+                hour: "2-digit", minute: "2-digit", second: "2-digit"
             });
 
-        const dataP = o.dataPostagem ? formatter.format(new Date(o.dataPostagem)) : '-';
-        const dataA = o.dataAcontecimento ? formatter.format(new Date(o.dataAcontecimento)) : '-';
+            const dataP = o.dataPostagem ? formatter.format(new Date(o.dataPostagem)) : "-";
+            const dataA = o.dataAcontecimento ? formatter.format(new Date(o.dataAcontecimento)) : "-";
 
+            const tr = document.createElement("tr");
 
-            const btns = podeEditar ? `
-                
-                <td>
-                    <a href="/adm/ocorrencias/${o.id}" class="btn btn-sm btn-warning">
-                        <i class="fa-solid fa-pencil btn-alterar"></i>
-                    </a>
-                </td>
-                <td>
-                    <form action="/adm/ocorrencias/excluir/${o.id}" method="POST" onsubmit="return confirm('Tem certeza?');">
-                        @csrf
-                        @method('PUT')
-                        <button type="submit" class="btn btn-sm btn-danger">
-                            <i class="fa-solid fa-trash-can"></i>
-                        </button>
-                    </form>
-                </td>
-            ` : '';
-
-            const tr = document.createElement('tr');
             tr.innerHTML = `
                 <td>${o.id}</td>
                 <td>${o.titulo}</td>
-                <td>${o.usuario?.nome || '-'}</td>
+                <td>${o.usuario?.nome || "-"}</td>
                 <td>${o.tipo}</td>
                 <td>${dataP}</td>
                 <td>${dataA}</td>
@@ -166,7 +179,23 @@ document.addEventListener('DOMContentLoaded', function () {
                 <td>${o.longitude}</td>
                 <td>${o.descricao}</td>
                 <td>${o.status}</td>
-                ${btns}
+
+                ${podeEditar ? `
+                    <td>
+                        <a href="/adm/ocorrencias/${o.id}" class="btn btn-warning btn-sm">
+                            <i class="fa-solid fa-pencil"></i>
+                        </a>
+                    </td>
+                    <td>
+                        <form action="/adm/ocorrencias/excluir/${o.id}" method="POST" onsubmit="return confirm('Tem certeza?');">
+                            @csrf
+                            @method('PUT')
+                            <button class="btn btn-danger btn-sm">
+                                <i class="fa-solid fa-trash-can"></i>
+                            </button>
+                        </form>
+                    </td>
+                ` : ""}
             `;
 
             tbody.appendChild(tr);
@@ -174,14 +203,83 @@ document.addEventListener('DOMContentLoaded', function () {
 
         table.appendChild(tbody);
         container.appendChild(table);
+
+        renderPaginacao(totalPaginas);
     }
 
-    inputPesquisa.addEventListener('input', renderTabela);
-    filtroTipo.addEventListener('change', renderTabela);
-    filtroMes.addEventListener('change', renderTabela);
+    function renderPaginacao(totalPaginas) {
+        const existente = container.querySelector(".pagination-wrapper");
+        if (existente) existente.remove();
+
+        if (totalPaginas <= 1) return;
+
+        const wrapper = document.createElement("div");
+        wrapper.classList.add("pagination-wrapper");
+        wrapper.style.display = "flex";
+        wrapper.style.justifyContent = "center";
+        wrapper.style.alignItems = "center";
+        wrapper.style.gap = "8px";
+        wrapper.style.marginTop = "20px";
+
+        wrapper.appendChild(criarBotao("‹", paginaAtual - 1, false, paginaAtual === 1));
+
+        const maxButtons = 5;
+        let start = Math.max(1, paginaAtual - 2);
+        let end = Math.min(totalPaginas, start + maxButtons - 1);
+
+        if (end - start < maxButtons - 1) {
+            start = Math.max(1, end - maxButtons + 1);
+        }
+
+        if (start > 1) {
+            wrapper.appendChild(criarBotao("1", 1));
+        }
+
+        if (start > 2) {
+            const span = document.createElement("span");
+            span.textContent = "...";
+            span.style.color = "#fff";
+            wrapper.appendChild(span);
+        }
+
+        for (let i = start; i <= end; i++) {
+            wrapper.appendChild(
+                criarBotao(i, i, i === paginaAtual)
+            );
+        }
+
+        if (end < totalPaginas - 1) {
+            const span = document.createElement("span");
+            span.textContent = "...";
+            span.style.color = "#fff";
+            wrapper.appendChild(span);
+        }
+
+        if (end < totalPaginas) {
+            wrapper.appendChild(criarBotao(totalPaginas, totalPaginas));
+        }
+
+        wrapper.appendChild(criarBotao("›", paginaAtual + 1, false, paginaAtual === totalPaginas));
+
+        container.appendChild(wrapper);
+    }
+
+    inputPesquisa.addEventListener("input", () => {
+        paginaAtual = 1;
+        renderTabela();
+    });
+
+    filtroTipo.addEventListener("change", () => {
+        paginaAtual = 1;
+        renderTabela();
+    });
+
+    filtroMes.addEventListener("change", () => {
+        paginaAtual = 1;
+        renderTabela();
+    });
 
     renderTabela();
-
 });
 </script>
 

@@ -7,6 +7,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import UrlService from '../../services/UrlService';
 import { TextInputMask } from 'react-native-masked-text';
 import { useTheme } from "../../services/themes/themecontext";
+import Feather from '@expo/vector-icons/Feather';
 
 const CadastroScreen = ({ navigation }) => {
 
@@ -18,7 +19,17 @@ const CadastroScreen = ({ navigation }) => {
   const [telefone, setTelefone] = useState('');
   const [senha, setSenha] = useState('');
   const [senhaConfirma, setSenhaConfirma] = useState('');
-  
+  const [viewPass, setViewPass] = useState(true)
+  const [viewPassConfirma, setViewPassConfirma] = useState(true)
+
+  function onViewPass() {
+    setViewPass(!viewPass)
+  }
+
+  function onViewPassConfirmar() {
+    setViewPassConfirma(!viewPassConfirma)
+  }
+
   const regexTelefone = /^(?:\+55\s?)?(?:\(?\d{2}\)?\s?)?(?:9?\d{4}-?\d{4})$/;
   const regexEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -202,28 +213,45 @@ const CadastroScreen = ({ navigation }) => {
         <View style={styles.grupoInput}>
           <Text style={[styles.rotulo, { color: theme.text }]}>Senha</Text>
           {erroSenha ? <Text style={styles.erro}>{erroSenha}</Text> : null}
-          <TextInput
-            style={[styles.input, { backgroundColor: theme.input, borderColor: theme.border, color: theme.text }]}
-            secureTextEntry
-            placeholder="Digite sua senha..."
-            placeholderTextColor={theme.textSecondary}
-            value={senha}
-            onChangeText={setSenha}
-          />
+          <View style={{ flexDirection: "row", alignItems: "center" }}>
+            <TextInput
+              style={[styles.input, { backgroundColor: theme.input, borderColor: theme.border, color: theme.text }]}
+
+              value={senha}
+              placeholder="Digite sua senha..."
+              placeholderTextColor={theme.textSecondary}
+              secureTextEntry={viewPass}
+              onChangeText={setSenha}
+              // keyboardType={typeKeyBoard}
+            />
+
+            <TouchableOpacity onPress={onViewPass} style={{ marginLeft: -35 }}>
+              {viewPass == true && <Feather name="eye" size={24} color="black" />}
+              {viewPass == false && <Feather name="eye-off" size={24} color="black" />}
+            </TouchableOpacity>
+
+          </View>
         </View>
 
         {/* CONFIRMAR SENHA */}
         <View style={styles.grupoInput}>
           <Text style={[styles.rotulo, { color: theme.text }]}>Confirmar Senha</Text>
           {erroSenhaConfirma ? <Text style={styles.erro}>{erroSenhaConfirma}</Text> : null}
-          <TextInput
-            style={[styles.input, { backgroundColor: theme.input, borderColor: theme.border, color: theme.text }]}
-            secureTextEntry
-            placeholder="Confirme a senha..."
-            placeholderTextColor={theme.textSecondary}
-            value={senhaConfirma}
-            onChangeText={setSenhaConfirma}
-          />
+          <View style={{ flexDirection: "row", alignItems: "center" }}>
+            <TextInput
+              style={[styles.input, { backgroundColor: theme.input, borderColor: theme.border, color: theme.text }]}
+              placeholder="Confirme a senha..."
+              placeholderTextColor={theme.textSecondary}
+              value={senhaConfirma}
+              secureTextEntry={viewPassConfirma}
+              onChangeText={setSenhaConfirma}
+            />
+
+            <TouchableOpacity onPress={onViewPassConfirmar} style={{ marginLeft: -35 }}>
+              {viewPassConfirma == true && <Feather name="eye" size={24} color="black" />}
+              {viewPassConfirma == false && <Feather name="eye-off" size={24} color="black" />}
+            </TouchableOpacity>
+          </View>
         </View>
 
         {/* GÊNERO */}

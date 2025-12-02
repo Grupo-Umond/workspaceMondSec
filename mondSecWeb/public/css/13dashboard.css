@@ -80,9 +80,10 @@ header nav a {
   border-radius: 8px;
 }
 .itens_nav_btns a.active {
-  color: blue;
+  color: white;
+  /* border: 1px solid blue; */
   transform: translateX(5px);
-  box-shadow: 0px 0px 3px 0.5px;
+  box-shadow: 0px 0px 3px 0.5px blue;
   background: rgba(255, 255, 255, 0.06);
 }
 
@@ -307,6 +308,10 @@ tbody i {
 
 .parteCima {
   height: 40vh;
+}
+
+#textoGrafico {
+  font-size: 2rem;
 }
 
 @media (max-width: 1024px) {

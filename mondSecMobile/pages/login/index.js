@@ -4,6 +4,7 @@ import { AuthContext } from '../../services/AuthContext';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { useTheme } from "../../services/themes/themecontext";
 import UrlService from '../../services/UrlService';
+import Feather from '@expo/vector-icons/Feather';
 
 const LoginScreen = ({ navigation, route }) => {
 
@@ -18,9 +19,13 @@ const LoginScreen = ({ navigation, route }) => {
 
   const mensagem = route.params?.mensagem;
   const [sucessMessage, setSucessMessage] = useState(mensagem);
+  const [viewPass, setViewPass] = useState(true)
 
   const { theme, isDarkMode } = useTheme();
 
+  function onViewPass() {
+    setViewPass(!viewPass)
+  }
   // ----------------------------- VALIDAR CAMPOS ------------------------------
   const validarDados = () => {
     setSucessMessage('');
@@ -201,18 +206,15 @@ const LoginScreen = ({ navigation, route }) => {
               ]}
               placeholder="Digite sua senha..."
               placeholderTextColor={theme.textSecondary}
-              secureTextEntry={!mostrarSenha}
+              secureTextEntry={viewPass}
               onChangeText={setSenha}
             />
 
-            <TouchableOpacity onPress={() => setMostrarSenha(!mostrarSenha)}>
-              <FontAwesome
-                name={mostrarSenha ? "eye-slash" : "eye"}
-                size={22}
-                color={theme.text}
-                style={{ marginLeft: 10, marginBottom: 10 }}
-              />
+            <TouchableOpacity onPress={onViewPass} style={{ marginLeft: -35 }}>
+              {viewPass == true && <Feather name="eye" size={24} color="black" />}
+              {viewPass == false && <Feather name="eye-off" size={24} color="black" />}
             </TouchableOpacity>
+
           </View>
         </View>
 
