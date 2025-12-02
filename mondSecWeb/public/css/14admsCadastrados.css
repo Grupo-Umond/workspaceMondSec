@@ -281,7 +281,7 @@ tbody i {
 }
 
 .parteCima {
-  padding: 0% 0% 30% 0%;
+  padding: 0% 0% 0% 0%;
 }
 
 .graficosOcorrencia {
@@ -364,11 +364,13 @@ tbody i {
 #filtroGenero,
 #pesquisado,
 #filtroTipo,
+#filtroStatus,
 #pesquisaComentario,
 #filtroMes {
   padding: 1% 2% 1% 1%;
   border: 1px solid black;
   border-radius: 5px;
+  background-color: white;
 }
 
 #fecharDenuncia {

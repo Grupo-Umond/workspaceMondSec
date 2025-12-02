@@ -3,32 +3,35 @@
 @section('title', 'Admins')
 
 @section('content')
+
+<style>
+    .filtros {
+        display: flex;
+    }
+</style>
     <div class="container py-5">
-        <div class="parteCima">
-
-            <h1 class="mb-4">Admins Cadastrados</h1>
-
+        <div class="parteFiltros">
+        <h1 class="mb-4">Admins Cadastrados</h1>
+        
+        <div id="pesquisas" class="d-flex flex-wrap gap-3 mb-4">
+            
             {{-- FILTRO DE STATUS --}}
             <select id="filtroStatus" class="form-select w-auto">
                 <option value="">Todos os status</option>
                 <option value="ativo">Ativo</option>
                 <option value="inativo">Inativo</option>
             </select>
+                        {{-- PESQUISA --}}
+                        <input id="pesquisaAdmin" type="text" class="form-control w-auto"
+                            placeholder="Pesquisar por nome, e-mail ou ID">
 
-        </div>
-
-        <div id="pesquisas" class="d-flex flex-wrap gap-3 mb-4">
-
-            {{-- PESQUISA --}}
-            <input id="pesquisaAdmin" type="text" class="form-control w-auto"
-                placeholder="Pesquisar por nome, e-mail ou ID">
-
-            {{-- FILTRO DE NÍVEL --}}
-            <select id="filtroNivel" class="form-select w-auto">
-                <option value="">Todos os níveis</option>
-            </select>
-
-        </div>
+                            {{-- FILTRO DE NÍVEL --}}
+                            <select id="filtroNivel" class="form-select w-auto">
+                                <option value="">Todos os níveis</option>
+                            </select>
+                    </div>
+</div>
+</div>
 
         {{-- LISTA RENDERIZADA PELO JS --}}
         <div id="lista-admins"></div>
@@ -70,7 +73,7 @@
                 btn.style.padding = "8px 14px";
                 btn.style.borderRadius = "6px";
                 btn.style.border = "none";
-                btn.style.background = ativo ? "#2ecc71" : "#111";
+                btn.style.background = ativo ? "#888888" : "#111";
                 btn.style.color = "#fff";
                 btn.style.opacity = disabled ? 0.5 : 1;
                 btn.style.cursor = disabled ? "default" : "pointer";

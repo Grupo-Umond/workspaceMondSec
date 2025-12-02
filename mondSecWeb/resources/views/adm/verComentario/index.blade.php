@@ -45,7 +45,7 @@ document.addEventListener('DOMContentLoaded', function () {
         btn.style.padding = "8px 14px";
         btn.style.border = "none";
         btn.style.borderRadius = "6px";
-        btn.style.background = ativo ? "#2ecc71" : "#111";
+        btn.style.background = ativo ? "#888888" : "#111";
         btn.style.color = "#fff";
         btn.style.opacity = disabled ? 0.5 : 1;
         btn.style.cursor = disabled ? "default" : "pointer";

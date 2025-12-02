@@ -65,7 +65,7 @@
                 btn.style.padding = "8px 14px";
                 btn.style.borderRadius = "6px";
                 btn.style.border = "none";
-                btn.style.background = ativo ? "#2ecc71" : "#111";
+                btn.style.background = ativo ? "#888888" : "#111";
                 btn.style.color = "#fff";
                 btn.style.opacity = disabled ? 0.5 : 1;
                 btn.style.cursor = disabled ? "default" : "pointer";
@@ -168,7 +168,7 @@
                 thead.innerHTML = `
                     <tr>
                         <th>ID</th><th>Nome</th><th>Email</th><th>Telefone</th>
-                        <th>Token Expo</th><th>Gênero</th><th>Data</th><th>Status</th>
+                        <th>Gênero</th><th>Data</th><th>Status</th>
                         ${podeEditar ? '<th>Ação</th>' : ''}
                     </tr>
                 `;
@@ -209,7 +209,6 @@
                         <td>${u.nome}</td>
                         <td>${u.email}</td>
                         <td>${u.telefone || '-'}</td>
-                        <td>${u.tokenExpo}</td>
                         <td>${u.genero || '-'}</td>
                         <td>${u.data ? new Intl.DateTimeFormat("pt-BR", {
                             day: "2-digit", month: "2-digit", year: "numeric",

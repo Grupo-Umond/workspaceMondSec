@@ -13,7 +13,7 @@ export async function RotaService(origem, destino, avoidPolygons) {
     console.log("BODY ROTA ===>", JSON.stringify(body, null, 2));
 
     const response = await axios.post(
-      "http://192.168.15.5:3000/rota",
+      "http://192.168.100.33:3000/rota",
       body,
       {
         headers: {
