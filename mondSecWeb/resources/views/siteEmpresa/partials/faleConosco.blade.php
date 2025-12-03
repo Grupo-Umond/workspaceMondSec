@@ -59,3 +59,15 @@
         </div>
     </div>
 </section>
+
+<script>
+    document.getElementById('contatoForm').addEventListener('submit', function(e) {
+        alert('Mensagem enviada!');
+    });
+</script>
+
+@if(session('success'))
+    <script>
+        alert('{{ session('success') }}');
+    </script>
+@endif

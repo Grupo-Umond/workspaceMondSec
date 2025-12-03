@@ -3,6 +3,11 @@
 @section('title', 'Usuários')
 
 @section('content')
+<style>
+    #btn-certo i {
+        color: green;
+    }
+</style>
     <div class="container py-5">
 
         @php
@@ -183,20 +188,22 @@
                         if (u.status === 'inativo') {
                             btns = `
                                 <form action="/adm/users/reativar/${u.id}" method="POST"
-                                    onsubmit="return confirm('Reativar usuário?');">
+                                    onsubmit="return confirm('Tem certeza que deseja ativar esse usuário?');">
                                     @csrf
                                     @method('PUT')
-                                    <button type="submit" class="btn btn-sm btn-success">Ativar</button>
+                                    <button type="submit" class="btn btn-sm btn-success" id="btn-certo">
+                                        <i class="fa-solid fa-check"></i>
+                                    </button>
                                 </form>
                             `;
                         } else {
                             btns = `
                                 <form action="/adm/users/excluir/${u.id}" method="POST"
-                                    onsubmit="return confirm('Excluir usuário?');">
+                                    onsubmit="return confirm('Tem certeza que deseja inativar esse usuário?');">
                                     @csrf
                                     @method('PUT')
                                     <button type="submit" class="btn btn-sm btn-danger">
-                                        <i class="fa-solid fa-trash-can"></i>
+                                        <i class="fa-solid fa-ban"></i>
                                     </button>
                                 </form>
                             `;

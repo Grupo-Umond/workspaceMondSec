@@ -8,6 +8,9 @@
     .filtros {
         display: flex;
     }
+    #btn-certo i {
+        color: green;
+    }
 </style>
     <div class="container py-5">
         <div class="parteFiltros">
@@ -221,21 +224,21 @@
                                 a.status === "inativo"
                                     ? `
                                         <form action="/adm/admins/reativar/${a.id}" method="POST"
-                                              onsubmit="return confirm('Tem certeza que quer reativar?');">
+                                              onsubmit="return confirm('Tem certeza que deseja ativar esse adiministrador?');">
                                             @csrf
                                             @method('PUT')
-                                            <button type="submit" class="btn btn-sm btn-success">
-                                                Ativar
+                                            <button type="submit" class="btn btn-sm btn-success" id="btn-certo">
+                                                <i class="fa-solid fa-check"></i>
                                             </button>
                                         </form>
                                       `
                                     : `
                                         <form action="/adm/admins/excluir/${a.id}" method="POST"
-                                              onsubmit="return confirm('Tem certeza que quer excluir?');">
+                                              onsubmit="return confirm('Tem certeza que deseja inativar esse adiministrador?');">
                                             @csrf
                                             @method('PUT')
                                             <button type="submit" class="btn btn-sm btn-danger">
-                                                <i class="fa-solid fa-trash-can"></i>
+                                                <i class="fa-solid fa-ban"></i>
                                             </button>
                                         </form>
                                       `

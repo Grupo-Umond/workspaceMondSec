@@ -2,7 +2,7 @@ import axios from "axios";
 
 export async function CoordenadaService(address) {
   const api = axios.create({
-        baseURL: 'http://192.168.100.33:3000',
+        baseURL: 'http://192.168.0.26:3000',
 
 
   });
