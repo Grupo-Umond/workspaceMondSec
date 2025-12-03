@@ -30,6 +30,7 @@
             <option value="">Todos os Status</option>
             <option value="ativo">Ativo</option>
             <option value="inativo">Inativo</option>
+            <option value="denunciado">Denunciado</option>
         </select>
 
         <select id="filtroMes" class="form-select w-auto">

@@ -62,7 +62,9 @@ const OptionButton = useMemo(
             {
               backgroundColor: isDanger
                 ? theme.danger + "22"
-                : theme.border + "33",
+                : theme.background, // fundo sólido
+              borderWidth: 1, // borda visível
+              borderColor: isDanger ? theme.danger : theme.border, // borda colorida
               opacity: pressed ? 0.8 : 1,
             },
           ]}
@@ -74,7 +76,6 @@ const OptionButton = useMemo(
               color={isDanger ? theme.danger : theme.primary}
               style={styles.iconeOpcao}
             />
-
             <Text
               style={[
                 styles.textoOpcao,
@@ -306,12 +307,6 @@ const OptionButton = useMemo(
                   key={imageUri} // 🔑 KEY CRÍTICA - força novo componente
                 />
               </Pressable>
-              
-              {imageLoading && (
-                <View style={styles.loadingOverlay}>
-                  <Text style={{ color: '#fff', fontSize: 12 }}>Enviando...</Text>
-                </View>
-              )}
             </View>
 
             <Pressable

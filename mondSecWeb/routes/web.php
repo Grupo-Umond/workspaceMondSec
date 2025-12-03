@@ -60,7 +60,9 @@ Route::prefix('adm')
             Route::get('/denuncias/ocorrencia','showDenunciaOcorrenciaScreen')->name('ocorrencia.denuncia');
             Route::get('/ocorrencias/selecionada/{id}','ocorrenciaSelecionada')->name('ocorrencia.selecionada');
             Route::put('/ocorrencias/reativar/{id}', 'reativarOcorrencia')->name('ocorrencia.restaurar');
+            Route::put('/ocorrencias/aprovar/{id}','aprovarOcorrencia')->name('ocorrencia.aprovar');
 
+            Route::put('/ocorrencias/negar/{id}','negarOcorrencia')->name('ocorrencia.negar');
 
             //Comentario
             Route::get('/cometarios', 'showComentarioScreen')->name('comentario.index');
@@ -73,9 +75,9 @@ Route::prefix('adm')
 
             Route::get('/comentarios/espera', 'pendentes')->name('comentario.espera');
 
-            Route::put('/comentario/aprovar/{id}','aprovar')->name('comentario.aprovar');
+            Route::put('/comentario/aprovar/{id}','aprovarComentario')->name('comentario.aprovar');
 
-            Route::put('/comentario/negar/{id}','negar')->name('comentario.negar');
+            Route::put('/comentario/negar/{id}','negarComentario')->name('comentario.negar');
 
 
 

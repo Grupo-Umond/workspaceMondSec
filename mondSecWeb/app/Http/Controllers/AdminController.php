@@ -312,6 +312,23 @@ class AdminController extends Controller
         return response()->json($o);
     }
 
+    public function aprovarOcorrencia($id)
+    {
+        $ocorrencia = Ocorrencia::findOrFail($id);
+        $ocorrencia->status = 'ativo';
+        $ocorrencia->save();
+
+        return back()->with('success', 'Ocorrencia aprovado com sucesso!');
+    }
+
+    public function negarOcorrencia($id)
+    {
+        $ocorrencia = Ocorrencia::findOrFail($id);
+        $ocorrencia->status = 'inativo';
+        $ocorrencia->save();
+
+        return back()->with('success', 'Ocorrencia negado!');
+    }
     // =======================
     //  COMENTARIOS
     // =======================
@@ -335,7 +352,7 @@ class AdminController extends Controller
         return view('adm.verComentario.espera', compact('comentarios'));
     }
 
-    public function aprovar($id)
+    public function aprovarComentario($id)
     {
         $comentario = Comentario::findOrFail($id);
         $comentario->status = 'ativo';
@@ -344,7 +361,7 @@ class AdminController extends Controller
         return back()->with('success', 'Comentário aprovado com sucesso!');
     }
 
-    public function negar($id)
+    public function negarComentario($id)
     {
         $comentario = Comentario::findOrFail($id);
         $comentario->status = 'negado';

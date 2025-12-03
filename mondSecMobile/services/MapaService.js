@@ -109,7 +109,11 @@ const [endereco, setEndereco] = useState(null);
       try {
         const list = await buscarOcorrencias();
         if (!Array.isArray(list)) return;
-        setOcorrencias(list);
+
+      // filtra apenas ativas
+      const filtradas = list.filter(o => o.status === 'ativo' || o.status === 'denunciado');
+      setOcorrencias(filtradas);
+
       } catch (e) {
         console.warn('Erro ao puxar ocorrências:', e);
       }
@@ -262,24 +266,25 @@ const [endereco, setEndereco] = useState(null);
     }
   };
 
-  const denunciarOcorrencia = async (id) => {
-    try {
-      const idc = id ?? (selectedOcorrencia?.id ?? selectedOcorrencia?._id);
+    const denunciarOcorrencia = async (id) => {
+      try {
+        const idc = id ?? (selectedOcorrencia?.id ?? selectedOcorrencia?._id);
 
-      if (!idc) {
-        Alert.alert('Erro', 'Ocorrência inválida para denúncia.');
-        return;
+        if (!idc) {
+          Alert.alert('Erro', 'Ocorrência inválida para denúncia.');
+          return;
+        }
+
+        await UrlService.put(`/ocorrencia/denuncia/${idc}`);
+
+        setModalDenuncia(false);
+        Alert.alert('Denúncia enviada', 'Sua denúncia foi registrada.');
+      } catch (e) {
+        console.warn('Erro ao denunciar:', e);
+        Alert.alert('Erro', 'Não foi possível denunciar a ocorrência.');
       }
+    };
 
-      await UrlService.put(`/ocorrencia/denuncia/${idc}`);
-
-      setModalDenuncia(false);
-      Alert.alert('Denúncia enviada', 'Sua denúncia foi registrada.');
-    } catch (e) {
-      console.warn('Erro ao denunciar:', e);
-      Alert.alert('Erro', 'Não foi possível denunciar a ocorrência.');
-    }
-  };
 
   const encerrandoRota = () => {
     setInicio('');
@@ -381,7 +386,7 @@ const [endereco, setEndereco] = useState(null);
             coordinates={p.rings[0]}
             strokeColor="#0A84FF"
             fillColor="rgba(10,132,255,0.12)"
-            strokeWidth={2}
+            strokeWidth={1}
           />
         ))}
 
@@ -429,24 +434,10 @@ const [endereco, setEndereco] = useState(null);
            
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', backgroundColor: isDarkMode ? '#0c2946ff' : '#012E61', paddingHorizontal: 20, paddingVertical: 14 }}>
               <Text style={{ fontSize: 19, fontWeight: '700', color: '#FFF', flex: 1 }}>
-                Ocorrència 
+                Ocorrência 
               </Text>
               
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-                {/* BOTÃO DENUNCIAR */}
-                <TouchableOpacity 
-                  onPress={() => setModalDenuncia(true)}
-                  style={{
-                    paddingHorizontal: 12,
-                    paddingVertical: 6,
-                    backgroundColor: 'rgba(255,0,0,0.2)',
-                    borderRadius: 8,
-                    borderWidth: 1,
-                    borderColor: 'rgba(255,255,255,0.3)',
-                  }}
-                >
-                  <Text style={{ color: '#FFF', fontSize: 12, fontWeight: '600' }}>Denunciar</Text>
-                </TouchableOpacity>
 
                 {/* BOTÃO FECHAR */}
                 <TouchableOpacity style={{ width: 32, height: 32, borderRadius: 16, backgroundColor: 'rgba(255,255,255,0.15)', justifyContent: 'center', alignItems: 'center' }} onPress={fecharModal}>
@@ -480,7 +471,7 @@ const [endereco, setEndereco] = useState(null);
                   return (
                 
 
-                    <ScrollView style={{ flex: 1, paddingHorizontal: 20, paddingVertical: 16 }} showsVerticalScrollIndicator={false}>
+                    <ScrollView contentContainerStyle={{ paddingBottom: 40 }} style={{ flex: 1, paddingHorizontal: 20, paddingVertical: 16 }} showsVerticalScrollIndicator={false}>
                       
                       {/* INFORMAÇÕES DA OCORRÊNCIA PABLO  */}
                       <View style={{ marginBottom: 24, backgroundColor: isDarkMode ? '#1C1C1E' : '#FFFFFF', padding: 14, borderRadius: 10, borderWidth: 1, borderColor: isDarkMode ? '#3A3A3C' : '#E5E8ED' }}>
@@ -600,7 +591,25 @@ const [endereco, setEndereco] = useState(null);
                             )}
                           </ScrollView>
                         )}
+                        
                       </View>
+                                      {/* BOTÃO DENUNCIAR */}
+                <TouchableOpacity 
+                  onPress={() => {
+                    setSelectedOcorrencia(item);
+                    setModalDenuncia(true);
+                  }}
+                  style={{
+                    paddingHorizontal: 12,
+                    paddingVertical: 6,
+                    backgroundColor: 'rgba(212, 55, 55, 0.75)',
+                    borderRadius: 8,
+                    borderWidth: 1,
+                    borderColor: 'rgba(255,255,255,0.3)',
+                  }}
+                >
+                  <Text style={{ color: '#FFF', fontSize: 12, fontWeight: '600' }}>Denunciar esta ocorrência</Text>
+                </TouchableOpacity>
                     </ScrollView>
                   );
                 }}
@@ -685,7 +694,7 @@ const [endereco, setEndereco] = useState(null);
                 
                 <Pressable 
                   onPress={() => {
-                    denunciarOcorrencia(selectedOcorrencia?.id ?? selectedOcorrencia?._id);
+                    denunciarOcorrencia();
                     setModalDenuncia(false);
                   }} 
                   style={{ 
@@ -1241,27 +1250,27 @@ const styles = StyleSheet.create({
   },
 
   markerImage: {
-    width: 40,
-    height: 40,
+    width: 30,
+    height: 30,
     resizeMode: 'contain',
   },
 
   badge: {
     position: 'absolute',
-    right: -1,
-    top: -6,
-    minWidth: 22,
-    height: 22,
+    right: 9,
+    top: 0,
+    minWidth: 10,
+    height: 13,
     borderRadius: 11,
     alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: 5,
+    paddingHorizontal: 3,
     borderWidth: 1,
     borderColor: '#fff',
   },
 
   badgeText: {
-    fontSize: 12,
+    fontSize: 8,
     color: '#000',
     fontWeight: '700',
   },

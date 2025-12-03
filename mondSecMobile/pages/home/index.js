@@ -368,7 +368,7 @@ const getCoordFinal = async () => {
           ]}
         >
           <Text style={[styles.textoBotaoFechar, { color: theme.text }]}>
-            ×
+            X
           </Text>
         </Pressable>
       </View>
@@ -852,15 +852,14 @@ legendaButton: {
   botaoFecharModalRota: {
     padding: 8,
     borderRadius: 20,
-    width: 36,
-    height: 36,
+    width: 35,
+    height: 35,
     justifyContent: "center",
     alignItems: "center",
   },
   textoBotaoFechar: {
-    fontSize: 24,
-    fontWeight: "300",
-    lineHeight: 24,
+    fontSize: 13,
+    fontWeight: "500",
   },
 
   // CONTEÚDO MODAL ROTA

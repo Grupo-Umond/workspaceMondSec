@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from "react";
-import { View, Text, TextInput, Pressable, StyleSheet, TouchableOpacity, Image } from 'react-native';
+import { View, Text, TextInput, Pressable, StyleSheet, TouchableOpacity, Image, Modal } from 'react-native';
 import { AuthContext } from '../../services/AuthContext';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { useTheme } from "../../services/themes/themecontext";
@@ -228,7 +228,28 @@ const LoginScreen = ({ navigation, route }) => {
         </View>
 
         {erroMessage ? <Text style={styles.erro}>{erroMessage}</Text> : null}
-        {sucessMessage ? <Text style={styles.sucess}>{sucessMessage}</Text> : null}
+        {sucessMessage && (
+          <Modal
+            transparent={true}
+            animationType="fade"
+            visible={true}
+            onRequestClose={() => setSucessMessage(null)}
+          >
+            <View style={styles.modalOverlay}>
+              <View style={styles.modalContent}>
+                <Text style={styles.modalTitulo}>Sucesso!</Text>
+                <Text style={styles.modalMensagem}>{sucessMessage}</Text>
+
+                <TouchableOpacity
+                  style={styles.modalBotao}
+                  onPress={() => setSucessMessage(null)}
+                >
+                  <Text style={styles.modalBotaoTexto}>OK</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </Modal>
+        )}
 
         {/* BOTÃO LOGIN */}
         <TouchableOpacity
@@ -389,6 +410,46 @@ const styles = StyleSheet.create({
   destaqueLinkCadastro: {
     fontWeight: '600',
   },
+  modalOverlay: {
+  flex: 1,
+  justifyContent: "center",
+  alignItems: "center",
+  backgroundColor: "rgba(0, 0, 0, 0.5)",
+},
+
+modalContent: {
+  width: "80%",
+  backgroundColor: "#fff",
+  padding: 20,
+  borderRadius: 12,
+  alignItems: "center",
+  elevation: 10,
+},
+
+modalTitulo: {
+  fontSize: 20,
+  fontWeight: "700",
+  marginBottom: 10,
+},
+
+modalMensagem: {
+  fontSize: 16,
+  textAlign: "center",
+  marginBottom: 20,
+},
+
+modalBotao: {
+  backgroundColor: "#4CAF50",
+  paddingVertical: 10,
+  paddingHorizontal: 20,
+  borderRadius: 10,
+},
+
+modalBotaoTexto: {
+  color: "#fff",
+  fontSize: 16,
+  fontWeight: "600",
+},
 });
 
 export default LoginScreen;

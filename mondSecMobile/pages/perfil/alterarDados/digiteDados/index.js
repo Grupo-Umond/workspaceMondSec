@@ -312,8 +312,8 @@ const styles = StyleSheet.create({
   },
 
   radio: {
-    width: 15,
-    height: 15,
+    width: 10,
+    height: 10,
     borderWidth: 1,
     borderRadius: 10,
     marginRight: 4,
