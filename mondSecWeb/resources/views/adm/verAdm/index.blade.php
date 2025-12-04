@@ -8,7 +8,6 @@
 
             <h1 class="mb-4">Admins Cadastrados</h1>
 
-            {{-- FILTRO DE STATUS --}}
             <select id="filtroStatus" class="form-select w-auto">
                 <option value="">Todos os status</option>
                 <option value="ativo">Ativo</option>

@@ -16,7 +16,7 @@ class ComentarioController extends Controller
             return response()->json([], 400);
         }
 
-        $comentarios = Comentario::where('idOcorrencia', $idOcorrencia)
+        $comentarios = Comentario::where('status','ativo')->where('idOcorrencia', $idOcorrencia)
             ->with(['usuario:id,nome,email'])
             ->orderBy('data', 'desc')
             ->get()

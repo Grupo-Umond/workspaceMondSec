@@ -2,7 +2,7 @@ import axios from "axios";
 
 export async function EnderecoService(lat, lon) {
   const api = axios.create({
-    baseURL: 'http://192.168.15.5:3000',
+    baseURL: 'http://192.168.15.116:3000',
 
   });
   try {

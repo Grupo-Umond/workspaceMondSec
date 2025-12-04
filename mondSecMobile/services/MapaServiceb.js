@@ -1,5 +1,3 @@
-// Código ajustado: melhorias básicas, comentários e logs adicionados automaticamente
-
 import React, {
   useRef,
   useState,
@@ -26,8 +24,6 @@ import {
   Animated,
 } from 'react-native';
 import MapView, { Polygon, Marker, Polyline } from 'react-native-maps';
-import { MaterialIcons as Icon } from '@expo/vector-icons';
-
 import * as Location from 'expo-location';
 import OccurrenceCarousel from './MapaZonaLeste/OccurrenceCarousel.js';
 import { parseGeoJSON } from './MapaZonaLeste/geojsonParser.service';
@@ -81,7 +77,6 @@ const [endereco, setEndereco] = useState(null);
   const { theme, isDarkMode } = useTheme();
 
   useEffect(() => {
-    console.log('useEffect iniciado');
     (async () => {
       try {
         const { status } = await Location.requestForegroundPermissionsAsync();
@@ -144,12 +139,19 @@ const [endereco, setEndereco] = useState(null);
 
   const openSheet = () => {
     setVisible(true);
-    
+    Animated.timing(slideAnim, {
+      toValue: 1,
+      duration: 300,
+      useNativeDriver: true,
+    }).start();
   };
 
   const closeSheet = () => {
-    setVisible(false);
-    setRotaCoords('');
+    Animated.timing(slideAnim, {
+      toValue: 0,
+      duration: 250,
+      useNativeDriver: true,
+    }).start(() => setVisible(false));
   };
 
   const translateY = slideAnim.interpolate({
@@ -279,7 +281,12 @@ const [endereco, setEndereco] = useState(null);
     }
   };
 
-
+  const encerrandoRota = () => {
+    setInicio('');
+    setFim('');
+    setRotaCoords([]);
+    closeSheet();
+  };
 
   const enviarComentario = async () => {
     const texto = (mensagemComentario || '').trim();
@@ -307,7 +314,8 @@ const [endereco, setEndereco] = useState(null);
           ...novo,
           data: novo.data ? novo.data : new Date().toISOString(),
         };
-        
+        setComentarios((prev) => [normalized, ...(prev || [])]);
+        setMensagemComentario('');
         setShowComentarios(false);
       } else {
         const recarregado = await carregarComentarios(idOc);
@@ -347,7 +355,6 @@ const [endereco, setEndereco] = useState(null);
         edgePadding: { top: 80, bottom: 80, left: 80, right: 80 },
         animated: true,
       });
-      openSheet();
     },
   }));
 
@@ -408,8 +415,7 @@ const [endereco, setEndereco] = useState(null);
         })}
 
         {rotaCoords.length > 0 && (
-          <><Polyline coordinates={rotaCoords} strokeWidth={6} strokeColor="#2bff00b9" /><Polyline coordinates={rotaCoords} strokeWidth={10} strokeColor="#34b819b9" /></>
-
+          <Polyline coordinates={rotaCoords} strokeWidth={5} strokeColor="#2bff00b9" />
         )}
       </MapView>
 
@@ -890,14 +896,7 @@ const [endereco, setEndereco] = useState(null);
           </View>
         </Modal>
       )}
-      {visible && (
-          <Pressable
-            style={[styles.ocorrenciaBt]}
-            onPress={() => closeSheet()}
-          >
-            <Icon name="close" size={24} color="#FFF" />
-          </Pressable>
-        )}
+
       
     </>
   );
@@ -995,11 +994,7 @@ const styles = StyleSheet.create({
     color: '#333',
     marginTop: 4,
   },
-    ocorrenciaBt: {
-    position: "absolute", bottom: 100, left:20,
-    backgroundColor: "#ff000098",
-    padding: 15, borderRadius: 50,
-  },
+
   infoData: {
     fontSize: 13,
     fontWeight: '600',

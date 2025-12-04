@@ -49,8 +49,23 @@
                                 Ver
                             </button>
 
-                            <a href="#" class="btn btn-success btn-sm">Aprovar</a>
-                            <a href="#" class="btn btn-warning btn-sm">Arquivar</a>
+                                <form method="POST" action="{{ route('adm.ocorrencia.aprovar', $c->id) }}">
+                                    @csrf
+                                    @method('PUT')
+                                    <button class="btn btn-success w-100" onclick="return confirm('Aprovar este comentário?')">
+                                        Aprovar
+                                    </button>
+                                </form>
+                            </td>
+
+                            <td>
+                                <form method="POST" action="{{ route('adm.ocorrencia.negar', $c->id) }}">
+                                    @csrf
+                                    @method('PUT')
+                                    <button class="btn btn-danger w-100" onclick="return confirm('Negar este comentário?')">
+                                        Negar
+                                    </button>
+                                </form>
                         </td>
                     </tr>
                 @empty

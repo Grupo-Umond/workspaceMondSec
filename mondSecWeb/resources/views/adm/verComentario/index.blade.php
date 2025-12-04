@@ -25,6 +25,10 @@
     @endphp
 
     <div id="lista-comentarios"></div>
+    <div class="botoesFinais">
+               <a href="{{ route('adm.comentario.espera') }}" class="btn btn-outline-primary mt-3">Comentarios em Espera</a>
+
+        </div>
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
