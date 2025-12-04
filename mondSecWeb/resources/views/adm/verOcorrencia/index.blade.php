@@ -3,6 +3,12 @@
 @section('title', 'Ocorrências Cadastradas')
 
 @section('content')
+<style>
+    #btn-certo i {
+        color: green;
+    }
+</style>
+
 <div class="container py-5">
 
     <h1 class="mb-4 text-center">Ocorrências Cadastradas</h1>
@@ -24,6 +30,7 @@
             <option value="">Todos os Status</option>
             <option value="ativo">Ativo</option>
             <option value="inativo">Inativo</option>
+            <option value="denunciado">Denunciado</option>
         </select>
 
         <select id="filtroMes" class="form-select w-auto">
@@ -116,7 +123,7 @@ document.addEventListener("DOMContentLoaded", function () {
         btn.style.padding = "8px 14px";
         btn.style.borderRadius = "6px";
         btn.style.border = "none";
-        btn.style.background = ativo ? "#2ecc71" : "#111";
+        btn.style.background = ativo ? "#888888" : "#111";
         btn.style.color = "#fff";
         btn.style.opacity = disabled ? 0.5 : 1;
         btn.style.cursor = disabled ? "default" : "pointer";
@@ -206,18 +213,20 @@ document.addEventListener("DOMContentLoaded", function () {
                         ${
                             o.status === "inativo"
                             ? `
-                                <form action="/adm/ocorrencias/reativar/${o.id}" method="POST" onsubmit="return confirm('Tem certeza?');">
+                                <form action="/adm/ocorrencias/reativar/${o.id}" method="POST" onsubmit="return confirm('Tem certeza que deseja ativar essa ocorrência?');">
                                     @csrf
                                     @method('PUT')
-                                    <button type="submit" class="btn btn-success btn-sm">Ativar</button>
+                                    <button type="submit" class="btn btn-success btn-sm" id="btn-certo">
+                                        <i class="fa-solid fa-check"></i>
+                                    </button>
                                 </form>
                               `
                             : `
-                                <form action="/adm/ocorrencias/excluir/${o.id}" method="POST" onsubmit="return confirm('Tem certeza?');">
+                                <form action="/adm/ocorrencias/excluir/${o.id}" method="POST" onsubmit="return confirm('Tem certeza que deseja inativar essa ocorrência?');">
                                     @csrf
                                     @method('PUT')
                                     <button type="submit" class="btn btn-danger btn-sm">
-                                        <i class="fa-solid fa-trash-can"></i>
+                                        <i class="fa-solid fa-ban"></i>
                                     </button>
                                 </form>
                               `

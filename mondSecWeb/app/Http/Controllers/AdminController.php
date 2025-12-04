@@ -324,7 +324,8 @@ class AdminController extends Controller
     public function negarOcorrencia($id)
     {
         $ocorrencia = Ocorrencia::findOrFail($id);
-        $ocorrencia->status = 'negado';
+
+        $ocorrencia->status = 'inativo';
         $ocorrencia->save();
 
         return back()->with('success', 'Ocorrencia negado!');

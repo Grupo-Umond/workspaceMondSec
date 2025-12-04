@@ -52,6 +52,7 @@ const CadastroScreen = ({ navigation }) => {
   const [errosLista, setErrosLista] = useState([]);
 
   const opcoesGenero = ['Masculino', 'Feminino', 'Prefiro não informar'];
+  
 
   // VALIDAR SENHA EM TEMPO REAL
   useEffect(() => {
@@ -127,7 +128,15 @@ const CadastroScreen = ({ navigation }) => {
       });
 
       const mensagem = response.data.mensagem;
-      navigation.navigate('Foto', { mensagem });
+      navigation.navigate("Foto", {
+        mensagem,
+        nome,
+        email,
+        telefone,
+        senha,
+        genero
+      });
+
 
     } catch (erro) {
       console.log(erro);
@@ -153,6 +162,19 @@ const CadastroScreen = ({ navigation }) => {
 
   return (
 
+  <SafeAreaView style={{ flex: 1, backgroundColor: theme.background }}>
+
+  <KeyboardAvoidingView
+    style={[{flex: 1, backgroundColor: theme.background }]}
+    behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+    keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}>
+
+    <ScrollView 
+      style={[styles.scrollView, { backgroundColor: theme.background }]}
+      showsVerticalScrollIndicator={false}
+      contentContainerStyle={styles.scrollContent}
+      keyboardShouldPersistTaps="handled">
+
     <View style={[styles.container, { backgroundColor: theme.background }]}>
 
       {/* HEADER */}
@@ -166,12 +188,8 @@ const CadastroScreen = ({ navigation }) => {
       </View>
 
 
-        <ScrollView 
-          style={styles.scrollView}
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={styles.scrollContent}
-          keyboardShouldPersistTaps="handled"
-        >
+
+
           {/* LOGO */}
           <View style={styles.containerLogo}>
             <Image
@@ -341,20 +359,22 @@ const CadastroScreen = ({ navigation }) => {
             </Pressable>
 
           </View>
+          </View>
         </ScrollView>
-      </View>
+
+        </KeyboardAvoidingView>
+        </SafeAreaView>
+        
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
   },
   safeArea: {
     flex: 1,
   },
   scrollView: {
-    flex: 1,
   },
   scrollContent: {
     flexGrow: 1,

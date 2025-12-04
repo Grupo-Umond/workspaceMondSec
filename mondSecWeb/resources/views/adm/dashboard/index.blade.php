@@ -128,7 +128,7 @@
         {{-- Pizza --}}
         <div class="col-md-6">
             <div class="card-custom chart-card">
-                <h5 class="text-center mb-3" id="textoGrafico">Distribuição de Ocorrências (Pizza)</h5>
+                <h5 class="text-center mb-3" id="textoGrafico">Distribuição de Ocorrências (Donut)</h5>
                 <div id="chartOcorrenciasPizza"></div>
             </div>
         </div>

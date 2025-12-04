@@ -14,6 +14,7 @@ export async function RotaService(origem, destino, avoidPolygons) {
 
     const response = await axios.post(
       "http://192.168.15.116:3000/rota",
+
       body,
       {
         headers: {

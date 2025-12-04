@@ -71,7 +71,7 @@ class EmailController extends Controller
             Mail::to($to)->send(new ContatoMail($request->all()));
 
             Log::info('[EmailController@enviar] mail enviado com sucesso.');
-            return back()->with('success', 'Mensagem enviada com sucesso!');
+            return redirect()->back()->with('success', 'Mensagem enviada!');
         } catch (\Exception $e) {
             Log::error('[EmailController@enviar] erro ao enviar mail', ['exception' => $e->getMessage()]);
             return back()->with('error', 'Erro ao enviar mensagem: ' . $e->getMessage());

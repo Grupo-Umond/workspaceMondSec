@@ -3,6 +3,11 @@
 @section('title', 'Usuários')
 
 @section('content')
+<style>
+    #btn-certo i {
+        color: green;
+    }
+</style>
     <div class="container py-5">
 
         @php
@@ -65,7 +70,7 @@
                 btn.style.padding = "8px 14px";
                 btn.style.borderRadius = "6px";
                 btn.style.border = "none";
-                btn.style.background = ativo ? "#2ecc71" : "#111";
+                btn.style.background = ativo ? "#888888" : "#111";
                 btn.style.color = "#fff";
                 btn.style.opacity = disabled ? 0.5 : 1;
                 btn.style.cursor = disabled ? "default" : "pointer";
@@ -168,7 +173,7 @@
                 thead.innerHTML = `
                     <tr>
                         <th>ID</th><th>Nome</th><th>Email</th><th>Telefone</th>
-                        <th>Token Expo</th><th>Gênero</th><th>Data</th><th>Status</th>
+                        <th>Gênero</th><th>Data</th><th>Status</th>
                         ${podeEditar ? '<th>Ação</th>' : ''}
                     </tr>
                 `;
@@ -183,20 +188,22 @@
                         if (u.status === 'inativo') {
                             btns = `
                                 <form action="/adm/users/reativar/${u.id}" method="POST"
-                                    onsubmit="return confirm('Reativar usuário?');">
+                                    onsubmit="return confirm('Tem certeza que deseja ativar esse usuário?');">
                                     @csrf
                                     @method('PUT')
-                                    <button type="submit" class="btn btn-sm btn-success">Ativar</button>
+                                    <button type="submit" class="btn btn-sm btn-success" id="btn-certo">
+                                        <i class="fa-solid fa-check"></i>
+                                    </button>
                                 </form>
                             `;
                         } else {
                             btns = `
                                 <form action="/adm/users/excluir/${u.id}" method="POST"
-                                    onsubmit="return confirm('Excluir usuário?');">
+                                    onsubmit="return confirm('Tem certeza que deseja inativar esse usuário?');">
                                     @csrf
                                     @method('PUT')
                                     <button type="submit" class="btn btn-sm btn-danger">
-                                        <i class="fa-solid fa-trash-can"></i>
+                                        <i class="fa-solid fa-ban"></i>
                                     </button>
                                 </form>
                             `;
@@ -209,7 +216,6 @@
                         <td>${u.nome}</td>
                         <td>${u.email}</td>
                         <td>${u.telefone || '-'}</td>
-                        <td>${u.tokenExpo}</td>
                         <td>${u.genero || '-'}</td>
                         <td>${u.data ? new Intl.DateTimeFormat("pt-BR", {
                             day: "2-digit", month: "2-digit", year: "numeric",

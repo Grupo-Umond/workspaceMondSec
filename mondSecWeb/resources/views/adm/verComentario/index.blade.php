@@ -3,6 +3,11 @@
 @section('title', 'Comentários')
 
 @section('content')
+<style>
+    #btn-certo i {
+        color: green;
+    }
+</style>
 <div class="container py-5">
 
     <h1 class="mb-4 text-center">Comentários Registrados</h1>
@@ -49,7 +54,7 @@ document.addEventListener('DOMContentLoaded', function () {
         btn.style.padding = "8px 14px";
         btn.style.border = "none";
         btn.style.borderRadius = "6px";
-        btn.style.background = ativo ? "#2ecc71" : "#111";
+        btn.style.background = ativo ? "#888888" : "#111";
         btn.style.color = "#fff";
         btn.style.opacity = disabled ? 0.5 : 1;
         btn.style.cursor = disabled ? "default" : "pointer";
@@ -175,11 +180,11 @@ document.addEventListener('DOMContentLoaded', function () {
                     btns = `
                         <td>
                             <form action="/adm/comentario/reativar/${c.id}" method="POST" 
-                                onsubmit="return confirm('Tem certeza que quer reativar?');">
+                                onsubmit="return confirm('Tem certeza que deseja ativar esse comentário?');">
                                 @csrf
                                 @method('PUT')
-                                <button type="submit" class="btn btn-sm btn-success">
-                                    Ativar
+                                <button type="submit" class="btn btn-sm btn-success" id="btn-certo">
+                                    <i class="fa-solid fa-check"></i>
                                 </button>
                             </form>
                         </td>
@@ -188,11 +193,11 @@ document.addEventListener('DOMContentLoaded', function () {
                     btns = `
                         <td>
                             <form action="/adm/comentario/excluir/${c.id}" method="POST" 
-                                onsubmit="return confirm('Tem certeza que quer excluir?');">
+                                onsubmit="return confirm('Tem certeza que deseja inativar esse comentário?');">
                                 @csrf
                                 @method('PUT')
                                 <button type="submit" class="btn btn-sm btn-danger">
-                                    <i class="fa-solid fa-trash-can"></i>
+                                    <i class="fa-solid fa-ban"></i>
                                 </button>
                             </form>
                         </td>
