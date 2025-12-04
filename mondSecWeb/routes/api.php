@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UsuarioController;
 use App\Http\Controllers\DBController;
@@ -9,23 +10,29 @@ use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\CodigoController;
 use App\Http\Controllers\ComentarioController;
 use App\Http\Controllers\EmailController;
+
+// ======================= USUÁRIO =======================
 Route::prefix('usuario')
     ->name('usuario.')
     ->controller(UsuarioController::class)
     ->group(function () {
+        // Rotas públicas
         Route::post('/cadastrar', 'store')->withoutMiddleware('auth:api')->name('cadastrar');
         Route::post('/login', 'login')->withoutMiddleware('auth:api')->name('login');
         Route::post('/checkcampo','check')->withoutMiddleware('auth:api')->name('check');
         Route::put('/alterar', 'updateSenha')->withoutMiddleware('auth:api')->name('alterarSenha');
         Route::get('/verificar','tapodendo')->withoutMiddleware('auth:api')->name('verificar');
+
+        // Rotas autenticadas
         Route::middleware('auth:api')->group(function () {
             Route::get('/buscar', 'buscarUsuario')->name('buscar');
             Route::put('/update', 'updateUsuario')->name('update');
-            Route::put('/deletar', 'delete')->name('deletar');
-            Route::post('/upload', 'upload')->name('upload');
+            Route::put('/deletar','delete')->name('deletar');
+            Route::post('/uploadFoto', 'uploadFoto')->name('uploadFoto'); // upload de foto autenticado
         });
     });
 
+// ======================= OCORRÊNCIAS =======================
 Route::prefix('ocorrencia')
     ->name('ocorrencia.')
     ->controller(OcorrenciaController::class)
@@ -37,6 +44,7 @@ Route::prefix('ocorrencia')
         Route::put('/denuncia/{id}','denunciando')->name('denuncia');
     });
 
+// ======================= CÓDIGO / EMAIL =======================
 Route::prefix('codigo')
     ->name('codigo.')
     ->controller(EmailController::class)
@@ -45,7 +53,6 @@ Route::prefix('codigo')
         Route::post('/sendSms', 'sendCodeSms')->name('sms.public');
         Route::post('/verify', 'verifyCode')->name('verificar.public');
     });
-
 
 Route::prefix('codigo/auth')
     ->name('codigo.auth.')
@@ -56,6 +63,8 @@ Route::prefix('codigo/auth')
         Route::post('/sendSms', 'sendCodeSms')->name('sms');
         Route::post('/verify', 'verifyCode')->name('verificar');
     });
+
+// ======================= NOTIFICAÇÕES =======================
 Route::prefix('notificacao')
     ->name('notificacao.')
     ->controller(NotificationController::class)
@@ -65,14 +74,14 @@ Route::prefix('notificacao')
         Route::post('/token', 'salvar')->name('token');
     });
 
+// ======================= COMENTÁRIOS =======================
 Route::prefix('comentario')
-    ->name('notificacao')
-    ->controller(ComentarioController::class)->middleware('auth:api')
+    ->name('comentario.')
+    ->controller(ComentarioController::class)
+    ->middleware('auth:api')
     ->group(function (){
         Route::get('/comentarios/{idOcorrencia}', 'getByOcorrencia');
         Route::post('/comentarios', 'store');
         Route::put('/atualizar','upleite');
         Route::put('/excluir','delete');
 });
-
-

@@ -200,50 +200,70 @@ class UsuarioController extends Controller
 
 
 
-    public function upload(Request $request)
-{
+   public function uploadFoto(Request $request) {
     $request->validate([
-        'foto' => 'required|image|max:2048',
+        'foto' => 'required|image|max:2048'
     ]);
 
-    $usuario = $request->user();
+    $file = $request->file('foto');
+    $nome = time().'_'.$file->getClientOriginalName();
+    
+    // Salva no storage
+    $caminho = $file->storeAs('public/fotos', $nome);
+    
+    // Converte caminho para URL acessível
+    $urlPublica = Storage::url($caminho);
+    
+    $usuario = auth()->user();
+    $usuario->foto = $urlPublica; // Isso salva como '/storage/fotos/...'
+    $usuario->save();
 
-    if ($request->hasFile('foto')) {
-        // Deleta foto anterior se existir
-        if ($usuario->foto && Storage::exists(str_replace('/storage', 'public', $usuario->foto))) {
-            Storage::delete(str_replace('/storage', 'public', $usuario->foto));
-        }
-
-        $path = $request->file('foto')->store('public/fotos');
-        $url = Storage::url($path);
-
-        $usuario->foto = $url;
-        $usuario->save();
-
-        return response()->json([
-            'success' => true,
-            'foto' => config('app.url') . Storage::url($path),
-        ]);
-    }
-
+    // Retorna a URL completa
+    $urlCompleta = asset(Storage::url($caminho)); // asset() gera URL completa
+    
     return response()->json([
-        'success' => false,
-        'message' => 'Nenhuma foto enviada',
+        'success' => true,
+        'foto' => $urlCompleta // URL completa: http://dominio.com/storage/fotos/...
     ]);
 }
 
+    // Adicione este método no UsuarioController.php
 public function buscarUsuario(Request $request)
 {
-    $usuario = $request->user();
-
-    if ($usuario->foto) {
-        $usuario->foto = config('app.url') . $usuario->foto;
+    try {
+        $usuario = $request->user();
+        
+        if (!$usuario) {
+            return response()->json(['error' => 'Usuário não autenticado'], 401);
+        }
+        
+        // Se tiver foto, converte para URL completa
+        $foto = $usuario->foto;
+        if ($foto && !str_starts_with($foto, 'http')) {
+            $foto = asset($foto); // Converte para URL completa
+        }
+        
+        return response()->json([
+            'usuario' => [
+                'id' => $usuario->id,
+                'nome' => $usuario->nome,
+                'email' => $usuario->email,
+                'telefone' => $usuario->telefone,
+                'genero' => $usuario->genero,
+                'foto' => $foto, // URL completa
+                'status' => $usuario->status,
+                'data' => $usuario->data,
+            ]
+        ]);
+        
+    } catch (\Exception $e) {
+        return response()->json([
+            'error' => 'Erro ao buscar usuário',
+            'message' => $e->getMessage()
+        ], 500);
     }
-
-    return response()->json([
-        'usuario' => $usuario
-    ]);
 }
+
 
 }
 

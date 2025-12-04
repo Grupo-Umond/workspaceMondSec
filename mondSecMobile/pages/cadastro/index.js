@@ -52,6 +52,7 @@ const CadastroScreen = ({ navigation }) => {
   const [errosLista, setErrosLista] = useState([]);
 
   const opcoesGenero = ['Masculino', 'Feminino', 'Prefiro não informar'];
+  
 
   // VALIDAR SENHA EM TEMPO REAL
   useEffect(() => {
@@ -127,7 +128,15 @@ const CadastroScreen = ({ navigation }) => {
       });
 
       const mensagem = response.data.mensagem;
-      navigation.navigate('Foto', { mensagem });
+      navigation.navigate("Foto", {
+        mensagem,
+        nome,
+        email,
+        telefone,
+        senha,
+        genero
+      });
+
 
     } catch (erro) {
       console.log(erro);

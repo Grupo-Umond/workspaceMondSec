@@ -17,15 +17,19 @@ const LoginScreen = ({ navigation, route }) => {
   const [mostrarSenha, setMostrarSenha] = useState(false);
   const { logar } = useContext(AuthContext);
 
+  // Recebe mensagem e fotoRecente da tela anterior
   const mensagem = route.params?.mensagem;
+  const fotoRecente = route.params?.fotoRecente;
+
   const [sucessMessage, setSucessMessage] = useState(mensagem);
-  const [viewPass, setViewPass] = useState(true)
+  const [viewPass, setViewPass] = useState(true);
 
   const { theme, isDarkMode } = useTheme();
 
   function onViewPass() {
-    setViewPass(!viewPass)
+    setViewPass(!viewPass);
   }
+
   // ----------------------------- VALIDAR CAMPOS ------------------------------
   const validarDados = () => {
     setSucessMessage('');
@@ -62,7 +66,6 @@ const LoginScreen = ({ navigation, route }) => {
         senha,
       });
 
-      // Verificação de resposta inesperada
       if (!response || !response.data) {
         setErroMessage("Resposta inesperada do servidor.");
         return;
@@ -76,13 +79,22 @@ const LoginScreen = ({ navigation, route }) => {
       }
 
       await logar(token);
-      navigation.navigate('Home');
+
+      // Navega para Menu, passando a fotoRecente se existir
+      navigation.reset({
+        index: 0,
+        routes: [
+          { 
+            name: "Menu", 
+            params: { fotoRecente: fotoRecente || null } 
+          }
+        ],
+      });
 
     } catch (err) {
 
       console.log("ERRO LOGIN:", err);
 
-      // ----------------- ERROS COMUNS DE REDE -----------------
       if (err.message === "Network Error") {
         setErroMessage("Falha de conexão. Verifique sua internet.");
         return;
@@ -93,7 +105,6 @@ const LoginScreen = ({ navigation, route }) => {
         return;
       }
 
-      // ----------------- ERROS DO SERVIDOR ---------------------
       const status = err.response?.status;
 
       if (status === 400) {
@@ -112,15 +123,9 @@ const LoginScreen = ({ navigation, route }) => {
         setErroMessage("Servidor indisponível no momento.");
       } else if (status === 505) {
         setErroMessage("Falha no servidor (505).");
-      }
-
-      // ----------------- ERRO SEM STATUS / DESCONHECIDO ---------
-      else if (!status) {
+      } else if (!status) {
         setErroMessage("Erro desconhecido. Tente novamente.");
-      }
-
-      // ----------------- FALLBACK FINAL -------------------------
-      else {
+      } else {
         setErroMessage("Ocorreu um erro inesperado.");
       }
 
@@ -134,55 +139,30 @@ const LoginScreen = ({ navigation, route }) => {
   return (
     <View style={[styles.container, { backgroundColor: theme.background }]}>
 
-      {/* FUNDO */}
       <View style={styles.containerFundo}>
-        <View style={[
-          styles.metadeFundo,
-          { backgroundColor: isDarkMode ? theme.cimaDark : "#12577B" }
-        ]} />
-
-        <View style={[
-          styles.metadeFundo,
-          { backgroundColor: isDarkMode ? theme.baixoDark : "#a9cfe5" }
-        ]} />
+        <View style={[styles.metadeFundo, { backgroundColor: isDarkMode ? theme.cimaDark : "#12577B" }]} />
+        <View style={[styles.metadeFundo, { backgroundColor: isDarkMode ? theme.baixoDark : "#a9cfe5" }]} />
       </View>
 
-      {/* CARD */}
-      <View style={[
-        styles.containerConteudo,
-        { backgroundColor: isDarkMode ? "#1a1a1a" : "whitesmoke" }
-      ]}>
+      <View style={[styles.containerConteudo, { backgroundColor: isDarkMode ? "#1a1a1a" : "whitesmoke" }]}>
 
         <View style={styles.logoContainer}>
           <Image
-            source={
-              isDarkMode
-                ? require("../../assets/logobrancaof.png")
-                : require("../../assets/mondSecLogo.png")
-            }
+            source={isDarkMode
+              ? require("../../assets/logobrancaof.png")
+              : require("../../assets/mondSecLogo.png")}
             style={styles.imagemLogo}
           />
         </View>
 
-        <Text style={[styles.textoBoasVindas, { color: theme.title }]}>
-          Bem-vindo à MondSec!
-        </Text>
-
-        <Text style={[styles.textoEntrar, { color: theme.title }]}>
-          Entrar
-        </Text>
+        <Text style={[styles.textoBoasVindas, { color: theme.title }]}>Bem-vindo à MondSec!</Text>
+        <Text style={[styles.textoEntrar, { color: theme.title }]}>Entrar</Text>
 
         {/* LOGIN */}
         <View style={styles.containerInput}>
           <Text style={[styles.rotulo, { color: theme.text }]}>Email</Text>
           <TextInput
-            style={[
-              styles.input,
-              {
-                borderBottomColor: theme.border,
-                color: theme.text
-              }
-            ]}
+            style={[styles.input, { borderBottomColor: theme.border, color: theme.text }]}
             placeholder="Digite seu email..."
             placeholderTextColor={theme.textSecondary}
             onChangeText={setLogin}
@@ -193,37 +173,24 @@ const LoginScreen = ({ navigation, route }) => {
         {/* SENHA */}
         <View style={styles.containerInput}>
           <Text style={[styles.rotulo, { color: theme.text }]}>Senha</Text>
-
           <View style={{ flexDirection: "row", alignItems: "center" }}>
             <TextInput
-              style={[
-                styles.input,
-                {
-                  borderBottomColor: theme.border,
-                  color: theme.text,
-                  flex: 1
-                }
-              ]}
+              style={[styles.input, { borderBottomColor: theme.border, color: theme.text, flex: 1 }]}
               placeholder="Digite sua senha..."
               placeholderTextColor={theme.textSecondary}
               secureTextEntry={viewPass}
               onChangeText={setSenha}
             />
-
             <TouchableOpacity onPress={onViewPass} style={{ marginLeft: -35 }}>
-              {viewPass == true && <Feather name="eye" size={24} color="black" />}
-              {viewPass == false && <Feather name="eye-off" size={24} color="black" />}
+              {viewPass ? <Feather name="eye" size={24} color="black" /> : <Feather name="eye-off" size={24} color="black" />}
             </TouchableOpacity>
-
           </View>
         </View>
 
         {/* OPÇÕES */}
         <View style={styles.linhaOpcoes}>
           <Pressable onPress={() => navigation.navigate('DigiteCampo')}>
-            <Text style={[styles.textoSenhaEsquecida, { color: theme.primary }]}>
-              Esqueceu a senha?
-            </Text>
+            <Text style={[styles.textoSenhaEsquecida, { color: theme.primary }]}>Esqueceu a senha?</Text>
           </Pressable>
         </View>
 
@@ -239,11 +206,7 @@ const LoginScreen = ({ navigation, route }) => {
               <View style={styles.modalContent}>
                 <Text style={styles.modalTitulo}>Sucesso!</Text>
                 <Text style={styles.modalMensagem}>{sucessMessage}</Text>
-
-                <TouchableOpacity
-                  style={styles.modalBotao}
-                  onPress={() => setSucessMessage(null)}
-                >
+                <TouchableOpacity style={styles.modalBotao} onPress={() => setSucessMessage(null)}>
                   <Text style={styles.modalBotaoTexto}>OK</Text>
                 </TouchableOpacity>
               </View>
@@ -253,10 +216,7 @@ const LoginScreen = ({ navigation, route }) => {
 
         {/* BOTÃO LOGIN */}
         <TouchableOpacity
-          style={[
-            styles.botaoLogin,
-            { backgroundColor: theme.buttonColor }
-          ]}
+          style={[styles.botaoLogin, { backgroundColor: theme.buttonColor }]}
           onPress={validarLogin}
           disabled={carregando}
         >
@@ -273,183 +233,47 @@ const LoginScreen = ({ navigation, route }) => {
         </View>
 
         {/* CADASTRO */}
-        <Pressable
-          style={styles.linkCadastro}
-          onPress={() => navigation.navigate('Cadastro')}
-        >
+        <Pressable style={styles.linkCadastro} onPress={() => navigation.navigate('Cadastro')}>
           <Text style={[styles.textoLinkCadastro, { color: theme.textSecondary }]}>
             Ainda não tem uma conta?
-            <Text style={[styles.destaqueLinkCadastro, { color: theme.primary }]}>
-              {" "}Cadastre-se
-            </Text>
+            <Text style={[styles.destaqueLinkCadastro, { color: theme.primary }]}> Cadastre-se</Text>
           </Text>
         </Pressable>
 
       </View>
-
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  containerFundo: {
-    position: 'absolute',
-    width: '100%',
-    height: '100%',
-    zIndex: 0,
-  },
-  metadeFundo: {
-    height: '50%',
-  },
-  containerConteudo: {
-    flex: 1,
-    paddingHorizontal: 20,
-    marginHorizontal: 25,
-    marginTop: 80,
-    marginBottom: 80,
-    zIndex: 1,
-    borderRadius: 10,
-    elevation: 3,
-    justifyContent: 'center',
-  },
-  logoContainer: {
-    alignSelf: 'center',
-    paddingVertical: 12,
-    paddingHorizontal: 30,
-    width: '80%'
-  },
-  imagemLogo: {
-    width: '100%',
-    height: 80,
-    resizeMode: 'contain'
-  },
-  textoBoasVindas: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    textAlign: 'center',
-    marginBottom: 20,
-    marginTop: 10,
-  },
-  textoEntrar: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    textAlign: 'center',
-    marginBottom: 20,
-  },
-  containerInput: {
-    marginBottom: 5,
-  },
-  rotulo: {
-    fontSize: 14,
-    fontWeight: '600',
-    marginBottom: -12,
-  },
-  input: {
-    width: '100%',
-    height: 60,
-    backgroundColor: 'transparent',
-    borderBottomWidth: 0.8,
-    fontSize: 16,
-  },
-  linhaOpcoes: {
-    flexDirection: 'row',
-    marginBottom: 20,
-  },
-  textoSenhaEsquecida: {
-    fontSize: 14,
-    fontWeight: '600',
-  },
-  erro: {
-    color: '#f00',
-    marginBottom: 10,
-    textAlign: 'center',
-    fontSize: 15,
-  },
-  sucess: {
-    color: '#008000',
-    marginBottom: 10,
-    textAlign: 'center',
-    fontSize: 15,
-  },
-  botaoLogin: {
-    width: '70%',
-    height: 45,
-    borderRadius: 20,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 15,
-    alignSelf: 'center',
-  },
-  textoBotaoLogin: {
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  divisor: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  linhaDivisor: {
-    flex: 1,
-    height: 1,
-  },
-  textoDivisor: {
-    fontSize: 14,
-    fontWeight: '600',
-    paddingHorizontal: 10,
-  },
-  linkCadastro: {
-    marginTop: 10,
-  },
-  textoLinkCadastro: {
-    fontSize: 14,
-    textAlign: 'center',
-  },
-  destaqueLinkCadastro: {
-    fontWeight: '600',
-  },
-  modalOverlay: {
-  flex: 1,
-  justifyContent: "center",
-  alignItems: "center",
-  backgroundColor: "rgba(0, 0, 0, 0.5)",
-},
-
-modalContent: {
-  width: "80%",
-  backgroundColor: "#fff",
-  padding: 20,
-  borderRadius: 12,
-  alignItems: "center",
-  elevation: 10,
-},
-
-modalTitulo: {
-  fontSize: 20,
-  fontWeight: "700",
-  marginBottom: 10,
-},
-
-modalMensagem: {
-  fontSize: 16,
-  textAlign: "center",
-  marginBottom: 20,
-},
-
-modalBotao: {
-  backgroundColor: "#4CAF50",
-  paddingVertical: 10,
-  paddingHorizontal: 20,
-  borderRadius: 10,
-},
-
-modalBotaoTexto: {
-  color: "#fff",
-  fontSize: 16,
-  fontWeight: "600",
-},
+  container: { flex: 1 },
+  containerFundo: { position: 'absolute', width: '100%', height: '100%', zIndex: 0 },
+  metadeFundo: { height: '50%' },
+  containerConteudo: { flex: 1, paddingHorizontal: 20, marginHorizontal: 25, marginTop: 80, marginBottom: 80, zIndex: 1, borderRadius: 10, elevation: 3, justifyContent: 'center' },
+  logoContainer: { alignSelf: 'center', paddingVertical: 12, paddingHorizontal: 30, width: '80%' },
+  imagemLogo: { width: '100%', height: 80, resizeMode: 'contain' },
+  textoBoasVindas: { fontSize: 16, fontWeight: 'bold', textAlign: 'center', marginBottom: 20, marginTop: 10 },
+  textoEntrar: { fontSize: 20, fontWeight: 'bold', textAlign: 'center', marginBottom: 20 },
+  containerInput: { marginBottom: 5 },
+  rotulo: { fontSize: 14, fontWeight: '600', marginBottom: -12 },
+  input: { width: '100%', height: 60, backgroundColor: 'transparent', borderBottomWidth: 0.8, fontSize: 16 },
+  linhaOpcoes: { flexDirection: 'row', marginBottom: 20 },
+  textoSenhaEsquecida: { fontSize: 14, fontWeight: '600' },
+  erro: { color: '#f00', marginBottom: 10, textAlign: 'center', fontSize: 15 },
+  botaoLogin: { width: '70%', height: 45, borderRadius: 20, justifyContent: 'center', alignItems: 'center', marginBottom: 15, alignSelf: 'center' },
+  textoBotaoLogin: { fontSize: 16, fontWeight: '600' },
+  divisor: { flexDirection: 'row', alignItems: 'center' },
+  linhaDivisor: { flex: 1, height: 1 },
+  textoDivisor: { fontSize: 14, fontWeight: '600', paddingHorizontal: 10 },
+  linkCadastro: { marginTop: 10 },
+  textoLinkCadastro: { fontSize: 14, textAlign: 'center' },
+  destaqueLinkCadastro: { fontWeight: '600' },
+  modalOverlay: { flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: "rgba(0, 0, 0, 0.5)" },
+  modalContent: { width: "80%", backgroundColor: "#fff", padding: 20, borderRadius: 12, alignItems: "center", elevation: 10 },
+  modalTitulo: { fontSize: 20, fontWeight: "700", marginBottom: 10 },
+  modalMensagem: { fontSize: 16, textAlign: "center", marginBottom: 20 },
+  modalBotao: { backgroundColor: "#4CAF50", paddingVertical: 10, paddingHorizontal: 20, borderRadius: 10 },
+  modalBotaoTexto: { color: "#fff", fontSize: 16, fontWeight: "600" },
 });
 
 export default LoginScreen;

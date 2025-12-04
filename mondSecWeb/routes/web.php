@@ -5,6 +5,7 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ContatoController;
 use App\Http\Controllers\EmailController;
+use App\Http\Controllers\UsuarioController;
 
 Route::get('/', function () {
     return view('siteEmpresa.index');
@@ -12,6 +13,9 @@ Route::get('/', function () {
 
 //Contato
 Route::post('/contato', [EmailController::class, 'enviar'])->name('email.enviar');
+
+Route::post('/usuario/upload', [UsuarioController::class, 'uploadFoto']);
+
 
 Route::get('/adm', function () {
     return view('adm.auth.cadastro');
