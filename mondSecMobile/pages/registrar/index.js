@@ -12,6 +12,8 @@ import {
   FlatList,
   ScrollView,
   Alert,
+  KeyboardAvoidingView, // Adicione esta linha
+  Platform, // Adicione esta linha
 } from 'react-native';
 
 import CheckBox from 'expo-checkbox';
@@ -392,343 +394,347 @@ const buscarCEP = async () => {
     return texto;
   };
 
-  return (
-    <View style={[styles.container, { backgroundColor: theme.background }]}>
-      <SafeAreaView style={{ backgroundColor: theme.navBackground }} />
+return (
+  <View style={{ flex: 1, backgroundColor: theme.background }}>
+    <SafeAreaView style={{ backgroundColor: theme.navBackground }} />
+    
+    <KeyboardAvoidingView
+      style={{ flex: 1 }}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
+    >
+      <View style={styles.container}>
+        {/* Cabeçalho */}
+        <View style={styles.cabecalho}>
+          <Pressable onPress={() => navigation.goBack()} style={styles.iconeCabecalho}>
+            <FontAwesome name="arrow-left" size={20} color={theme.title} />
+          </Pressable>
+          <Text style={[styles.tituloCabecalho, { color: theme.title }]}>
+            Registrar Ocorrência
+          </Text>
+        </View>
 
-      {/* Cabeçalho */}
-      <View style={styles.cabecalho}>
-        <Pressable onPress={() => navigation.goBack()} style={styles.iconeCabecalho}>
-          <FontAwesome name="arrow-left" size={20} color={theme.title} />
-        </Pressable>
-        <Text style={[styles.tituloCabecalho, { color: theme.title }]}>
-          Registrar Ocorrência
-        </Text>
-      </View>
+        {/* Formulário */}
+        <ScrollView 
+          showsVerticalScrollIndicator={false} 
+          keyboardShouldPersistTaps="handled"
+          contentContainerStyle={{ paddingBottom: 30 }}
+        >
+          <View style={[styles.form, { backgroundColor: theme.card }]}>
 
-      {/* Formulário */}
-      <ScrollView showsVerticalScrollIndicator={false}>
-        <View style={[styles.form, { backgroundColor: theme.card }]}>
-
-          {/* Título */}
-          <Text style={[styles.label, { color: theme.text }]}>Título</Text>
-          <TextInput
-            style={[styles.input, { backgroundColor: theme.inputBackground, color: theme.text, borderColor: theme.border }]}
-            placeholder="Digite o título..."
-            placeholderTextColor={theme.textSecondary}
-            value={titulo}
-            onChangeText={setTitulo}
-          />
-
-          {/* Tipo de ocorrência */}
-          <Text style={[styles.label, { color: theme.text }]}>Tipo</Text>
-          <TextInput
-            style={[styles.input, { backgroundColor: theme.inputBackground, color: theme.text, borderColor: theme.border }]}
-            placeholder="Pesquisar tipo..."
-            placeholderTextColor={theme.textSecondary}
-            value={buscaTipo}
-            onChangeText={texto => {
-              setBuscaTipo(texto);
-              setTipo(texto);
-              setDropdownAberto(true);
-            }}
-          />
-
-          {dropdownAberto && (
-            <View style={[styles.dropdown, { backgroundColor: theme.card, borderColor: theme.border }]}>
-              <FlatList
-                data={tiposFiltrados}
-                keyExtractor={(item, index) => index.toString()}
-                renderItem={({ item }) => (
-                  <TouchableOpacity
-                    style={[
-                      styles.item,
-                      item === tipo && { backgroundColor: theme.primary }
-                    ]}
-                    onPress={() => {
-                      setTipo(item);
-                      setBuscaTipo(item);
-                      setDropdownAberto(false);
-                    }}
-                  >
-                    <Text style={[
-                      styles.itemTexto,
-                      { color: item === tipo ? '#fff' : theme.text }
-                    ]}>
-                      {item}
-                    </Text>
-                  </TouchableOpacity>
-                )}
-              />
-            </View>
-          )}
-          <Text style={[styles.label, { color: theme.text }]}>CEP</Text>
-          <View style={{ flexDirection: "row", alignItems: "center" }}>
+            {/* Título */}
+            <Text style={[styles.label, { color: theme.text }]}>Título</Text>
             <TextInput
-              style={[
-                styles.input,
-                {
-                  flex: 1,
-                  backgroundColor: theme.inputBackground,
-                  borderColor: theme.border,
-                  color: theme.text
-                }
-              ]}
-              placeholder="Digite o CEP"
+              style={[styles.input, { backgroundColor: theme.inputBackground, color: theme.text, borderColor: theme.border }]}
+              placeholder="Digite o título..."
+              placeholderTextColor={theme.textSecondary}
+              value={titulo}
+              onChangeText={setTitulo}
+            />
+
+            {/* Tipo de ocorrência */}
+            <Text style={[styles.label, { color: theme.text }]}>Tipo</Text>
+            <TextInput
+              style={[styles.input, { backgroundColor: theme.inputBackground, color: theme.text, borderColor: theme.border }]}
+              placeholder="Pesquisar tipo..."
+              placeholderTextColor={theme.textSecondary}
+              value={buscaTipo}
+              onChangeText={texto => {
+                setBuscaTipo(texto);
+                setTipo(texto);
+                setDropdownAberto(true);
+              }}
+            />
+
+            {dropdownAberto && (
+              <View style={[styles.dropdown, { backgroundColor: theme.card, borderColor: theme.border }]}>
+                <FlatList
+                  data={tiposFiltrados}
+                  keyExtractor={(item, index) => index.toString()}
+                  renderItem={({ item }) => (
+                    <TouchableOpacity
+                      style={[
+                        styles.item,
+                        item === tipo && { backgroundColor: theme.primary }
+                      ]}
+                      onPress={() => {
+                        setTipo(item);
+                        setBuscaTipo(item);
+                        setDropdownAberto(false);
+                      }}
+                    >
+                      <Text style={[
+                        styles.itemTexto,
+                        { color: item === tipo ? '#fff' : theme.text }
+                      ]}>
+                        {item}
+                      </Text>
+                    </TouchableOpacity>
+                  )}
+                />
+              </View>
+            )}
+            
+            <Text style={[styles.label, { color: theme.text }]}>CEP</Text>
+            <View style={{ flexDirection: "row", alignItems: "center" }}>
+              <TextInput
+                style={[
+                  styles.input,
+                  {
+                    flex: 1,
+                    backgroundColor: theme.inputBackground,
+                    borderColor: theme.border,
+                    color: theme.text
+                  }
+                ]}
+                placeholder="Digite o CEP"
+                placeholderTextColor={theme.textSecondary}
+                keyboardType="numeric"
+                value={cep}
+                onChangeText={setCep}
+                onBlur={buscarCEP}
+              />
+
+              <TouchableOpacity
+                onPress={buscarCEP}
+                style={{
+                  marginLeft: 8,
+                  padding: 12,
+                  backgroundColor: theme.buttonColor,
+                  borderRadius: 10,
+                  alignSelf: 'flex-start', 
+                }}
+              >
+                {buscandoCep ? (
+                  <ActivityIndicator color="#fff" size={20} />
+                ) : (
+                  <FontAwesome name="search" size={20} color="#fff" />
+                )}
+              </TouchableOpacity>
+            </View>
+
+            {/* ENDEREÇO */}
+            <Text style={[styles.label, { color: theme.text }]}>Rua</Text>
+            <TextInput
+              style={[styles.input, { backgroundColor: theme.inputBackground, borderColor: theme.border, color: theme.text }]}
+              placeholder="Ex: Avenida Nordestina"
+              placeholderTextColor={theme.textSecondary}
+              value={rua}
+              onChangeText={setRua}
+            />
+
+            <Text style={[styles.label, { color: theme.text }]}>Número</Text>
+            <TextInput
+              style={[styles.input, { backgroundColor: theme.inputBackground, borderColor: theme.border, color: theme.text }]}
+              placeholder="Ex: 320"
               placeholderTextColor={theme.textSecondary}
               keyboardType="numeric"
-              value={cep}
-              onChangeText={setCep}
-              onBlur={buscarCEP} // Busca ao sair do campo
+              value={numero}
+              onChangeText={setNumero}
             />
 
-              {/* /// MEXI IMPORTANTE AQUI ANDRE */}
-            <TouchableOpacity
-  onPress={buscarCEP}
-  style={{
-    marginLeft: 8,
-    marginTop: 2, 
-    padding: 12,
-    backgroundColor: theme.buttonColor,
-    borderRadius: 10,
-    alignSelf: 'flex-start', 
-  }}
->
-  {buscandoCep ? (
-    <ActivityIndicator color="#fff" size={20} />
-  ) : (
-    <FontAwesome name="search" size={20} color="#fff" />
-  )}
-</TouchableOpacity>
+            <Text style={[styles.label, { color: theme.text }]}>Bairro</Text>
+            <TextInput
+              style={[styles.input, { backgroundColor: theme.inputBackground, borderColor: theme.border, color: theme.text }]}
+              placeholder="Ex: Guaianases"
+              placeholderTextColor={theme.textSecondary}
+              value={bairro}
+              onChangeText={setBairro}
+            />
 
-          </View>
+            <Text style={[styles.label, { color: theme.text }]}>Cidade</Text>
+            <TextInput
+              style={[styles.input, { backgroundColor: theme.inputBackground, borderColor: theme.border, color: theme.text }]}
+              placeholder="Ex: São Paulo"
+              placeholderTextColor={theme.textSecondary}
+              value={cidade}
+              onChangeText={setCidade}
+            />
 
-          {/* ENDEREÇO */}
-          <Text style={[styles.label, { color: theme.text }]}>Rua</Text>
-          <TextInput
-            style={[styles.input, { backgroundColor: theme.inputBackground, borderColor: theme.border, color: theme.text }]}
-            placeholder="Ex: Avenida Nordestina"
-            placeholderTextColor={theme.textSecondary}
-            value={rua}
-            onChangeText={setRua}
-          />
-
-          <Text style={[styles.label, { color: theme.text }]}>Número</Text>
-          <TextInput
-            style={[styles.input, { backgroundColor: theme.inputBackground, borderColor: theme.border, color: theme.text }]}
-            placeholder="Ex: 320"
-            placeholderTextColor={theme.textSecondary}
-            keyboardType="numeric"
-            value={numero}
-            onChangeText={setNumero}
-          />
-
-          <Text style={[styles.label, { color: theme.text }]}>Bairro</Text>
-          <TextInput
-            style={[styles.input, { backgroundColor: theme.inputBackground, borderColor: theme.border, color: theme.text }]}
-            placeholder="Ex: Guaianases"
-            placeholderTextColor={theme.textSecondary}
-            value={bairro}
-            onChangeText={setBairro}
-          />
-
-          <Text style={[styles.label, { color: theme.text }]}>Cidade</Text>
-          <TextInput
-            style={[styles.input, { backgroundColor: theme.inputBackground, borderColor: theme.border, color: theme.text }]}
-            placeholder="Ex: São Paulo"
-            placeholderTextColor={theme.textSecondary}
-            value={cidade}
-            onChangeText={setCidade}
-          />
-
-          {/* Descrição */}
-          <Text style={[styles.label, { color: theme.text }]}>Descrição</Text>
-          <TextInput
-            style={[styles.textArea, { backgroundColor: theme.inputBackground, borderColor: theme.border, color: theme.text }]}
-            placeholder="Descreva a ocorrência..."
-            placeholderTextColor={theme.textSecondary}
-            value={descricao}
-            onChangeText={setDescricao}
-            multiline
-            maxLength={120}
-            textAlignVertical="top"
-          />
-  
-       {/* /// MEXI IMPORTANTE AQUI ANDRE */}
+            {/* Descrição */}
+            <Text style={[styles.label, { color: theme.text }]}>Descrição</Text>
+            <TextInput
+              style={[styles.textArea, { backgroundColor: theme.inputBackground, borderColor: theme.border, color: theme.text }]}
+              placeholder="Descreva a ocorrência..."
+              placeholderTextColor={theme.textSecondary}
+              value={descricao}
+              onChangeText={setDescricao}
+              multiline
+              maxLength={120}
+              textAlignVertical="top"
+            />
           
-          <Text style={[
-  styles.textoData,
-  { 
-    color: dataAcontecimento ? theme.text : theme.textSecondary,
-    backgroundColor: theme.inputBackground,
-    borderColor: theme.border
-  }
-]}>
-  {dataAcontecimento || 'Nenhuma data selecionada'}
-</Text>
-
-          <Button onPress={() => setShow(true)} title='Selecionar Data' />
-
-          {show && (
-            <DateTimePicker
-              value={selectedDate}
-              mode='date'
-              display='default'
-              locale='pt-BR'
-              onChange={onChange}
-            />
-          )}
-
-          <Text style={[styles.contador, { color: theme.textSecondary }]}>
-            {descricao.length}/120
-          </Text>
-
-          {mensagemErro ? (
-            <View style={{ marginTop: 8 }}>
-              <Text style={[styles.erro, { color: theme.danger }]}>
-                {mensagemErro}
-              </Text>
-
-              {/* botão para ver detalhes técnicos */}
-              <TouchableOpacity onPress={() => setErroModalVisivel(true)} style={{ marginTop: 6 }}>
-                <Text style={{ color: theme.primary, fontWeight: '600' }}>Ver detalhes técnicos</Text>
-              </TouchableOpacity>
-            </View>
-          ) : null}
-
-        </View>
-
-        {/* BOTÃO ENVIAR */}
-        <TouchableOpacity
-          style={[
-            styles.botao,
-            { backgroundColor: theme.buttonColor },
-            carregando && styles.botaoDesabilitado
-          ]}
-          onPress={enviarOcorrencia}
-          disabled={carregando}
-        >
-          {carregando ? (
-            <ActivityIndicator color="#fff" />
-          ) : (
-            <Text style={styles.textoBotao}>Enviar</Text>
-          )}
-        </TouchableOpacity>
-
-      </ScrollView>
-
-      {/* MODAL - PRIMEIRO USO */}
-      <Modal visible={visivelInicio} transparent animationType="slide">
-        <View style={styles.modalContainer}>
-          <View style={[styles.modalContent, { backgroundColor: theme.cardbackground }]}>
-            <Text style={[styles.modalTitle, { color: theme.text }]}>Como Funciona</Text>
-
-            <Text style={[styles.modalText, { color: theme.textSecondary }]}>1. Escolha o tipo de ocorrência</Text>
-            <Text style={[styles.modalText, { color: theme.textSecondary }]}>2. Informe o local</Text>
-            <Text style={[styles.modalText, { color: theme.textSecondary }]}>3. Descreva o que aconteceu</Text>
-            <Text style={[styles.modalText, { color: theme.textSecondary }]}>4. Envie sua ocorrência</Text>
-
-            <TouchableOpacity
-              style={[styles.primaryButton, { backgroundColor: theme.buttonColor }]}
-              onPress={() => setVisivelInicio(false)}
-            >
-              <Text style={styles.primaryButtonText}>Fazer Agora</Text>
-            </TouchableOpacity>
-
-            <View style={styles.checkboxContainer}>
-              <CheckBox
-                value={mostrar}
-                onValueChange={toggleMostrar}
-                tintColors={{ true: theme.primary, false: theme.textSecondary }}
-              />
-              <Text style={[styles.checkboxLabel, { color: theme.text }]}>
-                Não mostrar novamente
-              </Text>
-            </View>
-          </View>
-        </View>
-      </Modal>
-
-      {/* MODAL SUCESSO */}
-      <Modal visible={visivelSucesso} transparent animationType="fade">
-        <View style={styles.modalContainer}>
-          <View style={[styles.modalContent, { backgroundColor: theme.cardbackground }]}>
-            <Text style={[styles.modalTitle, { color: theme.text }]}>
-              Ocorrência enviada com sucesso!
+            <Text style={[
+              styles.textoData,
+              { 
+                color: dataAcontecimento ? theme.text : theme.textSecondary,
+                backgroundColor: theme.inputBackground,
+                borderColor: theme.border
+              }
+            ]}>
+              {dataAcontecimento || 'Nenhuma data selecionada'}
             </Text>
 
-            <View style={styles.buttonGroup}>
-              <TouchableOpacity
-                style={[styles.primaryButton, { backgroundColor: theme.buttonColor }]}
-                onPress={() => {
-                  setVisivelSucesso(false);
-                  // manter usuário na tela para outra ocorrência
-                }}
-              >
-                <Text style={styles.primaryButtonText}>Fazer mais uma</Text>
-              </TouchableOpacity>
+            <Button onPress={() => setShow(true)} title='Selecionar Data' />
 
-              <TouchableOpacity
-                style={[styles.secondaryButton, { borderColor: theme.buttonColor, backgroundColor: theme.buttonColor }]}
-                onPress={() => {
-                  setVisivelSucesso(false);
-                  navigation.navigate('Ocorrencia');
-                }}
-              >
-                <Text style={styles.primaryButtonText}>
-                  Ver minhas ocorrências
+            {show && (
+              <DateTimePicker
+                value={selectedDate}
+                mode='date'
+                display='default'
+                locale='pt-BR'
+                onChange={onChange}
+              />
+            )}
+
+            <Text style={[styles.contador, { color: theme.textSecondary }]}>
+              {descricao.length}/120
+            </Text>
+
+            {mensagemErro ? (
+              <View style={{ marginTop: 8 }}>
+                <Text style={[styles.erro, { color: theme.danger }]}>
+                  {mensagemErro}
                 </Text>
-              </TouchableOpacity>
-            </View>
+
+                <TouchableOpacity onPress={() => setErroModalVisivel(true)} style={{ marginTop: 6 }}>
+                  <Text style={{ color: theme.primary, fontWeight: '600' }}>Ver detalhes técnicos</Text>
+                </TouchableOpacity>
+              </View>
+            ) : null}
 
           </View>
-        </View>
-      </Modal>
 
-      {/* MODAL DE DETALHES DO ERRO (TÉCNICO) */}
-      <Modal visible={erroModalVisivel} transparent animationType="slide">
-        <View style={styles.modalContainer}>
-          <View style={[styles.modalContent, { backgroundColor: theme.cardbackground }]}>
-            <Text style={[styles.modalTitle, { color: theme.text }]}>Detalhes do Erro</Text>
-            <ScrollView style={{ maxHeight: 280, marginTop: 8 }}>
-              <Text style={[styles.modalText, { color: theme.textSecondary, fontSize: 13 }]}>
-                {detalheErro || 'Sem detalhes técnicos disponíveis.'}
+          {/* BOTÃO ENVIAR */}
+          <TouchableOpacity
+            style={[
+              styles.botao,
+              { backgroundColor: theme.buttonColor },
+              carregando && styles.botaoDesabilitado
+            ]}
+            onPress={enviarOcorrencia}
+            disabled={carregando}
+          >
+            {carregando ? (
+              <ActivityIndicator color="#fff" />
+            ) : (
+              <Text style={styles.textoBotao}>Enviar</Text>
+            )}
+          </TouchableOpacity>
+        </ScrollView>
+      </View>
+    </KeyboardAvoidingView>
+
+    {/* MODAL - PRIMEIRO USO */}
+    <Modal visible={visivelInicio} transparent animationType="slide">
+      <View style={styles.modalContainer}>
+        <View style={[styles.modalContent, { backgroundColor: theme.cardbackground }]}>
+          <Text style={[styles.modalTitle, { color: theme.text }]}>Como Funciona</Text>
+
+          <Text style={[styles.modalText, { color: theme.textSecondary }]}>1. Escolha o tipo de ocorrência</Text>
+          <Text style={[styles.modalText, { color: theme.textSecondary }]}>2. Informe o local</Text>
+          <Text style={[styles.modalText, { color: theme.textSecondary }]}>3. Descreva o que aconteceu</Text>
+          <Text style={[styles.modalText, { color: theme.textSecondary }]}>4. Envie sua ocorrência</Text>
+
+          <TouchableOpacity
+            style={[styles.primaryButton, { backgroundColor: theme.buttonColor }]}
+            onPress={() => setVisivelInicio(false)}
+          >
+            <Text style={styles.primaryButtonText}>Fazer Agora</Text>
+          </TouchableOpacity>
+
+          <View style={styles.checkboxContainer}>
+            <CheckBox
+              value={mostrar}
+              onValueChange={toggleMostrar}
+              tintColors={{ true: theme.primary, false: theme.textSecondary }}
+            />
+            <Text style={[styles.checkboxLabel, { color: theme.text }]}>
+              Não mostrar novamente
+            </Text>
+          </View>
+        </View>
+      </View>
+    </Modal>
+
+    {/* MODAL SUCESSO */}
+    <Modal visible={visivelSucesso} transparent animationType="fade">
+      <View style={styles.modalContainer}>
+        <View style={[styles.modalContent, { backgroundColor: theme.cardbackground }]}>
+          <Text style={[styles.modalTitle, { color: theme.text }]}>
+            Ocorrência enviada com sucesso!
+          </Text>
+
+          <View style={styles.buttonGroup}>
+            <TouchableOpacity
+              style={[styles.primaryButton, { backgroundColor: theme.buttonColor }]}
+              onPress={() => {
+                setVisivelSucesso(false);
+              }}
+            >
+              <Text style={styles.primaryButtonText}>Fazer mais uma</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[styles.secondaryButton, { borderColor: theme.buttonColor, backgroundColor: theme.buttonColor }]}
+              onPress={() => {
+                setVisivelSucesso(false);
+                navigation.navigate('Ocorrencia');
+              }}
+            >
+              <Text style={styles.primaryButtonText}>
+                Ver minhas ocorrências
               </Text>
-            </ScrollView>
-
-            <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 16 }}>
-              <TouchableOpacity
-                style={[styles.primaryButton, { backgroundColor: theme.buttonColor, flex: 1, marginRight: 6 }]}
-                onPress={() => {
-                  // Copiar para clipboard seria útil; aqui apenas fecha
-                  setErroModalVisivel(false);
-                }}
-              >
-                <Text style={styles.primaryButtonText}>Fechar</Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={[styles.secondaryButton, { borderColor: theme.buttonColor, flex: 1, marginLeft: 6 }]}
-                onPress={() => {
-                  // Se quiser enviar o bug report, abrir o e-mail ou outra ação
-                  Alert.alert('Ação', 'Você pode copiar os detalhes técnicos e enviar para suporte.');
-                }}
-              >
-                <Text style={[styles.primaryButtonText, { color: theme.text }]}>Ajuda / Suporte</Text>
-              </TouchableOpacity>
-            </View>
+            </TouchableOpacity>
           </View>
         </View>
-      </Modal>
+      </View>
+    </Modal>
 
-    </View>
-  );
+    {/* MODAL DE DETALHES DO ERRO (TÉCNICO) */}
+    <Modal visible={erroModalVisivel} transparent animationType="slide">
+      <View style={styles.modalContainer}>
+        <View style={[styles.modalContent, { backgroundColor: theme.cardbackground }]}>
+          <Text style={[styles.modalTitle, { color: theme.text }]}>Detalhes do Erro</Text>
+          <ScrollView style={{ maxHeight: 280, marginTop: 8 }} keyboardShouldPersistTaps="handled">
+            <Text style={[styles.modalText, { color: theme.textSecondary, fontSize: 13 }]}>
+              {detalheErro || 'Sem detalhes técnicos disponíveis.'}
+            </Text>
+          </ScrollView>
+
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 16 }}>
+            <TouchableOpacity
+              style={[styles.primaryButton, { backgroundColor: theme.buttonColor, flex: 1, marginRight: 6 }]}
+              onPress={() => {
+                setErroModalVisivel(false);
+              }}
+            >
+              <Text style={styles.primaryButtonText}>Fechar</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[styles.secondaryButton, { borderColor: theme.buttonColor, flex: 1, marginLeft: 6 }]}
+              onPress={() => {
+                Alert.alert('Ação', 'Você pode copiar os detalhes técnicos e enviar para suporte.');
+              }}
+            >
+              <Text style={[styles.primaryButtonText, { color: theme.text }]}>Ajuda / Suporte</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </View>
+    </Modal>
+  </View>
+);
 }; 
 
 
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 20 },
+  container: {     
+    flex: 1, 
+    padding: 20 
+  },
 
   cabecalho: {
     flexDirection: 'row',

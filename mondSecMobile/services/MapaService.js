@@ -75,6 +75,9 @@ const [endereco, setEndereco] = useState(null);
   const flatListRef = useRef(null);
   const viewabilityConfig = useRef({ itemVisiblePercentThreshold: 50 }).current;
 
+  const [modalComentarioPendente, setModalComentarioPendente] = useState(false);
+
+
   const SCREEN_HEIGHT = Dimensions.get("window").height;
   const SHEET_HEIGHT = SCREEN_HEIGHT * 0.25;
 
@@ -169,50 +172,28 @@ const [endereco, setEndereco] = useState(null);
     }
   };
 
-  const abrirModal = async (oc) => {
-    try {
-      const lat = Number(oc?.latitude);
-      const lng = Number(oc?.longitude);
-      const chave = isFinite(lat) && isFinite(lng) ? `${lat.toFixed(5)}_${lng.toFixed(5)}` : null;
+  const abrirModal = async (group) => {
+  try {
+    const lat = Number(group.latitude);
+    const lng = Number(group.longitude);
 
-      let items = [];
-      if (chave && ocorrenciasAgrupadas && ocorrenciasAgrupadas[chave]) {
-        items = ocorrenciasAgrupadas[chave].items || [];
-      }
+    const chave = isFinite(lat) && isFinite(lng)
+      ? `${lat.toFixed(5)}_${lng.toFixed(5)}`
+      : null;
 
-      if ((!items || items.length === 0) && oc?.endereco) {
-        items = (ocorrenciasState || []).filter(o => {
-          try { return String(o.endereco).trim() === String(oc.endereco).trim(); } catch { return false; }
-        });
-      }
-
-      if (!items || items.length === 0) items = [oc];
-
-      setOcorrenciasNoEndereco(items);
-
-      const idx = Math.max(0, items.findIndex(i => (i.id ?? i._id) === (oc.id ?? oc._id)));
-      setModalIndex(idx);
-      setSelectedOcorrencia(items[idx] || items[0]);
-      setModalVisible(true);
-
-      setTimeout(() => {
-        try { flatListRef.current?.scrollToIndex({ index: idx, animated: true }); } catch (e) {}
-      }, 40);
-
-      setLoadingComentarios(true);
-      const idInicial = items[idx]?.id ?? items[idx]?._id;
-      if (idInicial) {
-        const coms = await carregarComentarios(idInicial).catch(()=>[]);
-        setComentarios(coms || []);
-      } else setComentarios([]);
-      setLoadingComentarios(false);
-    } catch (e) {
-      console.warn('abrirModal erro', e);
-      setOcorrenciasNoEndereco([oc]);
-      setSelectedOcorrencia(oc);
-      setModalVisible(true);
+    let items = [];
+    if (chave && ocorrenciasAgrupadas && ocorrenciasAgrupadas[chave]) {
+      items = ocorrenciasAgrupadas[chave].items;
     }
-  };
+
+    setOcorrenciasNoEndereco(items);
+    setSelectedOcorrencia(items[0]);  
+    setModalVisible(true);
+  } catch (e) {
+    console.log("Erro abrirModal:", e);
+  }
+};
+
 
   const fecharModal = () => {
     setModalVisible(false);
@@ -286,46 +267,52 @@ const [endereco, setEndereco] = useState(null);
 
 
 
-  const enviarComentario = async () => {
-    const texto = (mensagemComentario || '').trim();
-    if (!texto) return;
-    const idOc = selectedOcorrencia?.id ?? selectedOcorrencia?._id;
-    if (!idOc) return Alert.alert('Erro', 'Ocorrência inválida.');
-    setSendingComentario(true);
-    try {
-      const idUsuario = loggedUserId || (await buscarUsuarioLogado());
-      if (!idUsuario) {
-        Alert.alert('Erro', 'Usuário não identificado.');
-        setSendingComentario(false);
-        return;
-      }
-      const payload = {
-        mensagem: texto,
-        data: new Date().toISOString(),
-        idOcorrencia: idOc,
-        idUsuario,
-      };
-      const res = await enviarComentarioRequest(payload);
-      const novo = res ?? null;
-      if (novo && (novo.id || novo._id)) {
-        const normalized = {
-          ...novo,
-          data: novo.data ? novo.data : new Date().toISOString(),
-        };
-        
-        setShowComentarios(false);
-      } else {
-        const recarregado = await carregarComentarios(idOc);
-        setComentarios(recarregado || []);
-        setMensagemComentario('');
-        setShowComentarios(false);
-      }
-    } catch (e) {
-      Alert.alert('Erro', 'Não foi possível enviar o comentário.');
-    } finally {
+const enviarComentario = async () => {
+  const texto = (mensagemComentario || '').trim();
+  if (!texto) return;
+
+  const idOc = selectedOcorrencia?.id ?? selectedOcorrencia?._id;
+  if (!idOc) {
+    Alert.alert('Erro', 'Ocorrência inválida.');
+    return;
+  }
+
+  setSendingComentario(true);
+
+  try {
+    const idUsuario = loggedUserId || (await buscarUsuarioLogado());
+    if (!idUsuario) {
+      Alert.alert('Erro', 'Usuário não identificado.');
       setSendingComentario(false);
+      return;
     }
-  };
+
+    const payload = {
+      mensagem: texto,
+      data: new Date().toISOString(),
+      idOcorrencia: idOc,
+      idUsuario,
+    };
+
+    // 👉 Envia para o backend
+    await enviarComentarioRequest(payload);
+
+    // 👉 Limpa o campo
+    setMensagemComentario('');
+
+    // 👉 Fecha a modal de comentários
+    setShowComentarios(false);
+
+    // 👉 Abre o modal "Comentário enviado / Em espera"
+    setModalComentarioPendente(true);
+
+  } catch (e) {
+    console.log("Erro ao enviar comentário:", e);
+    Alert.alert('Erro', 'Não foi possível enviar o comentário.');
+  } finally {
+    setSendingComentario(false);
+  }
+};
 
   useImperativeHandle(ref, () => ({
     centralizarNoEndereco(lat, lon, detalhesEndereco = {}) {
@@ -395,7 +382,7 @@ const [endereco, setEndereco] = useState(null);
             <Marker
               key={key}
               coordinate={{ latitude: lat, longitude: lng }}
-              onPress={() => abrirModal(first)}
+              onPress={() => abrirModal(group)}
             >
               <View style={styles.markerContainer}>
                 <Image
@@ -700,6 +687,7 @@ const [endereco, setEndereco] = useState(null);
                   <Text style={{ color: '#FFF', fontWeight: '600' }}>Denunciar</Text>
                 </Pressable>
               </View>
+              
             </View>
           </View>
         </View>
@@ -908,6 +896,123 @@ const [endereco, setEndereco] = useState(null);
           </Pressable>
         )}
       
+      {/* MODAL - Comentário enviado e está em espera */}
+<Modal
+  visible={modalComentarioPendente}
+  transparent
+  animationType="fade"
+  onRequestClose={() => setModalComentarioPendente(false)}
+>
+  <View 
+    style={{
+      flex: 1,
+      backgroundColor: 'rgba(0,0,0,0.6)',
+      justifyContent: 'center',
+      alignItems: 'center'
+    }}
+  >
+    <View
+      style={{
+        width: '80%',
+        backgroundColor: isDarkMode ? '#1C1C1E' : '#FFF',
+        padding: 24,
+        borderRadius: 14,
+        alignItems: 'center'
+      }}
+    >
+      <Text 
+        style={{
+          fontSize: 17,
+          fontWeight: '700',
+          color: isDarkMode ? '#FFF' : '#000',
+          textAlign: 'center',
+          marginBottom: 12
+        }}
+      >
+        Comentário em espera
+      </Text>
+
+      <Text 
+        style={{
+          fontSize: 14,
+          color: isDarkMode ? '#DDD' : '#444',
+          textAlign: 'center',
+          lineHeight: 20,
+          marginBottom: 20
+        }}
+      >
+        Comentário enviado! Aguarde a aprovação do administrador.
+      </Text>
+
+      <TouchableOpacity
+        onPress={() => setModalComentarioPendente(false)}
+        style={{
+          paddingVertical: 10,
+          paddingHorizontal: 22,
+          backgroundColor: isDarkMode ? '#0c2946ff' : '#003366',
+          borderRadius: 10
+        }}
+      >
+        <Text style={{ color: '#FFF', fontWeight: '700' }}>OK</Text>
+      </TouchableOpacity>
+    </View>
+  </View>
+</Modal>
+
+<Modal
+  visible={modalComentarioPendente}
+  transparent
+  animationType="fade"
+  onRequestClose={() => setModalComentarioPendente(false)}
+>
+  <View style={{
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0,0,0,0.6)"
+  }}>
+    <View style={{
+      width: "80%",
+      padding: 20,
+      borderRadius: 12,
+      backgroundColor: isDarkMode ? "#1C1C1E" : "#FFF",
+      alignItems: "center"
+    }}>
+      <Text style={{
+        fontSize: 16,
+        fontWeight: "700",
+        marginBottom: 10,
+        color: isDarkMode ? "#FFF" : "#000"
+      }}>
+        Comentário enviado!
+      </Text>
+
+      <Text style={{
+        color: isDarkMode ? "#CCC" : "#555",
+        fontSize: 14,
+        textAlign: "center",
+        marginBottom: 20
+      }}>
+        Seu comentário ficará pendente até ser aprovado.
+      </Text>
+
+      <Pressable
+        onPress={() => setModalComentarioPendente(false)}
+        style={{
+          paddingVertical: 10,
+          paddingHorizontal: 20,
+          backgroundColor: "#003366",
+          borderRadius: 8
+        }}
+      >
+        <Text style={{ color: "#FFF", fontWeight: "600" }}>
+          OK
+        </Text>
+      </Pressable>
+    </View>
+  </View>
+</Modal>
+
     </>
   );
 });

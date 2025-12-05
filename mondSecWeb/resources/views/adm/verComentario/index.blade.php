@@ -21,7 +21,7 @@
             <option value="">Todos os Status</option>
             <option value="ativo">Ativo</option>
             <option value="inativo">Inativo</option>
-            <option value="pendente">Pendente</option>
+            <option value="espera">Espera</option>
         </select>
     </div>
 

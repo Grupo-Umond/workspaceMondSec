@@ -2,7 +2,6 @@ import React, {
   useContext,
   useEffect,
   useState,
-
   useMemo,
   useRef,
 } from "react";
@@ -14,8 +13,9 @@ import {
   StyleSheet,
   Modal,
   TextInput,
-
   ScrollView,
+  Alert,
+  ActivityIndicator,
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -38,69 +38,21 @@ const MenuScreen = ({ navigation, route }) => {
   const [erroMessage, setErroMessage] = useState("");
   const [imageUri, setImageUri] = useState(null);
   const [modalDelete, setModalDelete] = useState(false);
-
   const [imageLoading, setImageLoading] = useState(false);
   
-  // Usar useRef para controlar a imagem atual
   const currentImageRef = useRef(null);
   const imageVersionRef = useRef(0);
 
-  // 🔧 OptionButton
-const OptionButton = useMemo(
-  () =>
-    ({ iconName, text, onPress, isDanger = false, targetScreen }) => {
-      const handlePress = () => {
-        if (onPress) return onPress();
-        if (targetScreen) navigation.navigate(targetScreen);
-      };
-
-      return (
-        <Pressable
-          onPress={handlePress}
-          style={({ pressed }) => [
-            styles.botaoOpcao,
-            {
-              backgroundColor: isDanger
-                ? theme.danger + "22"
-                : theme.background, // fundo sólido
-              borderWidth: 1, // borda visível
-              borderColor: isDanger ? theme.danger : theme.border, // borda colorida
-              opacity: pressed ? 0.8 : 1,
-            },
-          ]}
-        >
-          <View style={styles.botaoContent}>
-            <FontAwesome
-              name={iconName}
-              size={20}
-              color={isDanger ? theme.danger : theme.primary}
-              style={styles.iconeOpcao}
-            />
-            <Text
-              style={[
-                styles.textoOpcao,
-                { color: isDanger ? theme.danger : theme.text },
-              ]}
-            >
-              {text}
-            </Text>
-          </View>
-        </Pressable>
-      );
-    },
-  [theme]
-);
-
-useEffect(() => {
-  async function puxarInfos() {
+  // 🔧 Função para carregar dados do usuário
+  const carregarDadosUsuario = async () => {
     try {
       const token = await AsyncStorage.getItem("userToken");
-
       if (!token) {
         console.log("Token não encontrado");
         return;
       }
 
+      // Buscar dados do usuário
       const response = await UrlService.get("/usuario/buscar", {
         headers: { Authorization: `Bearer ${token}` },
       });
@@ -109,85 +61,119 @@ useEffect(() => {
       setNome(usuario.nome || "");
       setEmail(usuario.email || "");
 
-      // Foto do backend - CORRIGIDO!
+      // Tratar foto do backend
       if (usuario.foto) {
         let fotoUrl = usuario.foto;
-        console.log("DEBUG - Foto original do banco:", fotoUrl);
+        console.log("Foto do backend:", fotoUrl);
         
-        // CORREÇÃO: Se a foto começar com /storage, adiciona o domínio correto
+        // Converter caminho relativo para URL completa
         if (fotoUrl.startsWith('/storage')) {
-          // ⚠️ SUBSTITUA 192.168.1.100:8000 pelo SEU IP e PORTA do Laravel!
-          fotoUrl = `http://192.168.0.26:8000${fotoUrl}`;
-        } 
-        // Se já for uma URL completa, usa como está
-        else if (fotoUrl.startsWith('http')) {
-          // Já é uma URL completa, não faz nada
-        }
-        // Se for um caminho sem /storage, também adiciona o domínio
-        else {
-          fotoUrl = `http://192.168.0.26:8000/storage/${fotoUrl}`;
+          fotoUrl = `http://10.245.156.10:8000${fotoUrl}`;
+        } else if (!fotoUrl.startsWith('http')) {
+          fotoUrl = `http://10.245.156.10:8000/storage/${fotoUrl}`;
         }
         
-        // Timestamp para evitar cache
-        const timestamp = Date.now();
-        const fotoComTimestamp = `${fotoUrl}?v=${timestamp}`;
-        console.log("DEBUG - URL final da foto:", fotoComTimestamp);
-        setImageUri(fotoComTimestamp);
-      }
-      
-      // Se veio fotoRecente dos params (do cadastro), usa ela
-      if (route.params?.fotoRecente) {
-        console.log("DEBUG - Foto recente dos params:", route.params.fotoRecente);
+        // Adicionar timestamp ÚNICO e FORTE
+        const timestamp = Date.now() + Math.random();
+        const fotoComCacheBuster = `${fotoUrl}?v=${timestamp}`;
         
-        // Pequeno delay para garantir que a foto do cadastro tenha prioridade
-        setTimeout(() => {
-          let fotoRecenteUrl = route.params.fotoRecente;
-          
-          // Se for uma URI local (file://), usa direto
-          if (fotoRecenteUrl.startsWith('file://')) {
-            setImageUri(fotoRecenteUrl);
-          } 
-          // Se for uma URL do servidor, trata igual acima
-          else if (fotoRecenteUrl.startsWith('/storage')) {
-            fotoRecenteUrl = `http://192.168.0.26:8000${fotoRecenteUrl}`;
-            const timestamp = Date.now();
-            setImageUri(`${fotoRecenteUrl}?v=${timestamp}`);
-          }
-        }, 300);
+        console.log("URL final com cache buster:", fotoComCacheBuster);
+        setImageUri(fotoComCacheBuster);
+        currentImageRef.current = fotoComCacheBuster;
+      } else {
+        // Se não tem foto no backend, limpa
+        setImageUri(null);
+        currentImageRef.current = null;
       }
 
     } catch (err) {
       console.error('Erro ao carregar dados:', err);
-      console.error('Status:', err.response?.status);
-      console.error('Dados do erro:', err.response?.data);
       setErroMessage("Erro ao carregar dados.");
     }
-  }
+  };
 
-  puxarInfos();
-}, [route.params?.fotoRecente]);
+  // 🔧 Carregar dados ao montar componente
+  useEffect(() => {
+    carregarDadosUsuario();
+  }, []);
 
+  // 🔧 Recarregar dados quando a tela receber foco
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('focus', () => {
+      console.log("Tela de perfil em foco - recarregando dados...");
+      carregarDadosUsuario();
+    });
 
-useEffect(() => {
-  if (route.params?.fotoRecente) {
-    let fotoUrl = route.params.fotoRecente;
-    if (!fotoUrl.startsWith('http')) fotoUrl = `http://${fotoUrl}`;
-    
-    const timestamp = Date.now();
-    const novaFoto = `${fotoUrl}?v=${timestamp}`;
+    return unsubscribe;
+  }, [navigation]);
 
-    setImageUri(novaFoto);
-    currentImageRef.current = novaFoto;
-  }
-}, [route.params?.fotoRecente]);
+  // 🔧 Atualizar foto se vier do cadastro
+  useEffect(() => {
+    if (route.params?.fotoRecente) {
+      let fotoUrl = route.params.fotoRecente;
+      
+      // Se for uma URI local (file://), já é a foto temporária
+      if (fotoUrl.startsWith('file://')) {
+        const timestamp = Date.now();
+        const novaFoto = `${fotoUrl}?v=${timestamp}`;
+        setImageUri(novaFoto);
+        currentImageRef.current = novaFoto;
+      } 
+      // Se for uma URL do servidor, formatar corretamente
+      else if (fotoUrl.startsWith('http')) {
+        const timestamp = Date.now() + Math.random();
+        const novaFoto = `${fotoUrl}?v=${timestamp}`;
+        setImageUri(novaFoto);
+        currentImageRef.current = novaFoto;
+      }
+      
+      // Limpar o parâmetro após usar
+      navigation.setParams({ fotoRecente: undefined });
+    }
+  }, [route.params?.fotoRecente]);
 
+  // 🔧 Função para recarregar apenas a foto
+  const recarregarFoto = async () => {
+    try {
+      const token = await AsyncStorage.getItem("userToken");
+      const response = await UrlService.get("/usuario/buscar", {
+        headers: { Authorization: `Bearer ${token}` },
+        params: { _t: Date.now() } // Evitar cache
+      });
 
-  // 🔧 Upload de foto - VERSÃO DIRETA
+      const usuario = response.data.usuario;
+      if (usuario.foto) {
+        let fotoUrl = usuario.foto;
+        
+        // Converter caminho
+        if (fotoUrl.startsWith('/storage')) {
+          fotoUrl = `http://10.245.156.10:8000${fotoUrl}`;
+        }
+        
+        // Cache buster ÚNICO
+        const uniqueTimestamp = Date.now() + Math.random();
+        const novaFoto = `${fotoUrl}?_t=${uniqueTimestamp}`;
+        
+        setImageUri(novaFoto);
+        currentImageRef.current = novaFoto;
+        console.log("✅ Foto recarregada do servidor:", novaFoto);
+      }
+    } catch (error) {
+      console.error('Erro ao recarregar foto:', error);
+    }
+  };
+
+  // 🔧 Upload de foto
   const enviarFoto = async (uri) => {
     try {
       setImageLoading(true);
+      setErroMessage("");
       
       const token = await AsyncStorage.getItem("userToken");
+      if (!token) {
+        setErroMessage("Sessão expirada. Faça login novamente.");
+        return;
+      }
 
       const formData = new FormData();
       formData.append("foto", {
@@ -196,91 +182,121 @@ useEffect(() => {
         name: "foto.jpg",
       });
 
+      // Mostrar feedback instantâneo
+      const timestamp = Date.now();
+      const tempUri = `${uri}?temp=${timestamp}`;
+      setImageUri(tempUri);
+
+      // Envia para API
       const uploadResponse = await UrlService.post("/usuario/uploadFoto", formData, {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "multipart/form-data",
         },
       });
-      console.log('responsivo', uploadResponse);
-      if (uploadResponse.data.success && uploadResponse.data.foto) {
-        const fotoUrl = uploadResponse.data.foto;
+
+      console.log('Resposta do upload:', uploadResponse.data);
+
+      if (uploadResponse.data.success) {
+        console.log('✅ Upload realizado com sucesso');
         
-        // Timestamp ÚNICO e FORTE
-        imageVersionRef.current += 1;
-        const timestamp = Date.now() + imageVersionRef.current;
-        const fotoUrlWithTimestamp = `${fotoUrl}?v=${timestamp}`;
-        
-        console.log('✅ Foto atualizada com timestamp forte:', fotoUrlWithTimestamp);
-        
-        // Atualizar referência e estado
-        currentImageRef.current = fotoUrlWithTimestamp;
-        setImageUri(fotoUrlWithTimestamp);
+        // Pequeno delay para garantir que a imagem foi salva no servidor
+        setTimeout(async () => {
+          await recarregarFoto();
+        }, 500);
+      } else {
+        throw new Error(uploadResponse.data.mensagem || "Erro no upload");
       }
+
     } catch (error) {
       console.error('❌ Erro no upload:', error);
-      setErroMessage("Erro ao enviar foto.");
       
-      // Em caso de erro, voltar para a imagem local
-      const timestamp = Date.now();
-      const localUriWithTimestamp = `${uri}?v=${timestamp}`;
-      setImageUri(localUriWithTimestamp);
+      // Reverter para imagem anterior em caso de erro
+      Alert.alert(
+        "Erro ao enviar foto",
+        error.message || "Não foi possível atualizar sua foto. Tente novamente."
+      );
+      
+      // Recarregar a foto original do servidor
+      await recarregarFoto();
     } finally {
       setImageLoading(false);
     }
   };
 
-  const recarregarFoto = async () => {
-  try {
-    const token = await AsyncStorage.getItem("userToken");
-    const response = await UrlService.get("/usuario/buscar", {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-
-    const usuario = response.data.usuario;
-    if (usuario.foto) {
-      let fotoUrl = usuario.foto;
-      if (!fotoUrl.startsWith('http')) {
-        fotoUrl = `http://${fotoUrl}`;
+  // 🔧 Selecionar foto da galeria
+  const pickImage = async () => {
+    try {
+      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (status !== 'granted') {
+        Alert.alert('Permissão necessária', 'Precisamos de acesso às suas fotos.');
+        return;
       }
-      // Timestamp FORTE para evitar cache
-      const timestamp = Date.now() + Math.random();
-      setImageUri(`${fotoUrl}?v=${timestamp}`);
+
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [1, 1],
+        quality: 0.8,
+      });
+
+      if (!result.canceled && result.assets[0].uri) {
+        const selectedImageUri = result.assets[0].uri;
+        
+        // Envia para o servidor
+        await enviarFoto(selectedImageUri);
+      }
+    } catch (error) {
+      console.log("Erro ao escolher imagem:", error);
+      Alert.alert("Erro", "Não foi possível selecionar a imagem.");
     }
-  } catch (error) {
-    console.error('Erro ao recarregar foto:', error);
-  }
-};
-
-
-const pickImage = async () => {
-  try {
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
-      aspect: [1, 1],
-      quality: 1,
-    });
-
-    if (!result.canceled) {
-      setImageUri(result.assets[0].uri);
-    }
-  } catch (error) {
-    console.log("Erro ao escolher imagem:", error);
-  }
-};
-
-
-
-
-  // 🔧 Função SIMPLES para obter source da imagem
-  const getImageSource = () => {
-    if (imageUri) {
-      return { uri: imageUri };
-    }
-    return { uri: "https://placehold.co/100x100/CCCCCC/666666?text=FP" };
   };
 
+  // 🔧 OptionButton
+  const OptionButton = useMemo(
+    () =>
+      ({ iconName, text, onPress, isDanger = false, targetScreen }) => {
+        const handlePress = () => {
+          if (onPress) return onPress();
+          if (targetScreen) navigation.navigate(targetScreen);
+        };
+
+        return (
+          <Pressable
+            onPress={handlePress}
+            style={({ pressed }) => [
+              styles.botaoOpcao,
+              {
+                backgroundColor: isDanger
+                  ? theme.danger + "22"
+                  : theme.background,
+                borderWidth: 1,
+                borderColor: isDanger ? theme.danger : theme.border,
+                opacity: pressed ? 0.8 : 1,
+              },
+            ]}
+          >
+            <View style={styles.botaoContent}>
+              <FontAwesome
+                name={iconName}
+                size={20}
+                color={isDanger ? theme.danger : theme.primary}
+                style={styles.iconeOpcao}
+              />
+              <Text
+                style={[
+                  styles.textoOpcao,
+                  { color: isDanger ? theme.danger : theme.text },
+                ]}
+              >
+                {text}
+              </Text>
+            </View>
+          </Pressable>
+        );
+      },
+    [theme]
+  );
 
   const sairConta = async () => logout();
 
@@ -336,24 +352,34 @@ const pickImage = async () => {
             ]}
           >
             <View style={styles.avatarContainer}>
-              <Image
-                key={imageUri}
-                source={{ uri: imageUri }}
-                style={[
-                  styles.avatar,
-                  { borderColor: isDarkMode ? "#FFFFFF" : "#000" },
-                ]}
-                resizeMode="cover"
-                onError={() => {
-                  console.log("❌ Erro ao carregar imagem:", imageUri);
-                }}
-                onLoad={() => {
-                  console.log("✅ Imagem carregada com sucesso:", imageUri);
-                }}
-                onLoadEnd={() => {
-                  console.log("🏁 Carregamento finalizado:", imageUri);
-                }}
-              />
+              {imageUri ? (
+                <Image
+                  source={{ uri: imageUri }}
+                  style={[
+                    styles.avatar,
+                    { borderColor: isDarkMode ? "#FFFFFF" : "#000" },
+                  ]}
+                  resizeMode="cover"
+                  onError={(e) => {
+                    console.log("❌ Erro ao carregar imagem:", imageUri, e.nativeEvent.error);
+                    // Tentar recarregar sem cache
+                    if (imageUri.includes('?')) {
+                      const baseUrl = imageUri.split('?')[0];
+                      setImageUri(`${baseUrl}?v=${Date.now()}`);
+                    }
+                  }}
+                />
+              ) : (
+                <View style={[styles.avatar, styles.avatarPlaceholder]}>
+                  <FontAwesome name="user-circle" size={50} color={theme.textSecondary} />
+                </View>
+              )}
+              
+              {imageLoading && (
+                <View style={styles.loadingOverlay}>
+                  <ActivityIndicator size="large" color={theme.primary} />
+                </View>
+              )}
             </View>
 
             <Pressable
@@ -414,7 +440,7 @@ const pickImage = async () => {
               styles.navButton,
               { opacity: pressed ? 0.6 : 1 },
             ]}
-            onPress={() => navigation.navigate("Menu")}
+            onPress={() => navigation.navigate("Home")}
           >
             <Icon name="person" size={28} color="#fff" />
             <Text style={styles.navButtonText}>Perfil</Text>
@@ -526,14 +552,18 @@ const styles = StyleSheet.create({
   },
   avatarContainer: {
     position: 'relative',
+    marginBottom: 10,
   },
   avatar: {
     width: 100,
     height: 100,
     borderRadius: 50,
     backgroundColor: "#f0f0f0",
-    marginBottom: 10,
     borderWidth: 1,
+  },
+  avatarPlaceholder: {
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   loadingOverlay: {
     position: 'absolute',
@@ -541,7 +571,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: 'rgba(0,0,0,0.7)',
+    backgroundColor: 'rgba(0,0,0,0.3)',
     borderRadius: 50,
     justifyContent: 'center',
     alignItems: 'center',
@@ -592,6 +622,10 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     paddingVertical: 5,
     paddingHorizontal: 60,
+  },
+  navButton: {
+    alignItems: "center",
+    justifyContent: "center",
   },
   navButtonText: {
     color: "#fff",

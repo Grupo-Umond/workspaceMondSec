@@ -98,12 +98,12 @@ useEffect(() => {
   }
 };
 
-// FINALIZAR CADASTRO - VERSÃO CORRETA
+// FINALIZAR CADASTRO - VERSÃO ATUALIZADA
 const finalizarCadastro = async () => {
   try {
     setLoading(true);
 
-    // 1️⃣ APENAS LOGIN
+    // 1️⃣ LOGIN
     console.log("Fazendo login com:", { email, senha });
     const loginResponse = await UrlService.post("/usuario/login", {
       login: email,
@@ -121,16 +121,32 @@ const finalizarCadastro = async () => {
     // Salva token no AsyncStorage
     await AsyncStorage.setItem("userToken", token);
 
-    // 2️⃣ ENVIO DE FOTO (se houver)
-    if (foto && !foto.startsWith('http')) {
+    // 2️⃣ ENVIO DE FOTO (se houver foto local)
+    if (foto && foto.startsWith('file://')) {
       console.log("Enviando foto após login...");
       await enviarFoto(foto, token);
+      
+      // Pequeno delay para garantir processamento
+      await new Promise(resolve => setTimeout(resolve, 500));
     }
 
-    // 3️⃣ LOGIN CONTEXT - AGORA COM O NOME CORRETO!
-    await logar(token); // ✅ CORRETO: 'logar' não 'login'
+    // 3️⃣ BUSCAR DADOS ATUALIZADOS (com foto)
+    const userResponse = await UrlService.get("/usuario/buscar", {
+      headers: { Authorization: `Bearer ${token}` }
+    });
 
-    // 4️⃣ NAVEGAÇÃO
+    let fotoAtualizada = userResponse.data.usuario?.foto || null;
+    
+    // Formatar URL corretamente
+    if (fotoAtualizada && fotoAtualizada.startsWith('/storage')) {
+      fotoAtualizada = `http://10.245.156.10:8000${fotoAtualizada}`;
+    }
+
+    // 4️⃣ LOGIN NO CONTEXT
+    await logar(token);
+
+    // 5️⃣ NAVEGAÇÃO COM TIMESTAMP
+    const timestamp = Date.now();
     navigation.reset({
       index: 0,
       routes: [
@@ -138,7 +154,8 @@ const finalizarCadastro = async () => {
           name: "Menu",
           params: { 
             mensagem: "Cadastro concluído com sucesso!",
-            fotoRecente: foto || null
+            fotoRecente: fotoAtualizada ? `${fotoAtualizada}?v=${timestamp}` : null,
+            forceReload: true  // Flag para forçar recarregamento
           }
         }
       ]

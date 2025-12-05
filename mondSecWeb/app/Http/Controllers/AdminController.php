@@ -365,7 +365,7 @@ class AdminController extends Controller
     public function negarComentario($id)
     {
         $comentario = Comentario::findOrFail($id);
-        $comentario->status = 'negado';
+        $comentario->status = 'inativo'; // <-- AQUI está a correção
         $comentario->save();
 
         return back()->with('success', 'Comentário negado!');

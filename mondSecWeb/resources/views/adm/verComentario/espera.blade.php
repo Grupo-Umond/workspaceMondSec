@@ -7,8 +7,11 @@
 
         <h1 class="mb-4 text-center">Comentários Pendentes de Aprovação</h1>
 
+        {{-- Dispara um alert() ao aprovar --}}
         @if (session('success'))
-            <div class="alert alert-success text-center">{{ session('success') }}</div>
+            <script>
+                alert("{{ session('success') }}");
+            </script>
         @endif
 
         @if ($comentarios->isEmpty())
@@ -66,7 +69,7 @@
 
         <div class="botoesFinais">
             <div class="text-center mt-4">
-                <a href="{{ route('adm.dashboard.index') }}" class="btn btn-secondary" id="btnVoltar">Voltar ao Painel</a>
+                <a href="{{ route('adm.comentario.index') }}" class="btn btn-secondary" id="btnVoltar">Voltar ao Painel</a>
             </div>
         </div>
 
